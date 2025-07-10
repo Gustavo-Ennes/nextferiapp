@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import GitHub from "next-auth/providers/github";
+import Auth0Provider from "next-auth/providers/auth0";
 
 export const {
   handlers: { GET, POST },
@@ -7,5 +7,13 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
-  providers: [GitHub],
+  secret: process.env.NEXT_PUBLIC_SECRET,
+  
+  providers: [
+    Auth0Provider({
+      clientId: process.env.NEXT_AUTH_CLIENT_ID,
+      clientSecret: process.env.NEXT_AUTH_CLIENT_SECRET,
+      issuer: process.env.NEXT_AUTH_ISSUER_BASE_URL,
+    }),
+  ],
 });
