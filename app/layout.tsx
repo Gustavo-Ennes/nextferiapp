@@ -1,11 +1,26 @@
-export default async function RootLayout({
+'use client'
+
+import { ModalProvider } from "@/context/ModalContext";
+import { ThemeProvider } from "@emotion/react";
+import { CssBaseline } from "@mui/material";
+import { responsiveTheme } from "@/theme/theme";
+import { SessionProvider } from "next-auth/react";
+
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ThemeProvider theme={responsiveTheme}>
+          <SessionProvider>
+            <CssBaseline />
+            <ModalProvider>{children}</ModalProvider>
+          </SessionProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

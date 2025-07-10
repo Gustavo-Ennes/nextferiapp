@@ -1,10 +1,6 @@
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
+"use client";
 
-const VacationList = async () => {
-  const session = await auth();
-
-  if (!session) redirect("login");
+const VacationList = () => {
 
   return <p>['lista', 'de', 'férias']</p>;
 };

@@ -1,6 +1,5 @@
-"use client";
+'use client';
 
-import { signIn } from "next-auth/react";
 import {
   Box,
   Button,
@@ -10,20 +9,20 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { signIn, useSession } from "next-auth/react";
 
-const LoginPage = async () => {
+const LoginPage = () => {
   const [loading, setLoading] = useState(false);
-  const session = await auth();
+  const {status} = useSession();
   const redirectTo = "/vacation";
 
-  if (session) {
+  if (status === "authenticated") {
     redirect(redirectTo);
   }
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     setLoading(true);
-    await signIn("auth0", { redirectTo });
+    signIn("auth0", { redirectTo });
   };
 
   return (
