@@ -5,6 +5,7 @@ import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import { responsiveTheme } from "@/theme/theme";
 import { SessionProvider } from "next-auth/react";
+import LoginPage from "@/app/login/page";
 
 export default function Page() {
   return (
@@ -12,10 +13,7 @@ export default function Page() {
       <SessionProvider>
         <CssBaseline />
         <ModalProvider>
-          <section>
-            <h1>Home</h1>
-            <div>home</div>
-          </section>
+            <LoginPage />
         </ModalProvider>
       </SessionProvider>
     </ThemeProvider>
