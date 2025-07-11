@@ -23,7 +23,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { signOut } from "next-auth/react";
 import { AppBar, Drawer, DrawerContent, Main } from "./styled";
 import { ReactNode, useEffect, useState } from "react";
-import { navList } from "./info/navList";
+import { navList } from "./navList";
 import { redirect } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

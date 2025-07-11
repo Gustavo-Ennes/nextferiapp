@@ -2,12 +2,12 @@
 
 import { translateEntityKey } from "@/app/utils";
 import { useMediaQuery, Container, Typography, useTheme } from "@mui/material";
-import { vacations } from "../components/FAKE";
+import { bosses } from "../components/FAKE";
 import { ListPageDesktop } from "../components/ListPageDesktop";
 import { ListPageMobile } from "../components/ListPageMobile";
-import { Vacation } from "@/app/types";
+import { Boss } from "@/app/types";
 
-const VacationList = () => {
+const BossList = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -15,26 +15,25 @@ const VacationList = () => {
     <Container maxWidth="lg" sx={{ mb: 4 }}>
       <Typography variant="h4" gutterBottom mb={4}>
         {translateEntityKey({
-          entity: "vacation",
+          entity: "boss",
           key: "TranslatedPlural",
         })}
       </Typography>
       {isMobile ? (
-        <ListPageMobile<Vacation>
-          items={vacations}
-          routePrefix="vacation"
-          onDelete={(id) => console.log(`Delete vacation with id: ${id}`)}
+        <ListPageMobile<Boss>
+          items={bosses}
+          routePrefix="boss"
+          onDelete={(id) => console.log(`Delete boss with id: ${id}`)}
         />
       ) : (
-        <ListPageDesktop<Vacation>
-          routePrefix="vacation"
-          onDelete={(id) => console.log(`Delete vacation with id: ${id}`)}
-          items={vacations}
+        <ListPageDesktop<Boss>
+          routePrefix="boss"
+          onDelete={(id) => console.log(`Delete boss with id: ${id}`)}
+          items={bosses}
         />
       )}
-      ;
     </Container>
   );
 };
 
-export default VacationList;
+export default BossList;
