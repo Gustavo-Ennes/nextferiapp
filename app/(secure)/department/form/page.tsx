@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { redirect, useSearchParams } from "next/navigation";
 import { DepartmentForm } from "../components/DepartmentForm";
 import { DepartmentFormData } from "../types";
@@ -9,6 +9,7 @@ import { Container, Typography } from "@mui/material";
 export default function DepartmentFormPage() {
   const searchParams = useSearchParams();
   const [data, setData] = useState<DepartmentFormData>();
+  const [loading, setLoading] = useState(false);
 
   const id = searchParams.get("id");
 
@@ -32,16 +33,20 @@ export default function DepartmentFormPage() {
     redirect("/department");
   };
 
-  if (id) {
+  useEffect(() => {
+    setLoading(true);
     fetch(`${process.env.API_BASE_URL}/api/department/${id}`, {
       cache: "no-store",
     })
       .then((res) => res.json())
-      .then((data) => setData(data))
+      .then((data) => {
+        setLoading(false);
+        setData(data);
+      })
       .catch(() => {
         redirect("/not-found");
       });
-  }
+  }, [id]);
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
@@ -53,7 +58,7 @@ export default function DepartmentFormPage() {
           <DepartmentForm
             defaultValues={data}
             onSubmit={onSubmit}
-            isSubmitting={false}
+            isSubmitting={loading}
           />
         </>
       )}
