@@ -32,7 +32,7 @@ export const ListPageDesktop = <T extends { _id: string }>({
 
   const handleEdit = (e: React.MouseEvent, _id: string) => {
     e.stopPropagation();
-    router.push(`/${routePrefix}/edit/${_id}`);
+    router.push(`/${routePrefix}/form?id=${_id}`);
   };
 
   const handleDelete = (e: React.MouseEvent, _id: string) => {

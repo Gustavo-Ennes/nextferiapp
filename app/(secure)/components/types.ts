@@ -1,5 +1,4 @@
-import { Entity } from "@/app/utils";
-
+import { Entity } from "../../types";
 export interface ItemListProps<T extends { _id: string }> {
   items: T[];
   routePrefix: Entity;

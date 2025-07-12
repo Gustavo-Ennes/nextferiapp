@@ -1,135 +1,115 @@
 "use client";
 
+import { Box, Grid, Typography } from "@mui/material";
+import { vacations } from "../vacation/mock";
+import { workers } from "../worker/mock";
+import { departments } from "../department/mock";
 import {
-  Box,
-  Grid,
-  Paper,
-  Typography,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-} from "@mui/material";
-
-const today = new Date().toLocaleDateString("pt-BR");
-
-const data = {
-  totalWorkers: 122,
-  totalDepartments: 8,
-  onVacationToday: [
-    "Valdomiro José Colombo",
-    "Paulo Martins do Couto",
-    "Carlos Roberto Cruz",
-  ],
-  upcomingLeaves: [
-    { name: "Carlos Cesar Marques da Cruz", date: "15/07/2025" },
-    { name: "Rogério Alves Araújo", date: "14/07/2025" },
-    { name: "Vildeson Antônio da Silva", date: "14/07/2025" },
-    { name: "Carlos Cesar Marques da Cruz", date: "14/07/2025" },
-    { name: "Gessé dos Santos Oliveira", date: "14/07/2025" },
-    { name: "Paulo Martins do Couto", date: "11/07/2025" },
-    { name: "Valdomiro José Colombo", date: "11/07/2025" },
-    { name: "Edmar Silva dos Santos", date: "11/07/2025" },
-    { name: "Maercio Ikarugi Bonfim", date: "11/07/2025" },
-  ],
-  upcomingReturns: [
-    { name: "Carlos Cesar Marques da Cruz", date: "16/07/2025" },
-    { name: "Edmar Silva dos Santos", date: "13/07/2025" },
-    { name: "Maercio Ikarugi Bonfim", date: "13/07/2025" },
-    { name: "Valdomiro José Colombo", date: "12/07/2025" },
-    { name: "Paulo Martins do Couto", date: "12/07/2025" },
-  ],
-};
+  getUpcomingLeaves,
+  getUpcomingReturns,
+  getWorkersOnVacation,
+  getTodayReturns,
+  getDaysUntilWorkerReturns,
+} from "@/app/utils";
+import { addSeconds, format } from "date-fns";
+import NumberCard from "./components/NumberCard";
+import TextCard from "./components/TextCard";
+import {
+  BusAlert,
+  Business,
+  DirectionsBus,
+  HourglassBottom,
+  HourglassTop,
+  Person,
+} from "@mui/icons-material";
 
 export default function DashboardHome() {
+  const today = new Date().toLocaleDateString("pt-BR");
+  const data = {
+    workers,
+    departments,
+    onVacationToday: getWorkersOnVacation(vacations),
+    returningToday: getTodayReturns(vacations),
+    upcomingLeaves: getUpcomingLeaves(vacations),
+    upcomingReturns: getUpcomingReturns(vacations),
+  };
+
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Painel de Férias – {today}
+      <Typography variant="h4" mb={2} textAlign="center">
+        {today}
       </Typography>
 
       {/* Cards de estatísticas */}
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6">Trabalhadores</Typography>
-            <Typography variant="h4">{data.totalWorkers}</Typography>
-          </Paper>
+          <NumberCard
+            label="Trabalhadores"
+            quantity={workers.length}
+            icon={<Person />}
+          />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6">Departamentos</Typography>
-            <Typography variant="h4">{data.totalDepartments}</Typography>
-          </Paper>
+          <NumberCard
+            label="Departamentos"
+            quantity={departments.length}
+            icon={<Business />}
+          />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6">Folgando hoje</Typography>
-            <Typography variant="h4">{data.onVacationToday.length}</Typography>
-          </Paper>
+          <NumberCard
+            label="Folgando hoje"
+            quantity={data.onVacationToday.length}
+            icon={<BusAlert />}
+            details={data.onVacationToday.map(
+              (worker) =>
+                `${worker.name} - retorna em ${getDaysUntilWorkerReturns(
+                  worker,
+                  vacations
+                )} dias\n`
+            )}
+          />
         </Grid>
 
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={3} sx={{ p: 2 }}>
-            <Typography variant="h6">Retornos nesta semana</Typography>
-            <Typography variant="h4">{data.upcomingReturns.length}</Typography>
-          </Paper>
+          <NumberCard
+            label="Retornando hoje"
+            quantity={data.returningToday.length}
+            icon={<DirectionsBus />}
+            details={data.returningToday.map(({ worker }) => worker.name)}
+          />
         </Grid>
       </Grid>
 
       <Grid container spacing={3} sx={{ mt: 4 }}>
         {/* Saídas próximas */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={2} sx={{ p: 2 }}>
-            <Typography variant="h6">Próximas Saídas</Typography>
-            <Divider sx={{ my: 1 }} />
-            <List dense>
-              {data.upcomingLeaves.map(({ name, date }, idx) => (
-                <ListItem key={idx}>
-                  <ListItemText
-                    primary={name}
-                    secondary={`Saindo dia ${date}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
+          <TextCard
+            label="Próximas Saídas"
+            icon={<HourglassTop />}
+            lines={data.upcomingLeaves.map(({ worker, startDate }) => ({
+              primary: worker.name,
+              secondary: `Saindo dia ${format(startDate, "dd/MM/yyyy")}`,
+            }))}
+          />
         </Grid>
 
         {/* Retornos próximos */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <Paper elevation={2} sx={{ p: 2 }}>
-            <Typography variant="h6">Retornos</Typography>
-            <Divider sx={{ my: 1 }} />
-            <List dense>
-              {data.upcomingReturns.map(({ name, date }, idx) => (
-                <ListItem key={idx}>
-                  <ListItemText
-                    primary={name}
-                    secondary={`Retornando dia ${date}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
+          <TextCard
+            label="Próximos Retornos"
+            icon={<HourglassBottom />}
+            lines={data.upcomingReturns.map(({ worker, endDate }) => ({
+              primary: worker.name,
+              secondary: `Retornando dia ${format(
+                addSeconds(endDate, 1),
+                "dd/MM/yyyy"
+              )}`,
+            }))}
+          />
         </Grid>
-      </Grid>
-
-      {/* Folgando hoje */}
-      <Grid size={12} sx={{ mt: 4 }}>
-        <Paper elevation={1} sx={{ p: 2 }}>
-          <Typography variant="h6">Folgando Hoje</Typography>
-          <Divider sx={{ my: 1 }} />
-          <List dense>
-            {data.onVacationToday.map((name, idx) => (
-              <ListItem key={idx}>
-                <ListItemText primary={`${name} está`} />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
       </Grid>
     </Box>
   );

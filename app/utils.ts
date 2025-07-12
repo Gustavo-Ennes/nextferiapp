@@ -1,8 +1,13 @@
-import { isDate, format } from "date-fns";
+import { isDate, format, addDays, startOfDay, endOfYesterday } from "date-fns";
+import { Vacation, Worker, Entity } from "./types";
 
-export type Entity = "department" | "worker" | "vacation" | "boss";
-
-export const translateEntityKey = ({ entity, key }: { entity: Entity, key: string }): string => {
+export const translateEntityKey = ({
+  entity,
+  key,
+}: {
+  entity: Entity | null;
+  key: string;
+}): string => {
   const dictionary = {
     department: {
       _id: "id",
@@ -52,9 +57,63 @@ export const translateEntityKey = ({ entity, key }: { entity: Entity, key: strin
       TranslatedPlural: "Chefes",
     },
   };
-  return dictionary[entity][key as keyof typeof dictionary[Entity]] ?? "";
+  return entity
+    ? dictionary[entity][key as keyof (typeof dictionary)[Entity]]
+    : "Informações";
 };
 
 export const formatCellContent = <T extends { _id: string }>(
   value: T[keyof T]
 ) => (isDate(value) ? format(value, "dd/MM/yyyy") : String(value));
+
+export const getUpcomingReturns = (
+  vacations: Vacation[],
+  today: Date = new Date()
+): Vacation[] =>
+  vacations.filter(
+    ({ endDate }) => endDate >= today && endDate <= addDays(today, 10)
+  );
+
+export const getUpcomingLeaves = (
+  vacations: Vacation[],
+  today: Date = new Date()
+): Vacation[] =>
+  vacations.filter(
+    ({ startDate }) => startDate >= today && startDate <= addDays(today, 10)
+  );
+
+export const getTodayReturns = (vacations: Vacation[]): Vacation[] =>
+  vacations.filter(
+    ({ endDate }) => endDate.getTime() === endOfYesterday().getTime()
+  );
+
+export const getWorkersOnVacation = (
+  vacations: Vacation[],
+  today: Date = new Date()
+): Worker[] =>
+  vacations
+    .filter(({ startDate, endDate }) => {
+      return startDate < startOfDay(today) && endDate >= startOfDay(today);
+    })
+    .map((vacation) => vacation.worker);
+
+// returning zero means the worker returns today
+// return -1 means the worker is not on vacation
+export const getDaysUntilWorkerReturns = (
+  worker: Worker,
+  vacations: Vacation[],
+  today: Date = new Date()
+): number => {
+  const vacation = vacations.find(
+    (vac) =>
+      vac.worker._id === worker._id &&
+      vac.startDate <= today &&
+      vac.endDate >= today
+  );
+  if (!vacation) return -1;
+
+  const daysUntilReturn = Math.ceil(
+    (vacation.endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  );
+  return daysUntilReturn >= 0 ? daysUntilReturn : -1;
+};

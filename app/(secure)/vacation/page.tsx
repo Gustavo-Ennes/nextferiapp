@@ -2,7 +2,7 @@
 
 import { translateEntityKey } from "@/app/utils";
 import { useMediaQuery, Container, Typography, useTheme } from "@mui/material";
-import { vacations } from "../components/FAKE";
+import { vacations } from "./mock";
 import { ListPageDesktop } from "../components/ListPageDesktop";
 import { ListPageMobile } from "../components/ListPageMobile";
 import { Vacation } from "@/app/types";

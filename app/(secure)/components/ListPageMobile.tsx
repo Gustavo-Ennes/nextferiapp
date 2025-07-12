@@ -63,7 +63,7 @@ export function ListPageMobile<T extends { _id: string }>({
                     size="small"
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/${routePrefix}/edit/${item._id}`);
+                      router.push(`/${routePrefix}/form?id=${item._id}`);
                     }}
                   >
                     <EditIcon fontSize="small" />

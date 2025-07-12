@@ -3,7 +3,7 @@
 import { useTheme } from "@mui/material/styles";
 import { Container, Typography, useMediaQuery } from "@mui/material";
 import { Department } from "@/app/types";
-import { departments } from "../components/FAKE";
+import {departments} from "./mock";
 import { ListPageDesktop } from "../components/ListPageDesktop";
 import { ListPageMobile } from "../components/ListPageMobile";
 import { translateEntityKey } from "@/app/utils";

@@ -3,7 +3,7 @@
 import { Worker } from "@/app/types";
 import { translateEntityKey } from "@/app/utils";
 import { useMediaQuery, Container, Typography, useTheme } from "@mui/material";
-import { workers } from "../components/FAKE";
+import { workers } from "./mock";
 import { ListPageDesktop } from "../components/ListPageDesktop";
 import { ListPageMobile } from "../components/ListPageMobile";
 

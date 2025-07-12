@@ -1,3 +1,62 @@
-const DepartmentForm = () => <p>['formulário de departamento']</p>
+"use client";
 
-export default DepartmentForm;
+import { useState } from "react";
+import { redirect, useSearchParams } from "next/navigation";
+import { DepartmentForm } from "../components/DepartmentForm";
+import { DepartmentFormData } from "../types";
+import { Container, Typography } from "@mui/material";
+
+export default function DepartmentFormPage() {
+  const searchParams = useSearchParams();
+  const [data, setData] = useState<DepartmentFormData>();
+
+  const id = searchParams.get("id");
+
+  const onSubmit = async () => {
+    const method = data ? "PUT" : "POST";
+    const url = data
+      ? `${process.env.API_BASE_URL}/api/department/${id}`
+      : `${process.env.API_BASE_URL}/api/department`;
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to save department");
+    }
+    redirect("/department");
+  };
+
+  if (id) {
+    fetch(`${process.env.API_BASE_URL}/api/department/${id}`, {
+      cache: "no-store",
+    })
+      .then((res) => res.json())
+      .then((data) => setData(data))
+      .catch(() => {
+        redirect("/not-found");
+      });
+  }
+
+  return (
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+      {(!id || (id && data)) && (
+        <>
+          <Typography variant="h5" gutterBottom mb={2}>
+            {id ? "Editar Departamento" : "Criar Departamento"}
+          </Typography>
+          <DepartmentForm
+            defaultValues={data}
+            onSubmit={onSubmit}
+            isSubmitting={false}
+          />
+        </>
+      )}
+    </Container>
+  );
+}

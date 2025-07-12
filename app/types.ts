@@ -22,7 +22,7 @@ export type Vacation = {
   startDate: Date;
   endDate: Date;
   deferred: boolean;
-  worker: string;
+  worker: Worker;
   createdAt: Date;
   updatedAt: Date;
   boss:  Boss;
@@ -40,3 +40,6 @@ export type Worker = {
   createdAt: Date;
   updatedAt: Date;
 }
+
+
+export type Entity = "department" | "worker" | "vacation" | "boss";

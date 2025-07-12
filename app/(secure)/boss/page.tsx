@@ -2,7 +2,7 @@
 
 import { translateEntityKey } from "@/app/utils";
 import { useMediaQuery, Container, Typography, useTheme } from "@mui/material";
-import { bosses } from "../components/FAKE";
+import { bosses } from "../boss/mock";
 import { ListPageDesktop } from "../components/ListPageDesktop";
 import { ListPageMobile } from "../components/ListPageMobile";
 import { Boss } from "@/app/types";
