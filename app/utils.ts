@@ -1,4 +1,11 @@
-import { isDate, format, addDays, startOfDay, endOfYesterday } from "date-fns";
+import {
+  isDate,
+  format,
+  addDays,
+  startOfDay,
+  endOfYesterday,
+  set,
+} from "date-fns";
 import { Vacation, Worker, Entity } from "./types";
 
 export const translateEntityKey = ({
@@ -116,4 +123,10 @@ export const getDaysUntilWorkerReturns = (
     (vacation.endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
   );
   return daysUntilReturn >= 0 ? daysUntilReturn : -1;
+};
+
+export const endOfMorning = (date: Date): Date => {
+  const newDate = new Date(date);
+  set(newDate, { hours: 13, minutes: 29, seconds: 59, milliseconds: 999 });
+  return newDate;
 };

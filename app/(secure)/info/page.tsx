@@ -63,9 +63,9 @@ export default function DashboardHome() {
             label="Folgando hoje"
             quantity={data.onVacationToday.length}
             icon={<BusAlert />}
-            details={data.onVacationToday.map(
+            details={data.onVacationToday?.map(
               (worker) =>
-                `${worker.name} - retorna em ${getDaysUntilWorkerReturns(
+                `${worker?.name} - retorna em ${getDaysUntilWorkerReturns(
                   worker,
                   vacations
                 )} dias\n`
@@ -78,7 +78,7 @@ export default function DashboardHome() {
             label="Retornando hoje"
             quantity={data.returningToday.length}
             icon={<DirectionsBus />}
-            details={data.returningToday.map(({ worker }) => worker.name)}
+            details={data.returningToday?.map(({ worker }) => worker?.name)}
           />
         </Grid>
       </Grid>
@@ -89,8 +89,8 @@ export default function DashboardHome() {
           <TextCard
             label="Próximas Saídas"
             icon={<HourglassTop />}
-            lines={data.upcomingLeaves.map(({ worker, startDate }) => ({
-              primary: worker.name,
+            lines={data.upcomingLeaves?.map(({ worker, startDate }) => ({
+              primary: worker?.name,
               secondary: `Saindo dia ${format(startDate, "dd/MM/yyyy")}`,
             }))}
           />
@@ -101,8 +101,8 @@ export default function DashboardHome() {
           <TextCard
             label="Próximos Retornos"
             icon={<HourglassBottom />}
-            lines={data.upcomingReturns.map(({ worker, endDate }) => ({
-              primary: worker.name,
+            lines={data.upcomingReturns?.map(({ worker, endDate }) => ({
+              primary: worker?.name,
               secondary: `Retornando dia ${format(
                 addSeconds(endDate, 1),
                 "dd/MM/yyyy"

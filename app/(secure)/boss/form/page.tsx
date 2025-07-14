@@ -1,23 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, redirect } from "next/navigation";
 import { Container, Typography } from "@mui/material";
-import { VacationForm } from "../components/VacationForm";
-import { VacationFormData } from "../types";
+import { BossForm } from "../components/BossForm";
+import { BossFormData } from "../types";
 
-export default function VacationFormPage() {
+export default function BossFormPage() {
   const searchParams = useSearchParams();
-  const [data, setData] = useState<VacationFormData>();
+  const [data, setData] = useState<BossFormData>();
   const [loading, setLoading] = useState(false);
 
   const id = searchParams.get("id");
 
-  const onSubmit = async (formData: VacationFormData) => {
+  const onSubmit = async (formData: BossFormData) => {
     const method = data ? "PUT" : "POST";
     const url = data
-      ? `${process.env.API_BASE_URL}/api/vacation/${id}`
-      : `${process.env.API_BASE_URL}/api/vacation`;
+      ? `${process.env.API_BASE_URL}/api/boss/${id}`
+      : `${process.env.API_BASE_URL}/api/boss`;
 
     const res = await fetch(url, {
       method,
@@ -27,9 +27,11 @@ export default function VacationFormPage() {
       body: JSON.stringify(formData),
     });
 
-    if (!res.ok) throw new Error("Erro ao salvar folga");
+    if (!res.ok) {
+      throw new Error("Erro ao salvar chefe");
+    }
 
-    redirect("/vacation");
+    redirect("/boss");
   };
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export default function VacationFormPage() {
 
     setLoading(true);
 
-    fetch(`${process.env.API_BASE_URL}/api/vacation/${id}`, {
+    fetch(`${process.env.API_BASE_URL}/api/boss/${id}`, {
       cache: "no-store",
     })
       .then((res) => {
@@ -58,9 +60,10 @@ export default function VacationFormPage() {
       {(!id || (id && data)) && (
         <>
           <Typography variant="h5" gutterBottom mb={2}>
-            {id ? "Editar Folga" : "Criar Folga"}
+            {id ? "Editar Chefe" : "Criar Chefe"}
           </Typography>
-          <VacationForm
+
+          <BossForm
             defaultValues={data}
             onSubmit={onSubmit}
             isSubmitting={loading}

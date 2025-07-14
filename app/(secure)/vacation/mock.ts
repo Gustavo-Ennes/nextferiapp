@@ -1,6 +1,8 @@
-import { addDays, endOfYesterday, startOfDay, subDays } from "date-fns";
+import { addDays, endOfDay, endOfYesterday, startOfDay, subDays } from "date-fns";
 import { workers } from "../worker/mock";
 import { bosses } from "../boss/mock";
+import { endOfMorning } from "@/app/utils";
+import { Vacation } from "@/app/types";
 
 
 const today = startOfDay(new Date());
@@ -8,11 +10,12 @@ const eightDaysAhead = addDays(today, 8);
 const eightDaysAgo = subDays(today, 8);
 const twentyDaysAhead = addDays(today, 20);
 
-export const vacations = [
+export const vacations: Vacation[] = [
   // começa em oito dias
   {
     _id: "1",
     daysQtd: 30,
+    type: "normal",
     startDate: eightDaysAhead,
     endDate: addDays(eightDaysAhead, 30),
     deferred: false,
@@ -25,6 +28,7 @@ export const vacations = [
   // termina em oito dias
   {
     _id: "2",
+    type: "license",
     daysQtd:15,
     startDate: subDays(eightDaysAgo, 15),
     endDate:eightDaysAhead,
@@ -37,6 +41,7 @@ export const vacations = [
   // acontencendo
   {
     _id: "3",
+    type: "license",
     daysQtd: 30,
     startDate: subDays(twentyDaysAhead, 30),
     endDate: twentyDaysAhead,
@@ -49,11 +54,36 @@ export const vacations = [
   // retornando hoje
   {
     _id: "4",
+    type: "normal",
     daysQtd: 30,
     startDate: subDays(endOfYesterday(), 30),
     endDate: endOfYesterday(),
     deferred: true,
     worker: workers[3],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    boss: bosses[0],
+  },
+  {
+    _id: "5", 
+    type: "dayOff",
+    daysQtd: 1,
+    startDate: eightDaysAhead,
+    endDate: endOfDay(eightDaysAhead),
+    deferred: false,
+    worker: workers[4],
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    boss: bosses[0],
+  },
+  {
+    _id: "6",
+    type: "dayOff",
+    daysQtd: 0.5,
+    startDate: eightDaysAhead,
+    endDate: endOfMorning(eightDaysAhead),
+    deferred: false,
+    worker: workers[5],
     createdAt: new Date(),
     updatedAt: new Date(),
     boss: bosses[0],

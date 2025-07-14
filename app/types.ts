@@ -18,7 +18,8 @@ export type Department = {
 
 export type Vacation = {
   _id: string;
-  daysQtd: number;
+  daysQtd: 0.5 | 1 | 15 |30 | 45 | 60 | 75 | 90;
+  type: "normal" | "license" | "dayOff"
   startDate: Date;
   endDate: Date;
   deferred: boolean;
