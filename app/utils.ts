@@ -40,7 +40,7 @@ export const translateEntityKey = ({
     },
     vacation: {
       _id: "id",
-      daysQtd: "Quantidade de Dias",
+      duration: "Duração",
       startDate: "Data de Início",
       endDate: "Data de Fim",
       deferred: "Adiada",
@@ -78,7 +78,8 @@ export const getUpcomingReturns = (
   today: Date = new Date()
 ): Vacation[] =>
   vacations.filter(
-    ({ endDate}) => new Date(endDate) >= today && new Date(endDate) <= addDays(today, 10)
+    ({ endDate }) =>
+      new Date(endDate) >= today && new Date(endDate) <= addDays(today, 10)
   );
 
 export const getUpcomingLeaves = (
@@ -86,7 +87,8 @@ export const getUpcomingLeaves = (
   today: Date = new Date()
 ): Vacation[] =>
   vacations.filter(
-    ({ startDate }) => new Date(startDate) >= today && new Date(startDate) <= addDays(today, 10)
+    ({ startDate }) =>
+      new Date(startDate) >= today && new Date(startDate) <= addDays(today, 10)
   );
 
 export const getTodayReturns = (vacations: Vacation[]): Vacation[] =>
@@ -100,7 +102,10 @@ export const getWorkersOnVacation = (
 ): Worker[] =>
   vacations
     .filter(({ startDate, endDate }) => {
-      return new Date(startDate) < startOfDay(today) && new Date(endDate) >= startOfDay(today);
+      return (
+        new Date(startDate) < startOfDay(today) &&
+        new Date(endDate) >= startOfDay(today)
+      );
     })
     .map((vacation) => vacation.worker);
 
@@ -114,13 +119,14 @@ export const getDaysUntilWorkerReturns = (
   const vacation = vacations.find(
     (vac) =>
       vac.worker._id === worker._id &&
-      new Date(vac.startDate ) <= today &&
+      new Date(vac.startDate) <= today &&
       new Date(vac.endDate) >= today
   );
   if (!vacation) return -1;
 
   const daysUntilReturn = Math.ceil(
-    (new Date(vacation.endDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+    (new Date(vacation.endDate).getTime() - today.getTime()) /
+      (1000 * 60 * 60 * 24)
   );
   return daysUntilReturn >= 0 ? daysUntilReturn : -1;
 };

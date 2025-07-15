@@ -12,9 +12,9 @@ export function WorkerForm({
 }: WorkerProps) {
   const [form, setForm] = useState<WorkerFormData>({
     name: "",
-    registration: "",
+    matriculation: "",
     role: "",
-    departmentId: "",
+    department: null,
   });
 
   useEffect(() => {
@@ -50,9 +50,9 @@ export function WorkerForm({
       <TextField
         fullWidth
         required
-        name="registration"
+        name="matriculation"
         label="Matrícula"
-        value={form.registration}
+        value={form.matriculation}
         onChange={handleChange}
         sx={{ mb: 2 }}
       />
@@ -73,7 +73,7 @@ export function WorkerForm({
         name="departmentId"
         label="Departamento"
         select
-        value={form.departmentId}
+        value={form.department?._id ?? ""}
         onChange={handleChange}
         sx={{ mb: 2 }}
       >

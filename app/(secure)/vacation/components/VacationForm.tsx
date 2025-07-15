@@ -21,7 +21,7 @@ export function VacationForm({
   isSubmitting = false,
 }: VacationProps) {
   const [form, setForm] = useState<VacationFormData>({
-    workerId: "",
+    worker: null,
     startDate: new Date(),
     type: "normal",
     duration: 15,
@@ -90,7 +90,7 @@ export function VacationForm({
         <InputLabel>Trabalhador</InputLabel>
         <Select
           name="type"
-          value={form.workerId}
+          value={form.worker?._id ?? ''}
           label="Trabalhador"
           onChange={(e) => handleWorkerChange(e.target.value)}
         >
@@ -105,7 +105,7 @@ export function VacationForm({
       <DatePicker
         sx={{ mb: 2 }}
         label="Início"
-        value={form.startDate}
+        value={new Date(form.startDate)}
         onChange={handleDateChange}
         format="dd/MM/yyyy"
       />

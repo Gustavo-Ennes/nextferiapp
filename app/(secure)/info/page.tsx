@@ -8,13 +8,13 @@ import { DashboardHome } from "./page.client";
 
 export default async function DashboardServer() {
   const [vacationsRes, workersRes, departmentsRes] = await Promise.all([
-    fetch(`${process.env.NEXT_API_URL}/vacation`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/vacation`, {
       cache: "no-store",
     }),
-    fetch(`${process.env.NEXT_API_URL}/worker`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker`, {
       cache: "no-store",
     }),
-    fetch(`${process.env.NEXT_API_URL}/department`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/department`, {
       cache: "no-store",
     }),
   ]);

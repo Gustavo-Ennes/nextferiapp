@@ -19,7 +19,7 @@ export const vacations: Vacation[] = [
   // começa em oito dias
   {
     _id: "1",
-    daysQtd: 30,
+    duration: 30,
     type: "normal",
     startDate: eightDaysAhead,
     endDate: addDays(eightDaysAhead, 30),
@@ -34,7 +34,7 @@ export const vacations: Vacation[] = [
   {
     _id: "2",
     type: "license",
-    daysQtd: 15,
+    duration: 15,
     startDate: subDays(eightDaysAgo, 15),
     endDate: eightDaysAhead,
     deferred: true,
@@ -47,7 +47,7 @@ export const vacations: Vacation[] = [
   {
     _id: "3",
     type: "license",
-    daysQtd: 30,
+    duration: 30,
     startDate: subDays(twentyDaysAhead, 30),
     endDate: twentyDaysAhead,
     deferred: false,
@@ -60,7 +60,7 @@ export const vacations: Vacation[] = [
   {
     _id: "4",
     type: "normal",
-    daysQtd: 30,
+    duration: 30,
     startDate: subDays(endOfYesterday(), 30),
     endDate: endOfYesterday(),
     deferred: true,
@@ -72,7 +72,7 @@ export const vacations: Vacation[] = [
   {
     _id: "5",
     type: "dayOff",
-    daysQtd: 1,
+    duration: 1,
     startDate: eightDaysAhead,
     endDate: endOfDay(eightDaysAhead),
     deferred: false,
@@ -84,7 +84,7 @@ export const vacations: Vacation[] = [
   {
     _id: "6",
     type: "dayOff",
-    daysQtd: 0.5,
+    duration: 0.5,
     period: "half",
     startDate: eightDaysAhead,
     endDate: endOfMorning(eightDaysAhead),

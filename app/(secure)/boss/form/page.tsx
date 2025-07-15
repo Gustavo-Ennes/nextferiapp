@@ -16,8 +16,8 @@ export default function BossFormPage() {
   const onSubmit = async (formData: BossFormData) => {
     const method = data ? "PUT" : "POST";
     const url = data
-      ? `${process.env.API_BASE_URL}/api/boss/${id}`
-      : `${process.env.API_BASE_URL}/api/boss`;
+      ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${id}`
+      : `${process.env.NEXT_PUBLIC_URL}/api/boss`;
 
     const res = await fetch(url, {
       method,
@@ -39,7 +39,7 @@ export default function BossFormPage() {
 
     setLoading(true);
 
-    fetch(`${process.env.API_BASE_URL}/api/boss/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss/${id}`, {
       cache: "no-store",
     })
       .then((res) => {
@@ -47,7 +47,7 @@ export default function BossFormPage() {
         return res.json();
       })
       .then((res) => {
-        setData(res);
+        setData(res.boss);
         setLoading(false);
       })
       .catch(() => {

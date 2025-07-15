@@ -54,8 +54,6 @@ export function DepartmentForm({
         label="Responsável"
         value={form.responsible}
         onChange={handleChange}
-        multiline
-        rows={3}
         sx={{ mb: 2 }}
       />
 

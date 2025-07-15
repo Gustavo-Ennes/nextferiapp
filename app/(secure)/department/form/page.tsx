@@ -16,8 +16,8 @@ export default function DepartmentFormPage() {
   const onSubmit = async () => {
     const method = data ? "PUT" : "POST";
     const url = data
-      ? `${process.env.API_BASE_URL}/api/department/${id}`
-      : `${process.env.API_BASE_URL}/api/department`;
+      ? `${process.env.NEXT_PUBLIC_URL}/api/department/${id}`
+      : `${process.env.NEXT_PUBLIC_URL}/api/department`;
 
     const res = await fetch(url, {
       method,
@@ -35,16 +35,18 @@ export default function DepartmentFormPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`${process.env.API_BASE_URL}/api/department/${id}`, {
+    const url = `${process.env.NEXT_PUBLIC_URL}/api/department/${id}`;
+    console.log("🚀 ~ useEffect ~ url:", url);
+    fetch(url, {
       cache: "no-store",
     })
       .then((res) => res.json())
       .then((data) => {
         setLoading(false);
-        setData(data);
+        setData(data.department);
       })
       .catch(() => {
-        redirect("/not-found");
+        // redirect("/not-found");
       });
   }, [id]);
 

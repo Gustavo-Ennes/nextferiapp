@@ -1,8 +1,10 @@
+import { Department } from "@/app/types";
+
 export interface WorkerFormData {
   name: string;
-  registration: string;
+  matriculation: string;
   role: string;
-  departmentId: string;
+  department: Department | null;
 }
 
 export interface WorkerProps {

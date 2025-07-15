@@ -16,8 +16,8 @@ export default function WorkerFormPage() {
   const onSubmit = async (formData: WorkerFormData) => {
     const method = data ? "PUT" : "POST";
     const url = data
-      ? `${process.env.API_BASE_URL}/api/worker/${id}`
-      : `${process.env.API_BASE_URL}/api/worker`;
+      ? `${process.env.NEXT_PUBLIC_URL}/api/worker/${id}`
+      : `${process.env.NEXT_PUBLIC_URL}/api/worker`;
 
     const res = await fetch(url, {
       method,
@@ -39,7 +39,7 @@ export default function WorkerFormPage() {
 
     setLoading(true);
 
-    fetch(`${process.env.API_BASE_URL}/api/worker/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker/${id}`, {
       cache: "no-store",
     })
       .then((res) => {
@@ -47,7 +47,7 @@ export default function WorkerFormPage() {
         return res.json();
       })
       .then((res) => {
-        setData(res);
+        setData(res.worker);
         setLoading(false);
       })
       .catch(() => {

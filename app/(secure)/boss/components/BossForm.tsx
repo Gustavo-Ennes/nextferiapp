@@ -11,7 +11,7 @@ export function BossForm({
 }: BossProps) {
   const [form, setForm] = useState<BossFormData>({
     name: "",
-    position: "",
+    role: "",
   });
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function BossForm({
         required
         name="position"
         label="Cargo"
-        value={form.position}
+        value={form.role}
         onChange={handleChange}
         sx={{ mb: 2 }}
       />

@@ -1,6 +1,6 @@
 export interface BossFormData {
   name: string;
-  position: string;
+  role: string;
 }
 
 export interface BossProps {

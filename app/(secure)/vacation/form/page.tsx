@@ -16,8 +16,8 @@ export default function VacationFormPage() {
   const onSubmit = async (formData: VacationFormData) => {
     const method = data ? "PUT" : "POST";
     const url = data
-      ? `${process.env.API_BASE_URL}/api/vacation/${id}`
-      : `${process.env.API_BASE_URL}/api/vacation`;
+      ? `${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`
+      : `${process.env.NEXT_PUBLIC_URL}/api/vacation`;
 
     const res = await fetch(url, {
       method,
@@ -37,7 +37,7 @@ export default function VacationFormPage() {
 
     setLoading(true);
 
-    fetch(`${process.env.API_BASE_URL}/api/vacation/${id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`, {
       cache: "no-store",
     })
       .then((res) => {
@@ -45,7 +45,7 @@ export default function VacationFormPage() {
         return res.json();
       })
       .then((res) => {
-        setData(res);
+        setData(res.vacation);
         setLoading(false);
       })
       .catch(() => {
