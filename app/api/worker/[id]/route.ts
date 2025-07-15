@@ -1,12 +1,12 @@
-import { vacations } from "@/app/api/vacation/mock";
+import { workers } from "@/app/api/worker/mock";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
   try {
-    const vacation = vacations.find(
-      (vacation) => vacation._id === req.url.split("/").pop()
+    const worker = workers.find(
+      (worker) => worker._id === req.url.split("/").pop()
     );
-    return NextResponse.json({ vacation });
+    return NextResponse.json({ worker });
   } catch (err) {
     return NextResponse.json({ error: "failed to load data" });
   }

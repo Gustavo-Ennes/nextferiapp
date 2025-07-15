@@ -1,5 +1,4 @@
-import { Box, Collapse, IconButton, Paper, Typography } from "@mui/material";
-import { ExpandMore } from "@mui/icons-material";
+import { Box, Collapse, Paper, Typography } from "@mui/material";
 import { CardParam } from "../types";
 import { useState } from "react";
 
@@ -9,16 +8,12 @@ const NumberCard = ({ label, quantity = 0, icon, details }: CardParam) => {
 
   return (
     <Paper elevation={3} sx={{ p: 2 }}>
-      <Box
-        onClick={onClick}
-        sx={{ cursor: details ? "pointer" : "default" }}
-      >
+      <Box onClick={onClick} sx={{ cursor: details ? "pointer" : "default" }}>
         <Typography variant="h6">
           {label} {icon}
         </Typography>
 
         <Typography variant="h4">{quantity}</Typography>
-
       </Box>
 
       {details && (

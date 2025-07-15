@@ -13,7 +13,7 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useEffect, useState } from "react";
 import { VacationFormData, VacationProps, VacationType } from "../types";
-import { workers } from "../../worker/mock";
+import { workers } from "../../../api/worker/mock";
 
 export function VacationForm({
   defaultValues,

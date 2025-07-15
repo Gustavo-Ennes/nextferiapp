@@ -1,9 +1,14 @@
-import { addDays, endOfDay, endOfYesterday, startOfDay, subDays } from "date-fns";
+import {
+  addDays,
+  endOfDay,
+  endOfYesterday,
+  startOfDay,
+  subDays,
+} from "date-fns";
 import { workers } from "../worker/mock";
 import { bosses } from "../boss/mock";
 import { endOfMorning } from "@/app/utils";
 import { Vacation } from "@/app/types";
-
 
 const today = startOfDay(new Date());
 const eightDaysAhead = addDays(today, 8);
@@ -29,9 +34,9 @@ export const vacations: Vacation[] = [
   {
     _id: "2",
     type: "license",
-    daysQtd:15,
+    daysQtd: 15,
     startDate: subDays(eightDaysAgo, 15),
-    endDate:eightDaysAhead,
+    endDate: eightDaysAhead,
     deferred: true,
     worker: workers[1],
     createdAt: new Date(),
@@ -65,7 +70,7 @@ export const vacations: Vacation[] = [
     boss: bosses[0],
   },
   {
-    _id: "5", 
+    _id: "5",
     type: "dayOff",
     daysQtd: 1,
     startDate: eightDaysAhead,

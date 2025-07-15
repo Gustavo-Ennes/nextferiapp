@@ -3,7 +3,7 @@
 import { Box, Button, MenuItem, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { WorkerFormData, WorkerProps } from "../types";
-import { departments } from "../../department/mock";
+import { departments } from "../../../api/department/mock";
 
 export function WorkerForm({
   defaultValues,
