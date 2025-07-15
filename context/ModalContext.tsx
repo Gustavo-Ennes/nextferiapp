@@ -1,54 +1,86 @@
+"use client";
 
-import { createContext, useState, ReactNode, useContext } from "react";
-import { Dialog, DialogContent, IconButton } from "@mui/material";
-import { Close } from "@mui/icons-material";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Typography,
+  TextField,
+} from "@mui/material";
+import { createContext, useContext, useState, useCallback } from "react";
 
-interface ModalContextProps {
-  openModal: (content: ReactNode) => void;
-  closeModal: () => void;
-}
+type ModalContextType = {
+  open: (options: ModalOptions) => void;
+  close: () => void;
+};
 
-const ModalContext = createContext<ModalContextProps | undefined>(undefined);
+type ModalOptions = {
+  title: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm: (observation: string) => void;
+};
 
-export const ModalProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [modalContent, setModalContent] = useState<ReactNode>(null);
+const ModalContext = createContext<ModalContextType | null>(null);
 
-  const openModal = (content: ReactNode) => {
-    setModalContent(content);
-    setIsOpen(true);
-  };
+export const useModal = () => {
+  const ctx = useContext(ModalContext);
+  if (!ctx) throw new Error("useModal must be used inside ModalProvider");
+  return ctx;
+};
 
-  const closeModal = () => {
-    setIsOpen(false);
-    setModalContent(null);
+export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
+  const [openState, setOpenState] = useState(false);
+  const [observation, setObservation] = useState("");
+  const [options, setOptions] = useState<ModalOptions | null>(null);
+
+  const open = useCallback((opts: ModalOptions) => {
+    setOptions(opts);
+    setOpenState(true);
+  }, []);
+
+  const close = useCallback(() => {
+    setOpenState(false);
+    setObservation("");
+    setOptions(null);
+  }, []);
+
+  const handleConfirm = () => {
+    options?.onConfirm(observation);
+    close();
   };
 
   return (
-    <ModalContext.Provider value={{ openModal, closeModal }}>
+    <ModalContext.Provider value={{ open, close }}>
       {children}
-      <Dialog open={isOpen} onClose={closeModal} maxWidth="sm" fullWidth>
+
+      <Dialog open={openState} onClose={close} fullWidth maxWidth="sm">
+        <DialogTitle>{options?.title}</DialogTitle>
         <DialogContent>
-          <IconButton
-            aria-label="close"
-            onClick={closeModal}
-            sx={{ position: "absolute", right: 8, top: 8 }}
-          >
-            <Close />
-          </IconButton>
-          {modalContent}
+          {options?.description && (
+            <Typography variant="body1" mb={2}>
+              {options.description}
+            </Typography>
+          )}
+          <TextField
+            label="Observação"
+            fullWidth
+            multiline
+            minRows={3}
+            value={observation}
+            onChange={(e) => setObservation(e.target.value)}
+          />
         </DialogContent>
+        <DialogActions>
+          <Button onClick={close}>{options?.cancelLabel || "Cancelar"}</Button>
+          <Button variant="contained" onClick={handleConfirm}>
+            {options?.confirmLabel || "Confirmar"}
+          </Button>
+        </DialogActions>
       </Dialog>
     </ModalContext.Provider>
   );
-};
-
-export const useModal = (): ModalContextProps => {
-  const context = useContext(ModalContext);
-  if (!context) {
-    throw new Error("useModal must be used within a ModalProvider");
-  }
-  return context;
 };
