@@ -87,11 +87,11 @@ export function VacationForm({
   return (
     <form onSubmit={handleSubmit}>
       <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Trabalhador</InputLabel>
+        <InputLabel>Servidor</InputLabel>
         <Select
           name="type"
-          value={form.worker?._id ?? ''}
-          label="Trabalhador"
+          value={form.worker?._id ?? ""}
+          label="Servidor"
           onChange={(e) => handleWorkerChange(e.target.value)}
         >
           {workers?.map((worker) => (

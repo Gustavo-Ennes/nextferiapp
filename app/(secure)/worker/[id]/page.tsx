@@ -46,7 +46,7 @@ export default function DepartmentViewPage() {
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Visualização de trabalhador
+        Visualização de servidor
       </Typography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>

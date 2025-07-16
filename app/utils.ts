@@ -6,68 +6,8 @@ import {
   endOfYesterday,
   set,
 } from "date-fns";
-import { Vacation, Worker, Entity } from "./types";
-
-export const translateEntityKey = ({
-  entity,
-  key,
-}: {
-  entity: Entity | null;
-  key: string;
-}): string => {
-  const dictionary = {
-    department: {
-      _id: "id",
-      name: "Nome",
-      createdAt: "Criação",
-      updatedAt: "Atualização",
-      responsible: "Responsável",
-      translated: "Departamento",
-      TranslatedPlural: "Departamentos",
-    },
-    worker: {
-      _id: "id",
-      name: "Nome",
-      role: "Cargo",
-      registry: "Registro",
-      matriculation: "Matrícula",
-      admissionDate: "Data de Admissão",
-      department: "Departamento",
-      createdAt: "Criação",
-      updatedAt: "Atualização",
-      translated: "Trabalhador",
-      TranslatedPlural: "Trabalhadores",
-    },
-    vacation: {
-      _id: "id",
-      duration: "Duração",
-      startDate: "Data de Início",
-      endDate: "Data de Fim",
-      deferred: "Adiada",
-      worker: "Trabalhador",
-      createdAt: "Criação",
-      updatedAt: "Atualização",
-      boss: "Chefe",
-      observation: "Observação",
-      translated: "Férias",
-      TranslatedPlural: "Férias",
-    },
-    boss: {
-      _id: "id",
-      name: "Nome",
-      role: "Cargo",
-      isDirector: "É Diretor?",
-      createdAt: "Criação",
-      updatedAt: "Atualização",
-      isActive: "Ativo",
-      translated: "Chefe",
-      TranslatedPlural: "Chefes",
-    },
-  };
-  return entity
-    ? dictionary[entity][key as keyof (typeof dictionary)[Entity]]
-    : "Informações";
-};
+import { Vacation, Worker } from "./types";
+import { translateEntityKey } from "./translate";
 
 export const formatCellContent = <T extends { _id: string }>(
   value: T[keyof T]
@@ -135,4 +75,17 @@ export const endOfMorning = (date: Date): Date => {
   const newDate = new Date(date);
   set(newDate, { hours: 13, minutes: 29, seconds: 59, milliseconds: 999 });
   return newDate;
+};
+
+export const sumarizeVacation = (vacation: Vacation): string => {
+  const isDayOff = vacation.type === 'dayOff'
+  const type = translateEntityKey({ entity: "vacation", key: vacation.type });
+  const startString = isDayOff ? "em" : "à partir de";
+  const formatedDate = format(vacation.startDate, "dd/MM/yyyy");
+  const period = !isDayOff ? `( ${vacation.duration}D )` : ""
+  const dayOffPeriod = vacation.period === "half" ? "(meio-período)" : "";
+  const vacationPeriod = isDayOff ? dayOffPeriod : period;
+  const workerString = `do(a) servidor(a) ${vacation.worker.name}(${vacation.worker.matriculation})`;
+
+  return `${type} ${startString} ${formatedDate}${vacationPeriod} ${workerString}`;
 };

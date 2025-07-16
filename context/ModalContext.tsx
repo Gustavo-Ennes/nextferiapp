@@ -21,6 +21,7 @@ type ModalOptions = {
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
+  input?: boolean;
   onConfirm: (observation: string) => void;
 };
 
@@ -65,14 +66,16 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
               {options.description}
             </Typography>
           )}
-          <TextField
-            label="Observação"
-            fullWidth
-            multiline
-            minRows={3}
-            value={observation}
-            onChange={(e) => setObservation(e.target.value)}
-          />
+          {options?.input && (
+            <TextField
+              label="Observação"
+              fullWidth
+              multiline
+              minRows={3}
+              value={observation}
+              onChange={(e) => setObservation(e.target.value)}
+            />
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={close}>{options?.cancelLabel || "Cancelar"}</Button>

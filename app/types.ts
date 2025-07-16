@@ -43,4 +43,5 @@ export type Worker = {
   updatedAt: Date;
 };
 
-export type Entity = "department" | "worker" | "vacation" | "boss";
+export type Entity = Worker | Vacation | Department | Boss
+export type EntityType = "department" | "worker" | "vacation" | "boss";

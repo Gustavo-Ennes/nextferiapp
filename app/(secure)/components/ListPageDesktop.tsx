@@ -15,10 +15,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
 import { StyledRow } from "./styled";
-import { translateEntityKey, formatCellContent } from "@/app/utils";
+import { formatCellContent } from "@/app/utils";
+import { translateEntityKey } from "../../translate";
 import { ItemListProps } from "./types";
+import { Entity } from "@/app/types";
 
-export const ListPageDesktop = <T extends { _id: string }>({
+export const ListPageDesktop = <T extends Entity>({
   items,
   routePrefix,
   onDelete,
@@ -35,9 +37,9 @@ export const ListPageDesktop = <T extends { _id: string }>({
     router.push(`/${routePrefix}/form?id=${_id}`);
   };
 
-  const handleDelete = (e: React.MouseEvent, _id: string) => {
+  const handleDelete = (e: React.MouseEvent, entity: Entity) => {
     e.stopPropagation();
-    onDelete(_id);
+    onDelete(entity);
   };
 
 
@@ -67,7 +69,7 @@ export const ListPageDesktop = <T extends { _id: string }>({
                   <IconButton onClick={(e) => handleEdit(e, item._id)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={(e) => handleDelete(e, item._id)}>
+                  <IconButton onClick={(e) => handleDelete(e, item)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>

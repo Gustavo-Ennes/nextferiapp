@@ -28,7 +28,7 @@ export default function WorkerFormPage() {
     });
 
     if (!res.ok) {
-      throw new Error("Erro ao salvar trabalhador");
+      throw new Error("Erro ao salvar servidor");
     }
 
     redirect("/worker");
@@ -60,7 +60,7 @@ export default function WorkerFormPage() {
       {(!id || (id && data)) && (
         <>
           <Typography variant="h5" gutterBottom mb={2}>
-            {id ? "Editar Trabalhador" : "Criar Trabalhador"}
+            {id ? "Editar Servidor" : "Criar Servidor"}
           </Typography>
 
           <WorkerForm

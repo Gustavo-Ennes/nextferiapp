@@ -1,9 +1,7 @@
 "use client";
 
 import { Box, Grid, Typography } from "@mui/material";
-import {
-  getDaysUntilWorkerReturns,
-} from "@/app/utils";
+import { getDaysUntilWorkerReturns } from "@/app/utils";
 import { addSeconds, format } from "date-fns";
 import NumberCard from "./components/NumberCard";
 import TextCard from "./components/TextCard";
@@ -51,7 +49,7 @@ function DashboardHome({
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
           <NumberCard
-            label="Trabalhadores"
+            label="Servidores"
             quantity={workers.length}
             icon={<Person />}
           />

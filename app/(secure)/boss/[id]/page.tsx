@@ -45,7 +45,7 @@ export default function BossViewPage() {
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Visualização de Trabalhador
+        Visualização de Servidor
       </Typography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>

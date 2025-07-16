@@ -11,7 +11,7 @@ import {
   Stack,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useSearchParams, redirect, useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { Vacation } from "@/app/types";
 import { format } from "date-fns";
 import { useModal } from "@/context/ModalContext";

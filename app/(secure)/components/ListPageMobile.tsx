@@ -12,9 +12,11 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
 import { ItemListProps } from "./types";
-import { formatCellContent, translateEntityKey } from "@/app/utils";
+import { formatCellContent } from "@/app/utils";
+import { translateEntityKey } from "../../translate";
+import { Entity } from "@/app/types";
 
-export function ListPageMobile<T extends { _id: string }>({
+export function ListPageMobile<T extends Entity>({
   items,
   routePrefix,
   onDelete,
@@ -74,7 +76,7 @@ export function ListPageMobile<T extends { _id: string }>({
                       size="small"
                       onClick={(e) => {
                         e.stopPropagation();
-                        onDelete(item._id);
+                        onDelete(item);
                       }}
                     >
                       <DeleteIcon fontSize="small" />

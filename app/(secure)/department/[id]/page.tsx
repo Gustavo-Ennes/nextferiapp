@@ -73,9 +73,9 @@ export default function DepartmentViewPage() {
           </Box>
 
           <Box>
-            <Typography variant="subtitle2">Trabalhadores</Typography>
+            <Typography variant="subtitle2">Servidores</Typography>
             <Typography>
-              O departamento possui {workerQuantity} trabalhador
+              O departamento possui {workerQuantity} servidor
               {workerQuantity !== 1 ? "es" : ""}.
             </Typography>
           </Box>
