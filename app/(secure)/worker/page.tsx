@@ -5,7 +5,12 @@ const WorkerList = async () => {
   const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker`);
   const { workers } = await res.json();
   return (
-    <ResponsiveListPage<Worker> items={workers ?? []} routePrefix="worker" />
+    <ResponsiveListPage<Worker>
+      items={workers ?? []}
+      routePrefix="worker"
+      onConfirmDelete={() => undefined}
+      refetch={() => undefined}
+    />
   );
 };
 

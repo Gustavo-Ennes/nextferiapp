@@ -47,7 +47,7 @@ export default function BossFormPage() {
         return res.json();
       })
       .then((res) => {
-        setData(res.boss);
+        setData(res.data);
         setLoading(false);
       })
       .catch(() => {

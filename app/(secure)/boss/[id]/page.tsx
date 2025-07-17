@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, redirect } from "next/navigation";
 import {
   Container,
   Typography,
@@ -27,8 +27,8 @@ export default function BossViewPage() {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then((data) => setBoss(data.boss))
-      .catch(() => router.push("/not-found"))
+      .then((data) => setBoss(data.data))
+      .catch((err) => redirect("/not-found"))
       .finally(() => setLoading(false));
   }, [id, router]);
 
@@ -64,11 +64,11 @@ export default function BossViewPage() {
 
           <Box>
             <Typography variant="subtitle2">Diretor?</Typography>
-            <Typography>{boss?.isDirector ? "Sim" : "Não"}.</Typography>
+            <Typography>{boss?.isDirector ? "Sim" : "Não"}</Typography>
           </Box>
           <Box>
             <Typography variant="subtitle2">Ativo?</Typography>
-            <Typography>{boss?.isActive ? "Sim" : "Não"}.</Typography>
+            <Typography>{boss?.isActive ? "Sim" : "Não"}</Typography>
           </Box>
         </Stack>
       </Paper>

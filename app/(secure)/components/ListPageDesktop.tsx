@@ -9,16 +9,16 @@ import {
   TableRow,
   IconButton,
   Paper,
-  Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import { StyledRow } from "./styled";
-import { formatCellContent } from "@/app/utils";
+import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { ItemListProps } from "./types";
-import { Entity } from "@/app/types";
+import { Entity, Vacation } from "@/app/types";
 
 export const ListPageDesktop = <T extends Entity>({
   items,
@@ -26,7 +26,11 @@ export const ListPageDesktop = <T extends Entity>({
   onDelete,
 }: ItemListProps<T>) => {
   const router = useRouter();
-  const headers = items.length > 0 ? Object.keys(items[0]) : [];
+  const headers: string[] = [];
+    if (items.length > 0)
+      defaultEntityTableFields[routePrefix].forEach((key) =>
+        headers.push(key)
+      );
 
   const handleView = (_id: string) => {
     router.push(`/${routePrefix}/${_id}`);
@@ -41,7 +45,6 @@ export const ListPageDesktop = <T extends Entity>({
     e.stopPropagation();
     onDelete(entity);
   };
-
 
   return (
     <Box>
@@ -62,7 +65,12 @@ export const ListPageDesktop = <T extends Entity>({
               <StyledRow key={item._id} onClick={() => handleView(item._id)}>
                 {headers.map((key) => (
                   <TableCell key={key}>
-                    {formatCellContent(item[key as keyof T])}
+                    {key === "type"
+                      ? translateEntityKey({
+                          entity: routePrefix,
+                          key: (item as Vacation)['type'],
+                        })
+                      : formatCellContent(item[key as keyof T])}
                   </TableCell>
                 ))}
                 <TableCell align="center">

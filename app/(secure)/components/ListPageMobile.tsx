@@ -7,14 +7,15 @@ import {
   Typography,
   Box,
   Divider,
+  Grid,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
 import { ItemListProps } from "./types";
-import { formatCellContent } from "@/app/utils";
+import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
-import { Entity } from "@/app/types";
+import { Entity, Vacation, Worker } from "@/app/types";
 
 export function ListPageMobile<T extends Entity>({
   items,
@@ -22,44 +23,72 @@ export function ListPageMobile<T extends Entity>({
   onDelete,
 }: ItemListProps<T>) {
   const router = useRouter();
+  const getDefaultEntries = (obj: Entity) =>
+    Object.entries(obj).filter(
+      ([k]) =>
+        defaultEntityTableFields[routePrefix].includes(k) &&
+        !["name", "type"].includes(k)
+    );
 
   return (
-    <List>
+    <List sx={{ width: "100%" }}>
       {items.map((item) => {
-        const label = Object.values(item).find((val) =>
-          typeof val === "string" ? val.length > 3 : false
+        const label = (item as Vacation).type
+          ? translateEntityKey({
+              entity: "vacation",
+              key: (item as Vacation).type,
+            })
+          : (item as Worker).name;
+        const subtitles = getDefaultEntries(item).map(
+          ([k, v]) =>
+            `${translateEntityKey({
+              entity: routePrefix,
+              key: k,
+            })}: ${formatCellContent<T>(v)}`
         );
-        const subtitle = Object.entries(item)
-          .filter(([k]) => k !== "_id" && k !== "name")
-          .map(
-            ([k, v]) =>
-              `${translateEntityKey({
-                entity: routePrefix,
-                key: k,
-              })}: ${formatCellContent(v)}`
-          )
-          .join(" · ");
 
         return (
-          <Box key={item._id}>
-            <ListItem
-              onClick={() => router.push(`/${routePrefix}/${item._id}`)}
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-              }}
-            >
-              <Box
-                width="100%"
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography variant="subtitle1">
-                  {label || `Item ${item._id}`}
+          <ListItem
+            key={item._id}
+            onClick={() => router.push(`/${routePrefix}/${item._id}`)}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              width: "100%",
+            }}
+          >
+            <Grid container width={1}>
+              <Grid size={{ xs: 12, sm: 10 }}>
+                <Typography variant="h6">
+                  {label?.toUpperCase() || `Item ${item._id}`}
                 </Typography>
-                <Box>
+
+                <Divider />
+
+                {subtitles.length && (
+                  <Grid
+                    container
+                    gap={1}
+                    m={1}
+                    justifyContent="space-between"
+                    alignItems="center"
+                  >
+                    {subtitles.map((subtitle, i) => (
+                      <Typography key={`subtitle-${i}`} fontSize={12}>
+                        {subtitle}
+                      </Typography>
+                    ))}
+                  </Grid>
+                )}
+              </Grid>
+              <Grid
+                container
+                size={{ xs: 12, sm: 2 }}
+                alignItems="start"
+                textAlign="center"
+              >
+                <Grid size={{ xs: 6, sm: 12 }}>
                   <IconButton
                     edge="end"
                     size="small"
@@ -68,9 +97,12 @@ export function ListPageMobile<T extends Entity>({
                       router.push(`/${routePrefix}/form?id=${item._id}`);
                     }}
                   >
-                    <EditIcon fontSize="small" />
+                    <EditIcon fontSize="large" />
                   </IconButton>
-                  {onDelete && (
+                </Grid>
+
+                {onDelete && (
+                  <Grid size={{ xs: 6, sm: 12 }}>
                     <IconButton
                       edge="end"
                       size="small"
@@ -79,21 +111,18 @@ export function ListPageMobile<T extends Entity>({
                         onDelete(item);
                       }}
                     >
-                      <DeleteIcon fontSize="small" />
+                      <DeleteIcon fontSize="large" />
                     </IconButton>
-                  )}
-                </Box>
-              </Box>
-              {subtitle && (
-                <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  {subtitle}
-                </Typography>
-              )}
-            </ListItem>
-            <Divider />
-          </Box>
+                  </Grid>
+                )}
+              </Grid>
+            </Grid>
+          </ListItem>
         );
       })}
     </List>
   );
 }
+
+// TERMINE DE RETIRAR O MOCK DE BOSS
+// TIRE TODOS OS MOCKS

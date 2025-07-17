@@ -13,9 +13,13 @@ import { Vacation, Worker } from "@/app/types";
 const ResponsiveListPage = <T extends Entity>({
   items,
   routePrefix,
+  onConfirmDelete,
+  refetch,
 }: {
   items: T[];
   routePrefix: EntityType;
+  onConfirmDelete: (id: string, obs?: string) => void;
+  refetch: () => void;
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -36,20 +40,15 @@ const ResponsiveListPage = <T extends Entity>({
     open({
       title: "Confirme a exclusão",
       description: modalDescription,
-      onConfirm: (obs) => {
-        console.log(
-          `Você excluiu um(a) ${translateEntityKey({
-            entity: routePrefix,
-            key: "translated",
-          }).toLowerCase()} id: ${entity._id}.`,
-          obs
-        );
+      onConfirm: () => {
+        onConfirmDelete(entity._id);
+        refetch();
       },
     });
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mb: 4 }}>
+    <Container sx={{ mb: 4, p: 0, width: 1 }}>
       <Typography variant="h4" gutterBottom mb={4}>
         {translateEntityKey({
           entity: routePrefix,
@@ -69,7 +68,6 @@ const ResponsiveListPage = <T extends Entity>({
           items={items}
         />
       )}
-      ;
     </Container>
   );
 };

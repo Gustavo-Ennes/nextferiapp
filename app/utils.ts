@@ -1,5 +1,4 @@
 import {
-  isDate,
   format,
   addDays,
   startOfDay,
@@ -11,7 +10,17 @@ import { translateEntityKey } from "./translate";
 
 export const formatCellContent = <T extends { _id: string }>(
   value: T[keyof T]
-) => (isDate(value) ? format(value, "dd/MM/yyyy") : String(value));
+) => {
+  try {
+    if(value === true) return "Sim";
+    if(value === false) return "Não";
+    if((value as Worker)._id) return (value as Worker).name;
+    if (String(value).length <= 3) return String(value);
+    return format(new Date(value as string), "dd/MM/yyyy");
+  } catch {
+    return String(value);
+  }
+};
 
 export const getUpcomingReturns = (
   vacations: Vacation[],
@@ -78,14 +87,21 @@ export const endOfMorning = (date: Date): Date => {
 };
 
 export const sumarizeVacation = (vacation: Vacation): string => {
-  const isDayOff = vacation.type === 'dayOff'
+  const isDayOff = vacation.type === "dayOff";
   const type = translateEntityKey({ entity: "vacation", key: vacation.type });
   const startString = isDayOff ? "em" : "à partir de";
   const formatedDate = format(vacation.startDate, "dd/MM/yyyy");
-  const period = !isDayOff ? `( ${vacation.duration}D )` : ""
+  const period = !isDayOff ? `( ${vacation.duration}D )` : "";
   const dayOffPeriod = vacation.period === "half" ? "(meio-período)" : "";
   const vacationPeriod = isDayOff ? dayOffPeriod : period;
   const workerString = `do(a) servidor(a) ${vacation.worker.name}(${vacation.worker.matriculation})`;
 
   return `${type} ${startString} ${formatedDate}${vacationPeriod} ${workerString}`;
+};
+
+export const defaultEntityTableFields = {
+  boss: ["name", "role", "isDirector"],
+  worker: ["name", "role", "matriculation", "department"],
+  department: ["name", "responsible"],
+  vacation: ["worker", "duration", "startDate", "endDate", "type"],
 };

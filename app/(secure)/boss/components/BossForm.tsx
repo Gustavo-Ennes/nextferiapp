@@ -1,7 +1,8 @@
 "use client";
 
-import { Box, Button, TextField } from "@mui/material";
+import { TextField } from "@mui/material";
 import { useEffect, useState } from "react";
+import { SubmitButton } from "@/app/(secure)/components/FormSubmitButton";
 import { BossFormData, BossProps } from "../types";
 
 export function BossForm({
@@ -47,18 +48,14 @@ export function BossForm({
       <TextField
         fullWidth
         required
-        name="position"
+        name="role"
         label="Cargo"
         value={form.role}
         onChange={handleChange}
         sx={{ mb: 2 }}
       />
 
-      <Box display="flex" justifyContent="flex-end">
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando..." : "Salvar"}
-        </Button>
-      </Box>
+      <SubmitButton defaultValues={defaultValues} isSubmitting={isSubmitting} />
     </form>
   );
 }

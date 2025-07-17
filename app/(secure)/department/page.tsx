@@ -8,6 +8,8 @@ const DepartmentListPage = async () => {
     <ResponsiveListPage<Department>
       items={departments ?? []}
       routePrefix="department"
+      onConfirmDelete={() => undefined}
+      refetch={() => undefined}
     />
   );
 };
