@@ -1,10 +1,29 @@
-import { bosses } from "@/app/api/boss/mock";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import dbConnect from "@/lib/database";
+import Boss from "@/models/Boss";
 
-export const GET = async () => {
+export async function GET() {
+  await dbConnect();
+
   try {
-    return NextResponse.json({ bosses });
-  } catch (err) {
-    return NextResponse.json({ error: "failed to load data" });
+    const bosses = await Boss.find();
+    return NextResponse.json({ success: true, data: bosses });
+  } catch (error) {
+    return NextResponse.json({ error });
   }
-};
+}
+
+export async function POST(req: NextRequest) {
+  await dbConnect();
+  const body = await req.json();
+
+  try {
+    const boss = await Boss.create(body, {
+      runValidators: true,
+    });
+
+    return NextResponse.json({ data: boss });
+  } catch (error) {
+    return NextResponse.json({ error });
+  }
+}
