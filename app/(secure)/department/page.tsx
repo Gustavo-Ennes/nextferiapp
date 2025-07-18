@@ -1,17 +1,21 @@
 import { Department } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 
-const DepartmentListPage = async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/department`);
-  const { departments } = await res.json();
+const DepartmentList = async () => {
+  const fetchDepartments = async () => {
+    "use server";
+    return fetch(`${process.env.NEXT_PUBLIC_URL}/api/department`);
+  };
+  const res = await fetchDepartments();
+  const { data: departments } = await res.json();
+
   return (
     <ResponsiveListPage<Department>
       items={departments ?? []}
       routePrefix="department"
-      onConfirmDelete={() => undefined}
-      refetch={() => undefined}
+      refetch={fetchDepartments}
     />
   );
 };
 
-export default DepartmentListPage;
+export default DepartmentList;

@@ -13,17 +13,35 @@ import { Vacation, Worker } from "@/app/types";
 const ResponsiveListPage = <T extends Entity>({
   items,
   routePrefix,
-  onConfirmDelete,
   refetch,
 }: {
   items: T[];
   routePrefix: EntityType;
-  onConfirmDelete: (id: string, obs?: string) => void;
   refetch: () => void;
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { open } = useModal();
+
+  const onConfirmDelete = async (entity: Entity) => {
+    const url = `${process.env.NEXT_PUBLIC_URL}/${routePrefix}/${entity._id}`;
+
+    const res = await fetch(url, {
+      method: "delete",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `Erro ao deletar ${translateEntityKey({
+          entity: routePrefix,
+          key: "translated",
+        })?.toLowerCase()}.`
+      );
+    }
+  };
 
   const handleConfirmDelete = (entity: Entity) => {
     const key = translateEntityKey({
@@ -41,7 +59,7 @@ const ResponsiveListPage = <T extends Entity>({
       title: "Confirme a exclusão",
       description: modalDescription,
       onConfirm: () => {
-        onConfirmDelete(entity._id);
+        onConfirmDelete(entity);
         refetch();
       },
     });
