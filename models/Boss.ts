@@ -7,7 +7,6 @@ export interface Boss extends Document {
   isActive: boolean;
 }
 
-/* PetSchema will correspond to a collection in your MongoDB database. */
 const BossSchema = new Schema<Boss>(
   {
     name: {

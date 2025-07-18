@@ -13,7 +13,6 @@ const DepartmentList = async () => {
     <ResponsiveListPage<Department>
       items={departments ?? []}
       routePrefix="department"
-      refetch={fetchDepartments}
     />
   );
 };

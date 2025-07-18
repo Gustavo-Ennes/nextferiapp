@@ -13,7 +13,6 @@ const BossList = async () => {
     <ResponsiveListPage<Boss>
       items={bosses ?? []}
       routePrefix="boss"
-      refetch={fetchBosses}
     />
   );
 };

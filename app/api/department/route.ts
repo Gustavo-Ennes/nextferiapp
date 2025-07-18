@@ -1,10 +1,29 @@
-import { departments } from "@/app/api/department/mock";
-import { type NextRequest, NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import dbConnect from "@/lib/database";
+import Department from "@/models/Department";
 
-export const GET = async (req: NextRequest) => {
+export async function GET() {
+  await dbConnect();
+
   try {
-    return NextResponse.json({ departments });
-  } catch (err) {
-    return NextResponse.json({ error: "failed to load data" });
+    const departments = await Department.find();
+    return NextResponse.json({ success: true, data: departments });
+  } catch (error) {
+    return NextResponse.json({ error });
   }
-};
+}
+
+export async function POST(req: NextRequest) {
+  await dbConnect();
+  const body = await req.json();
+
+  try {
+    const department = await Department.create(body, {
+      runValidators: true,
+    });
+
+    return NextResponse.json({ data: department });
+  } catch (error) {
+    return NextResponse.json({ error });
+  }
+}

@@ -13,7 +13,6 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { StyledRow } from "./styled";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
@@ -27,10 +26,8 @@ export const ListPageDesktop = <T extends Entity>({
 }: ItemListProps<T>) => {
   const router = useRouter();
   const headers: string[] = [];
-    if (items.length > 0)
-      defaultEntityTableFields[routePrefix].forEach((key) =>
-        headers.push(key)
-      );
+  if (items.length > 0)
+    defaultEntityTableFields[routePrefix].forEach((key) => headers.push(key));
 
   const handleView = (_id: string) => {
     router.push(`/${routePrefix}/${_id}`);
@@ -68,7 +65,7 @@ export const ListPageDesktop = <T extends Entity>({
                     {key === "type"
                       ? translateEntityKey({
                           entity: routePrefix,
-                          key: (item as Vacation)['type'],
+                          key: (item as Vacation)["type"],
                         })
                       : formatCellContent(item[key as keyof T])}
                   </TableCell>

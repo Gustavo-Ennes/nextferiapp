@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, redirect } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Container, Typography } from "@mui/material";
 import { BossForm } from "../components/BossForm";
 import { BossFormData } from "../types";
@@ -10,6 +10,7 @@ export default function BossFormPage() {
   const searchParams = useSearchParams();
   const [data, setData] = useState<BossFormData>();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const id = searchParams.get("id");
 
@@ -31,7 +32,7 @@ export default function BossFormPage() {
       throw new Error("Erro ao salvar chefe");
     }
 
-    redirect("/boss");
+    router.push("/boss");
   };
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export default function BossFormPage() {
         setLoading(false);
       })
       .catch(() => {
-        redirect("/not-found");
+        router.push("/not-found");
       });
   }, [id]);
 

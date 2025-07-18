@@ -2,6 +2,7 @@
 
 import { useTheme } from "@mui/material/styles";
 import { Container, Typography, useMediaQuery } from "@mui/material";
+import { redirect } from "next/navigation";
 import { Entity, EntityType } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
 import { ListPageMobile } from "./ListPageMobile";
@@ -9,22 +10,22 @@ import { sumarizeVacation } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { useModal } from "@/context/ModalContext";
 import { Vacation, Worker } from "@/app/types";
+import { useState } from "react";
 
 const ResponsiveListPage = <T extends Entity>({
-  items,
+  items: itemsFromServer = [],
   routePrefix,
-  refetch,
 }: {
   items: T[];
   routePrefix: EntityType;
-  refetch: () => void;
 }) => {
+  const [items, setItems] = useState<T[]>(itemsFromServer);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { open } = useModal();
+  const { open, close } = useModal();
 
   const onConfirmDelete = async (entity: Entity) => {
-    const url = `${process.env.NEXT_PUBLIC_URL}/${routePrefix}/${entity._id}`;
+    const url = `${process.env.NEXT_PUBLIC_URL}/api/${routePrefix}/${entity._id}`;
 
     const res = await fetch(url, {
       method: "delete",
@@ -41,6 +42,9 @@ const ResponsiveListPage = <T extends Entity>({
         })?.toLowerCase()}.`
       );
     }
+
+    setItems((prev) => prev.filter((item) => item._id !== entity._id));
+    close();
   };
 
   const handleConfirmDelete = (entity: Entity) => {
@@ -60,7 +64,7 @@ const ResponsiveListPage = <T extends Entity>({
       description: modalDescription,
       onConfirm: () => {
         onConfirmDelete(entity);
-        refetch();
+        redirect(`/${routePrefix}`);
       },
     });
   };

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { redirect, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DepartmentForm } from "../components/DepartmentForm";
 import { DepartmentFormData } from "../types";
 import { Container, Typography } from "@mui/material";
@@ -10,10 +10,12 @@ export default function DepartmentFormPage() {
   const searchParams = useSearchParams();
   const [data, setData] = useState<DepartmentFormData>();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const id = searchParams.get("id");
 
-  const onSubmit = async () => {
+  const onSubmit = async (form: DepartmentFormData) => {
+    const body = JSON.stringify(form);
     const method = data ? "PUT" : "POST";
     const url = data
       ? `${process.env.NEXT_PUBLIC_URL}/api/department/${id}`
@@ -24,29 +26,28 @@ export default function DepartmentFormPage() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body,
     });
 
     if (!res.ok) {
       throw new Error("Failed to save department");
     }
-    redirect("/department");
+    router.push("/department/");
   };
 
   useEffect(() => {
     setLoading(true);
     const url = `${process.env.NEXT_PUBLIC_URL}/api/department/${id}`;
-    console.log("🚀 ~ useEffect ~ url:", url);
     fetch(url, {
       cache: "no-store",
     })
       .then((res) => res.json())
-      .then((data) => {
+      .then(({ data }) => {
         setLoading(false);
-        setData(data.department);
+        setData(data);
       })
       .catch(() => {
-        // redirect("/not-found");
+        router.push("/not-found");
       });
   }, [id]);
 

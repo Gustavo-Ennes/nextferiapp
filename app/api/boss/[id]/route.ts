@@ -21,7 +21,6 @@ export async function PUT(req: NextRequest) {
   await dbConnect();
   const { url } = req;
   const body = await req.json();
-  console.log("🚀 ~ PUT ~ body:", body)
   const id = url?.split("/").pop();
 
   try {
