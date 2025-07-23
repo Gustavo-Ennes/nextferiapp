@@ -14,10 +14,15 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
 import { StyledRow } from "./styled";
-import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
+import {
+  capitalizeFirstLetter,
+  defaultEntityTableFields,
+  formatCellContent,
+} from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { ItemListProps } from "./types";
 import { Entity, Vacation } from "@/app/types";
+import { PictureAsPdf } from "@mui/icons-material";
 
 export const ListPageDesktop = <T extends Entity>({
   items,
@@ -67,7 +72,10 @@ export const ListPageDesktop = <T extends Entity>({
                           entity: routePrefix,
                           key: (item as Vacation)["type"],
                         })
-                      : formatCellContent(item[key as keyof T])}
+                      : formatCellContent({
+                          value: item[key as keyof T],
+                          isName: key === "name",
+                        })}
                   </TableCell>
                 ))}
                 <TableCell align="center">
@@ -76,6 +84,13 @@ export const ListPageDesktop = <T extends Entity>({
                   </IconButton>
                   <IconButton onClick={(e) => handleDelete(e, item)}>
                     <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={(e) =>
+                      router.push(`api/${routePrefix}/${item._id}`)
+                    }
+                  >
+                    <PictureAsPdf />
                   </IconButton>
                 </TableCell>
               </StyledRow>

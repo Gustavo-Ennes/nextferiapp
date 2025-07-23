@@ -11,29 +11,50 @@ import {
   TextField,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useEffect, useState } from "react";
+import { Key, useState } from "react";
+import { useRouter } from "next/navigation";
 import { VacationFormData, VacationProps, VacationType } from "../types";
-import { workers } from "../../../api/worker/mock";
 
 export function VacationForm({
   defaultValues,
-  onSubmit,
-  isSubmitting = false,
+  id,
+  workers,
+  bosses,
 }: VacationProps) {
   const [form, setForm] = useState<VacationFormData>({
-    worker: null,
-    startDate: new Date(),
-    type: "normal",
-    duration: 15,
-    period: "full",
-    observation: "",
+    worker: defaultValues?.worker?._id ?? null,
+    boss: defaultValues?.boss?._id ?? null,
+    startDate: defaultValues?.startDate
+      ? new Date(defaultValues.startDate)
+      : new Date(),
+    type: defaultValues?.type || "normal",
+    duration: (defaultValues?.duration || defaultValues?.daysQtd) ?? 15,
+    period: defaultValues?.period ?? "full",
+    observation: defaultValues?.observation ?? "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    if (defaultValues) {
-      setForm(defaultValues);
-    }
-  }, [defaultValues]);
+  const onSubmit = async (formData: VacationFormData) => {
+    setIsSubmitting(true);
+    const method = id ? "PUT" : "POST";
+    const url = id
+      ? `${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`
+      : `${process.env.NEXT_PUBLIC_URL}/api/vacation`;
+
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!res.ok) throw new Error("Erro ao salvar folga");
+
+    setIsSubmitting(false);
+    router.push("/vacation");
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({
@@ -69,7 +90,13 @@ export function VacationForm({
   const handleWorkerChange = (value: string) =>
     setForm((prev) => ({
       ...prev,
-      workerId: value,
+      worker: value,
+    }));
+
+  const handleBossChange = (value: string) =>
+    setForm((prev) => ({
+      ...prev,
+      boss: value,
     }));
 
   const durations = () => {
@@ -90,12 +117,12 @@ export function VacationForm({
         <InputLabel>Servidor</InputLabel>
         <Select
           name="type"
-          value={form.worker?._id ?? ""}
+          value={form.worker ?? ""}
           label="Servidor"
           onChange={(e) => handleWorkerChange(e.target.value)}
         >
           {workers?.map((worker) => (
-            <MenuItem key={worker._id} value={worker._id}>
+            <MenuItem key={worker._id as Key} value={worker._id as string}>
               {worker.name}
             </MenuItem>
           ))}
@@ -156,6 +183,22 @@ export function VacationForm({
           </Select>
         </FormControl>
       )}
+
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <InputLabel>Aprovante</InputLabel>
+        <Select
+          name="type"
+          value={form.boss ?? ""}
+          label="Chefe"
+          onChange={(e) => handleBossChange(e.target.value)}
+        >
+          {bosses?.map((boss) => (
+            <MenuItem key={boss._id as Key} value={boss._id as string}>
+              {boss.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
       {form.observation && (
         <TextField

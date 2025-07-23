@@ -4,3 +4,8 @@ export interface ItemListProps<T extends { _id: string }> {
   routePrefix: EntityType;
   onDelete: (entity: Entity) => void;
 }
+
+export type MenuItem = {
+  label: string;
+  action: () => void;
+};

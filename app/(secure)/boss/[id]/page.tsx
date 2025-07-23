@@ -6,7 +6,6 @@ import {
   Container,
   Typography,
   Box,
-  CircularProgress,
   Button,
   Divider,
   Grid,
@@ -19,7 +18,6 @@ export default function BossViewPage() {
   const { id } = useParams();
   const router = useRouter();
   const [boss, setBoss] = useState<Boss | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`/api/boss/${id}`)
@@ -27,18 +25,10 @@ export default function BossViewPage() {
         if (!res.ok) throw new Error();
         return res.json();
       })
-      .then((data) => setBoss(data.data))
-      .catch((err) => redirect("/not-found"))
-      .finally(() => setLoading(false));
+      .then(({ data }) => setBoss(data))
+      .catch((err) => redirect("/not-found"));
   }, [id, router]);
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" mt={6}>
-        <CircularProgress />
-      </Box>
-    );
-  }
   const handleEdit = () => {};
   const handleDelete = () => {};
 

@@ -1,9 +1,10 @@
-import { Worker } from "@/app/types";
+import { Worker, Boss, Vacation } from "@/app/types";
 
 export type VacationType = "normal" | "license" | "dayOff";
 
 export interface VacationFormData {
-  worker: Worker | null;
+  worker: string | null;
+  boss: string | null;
   startDate: Date;
   type: VacationType;
   duration: number; // em dias
@@ -12,7 +13,8 @@ export interface VacationFormData {
 }
 
 export interface VacationProps {
-  defaultValues?: VacationFormData;
-  onSubmit: (data: VacationFormData) => void;
-  isSubmitting?: boolean;
+  workers: Worker[];
+  bosses: Boss[];
+  defaultValues?: Vacation;
+  id?: string;
 }

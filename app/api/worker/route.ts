@@ -1,10 +1,31 @@
-import { workers } from "@/app/api/worker/mock";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import dbConnect from "@/lib/database";
+import Worker from "@/models/Worker";
+import { revalidatePath } from "next/cache";
 
-export const GET = async () => {
+export async function GET() {
+  await dbConnect();
+
   try {
-    return NextResponse.json({ workers });
-  } catch (err) {
-    return NextResponse.json({ error: "failed to load data" });
+    const workers = await Worker.find().populate("department");
+    return NextResponse.json({ success: true, data: workers });
+  } catch (error) {
+    return NextResponse.json({ error });
   }
-};
+}
+
+export async function POST(req: NextRequest) {
+  await dbConnect();
+  const body = await req.json();
+
+  try {
+    const worker = await Worker.create(body);
+
+    revalidatePath("/worker");
+    return NextResponse.json({ data: worker });
+  } catch (error) {
+    return NextResponse.json({ error });
+  }
+}
+
+// colocar admissionDate no form do worker

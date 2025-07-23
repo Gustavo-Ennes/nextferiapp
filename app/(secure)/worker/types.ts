@@ -1,14 +1,16 @@
-import { Department } from "@/app/types";
+import { Department, Worker } from "@/app/types";
 
 export interface WorkerFormData {
   name: string;
   matriculation: string;
+  registry: string;
   role: string;
-  department: Department | null;
+  department: string | null;
+  admissionDate: Date;
+  justification?: string;
 }
 
 export interface WorkerProps {
-  defaultValues?: WorkerFormData;
-  onSubmit: (data: WorkerFormData) => void;
-  isSubmitting?: boolean;
+  defaultValues?: Worker;
+  departments: Department[];
 }

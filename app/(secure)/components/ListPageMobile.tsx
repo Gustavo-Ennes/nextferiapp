@@ -16,6 +16,7 @@ import { ItemListProps } from "./types";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { Entity, Vacation, Worker } from "@/app/types";
+import { PictureAsPdf } from "@mui/icons-material";
 
 export function ListPageMobile<T extends Entity>({
   items,
@@ -59,7 +60,7 @@ export function ListPageMobile<T extends Entity>({
             }}
           >
             <Grid container width={1}>
-              <Grid size={{ xs: 12, sm: 10 }}>
+              <Grid size={{ xs: 10, sm: 11 }}>
                 <Typography variant="h6">
                   {label?.toUpperCase() || `Item ${item._id}`}
                 </Typography>
@@ -84,11 +85,11 @@ export function ListPageMobile<T extends Entity>({
               </Grid>
               <Grid
                 container
-                size={{ xs: 12, sm: 2 }}
+                size={{ xs: 2, sm: 1 }}
                 alignItems="start"
                 textAlign="center"
               >
-                <Grid size={{ xs: 6, sm: 12 }}>
+                <Grid size={12}>
                   <IconButton
                     edge="end"
                     size="small"
@@ -101,8 +102,21 @@ export function ListPageMobile<T extends Entity>({
                   </IconButton>
                 </Grid>
 
+                <Grid size={12}>
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/pdf/${routePrefix}/${item._id}`);
+                    }}
+                  >
+                    <PictureAsPdf fontSize="large" />
+                  </IconButton>
+                </Grid>
+
                 {onDelete && (
-                  <Grid size={{ xs: 6, sm: 12 }}>
+                  <Grid size={12}>
                     <IconButton
                       edge="end"
                       size="small"

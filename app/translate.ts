@@ -1,4 +1,5 @@
 import { EntityType } from "./types";
+import { capitalizeFirstLetter } from "./utils";
 
 export const translateEntityKey = ({
   entity,
@@ -40,6 +41,8 @@ export const translateEntityKey = ({
       worker: "Servidor",
       createdAt: "Criação",
       updatedAt: "Atualização",
+      period: "Período",
+      cancelled: "cancelada",
       boss: "Chefe",
       observation: "Observação",
       translated: "Folga",
@@ -47,6 +50,7 @@ export const translateEntityKey = ({
       dayOff: "abonada",
       license: "licença-prêmio",
       normal: "férias",
+      returnDate: "Retorno"
     },
     boss: {
       _id: "id",
@@ -61,6 +65,6 @@ export const translateEntityKey = ({
     },
   };
   return entity
-    ? dictionary[entity][key as keyof (typeof dictionary)[EntityType]]
+    ? capitalizeFirstLetter(dictionary[entity][key as keyof (typeof dictionary)[EntityType]])
     : "Informações";
 };

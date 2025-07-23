@@ -5,7 +5,7 @@ export interface Department extends Document {
   responsible: string;
 }
 
-const DepartmentSchema = new Schema<Department>(
+export const DepartmentSchema = new Schema<Department>(
   {
     name: {
       type: String,

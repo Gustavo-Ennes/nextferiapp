@@ -1,9 +1,7 @@
-import dbConnect from "@/lib/database";
-import { Page } from "./page.client";
+import { redirect } from "next/navigation";
 
-const PageServer = async () => {
-  await dbConnect();
-  return <Page />;
-};
+function Page() {
+  return redirect("/info");
+}
 
-export default PageServer;
+export default Page;

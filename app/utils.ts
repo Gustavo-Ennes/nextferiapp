@@ -1,24 +1,25 @@
-import {
-  format,
-  addDays,
-  startOfDay,
-  endOfYesterday,
-  set,
-} from "date-fns";
-import { Vacation, Worker } from "./types";
+import { format, addDays, startOfDay, endOfYesterday, set } from "date-fns";
+import { Vacation, Worker, Department } from "./types";
 import { translateEntityKey } from "./translate";
 
-export const formatCellContent = <T extends { _id: string }>(
-  value: T[keyof T]
-) => {
+export const formatCellContent = <T extends { _id: string }>({
+  value,
+  isName,
+}: {
+  value: T[keyof T];
+  // when value isn't a obj
+  isName?: boolean;
+}) => {
   try {
-    if(value === true) return "Sim";
-    if(value === false) return "Não";
-    if((value as Worker)._id) return (value as Worker).name;
+    if (value === true) return "Sim";
+    if (value === false) return "Não";
+    // when value is a obj I want to show the entity name(except vacation)
+    if ((value as Worker)._id) return capitalizeName((value as Worker).name);
+    if (isName) return capitalizeName(value as string);
     if (String(value).length <= 3) return String(value);
     return format(new Date(value as string), "dd/MM/yyyy");
   } catch {
-    return String(value);
+    return capitalizeFirstLetter(String(value));
   }
 };
 
@@ -103,5 +104,20 @@ export const defaultEntityTableFields = {
   boss: ["name", "role", "isDirector"],
   worker: ["name", "role", "matriculation", "department"],
   department: ["name", "responsible"],
-  vacation: ["worker", "duration", "startDate", "endDate", "type"],
+  vacation: ["worker", "duration", "startDate", "returnDate", "type"],
+};
+
+export const capitalizeFirstLetter = (str?: string): string =>
+  str  ? str.charAt(0)?.toUpperCase() + str.slice(1) : ""
+
+export const capitalizeName = (name: string): string => {
+  const names = name.split(" ");
+  const notCapitalizable = ["da", "das", "de", "di", "do", "dos"];
+  return names
+    .map((name) =>
+      !notCapitalizable.includes(name)
+        ? `${name[0].toUpperCase()}${name.substring(1)}`
+        : name
+    )
+    .join(" ");
 };
