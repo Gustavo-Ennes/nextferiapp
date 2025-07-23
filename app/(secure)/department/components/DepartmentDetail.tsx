@@ -13,11 +13,17 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import {  Worker } from "@/app/types";
+import { Department } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 
-export function WorkerDetail({ worker }: { worker: Worker }) {
+export function DepartmentDetail({
+  department,
+  workerQuantity = 0,
+}: {
+  department: Department;
+  workerQuantity: number;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const { open } = useModal();
@@ -30,50 +36,50 @@ export function WorkerDetail({ worker }: { worker: Worker }) {
     );
   }
 
-  const handleEdit = () => router.push(`/worker/form?id=${worker._id}`);
+  const handleEdit = () => router.push(`/department/form?id=${department._id}`);
   const handleDelete = () =>
     open({
-      title: "Excluir servidor",
-      description: `Deseja excluir o servidor ${capitalizeName(worker.name)}?`,
+      title: "Excluir chefe",
+      description: `Deseja excuir o departamento ${capitalizeName(
+        department.name
+      )}?`,
       onConfirm: async () => {
         setLoading(true);
-        fetch(`/api/worker/${worker._id}`, { method: "delete" })
-          .then((res) => res.json())
-          .then((data) => {
-            setLoading(false);
-            router.push("/worker");
-          });
+        fetch(`/api/department/${department._id}`, {
+          method: "delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then(() => setLoading(false));
       },
     });
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Visualização de servidor
+        Visualização de departamento
       </Typography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Stack spacing={2}>
           <Box>
             <Typography variant="subtitle2">Nome</Typography>
-            <Typography>{worker?.name}</Typography>
+            <Typography>{department?.name}</Typography>
           </Box>
 
           <Divider />
 
           <Box>
-            <Typography variant="subtitle2">Cargo</Typography>
-            <Typography>{worker?.role}</Typography>
+            <Typography variant="subtitle2">Responsável</Typography>
+            <Typography>{department?.responsible}</Typography>
           </Box>
 
           <Box>
-            <Typography variant="subtitle2">Matrícula</Typography>
-            <Typography>{worker?.matriculation}</Typography>
-          </Box>
-
-          <Box>
-            <Typography variant="subtitle2">Departamento</Typography>
-            <Typography>{worker?.department.name}</Typography>
+            <Typography variant="subtitle2">Servidores</Typography>
+            <Typography>
+              O departamento possui {workerQuantity} servidor
+              {workerQuantity !== 1 ? "es" : ""}.
+            </Typography>
           </Box>
         </Stack>
       </Paper>

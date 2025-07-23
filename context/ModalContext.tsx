@@ -22,7 +22,7 @@ type ModalOptions = {
   confirmLabel?: string;
   cancelLabel?: string;
   input?: boolean;
-  onConfirm: (observation: string) => void;
+  onConfirm: (observation: string) => Promise<void>;
 };
 
 const ModalContext = createContext<ModalContextType | null>(null);
@@ -50,8 +50,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const handleConfirm = () => {
-    options?.onConfirm(observation);
-    close();
+    options?.onConfirm(observation).then(close);
   };
 
   return (

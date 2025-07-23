@@ -44,7 +44,7 @@ export const WorkerSchema = new Schema<Worker>(
       ref: "Department",
       required: [true, "Please provide the worker's department."],
     },
-    justification: String,
+    justification: { type: String },
   },
   {
     collection: "workers",

@@ -1,6 +1,6 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import type { Document } from "mongoose";
-import { Boss } from "./index";
+import { Boss, Worker } from "./index";
 
 export interface Vacation extends Document {
   duration?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
@@ -10,7 +10,7 @@ export interface Vacation extends Document {
   startDate: Date;
   endDate: Date;
   deferred: boolean;
-  worker: mongoose.Types.ObjectId | Worker;
+  worker: mongoose.Types.ObjectId | Worker.Worker;
   boss: mongoose.Types.ObjectId | Boss.Boss;
   observation?: string;
   cancelled?: boolean;

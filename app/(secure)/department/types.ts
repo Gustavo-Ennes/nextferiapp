@@ -1,3 +1,4 @@
+import { Department } from "@/app/types";
 
 export type DepartmentFormData = {
   name: string;
@@ -5,7 +6,5 @@ export type DepartmentFormData = {
 };
 
 export type DepartmentProps = {
-  defaultValues?: DepartmentFormData;
-  onSubmit: (data: DepartmentFormData) => void;
-  isSubmitting?: boolean;
+  defaultValues?: Department;
 };

@@ -62,6 +62,7 @@ export const translateEntityKey = ({
       isActive: "Ativo",
       translated: "Chefe",
       translatedPlural: "Chefes",
+      worker: "Servidor"
     },
   };
   return entity

@@ -3,6 +3,7 @@ export type Boss = {
   name: string;
   role: string;
   isDirector: boolean;
+  worker?: Worker;
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;

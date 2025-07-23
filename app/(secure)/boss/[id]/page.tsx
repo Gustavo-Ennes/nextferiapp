@@ -1,81 +1,14 @@
-"use client";
+import { BossDetail } from "../components/BossDetail";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter, redirect } from "next/navigation";
-import {
-  Container,
-  Typography,
-  Box,
-  Button,
-  Divider,
-  Grid,
-  Paper,
-  Stack,
-} from "@mui/material";
-import { Boss } from "@/app/types";
+export default async function BossViewPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const { data: boss } = await (
+    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss/${id}`)
+  ).json();
 
-export default function BossViewPage() {
-  const { id } = useParams();
-  const router = useRouter();
-  const [boss, setBoss] = useState<Boss | null>(null);
-
-  useEffect(() => {
-    fetch(`/api/boss/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(({ data }) => setBoss(data))
-      .catch((err) => redirect("/not-found"));
-  }, [id, router]);
-
-  const handleEdit = () => {};
-  const handleDelete = () => {};
-
-  return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Visualização de Servidor
-      </Typography>
-
-      <Paper variant="outlined" sx={{ p: 3 }}>
-        <Stack spacing={2}>
-          <Box>
-            <Typography variant="subtitle2">Nome</Typography>
-            <Typography>{boss?.name}</Typography>
-          </Box>
-
-          <Divider />
-
-          <Box>
-            <Typography variant="subtitle2">Cargo</Typography>
-            <Typography>{boss?.role}</Typography>
-          </Box>
-
-          <Box>
-            <Typography variant="subtitle2">Diretor?</Typography>
-            <Typography>{boss?.isDirector ? "Sim" : "Não"}</Typography>
-          </Box>
-          <Box>
-            <Typography variant="subtitle2">Ativo?</Typography>
-            <Typography>{boss?.isActive ? "Sim" : "Não"}</Typography>
-          </Box>
-        </Stack>
-      </Paper>
-      <Grid
-        container
-        spacing={2}
-        my={3}
-        alignContent="center"
-        justifyContent="space-between"
-      >
-        <Button variant="contained" onClick={handleDelete}>
-          Excluir
-        </Button>
-        <Button variant="contained" onClick={handleEdit}>
-          Editar
-        </Button>
-      </Grid>
-    </Container>
-  );
+  return <BossDetail boss={boss} />;
 }

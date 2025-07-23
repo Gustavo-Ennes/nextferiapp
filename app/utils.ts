@@ -101,7 +101,7 @@ export const sumarizeVacation = (vacation: Vacation): string => {
 };
 
 export const defaultEntityTableFields = {
-  boss: ["name", "role", "isDirector"],
+  boss: ["worker", "role", "isDirector"],
   worker: ["name", "role", "matriculation", "department"],
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],

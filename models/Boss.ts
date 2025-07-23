@@ -1,17 +1,18 @@
-import { Document, Schema, models, model } from "mongoose";
+import { Document, Schema, models, model, Types } from "mongoose";
+import { Worker } from ".";
 
 export interface Boss extends Document {
-  name: string;
+  name?: string;
   role: string;
   isDirector: boolean;
   isActive: boolean;
+  worker: Types.ObjectId | Worker.Worker;
 }
 
 const BossSchema = new Schema<Boss>(
   {
     name: {
       type: String,
-      required: [true, "Please provide a name for this boss."],
       maxlength: [60, "Name cannot be more than 60 characters"],
     },
     role: {
@@ -25,7 +26,12 @@ const BossSchema = new Schema<Boss>(
     },
     isActive: {
       type: Boolean,
-      default: false,
+      default: true,
+    },
+    worker: {
+      type: Schema.Types.ObjectId,
+      ref: "Worker",
+      required: [true, "Select a worker."],
     },
   },
   {

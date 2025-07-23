@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const boss = await Boss.findById(id);
+    const boss = await Boss.findById(id).populate('worker');
     if (!boss) return NextResponse.json({ error: "Boss not found." });
 
     return NextResponse.json({ success: true, data: boss });
@@ -24,10 +24,7 @@ export async function PUT(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const boss = await Boss.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
+    const boss = await Boss.findByIdAndUpdate(id, body);
     if (!boss) return NextResponse.json({ error: "Boss not found." });
 
     return NextResponse.json({ data: boss });

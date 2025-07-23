@@ -30,7 +30,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           title: "Cancelar folga",
           description: "Deseja cancelar essa folga?",
           input: true,
-          onConfirm: (obs) => {
+          onConfirm: async(obs) => {
             console.log("Observação:", obs);
           },
         }),
@@ -42,7 +42,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           title: "Cancelar e imprimir requisição de cancelamento",
           description: "Deseja cancelar e imprimir a requisição para o RH?",
           input: true,
-          onConfirm: (obs) => {
+          onConfirm: async(obs) => {
             console.log("Observação para impressão:", obs);
           },
         }),
@@ -55,7 +55,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           description:
             "Deseja cancelar(sem requerimento RH) e remarcar essa folga?",
           input: true,
-          onConfirm: (obs) => {
+          onConfirm: async(obs) => {
             console.log("Observação para remarcação:", obs);
           },
         }),
@@ -68,7 +68,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           description:
             "Deseja cancelar com requirimento para o RH e remarcar essa folga?",
           input: true,
-          onConfirm: (obs) => {
+          onConfirm: async(obs) => {
             console.log("Observação para remarcação:", obs);
           },
         }),

@@ -1,10 +1,11 @@
+import { Worker, Boss } from "@/app/types";
+
 export interface BossFormData {
-  name: string;
+  worker: string | null;
   role: string;
 }
 
 export interface BossProps {
-  defaultValues?: BossFormData;
-  onSubmit: (data: BossFormData) => void;
-  isSubmitting?: boolean;
+  defaultValues?: Boss;
+  workers: Worker[];
 }

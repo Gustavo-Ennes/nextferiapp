@@ -1,25 +1,47 @@
 "use client";
 
-import { TextField } from "@mui/material";
-import { useEffect, useState } from "react";
+import {
+  TextField,
+  InputLabel,
+  FormControl,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+} from "@mui/material";
+import { useState } from "react";
 import { SubmitButton } from "@/app/(secure)/components/FormSubmitButton";
 import { BossFormData, BossProps } from "../types";
+import { useRouter } from "next/navigation";
 
-export function BossForm({
-  defaultValues,
-  onSubmit,
-  isSubmitting = false,
-}: BossProps) {
+export function BossForm({ defaultValues, workers }: BossProps) {
+  const router = useRouter();
   const [form, setForm] = useState<BossFormData>({
-    name: "",
-    role: "",
+    worker: defaultValues?.worker?._id ?? null,
+    role: defaultValues?.role ?? "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (defaultValues) {
-      setForm(defaultValues);
+  const onSubmit = async (formData: BossFormData) => {
+    const method = defaultValues ? "PUT" : "POST";
+    const url = defaultValues
+      ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${defaultValues._id}`
+      : `${process.env.NEXT_PUBLIC_URL}/api/boss`;
+
+    setIsSubmitting(true);
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro ao salvar chefe");
     }
-  }, [defaultValues]);
+    setIsSubmitting(false);
+    router.push("/boss");
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({
@@ -32,18 +54,30 @@ export function BossForm({
     e.preventDefault();
     onSubmit(form);
   };
+  const handleSelectChange = (e: SelectChangeEvent<string>) => {
+    setForm((prev) => ({
+      ...prev,
+      worker: e.target.value ?? null,
+    }));
+  };
 
   return (
     <form onSubmit={handleSubmit}>
-      <TextField
-        fullWidth
-        required
-        name="name"
-        label="Nome"
-        value={form.name}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <InputLabel>Servidor</InputLabel>
+        <Select
+          name="worker"
+          value={form.worker ?? ""}
+          label="Departamento"
+          onChange={handleSelectChange}
+        >
+          {workers.map((worker) => (
+            <MenuItem key={worker._id} value={worker._id}>
+              {worker.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
       <TextField
         fullWidth
