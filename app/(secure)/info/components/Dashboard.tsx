@@ -3,8 +3,8 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { getDaysUntilWorkerReturns } from "@/app/utils";
 import { addSeconds, format } from "date-fns";
-import NumberCard from "./components/NumberCard";
-import TextCard from "./components/TextCard";
+import NumberCard from "./NumberCard";
+import TextCard from "./TextCard";
 import {
   BusAlert,
   Business,
@@ -15,7 +15,7 @@ import {
 } from "@mui/icons-material";
 import { Vacation, Worker, Department } from "@/app/types";
 
-function DashboardHome({
+function Dashboard({
   data,
 }: {
   data: {
@@ -38,6 +38,31 @@ function DashboardHome({
     upcomingLeaves,
     upcomingReturns,
   } = data;
+
+  const onVacationTodayDetails = onVacationToday
+    ? onVacationToday.map((worker) =>
+        worker
+          ? `${worker?.name} - retorna em ${getDaysUntilWorkerReturns(
+              worker,
+              vacations
+            )} dias\n`
+          : ""
+      )
+    : ["Ninguém folgando hoje."];
+
+  const returningTodayDetails = returningToday
+    ? returningToday.map(({ worker }) => worker?.name)
+    : ["Ninguém retornando hoje."];
+
+  const upcomingLeavesLines = upcomingLeaves?.map(({ worker, startDate }) => ({
+    primary: worker?.name,
+    secondary: `Saindo dia ${format(startDate, "dd/MM/yyyy")}`,
+  }));
+
+  const upcomingReturnsLines = upcomingReturns?.map(({ worker, endDate }) => ({
+    primary: worker?.name,
+    secondary: `Retornando dia ${format(addSeconds(endDate, 1), "dd/MM/yyyy")}`,
+  }));
 
   return (
     <Box>
@@ -68,13 +93,7 @@ function DashboardHome({
             label="Folgando hoje"
             quantity={onVacationToday.length}
             icon={<BusAlert />}
-            details={onVacationToday?.map(
-              (worker) =>
-                `${worker?.name} - retorna em ${getDaysUntilWorkerReturns(
-                  worker,
-                  vacations
-                )} dias\n`
-            )}
+            details={onVacationTodayDetails}
           />
         </Grid>
 
@@ -83,36 +102,38 @@ function DashboardHome({
             label="Retornando hoje"
             quantity={returningToday.length}
             icon={<DirectionsBus />}
-            details={returningToday?.map(({ worker }) => worker?.name)}
+            details={returningTodayDetails}
           />
         </Grid>
       </Grid>
 
-      <Grid container spacing={3} sx={{ mt: 4 }}>
+      <Grid
+        container
+        spacing={3}
+        sx={{ mt: 4 }}
+        hidden={!upcomingLeavesLines && !upcomingReturnsLines}
+      >
         {/* Saídas próximas */}
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid
+          size={{ xs: 12, md: upcomingReturnsLines.length ? 6 : 12 }}
+          hidden={!upcomingLeavesLines}
+        >
           <TextCard
             label="Próximas Saídas"
             icon={<HourglassTop />}
-            lines={upcomingLeaves?.map(({ worker, startDate }) => ({
-              primary: worker?.name,
-              secondary: `Saindo dia ${format(startDate, "dd/MM/yyyy")}`,
-            }))}
+            lines={upcomingLeavesLines}
           />
         </Grid>
 
         {/* Retornos próximos */}
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid
+          size={{ xs: 12, md: upcomingLeavesLines.length ? 6 : 12 }}
+          hidden={!upcomingReturnsLines}
+        >
           <TextCard
             label="Próximos Retornos"
             icon={<HourglassBottom />}
-            lines={upcomingReturns?.map(({ worker, endDate }) => ({
-              primary: worker?.name,
-              secondary: `Retornando dia ${format(
-                addSeconds(endDate, 1),
-                "dd/MM/yyyy"
-              )}`,
-            }))}
+            lines={upcomingReturnsLines}
           />
         </Grid>
       </Grid>
@@ -120,4 +141,4 @@ function DashboardHome({
   );
 }
 
-export { DashboardHome };
+export { Dashboard };

@@ -1,5 +1,5 @@
 import { format, addDays, startOfDay, endOfYesterday, set } from "date-fns";
-import { Vacation, Worker, Department } from "./types";
+import { Vacation, Worker } from "./types";
 import { translateEntityKey } from "./translate";
 
 export const formatCellContent = <T extends { _id: string }>({
@@ -27,48 +27,58 @@ export const getUpcomingReturns = (
   vacations: Vacation[],
   today: Date = new Date()
 ): Vacation[] =>
-  vacations.filter(
-    ({ endDate }) =>
-      new Date(endDate) >= today && new Date(endDate) <= addDays(today, 10)
-  );
+  vacations
+    ? vacations.filter(
+        ({ endDate }) =>
+          new Date(endDate) >= today && new Date(endDate) <= addDays(today, 10)
+      )
+    : [];
 
 export const getUpcomingLeaves = (
   vacations: Vacation[],
   today: Date = new Date()
 ): Vacation[] =>
-  vacations.filter(
-    ({ startDate }) =>
-      new Date(startDate) >= today && new Date(startDate) <= addDays(today, 10)
-  );
+  vacations
+    ? vacations.filter(
+        ({ startDate }) =>
+          new Date(startDate) >= today &&
+          new Date(startDate) <= addDays(today, 10)
+      )
+    : [];
 
 export const getTodayReturns = (vacations: Vacation[]): Vacation[] =>
-  vacations.filter(
-    ({ endDate }) => new Date(endDate).getTime() === endOfYesterday().getTime()
-  );
+  vacations
+    ? vacations.filter(
+        ({ endDate }) =>
+          new Date(endDate).getTime() === endOfYesterday().getTime()
+      )
+    : [];
 
 export const getWorkersOnVacation = (
-  vacations: Vacation[],
+  vacations?: Vacation[],
   today: Date = new Date()
 ): Worker[] =>
   vacations
-    .filter(({ startDate, endDate }) => {
-      return (
-        new Date(startDate) < startOfDay(today) &&
-        new Date(endDate) >= startOfDay(today)
-      );
-    })
-    .map((vacation) => vacation.worker);
+    ? vacations
+        .filter(({ startDate, endDate }) => {
+          return (
+            new Date(startDate) < startOfDay(today) &&
+            new Date(endDate) >= startOfDay(today)
+          );
+        })
+        .map((vacation) => vacation.worker)
+    : [];
 
 // returning zero means the worker returns today
 // return -1 means the worker is not on vacation
 export const getDaysUntilWorkerReturns = (
   worker: Worker,
-  vacations: Vacation[],
+  vacations?: Vacation[],
   today: Date = new Date()
 ): number => {
-  const vacation = vacations.find(
+  const vacation = vacations?.find(
     (vac) =>
-      vac.worker._id === worker._id &&
+      vac.worker?._id === worker._id &&
       new Date(vac.startDate) <= today &&
       new Date(vac.endDate) >= today
   );
@@ -108,7 +118,7 @@ export const defaultEntityTableFields = {
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>
-  str  ? str.charAt(0)?.toUpperCase() + str.slice(1) : ""
+  str ? str.charAt(0)?.toUpperCase() + str.slice(1) : "";
 
 export const capitalizeName = (name: string): string => {
   const names = name.split(" ");

@@ -4,7 +4,7 @@ import {
   getUpcomingReturns,
   getWorkersOnVacation,
 } from "@/app/utils";
-import { DashboardHome } from "./page.client";
+import { Dashboard } from "./components/Dashboard";
 
 export default async function DashboardServer() {
   const [vacationsRes, workersRes, departmentsRes] = await Promise.all([
@@ -19,20 +19,20 @@ export default async function DashboardServer() {
     }),
   ]);
 
-  const { vacations } = await vacationsRes.json();
-  const { workers } = await workersRes.json();
-  const { departments } = await departmentsRes.json();
+  const { data: vacations } = await vacationsRes.json();
+  const { data: workers } = await workersRes.json();
+  const { data: departments } = await departmentsRes.json();
   const onVacationToday = getWorkersOnVacation(vacations);
   const returningToday = getTodayReturns(vacations);
   const upcomingLeaves = getUpcomingLeaves(vacations);
   const upcomingReturns = getUpcomingReturns(vacations);
 
   return (
-    <DashboardHome
+    <Dashboard
       data={{
-        vacations: vacations ?? [],
-        workers: workers ?? [],
-        departments: departments ?? [],
+        vacations: vacations,
+        workers: workers,
+        departments: departments,
         onVacationToday,
         returningToday,
         upcomingLeaves,
