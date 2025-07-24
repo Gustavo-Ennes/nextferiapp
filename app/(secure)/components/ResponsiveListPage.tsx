@@ -1,7 +1,8 @@
 "use client";
 
 import { useTheme } from "@mui/material/styles";
-import { Container, Typography, useMediaQuery } from "@mui/material";
+import { Typography, useMediaQuery, Button, Grid } from "@mui/material";
+import { Add } from "@mui/icons-material";
 import { redirect } from "next/navigation";
 import { Entity, EntityType } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
@@ -11,6 +12,7 @@ import { translateEntityKey } from "../../translate";
 import { useModal } from "@/context/ModalContext";
 import { Vacation, Worker } from "@/app/types";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const ResponsiveListPage = <T extends Entity>({
   items: itemsFromServer = [],
@@ -23,6 +25,7 @@ const ResponsiveListPage = <T extends Entity>({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { open, close } = useModal();
+  const router = useRouter();
 
   const onConfirmDelete = async (entity: Entity) => {
     const url = `${process.env.NEXT_PUBLIC_URL}/api/${routePrefix}/${entity._id}`;
@@ -70,27 +73,43 @@ const ResponsiveListPage = <T extends Entity>({
   };
 
   return (
-    <Container sx={{ mb: 4, p: 0, width: 1 }}>
-      <Typography variant="h4" gutterBottom mb={4}>
-        {translateEntityKey({
-          entity: routePrefix,
-          key: "translatedPlural",
-        })}
-      </Typography>
-      {isMobile ? (
-        <ListPageMobile<T>
-          items={items}
-          routePrefix={routePrefix}
-          onDelete={(entity) => handleConfirmDelete(entity)}
-        />
-      ) : (
-        <ListPageDesktop<T>
-          routePrefix={routePrefix}
-          onDelete={(entity) => handleConfirmDelete(entity)}
-          items={items}
-        />
-      )}
-    </Container>
+    <Grid container>
+      <Grid size={12}>
+        <Typography
+          variant="h4"
+          gutterBottom
+          mb={4}
+          textAlign={isMobile ? "center" : "left"}
+        >
+          {translateEntityKey({
+            entity: routePrefix,
+            key: "translatedPlural",
+          })}{" "}
+          <Button
+            variant="contained"
+            onClick={() => router.push(`${routePrefix}/form`)}
+          >
+            <Add />
+          </Button>
+        </Typography>
+      </Grid>
+
+      <Grid size={12}>
+        {isMobile ? (
+          <ListPageMobile<T>
+            items={items}
+            routePrefix={routePrefix}
+            onDelete={(entity) => handleConfirmDelete(entity)}
+          />
+        ) : (
+          <ListPageDesktop<T>
+            routePrefix={routePrefix}
+            onDelete={(entity) => handleConfirmDelete(entity)}
+            items={items}
+          />
+        )}
+      </Grid>
+    </Grid>
   );
 };
 
