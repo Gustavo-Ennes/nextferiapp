@@ -15,7 +15,7 @@ export default async function WorkerFormPage({
   ).json();
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
+    <Container maxWidth={"xl"} sx={{ mt: 1 }}>
       {(!id || (id && worker)) && (
         <>
           <Typography variant="h5" gutterBottom mb={2}>

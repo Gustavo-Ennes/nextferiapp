@@ -12,7 +12,7 @@ export default async function DepartmentFormPage({
   ).json();
 
   return (
-    <Container maxWidth="sm" sx={{ mt: 4 }}>
+    <Container maxWidth={"xl"} sx={{ mt: 1 }}>
       {(!id || (id && department)) && (
         <>
           <Typography variant="h5" gutterBottom mb={2}>

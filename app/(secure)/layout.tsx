@@ -7,6 +7,7 @@ import {
   Collapse,
   Divider,
   IconButton,
+  Input,
   List,
   ListItemButton,
   ListItemIcon,
@@ -47,7 +48,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <DrawerContent>
       <List>
         {navList.map(({ label, href, icon }) => (
-          <ListItemButton component="a" href={href} key={href}>
+          <ListItemButton component="a" href={href} key={href} sx={{ my: 1 }}>
             <ListItemIcon>{icon}</ListItemIcon>
             <ListItemText primary={label} />
           </ListItemButton>
@@ -55,7 +56,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
         <Divider />
 
-        <ListItemButton onClick={handleDropdownClick}>
+        <ListItemButton onClick={handleDropdownClick} sx={{ my: 1 }}>
           <ListItemIcon>
             <PrintIcon />
           </ListItemIcon>
@@ -73,13 +74,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <ListItemIcon>
                 <ArticleIcon />
               </ListItemIcon>
-              <ListItemText primary="Relatório uso veículo" />
+              <ListItemText
+                primary="Relatório uso veículo"
+                slotProps={{
+                  primary: { fontSize: 13 },
+                }}
+              />
             </ListItemButton>
             <ListItemButton sx={{ pl: 4 }} component="a" href="/reports/full">
               <ListItemIcon>
                 <ArticleIcon />
               </ListItemIcon>
-              <ListItemText primary="Req. Mat. combustível" />
+              <ListItemText
+                primary="Req. Mat. combustível"
+                slotProps={{
+                  primary: { fontSize: 13 },
+                }}
+              />
             </ListItemButton>
           </List>
         </Collapse>
