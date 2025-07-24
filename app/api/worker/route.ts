@@ -7,8 +7,12 @@ export async function GET() {
   await dbConnect();
 
   try {
-    const workers = await Worker.find().populate("department");
-    return NextResponse.json({ success: true, data: workers });
+    const workers = await Worker.find({ isActive: true }).populate(
+      "department"
+    );
+
+    const sortedWorkers = workers.sort((a, b) => a.name.localeCompare(b.name));
+    return NextResponse.json({ success: true, data: sortedWorkers });
   } catch (error) {
     return NextResponse.json({ error });
   }

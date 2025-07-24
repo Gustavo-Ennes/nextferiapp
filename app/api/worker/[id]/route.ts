@@ -9,7 +9,9 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const worker = await Worker.findById(id).populate("department");
+    const worker = await Worker.findOne({ _id: id, isActive: true }).populate(
+      "department"
+    );
     if (!worker) return NextResponse.json({ error: "Worker not found." });
 
     return NextResponse.json({ success: true, data: worker });
@@ -41,11 +43,11 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const deleteWorker = await Worker.deleteOne({ _id: id });
-    if (!deleteWorker) return NextResponse.json({ error: "Worker not found." });
+    const worker = await Worker.findByIdAndUpdate(id, { isActive: false });
+    if (!worker) return NextResponse.json({ error: "Worker not found." });
 
     revalidatePath("/worker");
-    return NextResponse.json({ success: true, data: deleteWorker });
+    return NextResponse.json({ data: worker });
   } catch (error) {
     return NextResponse.json({ error });
   }

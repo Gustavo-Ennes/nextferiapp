@@ -27,7 +27,7 @@ export function BossDetail({ boss }: { boss: Boss }) {
       description: `Deseja excuir o chefe ${capitalizeName(boss.name)}(${
         boss.role
       })?`,
-      onConfirm: async() => {
+      onConfirm: async () => {
         fetch(`/api/boss/${id}`, {
           method: "delete",
           headers: {
@@ -40,14 +40,16 @@ export function BossDetail({ boss }: { boss: Boss }) {
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Typography variant="h5" gutterBottom>
-        Visualização de Servidor
+        Visualização de chefe
       </Typography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Stack spacing={2}>
           <Box>
             <Typography variant="subtitle2">Nome</Typography>
-            <Typography>{boss?.worker?.name ?? boss?.name}</Typography>
+            <Typography>
+              {capitalizeName(boss?.worker?.name ?? boss?.name)}
+            </Typography>
           </Box>
 
           <Divider />

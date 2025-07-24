@@ -72,9 +72,8 @@ const VacationSchema = new Schema<Vacation>(
     },
     cancelled: {
       type: Boolean,
-      default: true
-      
-    }
+      default: false,
+    },
   },
   {
     timestamps: true,

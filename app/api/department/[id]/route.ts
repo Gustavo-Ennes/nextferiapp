@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const department = await Department.findById(id);
+    const department = await Department.findOne({ _id: id, isActive: true });
     if (!department)
       return NextResponse.json({ error: "Department not found." });
 
@@ -25,10 +25,7 @@ export async function PUT(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const department = await Department.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
+    const department = await Department.findByIdAndUpdate(id, body);
     if (!department)
       return NextResponse.json({ error: "Department not found." });
 
@@ -44,11 +41,13 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const deleteDepartment = await Department.deleteOne({ _id: id });
-    if (!deleteDepartment)
+    const department = await Department.findByIdAndUpdate(id, {
+      isActive: false,
+    });
+    if (!department)
       return NextResponse.json({ error: "Department not found." });
 
-    return NextResponse.json({ success: true, data: deleteDepartment });
+    return NextResponse.json({ data: department });
   } catch (error) {
     return NextResponse.json({ error });
   }

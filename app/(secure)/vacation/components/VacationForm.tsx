@@ -14,6 +14,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Key, useState } from "react";
 import { useRouter } from "next/navigation";
 import { VacationFormData, VacationProps, VacationType } from "../types";
+import { capitalizeName } from "@/app/utils";
 
 export function VacationForm({
   defaultValues,
@@ -21,6 +22,7 @@ export function VacationForm({
   workers,
   bosses,
 }: VacationProps) {
+  console.log("🚀 ~ VacationForm ~ bosses:", bosses);
   const [form, setForm] = useState<VacationFormData>({
     worker: defaultValues?.worker?._id ?? null,
     boss: defaultValues?.boss?._id ?? null,
@@ -187,14 +189,14 @@ export function VacationForm({
       <FormControl fullWidth sx={{ mb: 2 }}>
         <InputLabel>Aprovante</InputLabel>
         <Select
-          name="type"
+          name="boss"
           value={form.boss ?? ""}
-          label="Chefe"
+          label="Aprovante"
           onChange={(e) => handleBossChange(e.target.value)}
         >
           {bosses?.map((boss) => (
             <MenuItem key={boss._id as Key} value={boss._id as string}>
-              {boss.name}
+              {capitalizeName(boss?.worker?.name ?? boss?.name)}
             </MenuItem>
           ))}
         </Select>

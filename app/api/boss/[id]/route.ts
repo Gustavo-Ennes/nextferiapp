@@ -8,7 +8,9 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const boss = await Boss.findById(id).populate('worker');
+    const boss = await Boss.findOne({ _id: id, isActive: true }).populate(
+      "worker"
+    );
     if (!boss) return NextResponse.json({ error: "Boss not found." });
 
     return NextResponse.json({ success: true, data: boss });
@@ -39,10 +41,10 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const deleteBoss = await Boss.deleteOne({ _id: id });
-    if (!deleteBoss) return NextResponse.json({ error: "Boss not found." });
+    const boss = await Boss.findByIdAndUpdate(id, { isActive: false });
+    if (!boss) return NextResponse.json({ error: "Boss not found." });
 
-    return NextResponse.json({ success: true, data: deleteBoss });
+    return NextResponse.json({ data: boss });
   } catch (error) {
     return NextResponse.json({ error });
   }

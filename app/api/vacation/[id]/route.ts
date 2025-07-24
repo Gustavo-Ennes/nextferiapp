@@ -9,7 +9,10 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const vacation = await Vacation.findById(id)
+    const vacation = await Vacation.findOne({
+      _id: id,
+      $or: [{ cancelled: false }, { cancelled: undefined }],
+    })
       .populate("worker")
       .populate("boss");
 
@@ -31,10 +34,7 @@ export async function PUT(req: NextRequest) {
   revalidatePath("/vacation");
 
   try {
-    const vacation = await Vacation.findByIdAndUpdate(id, body, {
-      new: true,
-      runValidators: true,
-    });
+    const vacation = await Vacation.findByIdAndUpdate(id, body);
 
     if (!vacation) return NextResponse.json({ error: "Vacation not found." });
 
@@ -50,13 +50,11 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const deleteVacation = await Vacation.deleteOne({ _id: id });
-    if (!deleteVacation)
-      return NextResponse.json({ error: "Vacation not found." });
+    const vacation = await Vacation.findByIdAndUpdate(id, { cancelled: true });
 
+    if (!vacation) return NextResponse.json({ error: "Vacation not found." });
 
-    revalidatePath("/vacation");
-    return NextResponse.json({ success: true, data: deleteVacation });
+    return NextResponse.json({ data: vacation });
   } catch (error) {
     return NextResponse.json({ error });
   }

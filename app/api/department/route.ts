@@ -6,8 +6,12 @@ export async function GET() {
   await dbConnect();
 
   try {
-    const departments = await Department.find();
-    return NextResponse.json({ success: true, data: departments });
+    const departments = await Department.find({ isActive: true });
+
+    const sortedDepartments = departments.sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
+    return NextResponse.json({ success: true, data: sortedDepartments });
   } catch (error) {
     return NextResponse.json({ error });
   }
@@ -18,9 +22,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   try {
-    const department = await Department.create(body, {
-      runValidators: true,
-    });
+    const department = await Department.create(body);
 
     return NextResponse.json({ data: department });
   } catch (error) {

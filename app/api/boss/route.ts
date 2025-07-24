@@ -6,8 +6,13 @@ export async function GET() {
   await dbConnect();
 
   try {
-    const bosses = await Boss.find().populate("worker");
-    return NextResponse.json({ success: true, data: bosses });
+    const bosses = await Boss.find({ isActive: true }).populate("worker");
+
+    const sortedBosses = bosses.sort((a, b) => {
+      if (!a.worker || !b.worker) return 0;
+      return a.worker.name.localeCompare(b.worker.name);
+    });
+    return NextResponse.json({ success: true, data: sortedBosses });
   } catch (error) {
     return NextResponse.json({ error });
   }
