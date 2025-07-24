@@ -2,18 +2,27 @@ import { Vacation } from "@/app/types";
 import { ResponsiveListPage } from "../../components/ResponsiveListPage";
 import { parseVacations } from "../parse";
 
-const LicenseList = async () => {
+const LicenseList = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ page: number }>;
+}) => {
+  const { page } = await searchParams;
   const fetchVacations = async () => {
     "use server";
-    return fetch(`${process.env.NEXT_PUBLIC_URL}/api/vacation?type=license`);
+    return fetch(
+      `${process.env.NEXT_PUBLIC_URL}/api/vacation?type=license&page=${
+        page ?? 1
+      }`
+    );
   };
   const res = await fetchVacations();
-  const { data: licenses } = await res.json();
-  const parsedLicenses = parseVacations(licenses);
+  const paginatedResponse = await res.json();
+  paginatedResponse.data = parseVacations(paginatedResponse.data);
 
   return (
     <ResponsiveListPage<Vacation>
-      items={parsedLicenses ?? []}
+      paginatedResponse={paginatedResponse}
       routePrefix="vacation"
       pageTitle="Licenças-Prêmio"
       vacationType="license"

@@ -9,27 +9,29 @@ import {
   TableRow,
   IconButton,
   Paper,
+  Typography,
+  Button,
+  Stack,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { PictureAsPdf } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { StyledRow } from "./styled";
-import {
-  defaultEntityTableFields,
-  formatCellContent,
-} from "@/app/utils";
+import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { ItemListProps } from "./types";
 import { Entity, Vacation } from "@/app/types";
-import { PictureAsPdf } from "@mui/icons-material";
 
 export const ListPageDesktop = <T extends Entity>({
-  items,
+  pagination: { data: items, currentPage, totalPages },
   routePrefix,
   onDelete,
+  vacationType,
 }: ItemListProps<T>) => {
   const router = useRouter();
   const headers: string[] = [];
+
   if (items.length > 0)
     defaultEntityTableFields[routePrefix].forEach((key) => headers.push(key));
 
@@ -46,6 +48,11 @@ export const ListPageDesktop = <T extends Entity>({
     e.stopPropagation();
     onDelete(entity);
   };
+
+  const onPageChange = (page: number) =>
+    router.push(
+      `/vacation${vacationType ? `/${vacationType}` : ""}?page=${page}`
+    );
 
   return (
     <Box>
@@ -85,9 +92,10 @@ export const ListPageDesktop = <T extends Entity>({
                     <DeleteIcon />
                   </IconButton>
                   <IconButton
-                    onClick={(e) =>
-                      router.push(`api/${routePrefix}/${item._id}`)
-                    }
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/pdf/${routePrefix}/${item._id}`);
+                    }}
                   >
                     <PictureAsPdf />
                   </IconButton>
@@ -97,6 +105,36 @@ export const ListPageDesktop = <T extends Entity>({
           </TableBody>
         </Table>
       </TableContainer>
+
+      {items && (
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          mt={2}
+          px={1}
+        >
+          <Button
+            variant="outlined"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+
+          <Typography>
+            Página {currentPage} de {totalPages}
+          </Typography>
+
+          <Button
+            variant="outlined"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Próxima
+          </Button>
+        </Stack>
+      )}
     </Box>
   );
 };

@@ -2,18 +2,25 @@ import { Vacation } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 import { parseVacations } from "./parse";
 
-const VacationList = async () => {
+const VacationList = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ page: number }>;
+}) => {
+  const { page } = await searchParams;
   const fetchVacations = async () => {
     "use server";
-    return fetch(`${process.env.NEXT_PUBLIC_URL}/api/vacation`);
+    return fetch(
+      `${process.env.NEXT_PUBLIC_URL}/api/vacation?page=${page ?? 1}`
+    );
   };
   const res = await fetchVacations();
-  const { data: vacations } = await res.json();
-  const parsedVacations = parseVacations(vacations);
+  const paginatedResponse = await res.json();
+  paginatedResponse.data = parseVacations(paginatedResponse.data);
 
   return (
     <ResponsiveListPage<Vacation>
-      items={parsedVacations ?? []}
+      paginatedResponse={paginatedResponse}
       routePrefix="vacation"
       pageTitle="Férias"
       vacationType="normal"

@@ -5,7 +5,6 @@ import {
   ListItem,
   IconButton,
   Typography,
-  Box,
   Divider,
   Grid,
 } from "@mui/material";
@@ -19,7 +18,7 @@ import { Entity, Vacation, Worker } from "@/app/types";
 import { PictureAsPdf } from "@mui/icons-material";
 
 export function ListPageMobile<T extends Entity>({
-  items,
+  pagination: { data: items },
   routePrefix,
   onDelete,
 }: ItemListProps<T>) {
@@ -138,6 +137,3 @@ export function ListPageMobile<T extends Entity>({
     </List>
   );
 }
-
-// TERMINE DE RETIRAR O MOCK DE BOSS
-// TIRE TODOS OS MOCKS

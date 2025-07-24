@@ -4,29 +4,22 @@ import { useTheme } from "@mui/material/styles";
 import { Typography, useMediaQuery, Button, Grid } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { redirect } from "next/navigation";
-import { Entity, EntityType } from "@/app/types";
+import { Entity } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
 import { ListPageMobile } from "./ListPageMobile";
 import { sumarizeVacation } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { useModal } from "@/context/ModalContext";
 import { Vacation, Worker } from "@/app/types";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { VacationType } from "../vacation/types";
+import { ResponsiveListPageParam } from "./types";
 
 const ResponsiveListPage = <T extends Entity>({
-  items: itemsFromServer = [],
+  paginatedResponse,
   routePrefix,
   pageTitle,
   vacationType,
-}: {
-  items: T[];
-  routePrefix: EntityType;
-  pageTitle?: string;
-  vacationType?: VacationType;
-}) => {
-  const [items, setItems] = useState<T[]>(itemsFromServer);
+}: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { open, close } = useModal();
@@ -50,8 +43,6 @@ const ResponsiveListPage = <T extends Entity>({
         })?.toLowerCase()}.`
       );
     }
-
-    setItems((prev) => prev.filter((item) => item._id !== entity._id));
     close();
   };
 
@@ -110,15 +101,17 @@ const ResponsiveListPage = <T extends Entity>({
       <Grid size={12}>
         {isMobile ? (
           <ListPageMobile<T>
-            items={items}
+            pagination={paginatedResponse}
             routePrefix={routePrefix}
             onDelete={(entity) => handleConfirmDelete(entity)}
+            vacationType={vacationType}
           />
         ) : (
           <ListPageDesktop<T>
+            pagination={paginatedResponse}
             routePrefix={routePrefix}
             onDelete={(entity) => handleConfirmDelete(entity)}
-            items={items}
+            vacationType={vacationType}
           />
         )}
       </Grid>

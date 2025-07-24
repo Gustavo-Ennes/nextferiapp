@@ -1,8 +1,10 @@
 import { NextResponse, NextRequest } from "next/server";
 import dbConnect from "@/lib/database";
-import Vacation from "@/models/Vacation";
+import { Vacation } from "@/app/types";
+import VacationModel from "@/models/Vacation";
 import { startOfDay, endOfDay, addDays } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { PaginatedResponse } from "../types";
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -10,16 +12,35 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "20", 10);
 
-    const vacations = await Vacation.find({
+    const skip = (page - 1) * limit;
+
+    const filter = {
       type: type ?? "vacation",
       $or: [{ cancelled: false }, { cancelled: undefined }],
-    })
-      .populate("boss")
-      .populate("worker")
-      .sort({ startDate: "desc" });
+    };
+    const [data, totalItems] = await Promise.all([
+      VacationModel.find(filter)
+        .sort({ startDate: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("worker boss"),
+      VacationModel.countDocuments(filter),
+    ]);
 
-    return NextResponse.json({ success: true, data: vacations });
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return NextResponse.json<PaginatedResponse<Vacation>>({
+      data,
+      currentPage: page,
+      totalItems,
+      totalPages,
+      limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    });
   } catch (error) {
     return NextResponse.json({ error });
   }
@@ -35,7 +56,7 @@ export async function POST(req: NextRequest) {
   ).toISOString();
 
   try {
-    const vacation = await Vacation.create(body);
+    const vacation = await VacationModel.create(body);
     revalidatePath("/vacation");
 
     return NextResponse.json({ data: vacation });

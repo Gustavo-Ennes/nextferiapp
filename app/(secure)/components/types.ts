@@ -1,9 +1,12 @@
 import { ReactNode } from "react";
-import { Entity, EntityType } from "../../types";
+import { Entity, EntityType, Vacation } from "../../types";
+import { PaginatedResponse } from "@/app/api/types";
+import { VacationType } from "../vacation/types";
 export interface ItemListProps<T extends { _id: string }> {
-  items: T[];
+  pagination: PaginatedResponse<T>;
   routePrefix: EntityType;
   onDelete: (entity: Entity) => void;
+  vacationType?: VacationType
 }
 
 export type MenuItem = {
@@ -19,4 +22,11 @@ export type ListItemMenuItem = {
     itemIcon: ReactNode;
     itemLabel: string;
   }[];
+};
+
+export type ResponsiveListPageParam<T> = {
+  paginatedResponse: PaginatedResponse<T>;
+  routePrefix: EntityType;
+  pageTitle?: string;
+  vacationType?: VacationType;
 };
