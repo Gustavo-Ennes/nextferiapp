@@ -17,4 +17,5 @@ export interface VacationProps {
   bosses: Boss[];
   defaultValues?: Vacation;
   id?: string;
+  type?: VacationType;
 }

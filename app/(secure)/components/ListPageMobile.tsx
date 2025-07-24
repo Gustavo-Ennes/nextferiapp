@@ -31,21 +31,22 @@ export function ListPageMobile<T extends Entity>({
         !["name", "type"].includes(k)
     );
 
+  const getItemLabel = (item: T) =>
+    (item as Vacation).type
+      ? (item as Vacation)?.worker?.name
+      : (item as Worker)?.name;
+
   return (
     <List sx={{ width: "100%" }}>
       {items.map((item) => {
-        const label = (item as Vacation).type
-          ? translateEntityKey({
-              entity: "vacation",
-              key: (item as Vacation).type,
-            })
-          : (item as Worker).name;
-        const subtitles = getDefaultEntries(item).map(
-          ([k, v]) =>
-            `${translateEntityKey({
-              entity: routePrefix,
-              key: k,
-            })}: ${formatCellContent<T>(v)}`
+        const label = getItemLabel(item);
+        const subtitles = getDefaultEntries(item).map(([k, v]) =>
+          v
+            ? `${translateEntityKey({
+                entity: routePrefix,
+                key: k,
+              })}: ${formatCellContent<T>({ value: v, isName: k === "name" })}`
+            : ""
         );
 
         return (
@@ -62,7 +63,7 @@ export function ListPageMobile<T extends Entity>({
             <Grid container width={1}>
               <Grid size={{ xs: 10, sm: 11 }}>
                 <Typography variant="h6">
-                  {label?.toUpperCase() || `Item ${item._id}`}
+                  {label?.toUpperCase() || item._id}
                 </Typography>
 
                 <Divider />

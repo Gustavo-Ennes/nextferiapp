@@ -2,111 +2,25 @@
 
 import { useSession } from "next-auth/react";
 import Loader from "./components/Loader";
-import {
-  Box,
-  Collapse,
-  Divider,
-  IconButton,
-  Input,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Toolbar,
-  Typography,
-} from "@mui/material";
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
+import { Box, IconButton, Toolbar, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import PrintIcon from "@mui/icons-material/Print";
-import ArticleIcon from "@mui/icons-material/Article";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { signOut } from "next-auth/react";
-import { AppBar, Drawer, DrawerContent, Main } from "./styled";
+import { AppBar, Drawer as MuiDrawer, Main } from "./styled";
 import { ReactNode, useEffect, useState } from "react";
-import { navList } from "./navList";
-import { redirect } from "next/navigation";
+import { Drawer } from "./components/Drawer";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { status } = useSession();
-  const [openDropdown, setOpenDropdown] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      redirect("/login");
+      router.push("/login");
     }
   }, [status]);
 
-  const handleDropdownClick = () => {
-    setOpenDropdown(!openDropdown);
-  };
-
   const toggleDrawer = () => setMobileOpen(!mobileOpen);
-
-  const drawer = (
-    <DrawerContent>
-      <List>
-        {navList.map(({ label, href, icon }) => (
-          <ListItemButton component="a" href={href} key={href} sx={{ my: 1 }}>
-            <ListItemIcon>{icon}</ListItemIcon>
-            <ListItemText primary={label} />
-          </ListItemButton>
-        ))}
-
-        <Divider />
-
-        <ListItemButton onClick={handleDropdownClick} sx={{ my: 1 }}>
-          <ListItemIcon>
-            <PrintIcon />
-          </ListItemIcon>
-          <ListItemText primary="Auxiliares" />
-          {openDropdown ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton>
-
-        <Collapse in={openDropdown} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItemButton
-              sx={{ pl: 4 }}
-              component="a"
-              href="/reports/summary"
-            >
-              <ListItemIcon>
-                <ArticleIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Relatório uso veículo"
-                slotProps={{
-                  primary: { fontSize: 13 },
-                }}
-              />
-            </ListItemButton>
-            <ListItemButton sx={{ pl: 4 }} component="a" href="/reports/full">
-              <ListItemIcon>
-                <ArticleIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Req. Mat. combustível"
-                slotProps={{
-                  primary: { fontSize: 13 },
-                }}
-              />
-            </ListItemButton>
-          </List>
-        </Collapse>
-
-        {/* Divider entre dropdown e logout */}
-        <Divider />
-
-        <ListItemButton onClick={() => signOut({ redirectTo: "/login" })}>
-          <ListItemIcon>
-            <LogoutIcon />
-          </ListItemIcon>
-          <ListItemText primary="Sair" />
-        </ListItemButton>
-      </List>
-    </DrawerContent>
-  );
 
   return status === "authenticated" ? (
     <Box sx={{ display: "flex" }}>
@@ -128,24 +42,24 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </AppBar>
 
       {/* Mobile Drawer */}
-      <Drawer
+      <MuiDrawer
         variant="temporary"
         open={mobileOpen}
         onClose={toggleDrawer}
         ModalProps={{ keepMounted: true }}
         sx={{ display: { xs: "block", sm: "none" } }}
       >
-        {drawer}
-      </Drawer>
+        <Drawer />
+      </MuiDrawer>
 
       {/* Desktop Drawer */}
-      <Drawer
+      <MuiDrawer
         variant="permanent"
         open
         sx={{ display: { xs: "none", sm: "block" } }}
       >
-        {drawer}
-      </Drawer>
+        <Drawer />
+      </MuiDrawer>
 
       {/* Conteúdo */}
       <Main

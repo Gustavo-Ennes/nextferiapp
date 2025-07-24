@@ -4,11 +4,15 @@ import Vacation from "@/models/Vacation";
 import { startOfDay, endOfDay, addDays } from "date-fns";
 import { revalidatePath } from "next/cache";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await dbConnect();
 
   try {
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get("type");
+
     const vacations = await Vacation.find({
+      type: type ?? "vacation",
       $or: [{ cancelled: false }, { cancelled: undefined }],
     })
       .populate("boss")

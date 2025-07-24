@@ -15,6 +15,8 @@ const VacationList = async () => {
     <ResponsiveListPage<Vacation>
       items={parsedVacations ?? []}
       routePrefix="vacation"
+      pageTitle="Férias"
+      vacationType="normal"
     />
   );
 };

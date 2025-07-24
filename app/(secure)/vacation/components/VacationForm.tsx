@@ -21,15 +21,15 @@ export function VacationForm({
   id,
   workers,
   bosses,
+  type = "normal"
 }: VacationProps) {
-  console.log("🚀 ~ VacationForm ~ bosses:", bosses);
   const [form, setForm] = useState<VacationFormData>({
     worker: defaultValues?.worker?._id ?? null,
     boss: defaultValues?.boss?._id ?? null,
     startDate: defaultValues?.startDate
       ? new Date(defaultValues.startDate)
       : new Date(),
-    type: defaultValues?.type || "normal",
+    type: defaultValues?.type || type,
     duration: (defaultValues?.duration || defaultValues?.daysQtd) ?? 15,
     period: defaultValues?.period ?? "full",
     observation: defaultValues?.observation ?? "",

@@ -14,7 +14,7 @@ export const formatCellContent = <T extends { _id: string }>({
     if (value === true) return "Sim";
     if (value === false) return "Não";
     // when value is a obj I want to show the entity name(except vacation)
-    if ((value as Worker)._id) return capitalizeName((value as Worker).name);
+    if ((value as Worker)?._id) return capitalizeName((value as Worker).name);
     if (isName) return capitalizeName(value as string);
     if (String(value).length <= 3) return String(value);
     return format(new Date(value as string), "dd/MM/yyyy");

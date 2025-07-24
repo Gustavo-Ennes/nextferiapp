@@ -1,12 +1,13 @@
 import { Container, Typography } from "@mui/material";
 import { VacationForm } from "../components/VacationForm";
+import { VacationType } from "../types";
 
 export default async function VacationFormPage({
   searchParams,
 }: {
-  searchParams: Promise<{ id: string }>;
+  searchParams: Promise<{ id: string; type: VacationType }>;
 }) {
-  const { id } = await searchParams;
+  const { id, type } = await searchParams;
   const { data: vacation } = await (
     await fetch(`${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`)
   ).json();
@@ -18,7 +19,7 @@ export default async function VacationFormPage({
   ).json();
 
   return (
-    <Container maxWidth={'xl'} sx={{ mt: 1 }}>
+    <Container maxWidth={"xl"} sx={{ mt: 1 }}>
       {(!id || (id && vacation)) && (
         <>
           <Typography variant="h5" gutterBottom mb={2}>
@@ -26,6 +27,7 @@ export default async function VacationFormPage({
           </Typography>
           <VacationForm
             defaultValues={vacation}
+            type={type}
             bosses={bosses}
             workers={workers}
             id={id}

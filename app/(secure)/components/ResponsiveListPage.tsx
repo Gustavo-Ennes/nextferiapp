@@ -13,13 +13,18 @@ import { useModal } from "@/context/ModalContext";
 import { Vacation, Worker } from "@/app/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { VacationType } from "../vacation/types";
 
 const ResponsiveListPage = <T extends Entity>({
   items: itemsFromServer = [],
   routePrefix,
+  pageTitle,
+  vacationType,
 }: {
   items: T[];
   routePrefix: EntityType;
+  pageTitle?: string;
+  vacationType?: VacationType;
 }) => {
   const [items, setItems] = useState<T[]>(itemsFromServer);
   const theme = useTheme();
@@ -72,6 +77,11 @@ const ResponsiveListPage = <T extends Entity>({
     });
   };
 
+  const titleFromRoutePrefix = translateEntityKey({
+    entity: routePrefix,
+    key: "translatedPlural",
+  });
+
   return (
     <Grid container>
       <Grid size={12}>
@@ -81,13 +91,16 @@ const ResponsiveListPage = <T extends Entity>({
           mb={4}
           textAlign={isMobile ? "center" : "left"}
         >
-          {translateEntityKey({
-            entity: routePrefix,
-            key: "translatedPlural",
-          })}{" "}
+          {pageTitle ?? titleFromRoutePrefix}{" "}
           <Button
             variant="contained"
-            onClick={() => router.push(`${routePrefix}/form`)}
+            onClick={() =>
+              router.push(
+                `/${routePrefix}/form${
+                  vacationType ? `?type=${vacationType}` : ""
+                }`
+              )
+            }
           >
             <Add />
           </Button>

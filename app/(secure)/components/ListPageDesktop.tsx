@@ -15,7 +15,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
 import { StyledRow } from "./styled";
 import {
-  capitalizeFirstLetter,
   defaultEntityTableFields,
   formatCellContent,
 } from "@/app/utils";
