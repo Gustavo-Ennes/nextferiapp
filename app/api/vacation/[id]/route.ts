@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/lib/database";
+import dbConnect from "@/lib/database/database";
 import Vacation from "@/models/Vacation";
 import { revalidatePath } from "next/cache";
 

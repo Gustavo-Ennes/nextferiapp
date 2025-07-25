@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from "next/server";
-import dbConnect from "@/lib/database";
+import dbConnect from "@/lib/database/database";
 import BossModel from "@/models/Boss";
 import { Boss } from "@/app/types";
 import { PaginatedResponse } from "../types";

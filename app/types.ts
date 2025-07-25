@@ -1,3 +1,5 @@
+import { VacationType } from "./(secure)/vacation/types";
+
 export type Boss = {
   _id: string;
   name: string;
@@ -21,7 +23,7 @@ export type Vacation = {
   _id: string;
   duration?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
   daysQtd?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
-  type: "normal" | "license" | "dayOff";
+  type: VacationType;
   period?: "half" | "full"; // para dayOff
   startDate: Date;
   endDate: Date;
@@ -44,9 +46,10 @@ export type Worker = {
   admissionDate: Date;
   department: Department;
   justification?: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type Entity = Worker | Vacation | Department | Boss
+export type Entity = Worker | Vacation | Department | Boss;
 export type EntityType = "department" | "worker" | "vacation" | "boss";

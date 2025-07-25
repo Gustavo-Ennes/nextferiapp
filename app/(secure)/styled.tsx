@@ -21,18 +21,18 @@ const Drawer = styled(MuiDrawer)(() => ({
 
 const Main = styled("main")(({ theme }) => ({
   flexGrow: 1,
-  padding: theme.spacing(3),
   marginTop: theme.spacing(8),
+  padding: theme.spacing(2),
   width: `calc(100% - ${drawerWidth}px)`,
   [theme.breakpoints.down("sm")]: {
     width: "100%",
   },
+  marginLeft: `${drawerWidth}px`,
 }));
 
 const DrawerContent = styled(Box)(({ theme }) => ({
   textAlign: "center",
   marginTop: theme.spacing(10),
 }));
-
 
 export { AppBar, Drawer, Main, DrawerContent };

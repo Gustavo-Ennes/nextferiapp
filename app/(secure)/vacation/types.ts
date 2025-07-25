@@ -1,6 +1,6 @@
 import { Worker, Boss, Vacation } from "@/app/types";
 
-export type VacationType = "normal" | "license" | "dayOff";
+export type VacationType = "normal" | "license" | "dayOff" | "vacation";
 
 export interface VacationFormData {
   worker: string | null;

@@ -62,17 +62,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </MuiDrawer>
 
       {/* Conteúdo */}
-      <Main
-        sx={{
-          flexGrow: 1,
-          p: 3,
-          mt: 8, // para compensar altura do AppBar
-          width: { sm: `calc(100% - 240px)` },
-          ml: { sm: `240px` }, // compensar largura da Drawer no desktop
-        }}
-      >
-        {children}
-      </Main>
+      <Main>{children}</Main>
     </Box>
   ) : (
     <Loader />

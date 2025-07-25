@@ -18,9 +18,11 @@ import { ButtonMenu } from "../../components/ButtonMenu";
 import { MenuItem } from "../../components/types";
 import { capitalizeName } from "@/app/utils";
 import { getTypeLabel } from "../utils";
+import { useRouter } from "next/navigation";
 
 export function VacationDetail({ vacation }: { vacation: Vacation }) {
   const { open } = useModal();
+  const router = useRouter();
 
   const cancelMenuItems: MenuItem[] = [
     {
@@ -30,7 +32,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           title: "Cancelar folga",
           description: "Deseja cancelar essa folga?",
           input: true,
-          onConfirm: async(obs) => {
+          onConfirm: async (obs) => {
             console.log("Observação:", obs);
           },
         }),
@@ -42,7 +44,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           title: "Cancelar e imprimir requisição de cancelamento",
           description: "Deseja cancelar e imprimir a requisição para o RH?",
           input: true,
-          onConfirm: async(obs) => {
+          onConfirm: async (obs) => {
             console.log("Observação para impressão:", obs);
           },
         }),
@@ -55,7 +57,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           description:
             "Deseja cancelar(sem requerimento RH) e remarcar essa folga?",
           input: true,
-          onConfirm: async(obs) => {
+          onConfirm: async (obs) => {
             console.log("Observação para remarcação:", obs);
           },
         }),
@@ -68,7 +70,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           description:
             "Deseja cancelar com requirimento para o RH e remarcar essa folga?",
           input: true,
-          onConfirm: async(obs) => {
+          onConfirm: async (obs) => {
             console.log("Observação para remarcação:", obs);
           },
         }),
@@ -133,7 +135,12 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
         justifyContent="space-between"
       >
         <ButtonMenu items={cancelMenuItems} />
-        <Button variant="contained">Ver pdf</Button>
+        <Button
+          variant="contained"
+          onClick={() => router.push(`/pdf?type=vacation&id=${vacation._id}`)}
+        >
+          Ver pdf
+        </Button>
       </Grid>
     </Container>
   );

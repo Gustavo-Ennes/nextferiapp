@@ -1,11 +1,12 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import type { Document } from "mongoose";
 import { Boss, Worker } from "./index";
+import { VacationType } from "@/app/(secure)/vacation/types";
 
 export interface Vacation extends Document {
   duration?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
   daysQtd?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
-  type: "normal" | "license" | "dayOff";
+  type: VacationType;
   period?: "half" | "full";
   startDate: Date;
   endDate: Date;
@@ -20,6 +21,9 @@ export interface Vacation extends Document {
 
 const VacationSchema = new Schema<Vacation>(
   {
+    daysQtd: {
+      type: Number,
+    },
     duration: {
       type: Number,
       enum: {

@@ -42,12 +42,12 @@ export const Drawer = () => {
       {
         itemLabel: "Relatório uso veículo",
         itemIcon: <Article />,
-        href: "/pdf/aux/vehicle-use",
+        href: "/pdf?type=vehicleUsage",
       },
       {
         itemLabel: "Req. Material. Combust.",
         itemIcon: <Article />,
-        href: "/pdf/aux/material-req",
+        href: "/pdf?type=materialRequisition",
       },
     ],
   };

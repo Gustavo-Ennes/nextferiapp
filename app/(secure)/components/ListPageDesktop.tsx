@@ -92,9 +92,13 @@ export const ListPageDesktop = <T extends Entity>({
                     <DeleteIcon />
                   </IconButton>
                   <IconButton
+                    style={{
+                      display:
+                        routePrefix === "vacation" ? "inline-block" : "none",
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/pdf/${routePrefix}/${item._id}`);
+                      router.push(`/pdf?type=${routePrefix}&id=${item._id}`);
                     }}
                   >
                     <PictureAsPdf />

@@ -1,6 +1,8 @@
+// import { afterInit } from "@/script/afterInit";
 import { redirect } from "next/navigation";
 
-function Page() {
+async function Page() {
+  // await afterInit()
   return redirect("/info");
 }
 

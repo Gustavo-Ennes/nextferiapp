@@ -13,3 +13,30 @@ export interface PaginatedResponse<T> {
   hasNextPage: boolean;
   hasPrevPage: boolean;
 }
+
+export type PeriodOptionsType = "past" | "future" | "present";
+export interface PdfRouteBody {
+  type: "vacation" | "relation" | "materialRequisition" | "vehicleUsage";
+  relationType?: string;
+  id?: string;
+  period?: PeriodOptionsType;
+}
+export interface VacationsResolverArgsInterface {
+  fromWorker?: string;
+  period?: PeriodOptionsType;
+  type?: string;
+  deferred?: boolean;
+  page?: number;
+}
+export interface VacationsQueryOptionsInterface {
+  worker?: string;
+  startDate?: {
+    $lt?: Date;
+    $lte?: Date;
+    $gt?: Date;
+    $gte?: Date;
+  };
+  type?: string;
+  deferred?: boolean;
+  enjoyed?: boolean;
+}

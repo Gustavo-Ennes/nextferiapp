@@ -21,7 +21,7 @@ export function VacationForm({
   id,
   workers,
   bosses,
-  type = "normal"
+  type = "normal",
 }: VacationProps) {
   const [form, setForm] = useState<VacationFormData>({
     worker: defaultValues?.worker?._id ?? null,
@@ -85,7 +85,12 @@ export function VacationForm({
     setForm((prev) => ({
       ...prev,
       type: value,
-      duration: value === "normal" ? 15 : value === "license" ? 15 : 1,
+      duration:
+        value === "normal" || value === "vacation"
+          ? 15
+          : value === "license"
+          ? 15
+          : 1,
       period: value === "dayOff" ? "full" : undefined,
     }));
 
@@ -102,7 +107,7 @@ export function VacationForm({
     }));
 
   const durations = () => {
-    if (form.type === "normal") return [15, 30];
+    if (form.type === "normal" || form.type === "vacation") return [15, 30];
     if (form.type === "license") return [15, 30, 45, 60, 75, 90];
     if (form.type === "dayOff") return [0.5, 1];
     return [];
@@ -168,7 +173,9 @@ export function VacationForm({
         </FormControl>
       )}
 
-      {(form.type === "normal" || form.type === "license") && (
+      {(form.type === "normal" ||
+        form.type === "vacation" ||
+        form.type === "license") && (
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Duração</InputLabel>
           <Select
