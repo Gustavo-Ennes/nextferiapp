@@ -20,9 +20,9 @@ const drawBlock = async ({
   page,
 }: MaterialRequisitionDrawBlockParam) => {
   const departmentText =
-    "SETOR REQUISITANTE: __________________________________________________________";
+    "SETOR REQUISITANTE: _________________________________________________________";
   const applicationText =
-    "APLICAÇÃO DOS MATERIAIS: _____________________________________________________";
+    "VEÍCULO/EQUIP.: ______________________________________ PREFIXO/BP: ____________";
   const getParagraphWidth = (text: string, size = 15) =>
     font.widthOfTextAtSize(text, size);
 
@@ -36,7 +36,7 @@ const drawBlock = async ({
     document,
     height,
     size: 20,
-    title: "REQUISIÇÃO DE MATERIAIS",
+    title: "REQUISIÇÃO DE MATERIAIS - Combustível",
   });
 
   height.stepHugeLine();
@@ -88,7 +88,7 @@ const drawBlock = async ({
     height,
     maxWidth: page.getWidth() - 70,
     text: dateSlots,
-    x: page.getWidth() / 4 - getParagraphWidth(dateSlots, 12) / 2,
+    x: page.getWidth() / 6 - getParagraphWidth(dateSlots, 12) / 2,
   });
   await createParagraph({
     document,
@@ -97,7 +97,7 @@ const drawBlock = async ({
     height,
     maxWidth: page.getWidth() - 70,
     text: dateSlots,
-    x: (page.getWidth() / 4) * 2 - getParagraphWidth(dateSlots, 12) / 2,
+    x: (page.getWidth() / 6) * 3 - getParagraphWidth(dateSlots, 12) / 2,
   });
   await createParagraph({
     document,
@@ -106,7 +106,7 @@ const drawBlock = async ({
     height,
     maxWidth: page.getWidth() - 70,
     text: dateSlots,
-    x: (page.getWidth() / 4) * 3 - getParagraphWidth(dateSlots, 12) / 2,
+    x: (page.getWidth() / 6) * 5 - getParagraphWidth(dateSlots, 12) / 2,
   });
 
   height.stepHugeLine();
@@ -116,23 +116,21 @@ const drawBlock = async ({
     height,
     name: "REQUISITANTE",
     role: "",
-    x: page.getWidth() / 4,
+    x: page.getWidth() / 6,
   });
-  height.actual += 44;
   await createSign({
     document,
     height,
     name: "APROVAÇÃO DO SETOR",
     role: "",
-    x: (page.getWidth() / 4) * 2,
+    x: (page.getWidth() / 6) * 3,
   });
-  height.actual += 44;
   await createSign({
     document,
     height,
     name: "ALMOXARIFADO",
     role: "",
-    x: (page.getWidth() / 4) * 3,
+    x: (page.getWidth() / 6) * 5,
   });
   height.stepHugeLine();
 };
@@ -145,6 +143,7 @@ const render = async ({ document }: RenderParam): Promise<void> => {
     const fontSize = 12;
 
     await drawBlock({ document, font, fontSize, height, page });
+    height.stepLines(3, "regular")
     await drawBlock({
       document,
       font,

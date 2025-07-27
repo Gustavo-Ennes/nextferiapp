@@ -1,14 +1,14 @@
 export const vehicleUsageTableData = [
   [
-    "DIA",
+    "  DATA   ",
     "MOTORISTA",
     "DESTINO",
-    "HR. SAÍDA",
-    "KM. SAÍDA",
-    "HR. CHEGADA",
-    "KM. CHEGADA",
-    "KM RODADO",
-    "ASSINATURA"
+    "HR. INI.",
+    "KM. INI.",
+    "HR. FIM",
+    "KM. FIM",
+    "RODADO",
+    "  ASS.  ",
   ],
   [
     undefined,
@@ -19,7 +19,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -30,7 +30,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -41,7 +41,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -52,7 +52,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -63,7 +63,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -74,7 +74,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -85,7 +85,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -96,7 +96,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -107,7 +107,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -118,7 +118,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -129,7 +129,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -140,7 +140,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -151,7 +151,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -162,7 +162,7 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
+    undefined,
   ],
   [
     undefined,
@@ -173,12 +173,12 @@ export const vehicleUsageTableData = [
     undefined,
     undefined,
     undefined,
-    undefined
-  ]
+    undefined,
+  ],
 ];
 
 export const fuelingTableData = [
   ["DATA", undefined, undefined, undefined, undefined, undefined],
   ["KM", undefined, undefined, undefined, undefined, undefined],
-  ["Qtd. LITROS", undefined, undefined, undefined, undefined, undefined]
+  ["Qtd. LITROS", undefined, undefined, undefined, undefined, undefined],
 ];

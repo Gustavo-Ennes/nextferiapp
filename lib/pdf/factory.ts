@@ -147,7 +147,7 @@ const createSign = async ({
   const regularFontSize = 12;
   const boldFontSize = regularFontSize * 1.1;
   const textLines = [
-    "_______________________",
+    "_____________________",
     name ?? worker?.name ?? "Excluído",
     role ?? "",
   ];
@@ -234,7 +234,7 @@ const drawTableLine = async ({
   ) => cellEndX - (cellWidth ?? defaultCellWidth) / 2 - textWidth / 2;
   const startHeight = height.actual;
   const fontSize = 11;
-  let highestCellSize = 0;
+  let highestCellSize = 22;
 
   // cell upper line
   page.drawLine({
@@ -243,7 +243,7 @@ const drawTableLine = async ({
   });
 
   // goto middle to write
-  height.actual -= lineHeight;
+  height.actual -= lineHeight * 0.7;
 
   line.forEach(async (cell, index) => {
     if (cell) {
@@ -257,7 +257,7 @@ const drawTableLine = async ({
           font,
           fontSize,
           lineHeight,
-          maxWidth: cellRealWidth * 0.8,
+          maxWidth: cellRealWidth * 0.7,
           page,
           text: cell,
           x: startLineX,
@@ -276,14 +276,14 @@ const drawTableLine = async ({
         fontSize,
         height,
         lineHeight,
-        maxWidth: cellRealWidth * 0.8,
+        maxWidth: cellRealWidth * 0.7,
         text: cell,
         x: newX,
       });
     }
   });
 
-  height.actual -= highestCellSize;
+  height.actual -= (highestCellSize * 0.2);
   // each cell (except first) draws a vertical line in x1 point
   line.forEach((_, index) => {
     const x = columnsXArray[index];
