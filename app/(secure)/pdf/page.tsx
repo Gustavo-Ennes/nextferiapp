@@ -6,7 +6,7 @@ const PdfPage = async ({
   searchParams: Promise<PdfRouteBody>;
 }) => {
   const body = await searchParams;
-  const { data } = await (
+  const data = await (
     await fetch(`${process.env.NEXT_PUBLIC_URL}/api/pdf`, {
       method: "post",
       body: JSON.stringify(body),

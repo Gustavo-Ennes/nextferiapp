@@ -1,0 +1,117 @@
+"use client";
+
+import { Button, Box, Grid, Divider } from "@mui/material";
+import { useEffect, useState } from "react";
+import { CarEntry, FuelingData, FuelType } from "../types";
+import { TabFormInfo } from "./TabFormInfo";
+import { TabFormFuelings } from "./TabFormFuelings";
+
+export const TabForm = ({
+  onSubmit,
+  selectedCarEntry,
+}: {
+  onSubmit: (car: CarEntry) => void;
+  selectedCarEntry?: CarEntry;
+}) => {
+  const [vehicle, setVehicle] = useState(selectedCarEntry?.vehicle ?? "");
+  const [prefix, setPrefix] = useState(selectedCarEntry?.prefix ?? 0);
+  const [fuel, setFuel] = useState<FuelType>(selectedCarEntry?.fuel ?? "gas");
+  const [date, setDate] = useState(
+    selectedCarEntry?.fuelings[0]?.date ?? new Date()
+  );
+  const [quantity, setQuantity] = useState(0);
+  const [kmHr, setKmHr] = useState<number>();
+  const [fuelings, setFuelings] = useState<FuelingData[]>(
+    selectedCarEntry?.fuelings ?? []
+  );
+
+  useEffect(() => {
+    setVehicle(selectedCarEntry?.vehicle ?? "");
+    setPrefix(selectedCarEntry?.prefix ?? 0);
+    setDate(new Date());
+    setQuantity(0);
+    setKmHr(undefined);
+    setFuelings(selectedCarEntry?.fuelings ?? []);
+    setFuel(selectedCarEntry?.fuel ?? "gas");
+  }, [selectedCarEntry]);
+
+  const addFueling = () => {
+    if (date && quantity > 0) {
+      setFuelings((prev) => [
+        ...prev,
+        { date, quantity, kmHr, id: prev.length },
+      ]);
+      setDate(new Date());
+      setQuantity(0);
+      setFuel("gas");
+    }
+  };
+
+  const removeFueling = (idx: number) => {
+    setFuelings((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleSubmit = () => {
+    if (vehicle && prefix) {
+      onSubmit({ vehicle, prefix, fuelings, fuel });
+      setVehicle("");
+      setPrefix(0);
+      setFuelings([]);
+      setFuel("gas");
+    }
+  };
+
+  const buttonLabel = !selectedCarEntry
+    ? "Criar"
+    : fuelings.length
+    ? "Atualizar"
+    : "Remover";
+
+  const isSelectedCarEditing = () => {
+    return (
+      vehicle !== selectedCarEntry?.vehicle ||
+      prefix !== selectedCarEntry?.prefix ||
+      fuel !== selectedCarEntry.fuel ||
+      fuelings !== selectedCarEntry.fuelings
+    );
+  };
+
+  return (
+    <Grid container component={Box} spacing={2} alignContent="start">
+      <Grid size={12}>
+        <TabFormInfo
+          fuel={fuel}
+          prefix={prefix}
+          vehicle={vehicle}
+          setFuel={setFuel}
+          setPrefix={setPrefix}
+          setVehicle={setVehicle}
+        />
+      </Grid>
+      <Grid size={12} component={Divider} />
+      <Grid component={Box} size={12}>
+        <TabFormFuelings
+          date={date}
+          quantity={quantity}
+          kmHr={kmHr}
+          setDate={setDate}
+          setKmHr={setKmHr}
+          setQuantity={setQuantity}
+          addFueling={addFueling}
+          removeFueling={removeFueling}
+          fuelings={fuelings}
+        />
+      </Grid>
+
+      <Grid size={12}>
+        <Button
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={!vehicle || !prefix || !isSelectedCarEditing()}
+        >
+          {buttonLabel}
+        </Button>
+      </Grid>
+    </Grid>
+  );
+};

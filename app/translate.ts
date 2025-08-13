@@ -5,7 +5,7 @@ export const translateEntityKey = ({
   entity,
   key,
 }: {
-  entity: EntityType | null;
+  entity: EntityType | "fuel" | null;
   key: string;
 }): string => {
   const dictionary = {
@@ -50,7 +50,7 @@ export const translateEntityKey = ({
       dayOff: "abonada",
       license: "licença-prêmio",
       normal: "férias",
-      returnDate: "Retorno"
+      returnDate: "Retorno",
     },
     boss: {
       _id: "id",
@@ -62,10 +62,20 @@ export const translateEntityKey = ({
       isActive: "Ativo",
       translated: "Chefe",
       translatedPlural: "Chefes",
-      worker: "Servidor"
+      worker: "Servidor",
+    },
+    fuel: {
+      gas: "Gasolina",
+      s10: "Diesel S-10",
+      s500: "Diesel S-500",
+      arla: "Arla",
     },
   };
   return entity
-    ? capitalizeFirstLetter(dictionary[entity][key as keyof (typeof dictionary)[EntityType]])
+    ? capitalizeFirstLetter(
+        dictionary[entity][
+          key as keyof (typeof dictionary)[EntityType | "fuel"]
+        ]
+      )
     : "Informações";
 };

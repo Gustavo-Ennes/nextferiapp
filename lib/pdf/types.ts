@@ -2,6 +2,10 @@
 import type { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
 
 import { Vacation, Worker, Department } from "@/app/types";
+import {
+  CarEntry,
+  TabData,
+} from "@/app/(secure)/pdf/materialRequisition/types";
 
 type LineData = (string | undefined)[];
 type TableData = LineData[];
@@ -21,6 +25,7 @@ type RenderParam = {
   reference?: Date;
   type?: string; // print type
   period?: string;
+  data?: TabData[];
 };
 
 type DrawCellFnParams = {
@@ -119,6 +124,8 @@ type MaterialRequisitionDrawBlockParam = {
   fontSize: number;
   page: PDFPage;
   headerY?: number;
+  data: CarEntry;
+  tabData: TabData;
 };
 
 export type {

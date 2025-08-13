@@ -10,26 +10,43 @@ import {
 } from "@/lib/pdf";
 import Vacation from "@/models/Vacation";
 import { buildOptions } from "../utils";
+import path from "path";
+import fs from "fs/promises";
 
 export async function POST(req: NextRequest) {
   await dbConnect();
   const body = await req.json();
+  console.log("🚀 ~ POST ~ body:", body);
 
   try {
     checkPdfBodyProps(body);
 
-    
-
     const document = await PDFDocument.create();
 
     await render({ body, document });
+    console.log("🚀 ~ POST ~ render finished");
+    // const headers = {
+    //   "Content-Type": "application/pdf",
+    //   "Content-Disposition": "inline; filename='materialRequisition.pdf'",
+    // };
 
     const pdfBytes = await document.save();
-    const data = Buffer.from(pdfBytes).toString("base64");
+    const outputPath = path.join(__dirname, "saida.pdf");
+    console.log("🚀 ~ POST ~ __dirname:", __dirname);
 
-    return NextResponse.json({ data });
+    // Salvar no disco
+    await fs.writeFile(outputPath, pdfBytes);
+    const data = Buffer.from(pdfBytes);
+
+    return new NextResponse(pdfBytes, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": 'inline; filename="generated.pdf"',
+      },
+    });
   } catch (error) {
-    console.log("🚀 ~ POST ~ error:", error)
+    console.log("🚀 ~ POST ~ error:", error);
     return NextResponse.json({ error });
   }
 }
@@ -61,11 +78,12 @@ const render = async ({
   body: PdfRouteBody;
   document: PDFDocument;
 }) => {
-  const { id, type, relationType, period } = body;
+  const { id, type, relationType, period, data } = body;
   switch (type) {
     case "materialRequisition":
       return materialRequisitionRender({
         document,
+        data,
       });
     case "relation":
       const options = buildOptions({ period, type: relationType });
@@ -76,7 +94,6 @@ const render = async ({
         _id: id,
         $or: [{ cancelled: false }, { cancelled: undefined }],
       }).populate("worker boss");
-      console.log("🚀 ~ render ~ instance:", instance);
       return vacationRender({ document, instance });
     case "vehicleUsage":
       return vehicleUsageRender({ document });
@@ -84,5 +101,3 @@ const render = async ({
       throw new Error("Invalid render type.");
   }
 };
-
-// () => front
