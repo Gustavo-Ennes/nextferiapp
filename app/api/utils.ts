@@ -1,10 +1,17 @@
-import { endOfToday, startOfToday } from "date-fns";
+import {
+  addDays,
+  endOfDay,
+  endOfToday,
+  startOfDay,
+  startOfToday,
+} from "date-fns";
 import { mergeAll } from "ramda";
 
 import {
   VacationsQueryOptionsInterface,
   VacationsResolverArgsInterface,
 } from "./types";
+import { Vacation } from "../types";
 
 const buildOptions = ({
   deferred,
@@ -34,4 +41,15 @@ const buildOptions = ({
   return options;
 };
 
-export { buildOptions };
+const updateVacationDates = (vacation: Vacation): Vacation => ({
+  ...vacation,
+  startDate: startOfDay(new Date(vacation.startDate)),
+  endDate: endOfDay(
+    addDays(
+      new Date(vacation.startDate),
+      ((vacation.duration ?? vacation.daysQtd) as number) - 1
+    )
+  ),
+});
+
+export { buildOptions, updateVacationDates };

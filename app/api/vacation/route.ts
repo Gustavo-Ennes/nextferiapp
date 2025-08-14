@@ -5,6 +5,7 @@ import VacationModel from "@/models/Vacation";
 import { startOfDay, endOfDay, addDays } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { PaginatedResponse } from "../types";
+import { updateVacationDates } from "../utils";
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -50,13 +51,9 @@ export async function POST(req: NextRequest) {
   await dbConnect();
   const body = await req.json();
 
-  body.startDate = startOfDay(new Date(body.startDate)).toISOString();
-  body.endDate = endOfDay(
-    addDays(new Date(body.startDate), (body.duration ?? body.daysQtd) - 1)
-  ).toISOString();
-
   try {
-    const vacation = await VacationModel.create(body);
+    const bodyWithUpdatedDates = updateVacationDates(body);
+    const vacation = await VacationModel.create(bodyWithUpdatedDates);
     revalidatePath("/vacation");
 
     return NextResponse.json({ data: vacation });

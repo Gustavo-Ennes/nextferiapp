@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/database/database";
 import Vacation from "@/models/Vacation";
 import { revalidatePath } from "next/cache";
+import { updateVacationDates } from "../../utils";
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -34,7 +35,8 @@ export async function PUT(req: NextRequest) {
   revalidatePath("/vacation");
 
   try {
-    const vacation = await Vacation.findByIdAndUpdate(id, body);
+    const bodyWithUpdatedDates = updateVacationDates(body);
+    const vacation = await Vacation.findByIdAndUpdate(id, bodyWithUpdatedDates);
 
     if (!vacation) return NextResponse.json({ error: "Vacation not found." });
 
