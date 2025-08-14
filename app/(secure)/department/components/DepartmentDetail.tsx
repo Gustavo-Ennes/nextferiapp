@@ -16,6 +16,7 @@ import {
 import { Department } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export function DepartmentDetail({
   department,
@@ -56,9 +57,7 @@ export function DepartmentDetail({
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Visualização de departamento
-      </Typography>
+      <TitleTypography>Visualização de departamento</TitleTypography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Stack spacing={2}>

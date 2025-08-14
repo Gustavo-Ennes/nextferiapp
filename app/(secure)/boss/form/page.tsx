@@ -1,5 +1,6 @@
-import { Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
 import { BossForm } from "../components/BossForm";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export default async function BossFormPage({
   params,
@@ -15,12 +16,12 @@ export default async function BossFormPage({
   ).json();
 
   return (
-    <Container maxWidth={"xl"} sx={{ mt: 1 }}>
+    <Container maxWidth={"sm"} sx={{ mt: 1 }}>
       {(!id || (id && boss)) && (
         <>
-          <Typography variant="h5" gutterBottom mb={2}>
+          <TitleTypography>
             {id ? "Editar Chefe" : "Criar Chefe"}
-          </Typography>
+          </TitleTypography>
 
           <BossForm defaultValues={boss} workers={workers} />
         </>

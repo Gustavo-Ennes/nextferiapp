@@ -1,6 +1,7 @@
-import { Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
 import { VacationForm } from "../components/VacationForm";
 import { VacationType } from "../types";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export default async function VacationFormPage({
   searchParams,
@@ -19,12 +20,12 @@ export default async function VacationFormPage({
   ).json();
 
   return (
-    <Container maxWidth={"xl"} sx={{ mt: 1 }}>
+    <Container maxWidth={"sm"} sx={{ mt: 1 }}>
       {(!id || (id && vacation)) && (
         <>
-          <Typography variant="h5" gutterBottom mb={2}>
+          <TitleTypography>
             {id ? "Editar Folga" : "Criar Folga"}
-          </Typography>
+          </TitleTypography>
           <VacationForm
             defaultValues={vacation}
             type={type}

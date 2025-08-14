@@ -19,6 +19,7 @@ import { MenuItem } from "../../components/types";
 import { capitalizeName } from "@/app/utils";
 import { getTypeLabel } from "../utils";
 import { useRouter } from "next/navigation";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export function VacationDetail({ vacation }: { vacation: Vacation }) {
   const { open } = useModal();
@@ -89,9 +90,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Visualização da Folga
-      </Typography>
+      <TitleTypography>Visualização da Folga</TitleTypography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Stack spacing={2}>

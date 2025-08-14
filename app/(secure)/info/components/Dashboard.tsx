@@ -14,6 +14,7 @@ import {
   Person,
 } from "@mui/icons-material";
 import { Vacation, Worker, Department } from "@/app/types";
+import { TitleTypography } from "../../components/TitleTypography";
 
 function Dashboard({
   data,
@@ -66,9 +67,7 @@ function Dashboard({
 
   return (
     <Box>
-      <Typography variant="h4" mb={2} textAlign="center">
-        {today}
-      </Typography>
+      <TitleTypography>{today}</TitleTypography>
 
       {/* Cards de estatísticas */}
       <Grid container spacing={3}>

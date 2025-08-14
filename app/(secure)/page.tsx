@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
 import {
   Box,
   Button,
   Container,
-  Typography,
   CircularProgress,
 } from "@mui/material";
 import { useState } from "react";
 import { redirect } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
+import { TitleTypography } from "./components/TitleTypography";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
-  const {status} = useSession();
+  const { status } = useSession();
   const redirectTo = "/vacation";
 
   if (status === "authenticated") {
@@ -35,9 +35,7 @@ const LoginPage = () => {
         minHeight="100vh"
         gap={3}
       >
-        <Typography variant="h5" fontWeight="bold">
-          Login com Auth0
-        </Typography>
+        <TitleTypography>Login com Auth0</TitleTypography>
         <Button
           variant="contained"
           color="primary"

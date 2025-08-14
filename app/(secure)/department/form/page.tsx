@@ -1,5 +1,6 @@
 import { Container, Typography } from "@mui/material";
 import { DepartmentForm } from "../components/DepartmentForm";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export default async function DepartmentFormPage({
   searchParams,
@@ -12,12 +13,12 @@ export default async function DepartmentFormPage({
   ).json();
 
   return (
-    <Container maxWidth={"xl"} sx={{ mt: 1 }}>
+    <Container maxWidth={"sm"} sx={{ mt: 1 }}>
       {(!id || (id && department)) && (
         <>
-          <Typography variant="h5" gutterBottom mb={2}>
+          <TitleTypography>
             {id ? "Editar Departamento" : "Criar Departamento"}
-          </Typography>
+          </TitleTypography>
 
           <DepartmentForm defaultValues={department} />
         </>

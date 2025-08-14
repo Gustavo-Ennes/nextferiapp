@@ -41,7 +41,11 @@ export const ListPageDesktop = <T extends Entity>({
 
   const handleEdit = (e: React.MouseEvent, _id: string) => {
     e.stopPropagation();
-    router.push(`/${routePrefix}/form?id=${_id}`);
+    router.push(
+      `/${routePrefix}/form?id=${_id}${
+        vacationType !== "normal" ? `&type=${vacationType}` : ""
+      }`
+    );
   };
 
   const handleDelete = (e: React.MouseEvent, entity: Entity) => {

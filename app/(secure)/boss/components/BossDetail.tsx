@@ -14,6 +14,7 @@ import {
 import { Boss } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export function BossDetail({ boss }: { boss: Boss }) {
   const { id } = useParams();
@@ -39,9 +40,7 @@ export function BossDetail({ boss }: { boss: Boss }) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Visualização de chefe
-      </Typography>
+      <TitleTypography>Visualização de chefe</TitleTypography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Stack spacing={2}>

@@ -7,9 +7,11 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  Grid,
+  Button,
+  Box,
 } from "@mui/material";
 import { useState } from "react";
-import { SubmitButton } from "@/app/(secure)/components/FormSubmitButton";
 import { BossFormData, BossProps } from "../types";
 import { useRouter } from "next/navigation";
 
@@ -62,34 +64,55 @@ export function BossForm({ defaultValues, workers }: BossProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormControl fullWidth sx={{ mb: 2 }}>
-        <InputLabel>Servidor</InputLabel>
-        <Select
-          name="worker"
-          value={form.worker ?? ""}
-          label="Departamento"
-          onChange={handleSelectChange}
+    <Grid container component="form" spacing={2} onSubmit={handleSubmit}>
+      <Grid size={12}>
+        <FormControl fullWidth>
+          <InputLabel>Servidor</InputLabel>
+          <Select
+            name="worker"
+            value={form.worker ?? ""}
+            label="Departamento"
+            onChange={handleSelectChange}
+            size="small"
+            fullWidth
+          >
+            {workers.map((worker) => (
+              <MenuItem key={worker._id} value={worker._id}>
+                {worker.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Grid>
+
+      <Grid size={12}>
+        <TextField
+          required
+          name="role"
+          label="Cargo"
+          value={form.role}
+          onChange={handleChange}
+          size="small"
+          fullWidth
+        />
+      </Grid>
+
+      <Grid
+        component={Box}
+        size={2}
+        offset={10}
+        alignItems={"center"}
+        justifyContent={"right"}
+      >
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={isSubmitting}
+          sx={{ width: 1 }}
         >
-          {workers.map((worker) => (
-            <MenuItem key={worker._id} value={worker._id}>
-              {worker.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <TextField
-        fullWidth
-        required
-        name="role"
-        label="Cargo"
-        value={form.role}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
-
-      <SubmitButton defaultValues={defaultValues} isSubmitting={isSubmitting} />
-    </form>
+          {isSubmitting ? "Salvando..." : "Salvar"}
+        </Button>
+      </Grid>
+    </Grid>
   );
 }

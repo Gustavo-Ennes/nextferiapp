@@ -18,6 +18,7 @@ import { Tab as MaterialRequisitionTab } from "./components/Tab";
 import { TabPanel } from "./components/TabPanel";
 import { Close } from "@mui/icons-material";
 import { head, isNil, reject } from "ramda";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export default function MaterialRequisitionPage() {
   const [tabsData, setTabsData] = useState<TabData[]>(
@@ -45,7 +46,6 @@ export default function MaterialRequisitionPage() {
   // Persist
   useEffect(() => {
     localStorage.setItem("tabsData", JSON.stringify(tabsData));
-    console.log("🚀 ~ MaterialRequisitionPage ~ tabsData mudou:", tabsData);
   }, [tabsData]);
   useEffect(() => {
     localStorage.setItem("activeTab", JSON.stringify(activeTab));
@@ -109,9 +109,9 @@ export default function MaterialRequisitionPage() {
       }}
     >
       <Grid size={12}>
-        <Typography variant="h3">
+        <TitleTypography>
           Requisições de materiais - combustível
-        </Typography>
+        </TitleTypography>
       </Grid>
       <Grid size={2}>
         <Button

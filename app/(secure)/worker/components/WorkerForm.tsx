@@ -9,6 +9,7 @@ import {
   InputLabel,
   Select,
   SelectChangeEvent,
+  Grid,
 } from "@mui/material";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -79,62 +80,75 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <TextField
-        fullWidth
-        required
-        name="name"
-        label="Nome"
-        value={form.name}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
+    <Grid container spacing={2} component={"form"} onSubmit={handleSubmit}>
+      <Grid size={12}>
+        <TextField
+          fullWidth
+          size="small"
+          required
+          name="name"
+          label="Nome"
+          value={form.name}
+          onChange={handleChange}
+        />
+      </Grid>
 
-      <TextField
-        fullWidth
-        required
-        name="matriculation"
-        label="Matrícula"
-        value={form.matriculation}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
+      <Grid size={6}>
+        <TextField
+          size="small"
+          fullWidth
+          required
+          name="matriculation"
+          label="Matrícula"
+          value={form.matriculation}
+          onChange={handleChange}
+        />
+      </Grid>
 
-      <TextField
-        fullWidth
-        required
-        name="registry"
-        label="Registro"
-        value={form.registry}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
+      <Grid size={6}>
+        <TextField
+          size="small"
+          fullWidth
+          required
+          name="registry"
+          label="Registro"
+          value={form.registry}
+          onChange={handleChange}
+        />
+      </Grid>
 
-      <TextField
-        fullWidth
-        required
-        name="role"
-        label="Cargo"
-        value={form.role}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
+      <Grid size={12}>
+        <TextField
+          size="small"
+          fullWidth
+          required
+          name="role"
+          label="Cargo"
+          value={form.role}
+          onChange={handleChange}
+        />
+      </Grid>
 
-      <DatePicker
-        sx={{ mb: 2 }}
-        label="Início"
-        value={new Date(form.admissionDate)}
-        onChange={handleDateChange}
-        format="dd/MM/yyyy"
-      />
+      <Grid size={12}>
+        <DatePicker
+          sx={{ width: 1 }}
+          formatDensity="dense"
+          label="Início"
+          value={new Date(form.admissionDate)}
+          onChange={handleDateChange}
+          format="dd/MM/yyyy"
+          slotProps={{ textField: { size: "small" } }}
+        />
+      </Grid>
 
-      <FormControl fullWidth sx={{ mb: 2 }}>
+      <Grid size={12} component={FormControl} fullWidth>
         <InputLabel>Departamento</InputLabel>
         <Select
           name="department"
           value={form.department ?? ""}
           label="Departamento"
           onChange={handleSelectChange}
+          size="small"
         >
           {departments.map((dept) => (
             <MenuItem key={dept._id} value={dept._id}>
@@ -142,13 +156,23 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
             </MenuItem>
           ))}
         </Select>
-      </FormControl>
-
-      <Box display="flex" justifyContent="flex-end">
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
+      </Grid>
+      <Grid
+        component={Box}
+        size={2}
+        offset={10}
+        alignItems={"center"}
+        justifyContent={"right"}
+      >
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={isSubmitting}
+          fullWidth
+        >
           {isSubmitting ? "Salvando..." : "Salvar"}
         </Button>
-      </Box>
-    </form>
+      </Grid>
+    </Grid>
   );
 }

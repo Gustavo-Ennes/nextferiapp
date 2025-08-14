@@ -1,5 +1,6 @@
+import { TitleTypography } from "../../components/TitleTypography";
 import { WorkerForm } from "../components/WorkerForm";
-import { Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
 
 export default async function WorkerFormPage({
   searchParams,
@@ -15,12 +16,12 @@ export default async function WorkerFormPage({
   ).json();
 
   return (
-    <Container maxWidth={"xl"} sx={{ mt: 1 }}>
+    <Container maxWidth={"sm"} sx={{ mt: 1 }}>
       {(!id || (id && worker)) && (
         <>
-          <Typography variant="h5" gutterBottom mb={2}>
+          <TitleTypography>
             {id ? "Editar Servidor" : "Criar Servidor"}
-          </Typography>
+          </TitleTypography>
 
           <WorkerForm defaultValues={worker} departments={departments} />
         </>

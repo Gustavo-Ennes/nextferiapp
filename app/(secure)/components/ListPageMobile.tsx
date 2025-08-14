@@ -1,5 +1,6 @@
 "use client";
 
+import { MouseEvent } from "react";
 import {
   List,
   ListItem,
@@ -21,6 +22,7 @@ export function ListPageMobile<T extends Entity>({
   pagination: { data: items },
   routePrefix,
   onDelete,
+  vacationType,
 }: ItemListProps<T>) {
   const router = useRouter();
   const getDefaultEntries = (obj: Entity) =>
@@ -34,6 +36,25 @@ export function ListPageMobile<T extends Entity>({
     (item as Vacation).type
       ? (item as Vacation)?.worker?.name
       : (item as Worker)?.name;
+
+  const handleEdit = (e: MouseEvent, item: Entity) => {
+    e.stopPropagation();
+    router.push(
+      `/${routePrefix}/form?id=${item._id}${
+        vacationType !== "normal" ? `&type=${vacationType}` : ""
+      }`
+    );
+  };
+
+  const handlePdf = (e: MouseEvent, item: Entity) => {
+    e.stopPropagation();
+    router.push(`/pdf/${routePrefix}/${item._id}`);
+  };
+
+  const handleDelete = (e: MouseEvent, item: Entity) => {
+    e.stopPropagation();
+    onDelete(item);
+  };
 
   return (
     <List sx={{ width: "100%" }}>
@@ -93,10 +114,7 @@ export function ListPageMobile<T extends Entity>({
                   <IconButton
                     edge="end"
                     size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/${routePrefix}/form?id=${item._id}`);
-                    }}
+                    onClick={(e) => handleEdit(e, item)}
                   >
                     <EditIcon fontSize="large" />
                   </IconButton>
@@ -106,29 +124,21 @@ export function ListPageMobile<T extends Entity>({
                   <IconButton
                     edge="end"
                     size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/pdf/${routePrefix}/${item._id}`);
-                    }}
+                    onClick={(e) => handlePdf(e, item)}
                   >
                     <PictureAsPdf fontSize="large" />
                   </IconButton>
                 </Grid>
-
-                {onDelete && (
-                  <Grid size={12}>
-                    <IconButton
-                      edge="end"
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDelete(item);
-                      }}
-                    >
-                      <DeleteIcon fontSize="large" />
-                    </IconButton>
-                  </Grid>
-                )}
+                
+                <Grid size={12}>
+                  <IconButton
+                    edge="end"
+                    size="small"
+                    onClick={(e) => handleDelete(e, item)}
+                  >
+                    <DeleteIcon fontSize="large" />
+                  </IconButton>
+                </Grid>
               </Grid>
             </Grid>
           </ListItem>

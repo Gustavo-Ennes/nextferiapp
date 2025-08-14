@@ -1,10 +1,9 @@
 "use client";
 
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, Grid, TextField } from "@mui/material";
 import { useEffect, useState } from "react";
 import { DepartmentFormData, DepartmentProps } from "../types";
 import { useRouter } from "next/navigation";
-import { set } from "mongoose";
 
 export function DepartmentForm({ defaultValues }: DepartmentProps) {
   const [form, setForm] = useState<DepartmentFormData>({
@@ -56,31 +55,46 @@ export function DepartmentForm({ defaultValues }: DepartmentProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <TextField
-        fullWidth
-        required
-        name="name"
-        label="Nome"
-        value={form.name}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
+    <Grid container component="form" spacing={2} onSubmit={handleSubmit}>
+      <Grid size={12}>
+        <TextField
+          fullWidth
+          size="small"
+          required
+          name="name"
+          label="Nome"
+          value={form.name}
+          onChange={handleChange}
+        />
+      </Grid>
 
-      <TextField
-        fullWidth
-        name="responsible"
-        label="Responsável"
-        value={form.responsible}
-        onChange={handleChange}
-        sx={{ mb: 2 }}
-      />
+      <Grid size={12}>
+        <TextField
+          fullWidth
+          size="small"
+          name="responsible"
+          label="Responsável"
+          value={form.responsible}
+          onChange={handleChange}
+        />
+      </Grid>
 
-      <Box display="flex" justifyContent="flex-end">
-        <Button type="submit" variant="contained" disabled={isSubmitting}>
+      <Grid
+        component={Box}
+        size={2}
+        offset={10}
+        alignItems={"center"}
+        justifyContent={"right"}
+      >
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={isSubmitting}
+          sx={{ width: 1 }}
+        >
           {isSubmitting ? "Salvando..." : "Salvar"}
         </Button>
-      </Box>
-    </form>
+      </Grid>
+    </Grid>
   );
 }

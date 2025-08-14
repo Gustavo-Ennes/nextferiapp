@@ -13,9 +13,10 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import {  Worker } from "@/app/types";
+import { Worker } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
+import { TitleTypography } from "../../components/TitleTypography";
 
 export function WorkerDetail({ worker }: { worker: Worker }) {
   const router = useRouter();
@@ -48,9 +49,7 @@ export function WorkerDetail({ worker }: { worker: Worker }) {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
-      <Typography variant="h5" gutterBottom>
-        Visualização de servidor
-      </Typography>
+      <TitleTypography>Visualização de servidor</TitleTypography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Stack spacing={2}>

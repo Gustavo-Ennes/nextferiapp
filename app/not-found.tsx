@@ -2,6 +2,7 @@
 
 import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { TitleTypography } from "./(secure)/components/TitleTypography";
 
 export default function NotFound() {
   const router = useRouter();
@@ -18,9 +19,7 @@ export default function NotFound() {
         px: 2,
       }}
     >
-      <Typography variant="h3" gutterBottom>
-        🕵️‍♂️ Nada por aqui...
-      </Typography>
+      <TitleTypography>🕵️‍♂️ Nada por aqui...</TitleTypography>
       <Typography variant="body1" gutterBottom>
         A página que você procura não foi encontrada. Talvez tenha tirado
         férias?
