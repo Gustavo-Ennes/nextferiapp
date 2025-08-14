@@ -50,6 +50,12 @@ const updateVacationDates = (vacation: Vacation): Vacation => ({
       ((vacation.duration ?? vacation.daysQtd) as number) - 1
     )
   ),
+  returnDate: startOfDay(
+    addDays(
+      new Date(vacation.startDate),
+      ((vacation.duration ?? vacation.daysQtd) as number)
+    )
+  ),
 });
 
 export { buildOptions, updateVacationDates };

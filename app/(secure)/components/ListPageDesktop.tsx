@@ -58,6 +58,17 @@ export const ListPageDesktop = <T extends Entity>({
       `/vacation${vacationType ? `/${vacationType}` : ""}?page=${page}`
     );
 
+  const isDate = (key: string): boolean => {
+    return [
+      "startDate",
+      "admissionDate",
+      "endDate",
+      "returnDate",
+      "createdAt",
+      "updatedAt",
+    ].includes(key);
+  };
+
   return (
     <Box>
       <TableContainer component={Paper}>
@@ -85,6 +96,7 @@ export const ListPageDesktop = <T extends Entity>({
                       : formatCellContent({
                           value: item[key as keyof T],
                           isName: key === "name",
+                          isDate: isDate(key),
                         })}
                   </TableCell>
                 ))}
