@@ -18,7 +18,6 @@ import { BossValidator } from "../validator";
 
 export function BossForm({ defaultValues, workers }: BossProps) {
   const router = useRouter();
-
   const {
     control,
     handleSubmit,

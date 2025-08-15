@@ -1,8 +1,9 @@
-import { Document, Schema, models, model } from "mongoose";
+import { Document, Schema, models, model, Types } from "mongoose";
+import { Boss } from ".";
 
 export interface Department extends Document {
   name: string;
-  responsible: string;
+  responsible: Types.ObjectId | Boss.Boss;
   isActive: boolean;
 }
 
@@ -14,9 +15,9 @@ export const DepartmentSchema = new Schema<Department>(
       maxlength: [60, "Name cannot be more than 60 characters"],
     },
     responsible: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Boss",
       required: [true, "Please provide the department responsible."],
-      maxlength: [60, "Responsible cannot be more than 60 characters"],
     },
     isActive: {
       type: Boolean,

@@ -16,7 +16,7 @@ export type Department = {
   name: string;
   createdAt: Date;
   updatedAt: Date;
-  responsible: string;
+  responsible: Boss;
 };
 
 export type Vacation = {

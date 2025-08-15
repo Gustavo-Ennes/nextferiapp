@@ -8,7 +8,6 @@ const DepartmentList = async ({
 }) => {
   const { page } = await searchParams;
   const fetchDepartments = async () => {
-    "use server";
     return fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/department?page=${page ?? 1}`
     );

@@ -63,14 +63,17 @@ export function DepartmentDetail({
         <Stack spacing={2}>
           <Box>
             <Typography variant="subtitle2">Nome</Typography>
-            <Typography>{department?.name}</Typography>
+            <Typography>{capitalizeName(department?.name)}</Typography>
           </Box>
 
           <Divider />
 
           <Box>
             <Typography variant="subtitle2">Responsável</Typography>
-            <Typography>{department?.responsible}</Typography>
+            <Typography>
+              {capitalizeName(department?.responsible?.worker?.name ?? "") ??
+                "Excuído(a)"}
+            </Typography>
           </Box>
 
           <Box>

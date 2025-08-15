@@ -1,4 +1,4 @@
-import { Container, Typography } from "@mui/material";
+import { Container } from "@mui/material";
 import { DepartmentForm } from "../components/DepartmentForm";
 import { TitleTypography } from "../../components/TitleTypography";
 
@@ -11,6 +11,9 @@ export default async function DepartmentFormPage({
   const { data: department } = await (
     await fetch(`${process.env.NEXT_PUBLIC_URL}/api/department/${id}`)
   ).json();
+  const { data: bosses } = await (
+    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss`)
+  ).json();
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>
@@ -20,7 +23,7 @@ export default async function DepartmentFormPage({
             {id ? "Editar Departamento" : "Criar Departamento"}
           </TitleTypography>
 
-          <DepartmentForm defaultValues={department} />
+          <DepartmentForm defaultValues={department} bosses={bosses} />
         </>
       )}
     </Container>

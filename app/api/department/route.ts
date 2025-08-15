@@ -18,7 +18,16 @@ export async function GET(req: NextRequest) {
       isActive: true,
     };
     const [data, totalItems] = await Promise.all([
-      DepartmentModel.find(filter).sort({ name: 1 }).skip(skip).limit(limit),
+      DepartmentModel.find(filter)
+        .sort({ name: 1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "responsible",
+          populate: {
+            path: "worker",
+          },
+        }),
       DepartmentModel.countDocuments(filter),
     ]);
     const totalPages = Math.ceil(totalItems / limit);
@@ -33,6 +42,7 @@ export async function GET(req: NextRequest) {
       hasPrevPage: page > 1,
     });
   } catch (error) {
+    console.log("🚀 ~ GET ~ error:", error);
     return NextResponse.json({ error });
   }
 }

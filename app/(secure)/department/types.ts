@@ -1,10 +1,11 @@
-import { Department } from "@/app/types";
+import { Boss, Department } from "@/app/types";
 
 export type DepartmentFormData = {
   name: string;
-  responsible?: string;
+  responsible: string;
 };
 
 export type DepartmentProps = {
   defaultValues?: Department;
+  bosses?: Boss[];
 };

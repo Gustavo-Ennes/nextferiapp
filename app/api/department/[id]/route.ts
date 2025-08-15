@@ -8,7 +8,16 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const department = await Department.findOne({ _id: id, isActive: true });
+    const department = await Department.findOne({
+      _id: id,
+      isActive: true,
+    }).populate({
+      path: "responsible",
+      populate: {
+        path: "worker",
+      },
+    });
+
     if (!department)
       return NextResponse.json({ error: "Department not found." });
 
