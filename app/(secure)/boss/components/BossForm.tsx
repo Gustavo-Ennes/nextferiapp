@@ -2,117 +2,126 @@
 
 import {
   TextField,
-  InputLabel,
-  FormControl,
   MenuItem,
   Select,
-  SelectChangeEvent,
   Grid,
   Button,
-  Box,
+  FormHelperText,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import { useState } from "react";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { BossFormData, BossProps } from "../types";
 import { useRouter } from "next/navigation";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { BossValidator } from "../validator";
 
 export function BossForm({ defaultValues, workers }: BossProps) {
   const router = useRouter();
-  const [form, setForm] = useState<BossFormData>({
-    worker: defaultValues?.worker?._id ?? null,
-    role: defaultValues?.role ?? "",
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid, isSubmitting },
+    watch,
+  } = useForm<BossFormData>({
+    resolver: zodResolver(BossValidator),
+    mode: "onTouched",
+    defaultValues: {
+      worker: defaultValues?.worker?._id ?? "_",
+      role: defaultValues?.role ?? "",
+    },
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const onSubmit = async (formData: BossFormData) => {
-    const method = defaultValues ? "PUT" : "POST";
-    const url = defaultValues
-      ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${defaultValues._id}`
-      : `${process.env.NEXT_PUBLIC_URL}/api/boss`;
+  const onSubmit: SubmitHandler<BossFormData> = async (formData) => {
+    try {
+      const method = defaultValues ? "PUT" : "POST";
+      const url = defaultValues
+        ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${defaultValues._id}`
+        : `${process.env.NEXT_PUBLIC_URL}/api/boss`;
 
-    setIsSubmitting(true);
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-    if (!res.ok) {
-      throw new Error("Erro ao salvar chefe");
+      if (!res.ok) {
+        throw new Error("Erro ao salvar chefe");
+      }
+
+      reset();
+      router.push("/boss");
+    } catch (err) {
+      console.error(err);
     }
-    setIsSubmitting(false);
-    router.push("/boss");
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(form);
-  };
-  const handleSelectChange = (e: SelectChangeEvent<string>) => {
-    setForm((prev) => ({
-      ...prev,
-      worker: e.target.value ?? null,
-    }));
   };
 
   return (
-    <Grid container component="form" spacing={2} onSubmit={handleSubmit}>
-      <Grid size={12}>
-        <FormControl fullWidth>
-          <InputLabel>Servidor</InputLabel>
-          <Select
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <Grid container spacing={2}>
+        <Grid size={12}>
+          <Controller
             name="worker"
-            value={form.worker ?? ""}
-            label="Departamento"
-            onChange={handleSelectChange}
-            size="small"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth size="small" error={!!errors.worker}>
+                <InputLabel id="worker-label">Servidor</InputLabel>
+                <Select
+                  {...field}
+                  labelId="worker-label"
+                  value={field.value}
+                  label="Servidor"
+                >
+                  <MenuItem value={"_"}>
+                    <em>Selecione o servidor</em>
+                  </MenuItem>
+                  {workers.map((worker) => (
+                    <MenuItem key={worker._id} value={worker._id}>
+                      {worker.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.worker && (
+                  <FormHelperText>{errors.worker.message}</FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
+        </Grid>
+
+        <Grid size={12}>
+          <Controller
+            name="role"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="Cargo"
+                size="small"
+                fullWidth
+                error={!!errors.role}
+                helperText={errors.role?.message}
+              />
+            )}
+          />
+        </Grid>
+
+        {/* Botão Salvar */}
+        <Grid size={2} sx={{ ml: "auto" }}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!isValid || isSubmitting}
             fullWidth
           >
-            {workers.map((worker) => (
-              <MenuItem key={worker._id} value={worker._id}>
-                {worker.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            {isSubmitting ? "Salvando..." : "Salvar"}
+          </Button>
+        </Grid>
       </Grid>
-
-      <Grid size={12}>
-        <TextField
-          required
-          name="role"
-          label="Cargo"
-          value={form.role}
-          onChange={handleChange}
-          size="small"
-          fullWidth
-        />
-      </Grid>
-
-      <Grid
-        component={Box}
-        size={2}
-        offset={10}
-        alignItems={"center"}
-        justifyContent={"right"}
-      >
-        <Button
-          type="submit"
-          variant="contained"
-          disabled={isSubmitting}
-          sx={{ width: 1 }}
-        >
-          {isSubmitting ? "Salvando..." : "Salvar"}
-        </Button>
-      </Grid>
-    </Grid>
+    </form>
   );
 }

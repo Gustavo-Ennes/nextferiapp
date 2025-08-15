@@ -3,11 +3,11 @@ import { BossForm } from "../components/BossForm";
 import { TitleTypography } from "../../components/TitleTypography";
 
 export default async function BossFormPage({
-  params,
+  searchParams,
 }: {
-  params: Promise<{ id: string }>;
+  searchParams: Promise<{ id: string; type: string }>;
 }) {
-  const { id } = await params;
+  const { id } = await searchParams;
   const { data: boss } = await (
     await fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss/${id}`)
   ).json();

@@ -1,8 +1,9 @@
 import { Worker, Boss } from "@/app/types";
 
 export interface BossFormData {
-  worker: string | null;
+  worker: string;
   role: string;
+  isDirector?: boolean;
 }
 
 export interface BossProps {
