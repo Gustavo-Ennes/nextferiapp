@@ -9,7 +9,6 @@ const VacationList = async ({
 }) => {
   const { page } = await searchParams;
   const fetchVacations = async () => {
-    "use server";
     return fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/vacation?page=${page ?? 1}`
     );

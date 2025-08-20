@@ -101,7 +101,10 @@ export const ListPageDesktop = <T extends Entity>({
                   </TableCell>
                 ))}
                 <TableCell align="center">
-                  <IconButton onClick={(e) => handleEdit(e, item._id)}>
+                  <IconButton
+                    onClick={(e) => handleEdit(e, item._id)}
+                    disabled={vacationType && !(item as Vacation).worker}
+                  >
                     <EditIcon />
                   </IconButton>
                   <IconButton onClick={(e) => handleDelete(e, item)}>

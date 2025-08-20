@@ -22,15 +22,14 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors, isValid, isSubmitting },
-    watch,
   } = useForm<DepartmentFormData>({
     resolver: zodResolver(DepartmentValidator),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: {
       name: defaultValues?.name ?? "",
       responsible: defaultValues?.responsible?._id ?? "_",
+      isActive: defaultValues?.isActive ?? true
     },
   });
 

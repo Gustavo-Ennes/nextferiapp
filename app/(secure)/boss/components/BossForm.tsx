@@ -23,13 +23,13 @@ export function BossForm({ defaultValues, workers }: BossProps) {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-    watch,
   } = useForm<BossFormData>({
     resolver: zodResolver(BossValidator),
-    mode: "onTouched",
+    mode: "onChange",
     defaultValues: {
       worker: defaultValues?.worker?._id ?? "_",
       role: defaultValues?.role ?? "",
+      isDirector: defaultValues?.isDirector ?? false,
     },
   });
 

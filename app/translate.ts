@@ -51,6 +51,9 @@ export const translateEntityKey = ({
       license: "licença-prêmio",
       normal: "férias",
       returnDate: "Retorno",
+      vacation: 'Folga',
+      half: 'meio-período',
+      full: 'integral'
     },
     boss: {
       _id: "id",

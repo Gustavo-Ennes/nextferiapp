@@ -6,7 +6,7 @@ const workerMissingStr = "Um trabalhador precisa ser selecionado";
 
 export const BossValidator = z.object({
   role: z.string().min(5, nameMore5Str).max(60, nameLess60Str),
-  isDirector: z.boolean().default(false),
+  isDirector: z.boolean(),
   worker: z
     .string()
     .overwrite((str) => (str === "_" ? "" : str))

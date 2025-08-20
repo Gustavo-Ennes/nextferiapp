@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     const skip = (page - 1) * limit;
 
     const filter = {
-      type: type ?? "vacation",
+      type: type ?? "normal",
       $or: [{ cancelled: false }, { cancelled: undefined }],
     };
     const [data, totalItems] = await Promise.all([

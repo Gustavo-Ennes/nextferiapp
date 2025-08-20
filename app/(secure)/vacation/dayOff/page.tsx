@@ -9,7 +9,6 @@ const DayOffList = async ({
 }) => {
   const { page } = await searchParams;
   const fetchVacations = async () => {
-    "use server";
     return fetch(
       `${process.env.NEXT_PUBLIC_URL}/api/vacation?type=dayOff&page=${
         page ?? 1

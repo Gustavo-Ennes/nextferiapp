@@ -115,6 +115,7 @@ export function ListPageMobile<T extends Entity>({
                     edge="end"
                     size="small"
                     onClick={(e) => handleEdit(e, item)}
+                    disabled={vacationType && !(item as Vacation).worker}
                   >
                     <EditIcon fontSize="large" />
                   </IconButton>
@@ -129,7 +130,7 @@ export function ListPageMobile<T extends Entity>({
                     <PictureAsPdf fontSize="large" />
                   </IconButton>
                 </Grid>
-                
+
                 <Grid size={12}>
                   <IconButton
                     edge="end"

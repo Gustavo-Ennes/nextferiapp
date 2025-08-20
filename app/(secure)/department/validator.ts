@@ -10,5 +10,5 @@ export const DepartmentValidator = z.object({
     .string()
     .overwrite((str) => (str === "-" ? "" : str))
     .nonempty(responsibleMissingStr),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });

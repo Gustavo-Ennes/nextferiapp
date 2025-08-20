@@ -4,18 +4,25 @@ import {
   Box,
   Button,
   FormControl,
+  FormHelperText,
   Grid,
   InputLabel,
   MenuItem,
   Select,
-  SelectChangeEvent,
   TextField,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { Key, useState } from "react";
 import { useRouter } from "next/navigation";
-import { VacationFormData, VacationProps, VacationType } from "../types";
+import { VacationFormData, VacationProps } from "../types";
 import { capitalizeName } from "@/app/utils";
+import { VacationValidator } from "../validator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { translateEntityKey } from "@/app/translate";
+import { useEffect } from "react";
+import { prepareDefaults, baselineForType } from "../utils";
+import { toDate, isValid as dateFNSIsValid } from "date-fns";
+import { PickerValue } from "@mui/x-date-pickers/internals";
 
 export function VacationForm({
   defaultValues,
@@ -24,22 +31,22 @@ export function VacationForm({
   bosses,
   type = "normal",
 }: VacationProps) {
-  const [form, setForm] = useState<VacationFormData>({
-    worker: defaultValues?.worker?._id ?? null,
-    boss: defaultValues?.boss?._id ?? null,
-    startDate: defaultValues?.startDate
-      ? new Date(defaultValues.startDate)
-      : new Date(),
-    type: defaultValues?.type || type,
-    duration: (defaultValues?.duration || defaultValues?.daysQtd) ?? 15,
-    period: defaultValues?.period ?? "full",
-    observation: defaultValues?.observation ?? "",
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+    watch,
+    setValue,
+  } = useForm<VacationFormData>({
+    resolver: zodResolver(VacationValidator),
+    mode: "onTouched",
+    defaultValues: defaultValues
+      ? prepareDefaults(defaultValues)
+      : baselineForType(type),
+  });
 
-  const onSubmit = async (formData: VacationFormData) => {
-    setIsSubmitting(true);
+  const onSubmit: SubmitHandler<VacationFormData> = async (formData) => {
     const method = id ? "PUT" : "POST";
     const url = id
       ? `${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`
@@ -55,193 +62,249 @@ export function VacationForm({
 
     if (!res.ok) throw new Error("Erro ao salvar folga");
 
-    setIsSubmitting(false);
     router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-
-  const handleDateChange = (date: Date | null) => {
-    if (date) {
-      setForm((prev) => ({
-        ...prev,
-        startDate: date,
-      }));
-    }
-  };
-
-  const handleSelectChange = (e: SelectChangeEvent<string | number>) => {
-    const { name, value } = e.target;
-
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === "period" &&
-        type === "dayOff" && { duration: value === "half" ? 0.5 : 1 }),
-    }));
-  };
-
-  const handleTypeChange = (value: VacationType) =>
-    setForm((prev) => ({
-      ...prev,
-      type: value,
-      duration:
-        value === "normal" || value === "vacation"
-          ? 15
-          : value === "license"
-          ? 15
-          : 1,
-      period: value === "dayOff" ? "full" : undefined,
-    }));
-
-  const handleWorkerChange = (value: string) =>
-    setForm((prev) => ({
-      ...prev,
-      worker: value,
-    }));
-
-  const handleBossChange = (value: string) =>
-    setForm((prev) => ({
-      ...prev,
-      boss: value,
-    }));
-
-  const durations = () => {
-    if (form.type === "normal" || form.type === "vacation") return [15, 30];
-    if (form.type === "license") return [15, 30, 45, 60, 75, 90];
-    if (form.type === "dayOff") return [0.5, 1];
+  const getDurations = () => {
+    if (type === "normal") return [15, 30];
+    if (type === "license") return [15, 30, 45, 60, 75, 90];
+    if (type === "dayOff") return [0.5, 1];
     return [];
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(form);
-  };
+  const getPeriodFromDuration = (duration: number) =>
+    duration === 0.5 ? "half" : "full";
+
+  const watchForm = watch();
+  useEffect(() => {
+    if (type === "dayOff") {
+      errors.period = undefined;
+      setValue("duration", watchForm.period === "half" ? 0.5 : 1);
+    }
+  }, [watchForm.period]);
 
   return (
-    <Grid container component={"form"} spacing={2} onSubmit={handleSubmit}>
-      <Grid size={12} component={FormControl}>
-        <InputLabel>Servidor</InputLabel>
-        <Select
-          name="type"
-          value={form.worker ?? ""}
-          label="Servidor"
-          onChange={(e) => handleWorkerChange(e.target.value)}
-          disabled={!!defaultValues}
-          fullWidth
-          size="small"
-        >
-          {workers?.map((worker) => (
-            <MenuItem key={worker._id as Key} value={worker._id as string}>
-              {worker.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </Grid>
-
-      <Grid size={6}>
-        <DatePicker
-          sx={{ width: 1 }}
-          label="Início"
-          value={new Date(form.startDate)}
-          onChange={handleDateChange}
-          format="dd/MM/yyyy"
-          slotProps={{ textField: { size: "small" } }}
+    <Grid
+      container
+      component={"form"}
+      spacing={2}
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <Grid size={12}>
+        <Controller
+          name="worker"
+          control={control}
+          render={({ field }) => (
+            <FormControl fullWidth size="small" error={!!errors.worker}>
+              <InputLabel id="worker-label">Servidor</InputLabel>
+              <Select
+                {...field}
+                labelId="worker-label"
+                value={field.value}
+                label="Servidor"
+                disabled={!!defaultValues}
+              >
+                <MenuItem value={"-"}>
+                  <em>Selecione o servidor</em>
+                </MenuItem>
+                {workers?.map((worker) => (
+                  <MenuItem key={worker._id} value={worker._id}>
+                    {worker?.name}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.worker && (
+                <FormHelperText>{errors.worker.message}</FormHelperText>
+              )}
+            </FormControl>
+          )}
         />
       </Grid>
 
-      <Grid size={6} component={FormControl}>
-        <InputLabel>Tipo de Folga</InputLabel>
-        <Select
+      <Grid size={6}>
+        <Controller
+          name="startDate"
+          control={control}
+          render={({ field }) => (
+            <>
+              <DatePicker
+                {...field}
+                value={toDate(field.value)}
+                onChange={(e: PickerValue) =>
+                  e && dateFNSIsValid(e)
+                    ? setValue("startDate", e.toISOString())
+                    : new Date().toISOString()
+                }
+                sx={{ width: 1 }}
+                label="Início"
+                format="dd/MM/yyyy"
+                slotProps={{
+                  textField: { size: "small", error: !!errors.startDate },
+                }}
+              />
+              {errors.startDate && (
+                <FormHelperText>{errors.startDate.message}</FormHelperText>
+              )}
+            </>
+          )}
+        />
+      </Grid>
+
+      <Grid size={6}>
+        <Controller
           name="type"
-          value={form.type}
-          label="Tipo de Folga"
-          onChange={(e) => handleTypeChange(e.target.value as VacationType)}
-          disabled={!!defaultValues}
-          fullWidth
-          size="small"
-        >
-          <MenuItem value="normal">Férias</MenuItem>
-          <MenuItem value="license">Licença-Prêmio</MenuItem>
-          <MenuItem value="dayOff">Abonada</MenuItem>
-        </Select>
+          control={control}
+          render={({ field }) => (
+            <FormControl fullWidth size="small" error={!!errors.type}>
+              <InputLabel id="type-label">Tipo</InputLabel>
+              <Select
+                {...field}
+                labelId="type-label"
+                value={field.value}
+                label="Tipo"
+                disabled
+              >
+                <MenuItem value={"-"}>
+                  <em>Selecione o tipo</em>
+                </MenuItem>
+                {["license", "normal", "dayOff"]?.map((vacationPeriod) => (
+                  <MenuItem
+                    key={`opt-${vacationPeriod}`}
+                    value={vacationPeriod}
+                  >
+                    {translateEntityKey({
+                      entity: "vacation",
+                      key: vacationPeriod,
+                    })}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.type && (
+                <FormHelperText>{errors.type.message}</FormHelperText>
+              )}
+            </FormControl>
+          )}
+        />
       </Grid>
 
-      {form.type === "dayOff" && (
-        <Grid size={6} component={FormControl}>
-          <InputLabel>Período</InputLabel>
-          <Select
+      {type === "dayOff" && (
+        <Grid size={6}>
+          <Controller
             name="period"
-            value={form.period}
-            label="Período"
-            onChange={handleSelectChange}
-            fullWidth
-            size="small"
-          >
-            <MenuItem value="half">Meio Período</MenuItem>
-            <MenuItem value="full">Dia Inteiro</MenuItem>
-          </Select>
-        </Grid>
-      )}
-
-      {(form.type === "normal" ||
-        form.type === "vacation" ||
-        form.type === "license") && (
-        <Grid size={6} component={FormControl}>
-          <InputLabel>Duração</InputLabel>
-          <Select
-            name="duration"
-            value={form.duration}
-            label="Duração"
-            onChange={handleSelectChange}
-            fullWidth
-            size="small"
-          >
-            {durations().map((d) => (
-              <MenuItem key={d} value={d}>
-                {d} dias
-              </MenuItem>
-            ))}
-          </Select>
-        </Grid>
-      )}
-
-      <Grid size={6} component={FormControl}>
-        <InputLabel>Aprovante</InputLabel>
-        <Select
-          name="boss"
-          value={form.boss ?? ""}
-          label="Aprovante"
-          onChange={(e) => handleBossChange(e.target.value)}
-          fullWidth
-          size="small"
-        >
-          {bosses?.map((boss) => (
-            <MenuItem key={boss._id as Key} value={boss._id as string}>
-              {capitalizeName(boss?.worker?.name ?? boss?.name)}
-            </MenuItem>
-          ))}
-        </Select>
-      </Grid>
-
-      {form.observation && (
-        <Grid size={12}>
-          <TextField
-            size="small"
-            name="observation"
-            label="Observação"
-            value={form.observation}
-            onChange={handleInputChange}
-            multiline
-            fullWidth
-            rows={3}
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth size="small" error={!!errors.period}>
+                <InputLabel id="period-label">Período</InputLabel>
+                <Select
+                  {...field}
+                  labelId="period-label"
+                  value={field.value}
+                  label="Período"
+                >
+                  <MenuItem value={"-"}>
+                    <em>Selecione o período</em>
+                  </MenuItem>{" "}
+                  {getDurations()?.map((duration) => {
+                    const period = getPeriodFromDuration(duration);
+                    return (
+                      <MenuItem key={`opt-dayoff-${duration}`} value={period}>
+                        {translateEntityKey({
+                          entity: "vacation",
+                          key: period,
+                        })}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+                {errors.period && (
+                  <FormHelperText>{errors.period.message}</FormHelperText>
+                )}
+              </FormControl>
+            )}
           />
         </Grid>
       )}
+
+      {(type === "normal" || type === "license") && (
+        <Grid size={6}>
+          <Controller
+            name="duration"
+            control={control}
+            render={({ field }) => (
+              <FormControl fullWidth size="small" error={!!errors.duration}>
+                <InputLabel id="duration-label">Duração</InputLabel>
+                <Select
+                  {...field}
+                  labelId="duration-label"
+                  value={field.value}
+                  label="Duração"
+                >
+                  <MenuItem value={"-"}>
+                    <em>Selecione a duração</em>
+                  </MenuItem>
+                  {getDurations()?.map((vacationDuration) => (
+                    <MenuItem
+                      key={`opt-${vacationDuration}`}
+                      value={vacationDuration}
+                    >
+                      {vacationDuration}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {errors.duration && (
+                  <FormHelperText>{errors.duration.message}</FormHelperText>
+                )}
+              </FormControl>
+            )}
+          />
+        </Grid>
+      )}
+
+      <Grid size={6}>
+        <Controller
+          name="boss"
+          control={control}
+          render={({ field }) => (
+            <FormControl fullWidth size="small" error={!!errors.boss}>
+              <InputLabel id="boss-label">Aprovante</InputLabel>
+              <Select
+                {...field}
+                labelId="boss-label"
+                value={field.value}
+                label="Aprovante"
+              >
+                <MenuItem value={"-"}>
+                  <em>Selecione quem aprova</em>
+                </MenuItem>
+                {bosses?.map((boss) => (
+                  <MenuItem key={`opt-${boss._id}`} value={boss._id}>
+                    {capitalizeName(boss.worker?.name ?? "")}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.boss && (
+                <FormHelperText>{errors.boss.message}</FormHelperText>
+              )}
+            </FormControl>
+          )}
+        />
+      </Grid>
+      <Grid size={12}>
+        <Controller
+          name="observation"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              size="small"
+              label="Observação"
+              multiline
+              fullWidth
+              rows={3}
+            />
+          )}
+        />
+      </Grid>
 
       <Grid
         component={Box}
@@ -253,7 +316,7 @@ export function VacationForm({
         <Button
           type="submit"
           variant="contained"
-          disabled={isSubmitting}
+          disabled={!isValid || isSubmitting}
           sx={{ width: 1 }}
         >
           {isSubmitting ? "Salvando..." : "Salvar"}
