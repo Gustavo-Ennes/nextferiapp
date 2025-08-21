@@ -10,13 +10,10 @@ import {
 } from "@/lib/pdf";
 import Vacation from "@/models/Vacation";
 import { buildOptions } from "../utils";
-import path from "path";
-import fs from "fs/promises";
 
 export async function POST(req: NextRequest) {
   await dbConnect();
   const body = await req.json();
-  console.log("🚀 ~ POST ~ body:", body);
 
   try {
     checkPdfBodyProps(body);
@@ -24,21 +21,11 @@ export async function POST(req: NextRequest) {
     const document = await PDFDocument.create();
 
     await render({ body, document });
-    console.log("🚀 ~ POST ~ render finished");
-    // const headers = {
-    //   "Content-Type": "application/pdf",
-    //   "Content-Disposition": "inline; filename='materialRequisition.pdf'",
-    // };
 
     const pdfBytes = await document.save();
-    const outputPath = path.join(__dirname, "saida.pdf");
-    console.log("🚀 ~ POST ~ __dirname:", __dirname);
+    const buffer = Buffer.from(pdfBytes);
 
-    // Salvar no disco
-    await fs.writeFile(outputPath, pdfBytes);
-    const data = Buffer.from(pdfBytes);
-
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(buffer, {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
@@ -52,10 +39,10 @@ export async function POST(req: NextRequest) {
 }
 
 const checkPdfBodyProps = (body: PdfRouteBody) => {
-  const { id, type, relationType, period } = body;
+  const { _id, type, relationType, period } = body;
   switch (type) {
     case "vacation":
-      if (!id) throw new Error("Id is needed to print a vacation");
+      if (!_id) throw new Error("Id is needed to print a vacation");
       break;
     case "relation":
       if (!relationType)
@@ -78,7 +65,7 @@ const render = async ({
   body: PdfRouteBody;
   document: PDFDocument;
 }) => {
-  const { id, type, relationType, period, data } = body;
+  const { _id, type, relationType, period, data } = body;
   switch (type) {
     case "materialRequisition":
       return materialRequisitionRender({
@@ -91,7 +78,7 @@ const render = async ({
       return relationRender({ document, instances, period, type });
     case "vacation":
       const instance = await Vacation.findOne({
-        _id: id,
+        _id,
         $or: [{ cancelled: false }, { cancelled: undefined }],
       }).populate("worker boss");
       return vacationRender({ document, instance });

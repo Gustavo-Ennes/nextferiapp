@@ -5,38 +5,54 @@ import { useEffect, useState } from "react";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { TabData } from "../types";
-import { PdfFloatingButtonBox, PdfPreviewBox } from "../styled";
+import { PdfFloatingButtonBox, PdfPreviewBox } from "./styled";
+import { TabData } from "../materialRequisition/types";
+import { PdfPreviewTypeProp } from "@/context/types";
 
-export const PdfPreviewPanel = ({ data }: { data: TabData[] }) => {
+export const PdfPreview = ({
+  data,
+  type,
+  id,
+}: {
+  data?: TabData[];
+  type?: PdfPreviewTypeProp;
+  id?: string;
+}) => {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
 
-  const getBody = () => ({
-    type: "materialRequisition",
+  const body = {
+    type,
     data,
-  });
-  const fetchPdf = () =>
+    _id: id,
+  };
+
+  const fetchPdf = () => {
+    setUrl("");
     fetch("/api/pdf", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(getBody()),
+      body: JSON.stringify(body),
     })
       .then((res) => res.blob())
       .then((blob) => {
         const url = URL.createObjectURL(blob);
         setUrl(url);
+        if (type !== "materialRequisition") setOpen(true);
       });
+  };
 
   useEffect(() => {
     fetchPdf();
+    return () => setOpen(false);
   }, []);
 
   useEffect(() => {
-    fetchPdf();
-  }, [data]);
+    setOpen(false);
+    if (type) fetchPdf();
+  }, [data, type, id]);
 
   const iconButton = !url ? (
     <CircularProgress sx={{ color: "#fff" }} size={15} />
@@ -82,7 +98,7 @@ export const PdfPreviewPanel = ({ data }: { data: TabData[] }) => {
                 src={url}
                 width="100%"
                 height="100%"
-                style={{ border: "none" }}
+                style={{ border: "none", margin: "10px" }}
               />
             )}
           </Box>

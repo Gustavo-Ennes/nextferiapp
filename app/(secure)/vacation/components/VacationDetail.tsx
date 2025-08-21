@@ -20,9 +20,11 @@ import { capitalizeName } from "@/app/utils";
 import { getTypeLabel } from "../utils";
 import { useRouter } from "next/navigation";
 import { TitleTypography } from "../../components/TitleTypography";
+import { usePdfPreview } from "@/context/PdfPreviewContext";
 
 export function VacationDetail({ vacation }: { vacation: Vacation }) {
   const { open } = useModal();
+  const { setPdf } = usePdfPreview();
   const router = useRouter();
 
   const cancelMenuItems: MenuItem[] = [
@@ -136,7 +138,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
         <ButtonMenu items={cancelMenuItems} />
         <Button
           variant="contained"
-          onClick={() => router.push(`/pdf?type=vacation&id=${vacation._id}`)}
+          onClick={() => setPdf({ type: "vacation", _id: vacation._id })}
         >
           Ver pdf
         </Button>

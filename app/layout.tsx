@@ -7,6 +7,7 @@ import { responsiveTheme } from "@/theme/theme";
 import { SessionProvider } from "next-auth/react";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { PdfPreviewProvider } from "@/context/PdfPreviewContext";
 
 export default function RootLayout({
   children,
@@ -19,8 +20,10 @@ export default function RootLayout({
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <ThemeProvider theme={responsiveTheme}>
             <SessionProvider>
-              <CssBaseline />
-              <ModalProvider>{children}</ModalProvider>
+              <PdfPreviewProvider>
+                <CssBaseline />
+                <ModalProvider>{children}</ModalProvider>
+              </PdfPreviewProvider>
             </SessionProvider>
           </ThemeProvider>
         </LocalizationProvider>

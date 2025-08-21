@@ -22,6 +22,7 @@ import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { ItemListProps } from "./types";
 import { Entity, Vacation } from "@/app/types";
+import { usePdfPreview } from "@/context/PdfPreviewContext";
 
 export const ListPageDesktop = <T extends Entity>({
   pagination: { data: items, currentPage, totalPages },
@@ -30,6 +31,7 @@ export const ListPageDesktop = <T extends Entity>({
   vacationType,
 }: ItemListProps<T>) => {
   const router = useRouter();
+  const { setPdf } = usePdfPreview();
   const headers: string[] = [];
 
   if (items.length > 0)
@@ -117,7 +119,12 @@ export const ListPageDesktop = <T extends Entity>({
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/pdf?type=${routePrefix}&id=${item._id}`);
+                      if (vacationType)
+                        setPdf({ type: "vacation", _id: item._id });
+                      else
+                        console.warn(
+                          "Only vacation, material requisitions and vehicle usage have pdf templates to render."
+                        );
                     }}
                   >
                     <PictureAsPdf />

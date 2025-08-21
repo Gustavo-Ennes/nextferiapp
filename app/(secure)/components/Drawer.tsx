@@ -11,9 +11,14 @@ import { DrawerContent } from "../styled";
 import { ListItemMenu } from "./ListItemMenu";
 import { Print, Article, Logout } from "@mui/icons-material";
 import { ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { usePdfPreview } from "@/context/PdfPreviewContext";
+import { ListItemMenuItem } from "./types";
 
 export const Drawer = () => {
-  const getVacationProps = (icon: ReactNode) => ({
+  const router = useRouter();
+  const { setPdf } = usePdfPreview();
+  const getVacationProps = (icon: ReactNode): ListItemMenuItem => ({
     label: "Folgas",
     icon,
     items: [
@@ -35,21 +40,26 @@ export const Drawer = () => {
     ],
   });
 
-  const auxProps = {
+  const auxProps: ListItemMenuItem = {
     label: "Auxiliares",
     icon: <Print />,
     items: [
       {
+        pdfType: "vehicleUsage",
         itemLabel: "Relatório uso veículo",
         itemIcon: <Article />,
-        href: "/pdf?type=vehicleUsage",
       },
       {
+        pdfType: "materialRequisition",
         itemLabel: "Req. Material. Combust.",
         itemIcon: <Article />,
-        href: "/pdf?type=materialRequisition",
       },
     ],
+  };
+
+  const listClickAction = (href: string) => {
+    setPdf({});
+    router.push(href);
   };
 
   return (
@@ -57,7 +67,11 @@ export const Drawer = () => {
       <List>
         {navList.map(({ label, href, icon }) =>
           href !== "/vacation" ? (
-            <ListItemButton component="a" href={href} key={href} sx={{ my: 1 }}>
+            <ListItemButton
+              key={href}
+              sx={{ my: 1 }}
+              onClick={() => listClickAction(href)}
+            >
               <ListItemIcon>{icon}</ListItemIcon>
               <ListItemText primary={label} />
             </ListItemButton>

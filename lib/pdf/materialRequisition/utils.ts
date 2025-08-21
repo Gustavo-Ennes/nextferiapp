@@ -1,7 +1,4 @@
-import {
-  CarEntry,
-  FuelType,
-} from "@/app/(secure)/pdf/materialRequisition/types";
+import { CarEntry, FuelType } from "@/app/(secure)/materialRequisition/types";
 import { LineData, TableData } from "../types";
 import { format } from "date-fns";
 

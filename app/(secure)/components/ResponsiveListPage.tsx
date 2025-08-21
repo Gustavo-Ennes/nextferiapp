@@ -63,7 +63,13 @@ const ResponsiveListPage = <T extends Entity>({
       description: modalDescription,
       onConfirm: () => {
         onConfirmDelete(entity);
-        redirect(`/${routePrefix}`);
+        redirect(
+          `/${routePrefix}${
+            vacationType && vacationType !== "normal"
+              ? `/${vacationType}`
+              : ""
+          }`
+        );
       },
     });
   };

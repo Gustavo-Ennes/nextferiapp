@@ -2,10 +2,7 @@
 import type { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
 
 import { Vacation, Worker, Department } from "@/app/types";
-import {
-  CarEntry,
-  TabData,
-} from "@/app/(secure)/pdf/materialRequisition/types";
+import { CarEntry, TabData } from "@/app/(secure)/materialRequisition/types";
 
 type LineData = (string | undefined)[];
 type TableData = LineData[];

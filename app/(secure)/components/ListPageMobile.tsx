@@ -17,6 +17,7 @@ import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { Entity, Vacation, Worker } from "@/app/types";
 import { PictureAsPdf } from "@mui/icons-material";
+import { usePdfPreview } from "@/context/PdfPreviewContext";
 
 export function ListPageMobile<T extends Entity>({
   pagination: { data: items },
@@ -25,6 +26,7 @@ export function ListPageMobile<T extends Entity>({
   vacationType,
 }: ItemListProps<T>) {
   const router = useRouter();
+  const { setPdf } = usePdfPreview();
   const getDefaultEntries = (obj: Entity) =>
     Object.entries(obj).filter(
       ([k]) =>
@@ -48,7 +50,10 @@ export function ListPageMobile<T extends Entity>({
 
   const handlePdf = (e: MouseEvent, item: Entity) => {
     e.stopPropagation();
-    router.push(`/pdf/${routePrefix}/${item._id}`);
+    if (vacationType) setPdf({ type: "vacation", _id: item._id });
+    else console.warn(
+      "Only vacation, material requisitions and vehicle usage have pdf templates to render."
+    );
   };
 
   const handleDelete = (e: MouseEvent, item: Entity) => {

@@ -1,4 +1,4 @@
-import { TabData } from "../(secure)/pdf/materialRequisition/types";
+import { TabData } from "../(secure)/materialRequisition/types";
 
 export interface Response<T> {
   data: T;
@@ -20,9 +20,9 @@ export type PeriodOptionsType = "past" | "future" | "present";
 export interface PdfRouteBody {
   type: "vacation" | "relation" | "materialRequisition" | "vehicleUsage";
   relationType?: string;
-  id?: string;
+  _id?: string;
   period?: PeriodOptionsType;
-  data?: TabData[]
+  data?: TabData[];
 }
 export interface VacationsResolverArgsInterface {
   fromWorker?: string;

@@ -13,12 +13,11 @@ import { useState, useEffect } from "react";
 import { NewTabDialog } from "./components/TabDialog";
 import { TabData } from "./types";
 import { getLocalStorageData, removeAllCarEntries } from "./utils";
-import { PdfPreviewPanel } from "./components/PdfPreviewPanel";
 import { Tab as MaterialRequisitionTab } from "./components/Tab";
 import { TabPanel } from "./components/TabPanel";
 import { Close } from "@mui/icons-material";
 import { head, isNil, reject } from "ramda";
-import { TitleTypography } from "../../components/TitleTypography";
+import { TitleTypography } from "../components/TitleTypography";
 
 export default function MaterialRequisitionPage() {
   const [tabsData, setTabsData] = useState<TabData[]>(
@@ -172,8 +171,6 @@ export default function MaterialRequisitionPage() {
         onClose={() => setNewTabDialog(false)}
         onCreate={createTab}
       />
-
-      <PdfPreviewPanel data={tabsData} />
     </Grid>
   );
 }

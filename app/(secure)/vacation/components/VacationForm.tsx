@@ -23,6 +23,7 @@ import { useEffect } from "react";
 import { prepareDefaults, baselineForType } from "../utils";
 import { toDate, isValid as dateFNSIsValid } from "date-fns";
 import { PickerValue } from "@mui/x-date-pickers/internals";
+import { usePdfPreview } from "@/context/PdfPreviewContext";
 
 export function VacationForm({
   defaultValues,
@@ -32,6 +33,7 @@ export function VacationForm({
   type = "normal",
 }: VacationProps) {
   const router = useRouter();
+  const { setPdf } = usePdfPreview();
   const {
     control,
     handleSubmit,
@@ -59,9 +61,13 @@ export function VacationForm({
       },
       body: JSON.stringify(formData),
     });
+    const {
+      data: { _id },
+    } = await res.json();
 
     if (!res.ok) throw new Error("Erro ao salvar folga");
 
+    setPdf({ type: "vacation", _id });
     router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
   };
 
