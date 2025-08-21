@@ -103,17 +103,23 @@ export const endOfMorning = (date: Date): Date => {
   return newDate;
 };
 
-export const sumarizeVacation = (vacation: Vacation): string => {
-  const isDayOff = vacation.type === "dayOff";
-  const type = translateEntityKey({ entity: "vacation", key: vacation.type });
+export const sumarizeVacation = ({
+  worker,
+  type,
+  startDate,
+  duration,
+  period,
+}: Vacation): string => {
+  const isDayOff = type === "dayOff";
+  const typeString = translateEntityKey({ entity: "vacation", key: type });
   const startString = isDayOff ? "em" : "à partir de";
-  const formatedDate = format(vacation.startDate, "dd/MM/yyyy");
-  const period = !isDayOff ? `( ${vacation.duration}D )` : "";
-  const dayOffPeriod = vacation.period === "half" ? "(meio-período)" : "";
-  const vacationPeriod = isDayOff ? dayOffPeriod : period;
-  const workerString = `do(a) servidor(a) ${vacation.worker.name}(${vacation.worker.matriculation})`;
+  const formatedDate = format(startDate, "dd/MM/yyyy");
+  const periodString = !isDayOff ? `( ${duration}D )` : "";
+  const dayOffPeriod = period === "half" ? "(meio-período)" : "";
+  const vacationPeriod = isDayOff ? dayOffPeriod : periodString;
+  const workerString = ` do(a) servidor(a) ${worker?.name}(${worker?.matriculation})`;
 
-  return `${type} ${startString} ${formatedDate}${vacationPeriod} ${workerString}`;
+  return `${typeString} ${startString} ${formatedDate}${vacationPeriod}${worker ? workerString : ''}`;
 };
 
 export const defaultEntityTableFields = {

@@ -4,29 +4,32 @@ import {
   endOfYesterday,
   startOfDay,
   subDays,
+  toDate,
 } from "date-fns";
 import { workers } from "../worker/mock";
 import { bosses } from "../boss/mock";
 import { endOfMorning } from "@/app/utils";
 import { Vacation } from "@/app/types";
 
-const today = startOfDay(new Date());
-const eightDaysAhead = addDays(today, 8);
-const eightDaysAgo = subDays(today, 8);
-const twentyDaysAhead = addDays(today, 20);
+const now = new Date().toISOString();
+const today = startOfDay(new Date()).toISOString();
+const eightDaysAhead = addDays(today, 8).toISOString();
+const eightDaysAgo = subDays(today, 8).toISOString();
+const twentyDaysAhead = addDays(today, 20).toISOString();
 
 export const vacations: Vacation[] = [
   // começa em oito dias
   {
     _id: "1",
     duration: 30,
+    period: "full",
     type: "normal",
     startDate: eightDaysAhead,
-    endDate: addDays(eightDaysAhead, 30),
+    endDate: addDays(eightDaysAhead, 30).toISOString(),
     deferred: false,
     worker: workers[0],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     boss: bosses[0],
     observation: "Férias de verão",
   },
@@ -35,12 +38,13 @@ export const vacations: Vacation[] = [
     _id: "2",
     type: "license",
     duration: 15,
-    startDate: subDays(eightDaysAgo, 15),
+    period: "full",
+    startDate: subDays(eightDaysAgo, 15).toISOString(),
     endDate: eightDaysAhead,
     deferred: true,
     worker: workers[1],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     boss: bosses[0],
   },
   // acontencendo
@@ -48,12 +52,13 @@ export const vacations: Vacation[] = [
     _id: "3",
     type: "license",
     duration: 30,
-    startDate: subDays(twentyDaysAhead, 30),
+    period: "full",
+    startDate: subDays(twentyDaysAhead, 30).toISOString(),
     endDate: twentyDaysAhead,
     deferred: false,
     worker: workers[2],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     boss: bosses[0],
   },
   // retornando hoje
@@ -61,24 +66,26 @@ export const vacations: Vacation[] = [
     _id: "4",
     type: "normal",
     duration: 30,
-    startDate: subDays(endOfYesterday(), 30),
-    endDate: endOfYesterday(),
+    period: "full",
+    startDate: subDays(endOfYesterday(), 30).toISOString(),
+    endDate: endOfYesterday().toISOString(),
     deferred: true,
     worker: workers[3],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     boss: bosses[0],
   },
   {
     _id: "5",
     type: "dayOff",
     duration: 1,
+    period: "full",
     startDate: eightDaysAhead,
-    endDate: endOfDay(eightDaysAhead),
+    endDate: endOfDay(toDate(eightDaysAhead)).toISOString(),
     deferred: false,
     worker: workers[2],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     boss: bosses[0],
   },
   {
@@ -87,11 +94,11 @@ export const vacations: Vacation[] = [
     duration: 0.5,
     period: "half",
     startDate: eightDaysAhead,
-    endDate: endOfMorning(eightDaysAhead),
+    endDate: endOfMorning(toDate(eightDaysAhead)).toISOString(),
     deferred: false,
     worker: workers[1],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     boss: bosses[0],
   },
 ];

@@ -2,6 +2,7 @@ import { Vacation } from "@/app/types";
 import { VacationFormData } from "./types";
 import { VacationValidator } from "./validator";
 import { isValid } from "date-fns";
+
 export const getTypeLabel = (type: string) => {
   switch (type) {
     case "normal":

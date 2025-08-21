@@ -9,6 +9,6 @@ export const BossValidator = z.object({
   isDirector: z.boolean(),
   worker: z
     .string()
-    .overwrite((str) => (str === "_" ? "" : str))
-    .nonempty(workerMissingStr),
+    .min(1, "Campo obrigatório")
+    .regex(/^[0-9a-fA-F]{24}$/, workerMissingStr),
 });

@@ -8,7 +8,7 @@ export const DepartmentValidator = z.object({
   name: z.string().min(5, nameMore5Str).max(60, nameLess60Str),
   responsible: z
     .string()
-    .overwrite((str) => (str === "-" ? "" : str))
-    .nonempty(responsibleMissingStr),
+    .min(1, "Campo obrigatório")
+    .regex(/^[0-9a-fA-F]{24}$/, responsibleMissingStr),
   isActive: z.boolean(),
 });

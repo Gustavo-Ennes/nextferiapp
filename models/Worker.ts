@@ -28,7 +28,7 @@ export const WorkerSchema = new Schema<Worker>(
       type: String,
       required: [true, "Please provide a registry number for this worker."],
       maxlength: [6, "registry cannot be more than 6 characters"],
-      minlength: [6, "registry cannot be less than 6 characters"],
+      minlength: [4, "registry cannot be less than 6 characters"],
     },
     matriculation: {
       type: String,
