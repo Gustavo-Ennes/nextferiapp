@@ -13,3 +13,10 @@ export type PdfPreviewProps = {
 export type PdfPreviewType = {
   setPdf: (params: PdfPreviewProps) => void;
 };
+
+export type AlertSeverity = "info" | "success" | "warning" | "error";
+
+export type SnackbarData = {
+  message: string;
+  severity?: AlertSeverity;
+};

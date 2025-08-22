@@ -16,9 +16,12 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { DepartmentValidator } from "../validator";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { SnackbarData } from "@/context/types";
 
 export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   const router = useRouter();
+  const { addSnack } = useSnackbar();
   const {
     control,
     handleSubmit,
@@ -29,7 +32,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     defaultValues: {
       name: defaultValues?.name ?? "",
       responsible: defaultValues?.responsible?._id ?? "_",
-      isActive: defaultValues?.isActive ?? true
+      isActive: defaultValues?.isActive ?? true,
     },
   });
 
@@ -39,19 +42,37 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     const url = defaultValues
       ? `${process.env.NEXT_PUBLIC_URL}/api/department/${defaultValues._id}`
       : `${process.env.NEXT_PUBLIC_URL}/api/department`;
+    const snackbarData: SnackbarData = { message: "" };
 
-    const res = await fetch(url, {
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body,
-    });
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body,
+      });
 
-    if (!res.ok) {
-      throw new Error("Failed to save department");
+      if (!res.ok) {
+        throw new Error("Failed to save department");
+      }
+
+      snackbarData.message = `Departamento ${
+        defaultValues ? "editado" : "criado"
+      } com sucesso!`;
+      snackbarData.severity = "success";
+    } catch (err) {
+      console.error(err);
+
+      snackbarData.message = `Eita, houve um erro na ${
+        defaultValues ? "edição" : "criação"
+      } do departamento.`;
+      snackbarData.severity = "error";
+    } finally {
+      router.push("/department/");
+
+      addSnack(snackbarData);
     }
-    router.push("/department/");
   };
   return (
     <Grid

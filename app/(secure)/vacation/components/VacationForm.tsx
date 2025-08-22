@@ -14,7 +14,7 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useRouter } from "next/navigation";
 import { VacationFormData, VacationProps } from "../types";
-import { capitalizeName } from "@/app/utils";
+import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import { VacationValidator } from "../validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -24,6 +24,8 @@ import { prepareDefaults, baselineForType } from "../utils";
 import { toDate, isValid as dateFNSIsValid } from "date-fns";
 import { PickerValue } from "@mui/x-date-pickers/internals";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { SnackbarData } from "@/context/types";
 
 export function VacationForm({
   defaultValues,
@@ -33,6 +35,7 @@ export function VacationForm({
   type = "normal",
 }: VacationProps) {
   const router = useRouter();
+  const { addSnack } = useSnackbar();
   const { setPdf } = usePdfPreview();
   const {
     control,
@@ -53,6 +56,11 @@ export function VacationForm({
     const url = id
       ? `${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`
       : `${process.env.NEXT_PUBLIC_URL}/api/vacation`;
+    const translatedVacationType = translateEntityKey({
+      entity: "vacation",
+      key: defaultValues?.type ?? type,
+    })?.toLowerCase();
+    const snackbarData: SnackbarData = { message: "" };
 
     const res = await fetch(url, {
       method,
@@ -65,10 +73,24 @@ export function VacationForm({
       data: { _id },
     } = await res.json();
 
-    if (!res.ok) throw new Error("Erro ao salvar folga");
+    if (!res.ok) {
+      console.error(await res.json());
 
-    setPdf({ type: "vacation", _id });
+      snackbarData.message = `Eita, houve um erro na ${
+        defaultValues ? "edição" : "criação"
+      } do(a) ${translatedVacationType}.`;
+      snackbarData.severity = "error";
+    } else {
+      snackbarData.message = `${capitalizeFirstLetter(
+        translatedVacationType
+      )} ${defaultValues ? "editado(a)" : "criado(a)"} com sucesso!`;
+      snackbarData.severity = "success";
+
+      setPdf({ type: "vacation", _id });
+    }
+
     router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
+    addSnack(snackbarData);
   };
 
   const getDurations = () => {

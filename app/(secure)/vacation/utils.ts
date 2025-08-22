@@ -64,9 +64,9 @@ export function normalizeRaw(raw: Vacation): Partial<VacationFormData> {
     if (!Number.isNaN(n)) out.duration = n;
   }
   if (out.worker === "-") out.worker = "";
-  else out.worker = raw.worker._id
+  else if (raw.worker) out.worker = raw.worker._id;
   if (out.boss === "-") out.boss = "";
-  else out.boss = raw.boss._id;
+  else if (raw.boss) out.boss = raw.boss._id;
   return out;
 }
 

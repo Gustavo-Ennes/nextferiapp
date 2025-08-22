@@ -1,4 +1,3 @@
-
 import { createTheme, responsiveFontSizes } from "@mui/material/styles";
 import { grey, blueGrey, indigo } from "@mui/material/colors";
 
@@ -24,7 +23,7 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: ["Inter", "Roboto", "sans-serif"].join(","),
-    h1: { fontWeight: 600, fontSize: "2.25rem" },
+    h1: { fontWeight: 600, fontSiuze: "2.25rem" },
     h2: { fontWeight: 600, fontSize: "2rem" },
     h3: { fontWeight: 500, fontSize: "1.75rem" },
     body1: { fontSize: "1rem" },

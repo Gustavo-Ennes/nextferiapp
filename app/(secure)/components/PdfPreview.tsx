@@ -8,6 +8,7 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { PdfFloatingButtonBox, PdfPreviewBox } from "./styled";
 import { TabData } from "../materialRequisition/types";
 import { PdfPreviewTypeProp } from "@/context/types";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export const PdfPreview = ({
   data,
@@ -18,6 +19,7 @@ export const PdfPreview = ({
   type?: PdfPreviewTypeProp;
   id?: string;
 }) => {
+  const { addSnack } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
 
@@ -25,6 +27,13 @@ export const PdfPreview = ({
     type,
     data,
     _id: id,
+  };
+
+  const fetchCallback = (blob: Blob) => {
+    const url = URL.createObjectURL(blob);
+    setUrl(url);
+    if (type !== "materialRequisition") setOpen(true);
+    addSnack({ message: "Seu pdf está pronto!" });
   };
 
   const fetchPdf = () => {
@@ -37,11 +46,7 @@ export const PdfPreview = ({
       body: JSON.stringify(body),
     })
       .then((res) => res.blob())
-      .then((blob) => {
-        const url = URL.createObjectURL(blob);
-        setUrl(url);
-        if (type !== "materialRequisition") setOpen(true);
-      });
+      .then((blob) => fetchCallback(blob));
   };
 
   useEffect(() => {

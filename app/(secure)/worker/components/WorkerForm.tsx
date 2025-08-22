@@ -21,9 +21,12 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { toDate, isValid as dateFnsIsValid } from "date-fns";
 import { PickerValue } from "@mui/x-date-pickers/internals";
 import { capitalizeFirstLetter } from "@/app/utils";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { SnackbarData } from "@/context/types";
 
 export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   const router = useRouter();
+  const { addSnack } = useSnackbar();
   const {
     control,
     handleSubmit,
@@ -45,6 +48,7 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
     const url = defaultValues
       ? `${process.env.NEXT_PUBLIC_URL}/api/worker/${defaultValues._id}`
       : `${process.env.NEXT_PUBLIC_URL}/api/worker`;
+    const snackbarData: SnackbarData = { message: "" };
 
     const res = await fetch(url, {
       method,
@@ -55,9 +59,18 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
     });
 
     if (!res.ok) {
-      throw new Error("Erro ao salvar servidor");
+      console.error("Erro ao salvar servidor");
+      snackbarData.message = "Error ao salvar o servidor.";
+      snackbarData.severity = "error";
+    } else {
+      snackbarData.message = `Servidor ${capitalizeFirstLetter(
+        formData.name.split(" ")[0]
+      )} ${defaultValues ? "editado(a)" : "criado(a)"} com sucesso!`;
+      snackbarData.severity = "success";
     }
+
     router.push("/worker");
+    addSnack(snackbarData);
   };
 
   return (

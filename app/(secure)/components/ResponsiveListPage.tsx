@@ -13,6 +13,8 @@ import { useModal } from "@/context/ModalContext";
 import { Vacation, Worker } from "@/app/types";
 import { useRouter } from "next/navigation";
 import { ResponsiveListPageParam } from "./types";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { SnackbarData } from "@/context/types";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
@@ -21,12 +23,18 @@ const ResponsiveListPage = <T extends Entity>({
   vacationType,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
+  const { addSnack } = useSnackbar();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { open, close } = useModal();
   const router = useRouter();
+  const traslatedEntityName = translateEntityKey({
+    entity: routePrefix,
+    key: "translated",
+  }).toLowerCase();
 
   const onConfirmDelete = async (entity: Entity) => {
     const url = `${process.env.NEXT_PUBLIC_URL}/api/${routePrefix}/${entity._id}`;
+    const snackbarData: SnackbarData = { message: "" };
 
     const res = await fetch(url, {
       method: "delete",
@@ -36,14 +44,16 @@ const ResponsiveListPage = <T extends Entity>({
     });
 
     if (!res.ok) {
-      throw new Error(
-        `Erro ao deletar ${translateEntityKey({
-          entity: routePrefix,
-          key: "translated",
-        })?.toLowerCase()}.`
-      );
+      console.error(`Erro ao deletar ${traslatedEntityName}.`);
+      snackbarData.message = `Eita, houve um erro pra delete um(a) ${traslatedEntityName}.`;
+      snackbarData.severity = "error";
+    } else {
+      snackbarData.message = `Você deletou um(a) ${traslatedEntityName}.`;
+      snackbarData.severity = "success";
     }
+
     close();
+    addSnack(snackbarData);
   };
 
   const handleConfirmDelete = (entity: Entity) => {
@@ -65,9 +75,7 @@ const ResponsiveListPage = <T extends Entity>({
         onConfirmDelete(entity);
         redirect(
           `/${routePrefix}${
-            vacationType && vacationType !== "normal"
-              ? `/${vacationType}`
-              : ""
+            vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
           }`
         );
       },

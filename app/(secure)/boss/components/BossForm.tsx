@@ -15,13 +15,15 @@ import { BossFormData, BossProps } from "../types";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BossValidator } from "../validator";
+import { useSnackbar } from "@/context/SnackbarContext";
+import { SnackbarData } from "@/context/types";
 
 export function BossForm({ defaultValues, workers }: BossProps) {
   const router = useRouter();
+  const { addSnack } = useSnackbar();
   const {
     control,
     handleSubmit,
-    reset,
     formState: { errors, isValid, isSubmitting },
   } = useForm<BossFormData>({
     resolver: zodResolver(BossValidator),
@@ -34,6 +36,8 @@ export function BossForm({ defaultValues, workers }: BossProps) {
   });
 
   const onSubmit: SubmitHandler<BossFormData> = async (formData) => {
+    const snackbarData: SnackbarData = { message: "" };
+
     try {
       const method = defaultValues ? "PUT" : "POST";
       const url = defaultValues
@@ -52,10 +56,21 @@ export function BossForm({ defaultValues, workers }: BossProps) {
         throw new Error("Erro ao salvar chefe");
       }
 
-      reset();
-      router.push("/boss");
+      snackbarData.message = `Chefe ${
+        defaultValues ? "editado" : "criado"
+      } com sucesso!`;
+      snackbarData.message = "success";
     } catch (err) {
       console.error(err);
+
+      snackbarData.message = `Eita, houve um erro na ${
+        defaultValues ? "edição" : "criação"
+      } do chefe.`;
+      snackbarData.severity = "error";
+    } finally {
+      router.push("/boss");
+
+      addSnack(snackbarData);
     }
   };
 
