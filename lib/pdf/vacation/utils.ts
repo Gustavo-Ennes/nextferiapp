@@ -14,7 +14,7 @@ const numberToNumberString = (number: number): string => {
 };
 
 const translateVacation = (vacationType: VacationType): string => {
-  if (vacationType === "normal" || vacationType === "vacation") return "férias";
+  if (vacationType === "normal") return "férias";
   if (vacationType === "license") return "licença-prêmio";
   if (vacationType === "dayOff") return "abono";
   return "";
@@ -43,8 +43,7 @@ const translateVacationPeriod = (period: string): string => {
 };
 
 const getParagraph = (vacation: Vacation): string => {
-  if (vacation.type === "normal" || vacation.type === "vacation")
-    return vacationParagraph(vacation);
+  if (vacation.type === "normal") return vacationParagraph(vacation);
   else if (vacation.type === "license") return licenseParagraph(vacation);
   else if (vacation.type === "dayOff") return dayOffParagraph(vacation);
   else throw new Error("getParagraph: invalid type parameter");

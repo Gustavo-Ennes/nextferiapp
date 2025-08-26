@@ -1,17 +1,20 @@
+import { TabData } from "@/app/(secure)/materialRequisition/types";
+
 export type PdfPreviewTypeProp =
   | "vacation"
   | "materialRequisition"
   | "vehicleUsage"
+  | "cancellation"
   | "materialRequisition";
 
-export type PdfPreviewProps = {
-  data?: any;
-  _id?: string;
+export type PdfPreviewItem = {
+  data?: TabData[];
   type?: PdfPreviewTypeProp;
+  id?: string;
 };
 
 export type PdfPreviewType = {
-  setPdf: (params: PdfPreviewProps) => void;
+  setPdf: (items: PdfPreviewItem[]) => void;
 };
 
 export type AlertSeverity = "info" | "success" | "warning" | "error";

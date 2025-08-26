@@ -1,6 +1,6 @@
 import { StandardFonts } from "pdf-lib";
 
-import type { Vacation } from "@/app/types";
+import type { Vacation, Worker, Boss } from "@/app/types";
 import type { DrawHalfPageParams, RenderParam } from "../types";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import {
@@ -12,7 +12,7 @@ import {
   createTitle,
 } from "../factory";
 import { getHeightObject, getBoss } from "../utils";
-import { translateMonth, translateVacation } from "./utils";
+import { translateMonth, translateVacation } from "../vacation/utils";
 import { cancellationParagraph } from "../cancellation/text";
 
 const drawHalfPage = async ({
@@ -29,17 +29,13 @@ const drawHalfPage = async ({
 
   await createHeader(document);
   await createFooter(document);
-  await createDuration({
-    duration: vacationsDuration,
-    document,
-    height,
-    period: vacationPeriod,
-  });
   await createTitle({
     document,
     height,
     size: 19,
-    title: `Requerimento de CANCELAMENTO de${translateVacation(vacation.type)}`,
+    title: `Requerimento de CANCELAMENTO de ${translateVacation(
+      vacation.type
+    )}`,
   });
   height.stepHugeLine();
   await createParagraph({
@@ -50,7 +46,7 @@ const drawHalfPage = async ({
     text: paragraph,
   });
 
-  height.stepLines(3, "huge");
+  height.stepLines(3, "huge"); //refinar render, definiar ações em vacationDetail
 
   const dateString = `Ilha solteira, ${new Date(
     vacation.updatedAt
