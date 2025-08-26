@@ -1,18 +1,13 @@
 "use client";
 
-import {
-  Box,
-  Button,
-  Container,
-  CircularProgress,
-} from "@mui/material";
-import { useState } from "react";
+import { Box, Button, Container } from "@mui/material";
 import { redirect } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { TitleTypography } from "./components/TitleTypography";
+import { useLoading } from "@/context/LoadingContext";
 
 const LoginPage = () => {
-  const [loading, setLoading] = useState(false);
+  const { setLoading, isLoading } = useLoading();
   const { status } = useSession();
   const redirectTo = "/vacation";
 
@@ -22,7 +17,7 @@ const LoginPage = () => {
 
   const handleLogin = () => {
     setLoading(true);
-    signIn("auth0", { redirectTo });
+    signIn("auth0", { redirectTo }).then(() => setLoading(false));
   };
 
   return (
@@ -41,9 +36,9 @@ const LoginPage = () => {
           color="primary"
           fullWidth
           onClick={handleLogin}
-          disabled={loading}
+          disabled={isLoading}
         >
-          {loading ? <CircularProgress size={24} /> : "Entrar com Auth0"}
+          "Entrar com Auth0"
         </Button>
       </Box>
     </Container>

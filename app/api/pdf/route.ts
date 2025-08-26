@@ -1,26 +1,28 @@
 import dbConnect from "@/lib/database/database";
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
-import { PdfRouteBody } from "../types";
+import { PdfOptions, PdfRouteBody } from "../types";
 import {
   materialRequisitionRender,
   vacationRender,
   relationRender,
   vehicleUsageRender,
+  cancellationRender,
 } from "@/lib/pdf";
 import Vacation from "@/models/Vacation";
 import { buildOptions } from "../utils";
 
 export async function POST(req: NextRequest) {
   await dbConnect();
-  const body = await req.json();
+  const { items }: PdfRouteBody = await req.json();
 
   try {
-    checkPdfBodyProps(body);
-
     const document = await PDFDocument.create();
 
-    await render({ body, document });
+    for (let i = 0; i < items.length; i++) {
+      checkPdfBodyProps(items[i]);
+      await render({ body: items[i], document });
+    }
 
     const pdfBytes = await document.save();
     const buffer = Buffer.from(pdfBytes);
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-const checkPdfBodyProps = (body: PdfRouteBody) => {
+const checkPdfBodyProps = (body: PdfOptions) => {
   const { _id, type, relationType, period } = body;
   switch (type) {
     case "vacation":
@@ -53,6 +55,10 @@ const checkPdfBodyProps = (body: PdfRouteBody) => {
       break;
     case "vehicleUsage":
       break;
+    case "cancellation":
+      if (!_id)
+        throw new Error("Id is needed to print a vacation cancellation");
+      break;
     default:
       throw new Error("Property type is invalid.");
   }
@@ -62,10 +68,11 @@ const render = async ({
   body,
   document,
 }: {
-  body: PdfRouteBody;
+  body: PdfOptions;
   document: PDFDocument;
 }) => {
   const { _id, type, relationType, period, data } = body;
+  let instance;
   switch (type) {
     case "materialRequisition":
       return materialRequisitionRender({
@@ -77,11 +84,17 @@ const render = async ({
       const instances = await Vacation.find(options).populate("worker boss");
       return relationRender({ document, instances, period, type });
     case "vacation":
-      const instance = await Vacation.findOne({
+      instance = await Vacation.findOne({
         _id,
         $or: [{ cancelled: false }, { cancelled: undefined }],
       }).populate("worker boss");
       return vacationRender({ document, instance });
+    case "cancellation":
+      instance = await Vacation.findOne({
+        _id,
+        $or: [{ cancelled: false }, { cancelled: undefined }],
+      }).populate("worker boss");
+      return cancellationRender({ document, instance });
     case "vehicleUsage":
       return vehicleUsageRender({ document });
     default:

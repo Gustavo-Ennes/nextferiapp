@@ -86,7 +86,7 @@ export function VacationForm({
       )} ${defaultValues ? "editado(a)" : "criado(a)"} com sucesso!`;
       snackbarData.severity = "success";
 
-      setPdf({ type: "vacation", _id });
+      setPdf([{ type: "vacation", id: _id }]);
     }
 
     router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);

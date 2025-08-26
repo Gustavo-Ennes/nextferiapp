@@ -21,11 +21,25 @@ import { getTypeLabel } from "../utils";
 import { useRouter } from "next/navigation";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
+// import { PdfPreviewItem } from "@/context/types";
 
 export function VacationDetail({ vacation }: { vacation: Vacation }) {
   const { open } = useModal();
   const { setPdf } = usePdfPreview();
   const router = useRouter();
+  const url = `${process.env.NEXT_PUBLIC_URL}/api/vacation/${vacation._id}`;
+
+  // const submitFn = ({
+  //   option,
+  //   withPdf,
+  // }: {
+  //   option: "cancel" | "reschedule";
+  //   withPdf: boolean;
+  // }) => {
+  //   const pdfItems: PdfPreviewItem[] = [];
+
+  //   if(option === 'cancel')
+  // };
 
   const cancelMenuItems: MenuItem[] = [
     {
@@ -36,7 +50,13 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           description: "Deseja cancelar essa folga?",
           input: true,
           onConfirm: async (obs) => {
-            console.log("Observação:", obs);
+            // fetch(url, {
+            //   method: "post",
+            //   headers: {
+            //     "Content-Type": "application/json",
+            //   },
+            //   body: JSON.stringify(formData),
+            // });
           },
         }),
     },
@@ -138,7 +158,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
         <ButtonMenu items={cancelMenuItems} />
         <Button
           variant="contained"
-          onClick={() => setPdf({ type: "vacation", _id: vacation._id })}
+          onClick={() => setPdf([{ type: "vacation", id: vacation._id }])}
         >
           Ver pdf
         </Button>

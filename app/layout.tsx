@@ -9,6 +9,8 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PdfPreviewProvider } from "@/context/PdfPreviewContext";
 import { SnackbarProvider } from "@/context/SnackbarContext";
+import { LoadingProvider } from "@/context/LoadingContext";
+import './global.css';
 
 export default function RootLayout({
   children,
@@ -20,13 +22,15 @@ export default function RootLayout({
       <body>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <ThemeProvider theme={responsiveTheme}>
+            <CssBaseline />
             <SessionProvider>
-              <SnackbarProvider>
-                <PdfPreviewProvider>
-                  <CssBaseline />
-                  <ModalProvider>{children}</ModalProvider>
-                </PdfPreviewProvider>
-              </SnackbarProvider>
+              <LoadingProvider>
+                <SnackbarProvider>
+                  <PdfPreviewProvider>
+                    <ModalProvider>{children}</ModalProvider>
+                  </PdfPreviewProvider>
+                </SnackbarProvider>
+              </LoadingProvider>
             </SessionProvider>
           </ThemeProvider>
         </LocalizationProvider>

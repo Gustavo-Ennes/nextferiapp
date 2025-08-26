@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
   Typography,
   Box,
-  CircularProgress,
   Button,
   Divider,
   Grid,
@@ -17,6 +15,8 @@ import { Department } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
+import { useLoading } from "@/context/LoadingContext";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export function DepartmentDetail({
   department,
@@ -26,16 +26,9 @@ export function DepartmentDetail({
   workerQuantity: number;
 }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const { open } = useModal();
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" mt={6}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const { setLoading } = useLoading();
+  const { addSnack } = useSnackbar();
 
   const handleEdit = () => router.push(`/department/form?id=${department._id}`);
   const handleDelete = () =>
@@ -51,7 +44,21 @@ export function DepartmentDetail({
           headers: {
             "Content-Type": "application/json",
           },
-        }).then(() => setLoading(false));
+        })
+          .then(() => {
+            setLoading(false);
+            addSnack({
+              message: "Você deletou um departamento",
+              severity: "success",
+            });
+          })
+          .catch((err) => {
+            console.error(err);
+            addSnack({
+              message: "Eita, houve um problema deletando um departamento.",
+            });
+          })
+          .finally(() => router.push("/department"));
       },
     });
 

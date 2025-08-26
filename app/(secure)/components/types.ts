@@ -3,6 +3,7 @@ import { Entity, EntityType, Vacation } from "../../types";
 import { PaginatedResponse } from "@/app/api/types";
 import { VacationType } from "../vacation/types";
 import { PdfPreviewTypeProp } from "@/context/types";
+
 export interface ItemListProps<T extends { _id: string }> {
   pagination: PaginatedResponse<T>;
   routePrefix: EntityType;

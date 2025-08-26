@@ -120,7 +120,7 @@ export const ListPageDesktop = <T extends Entity>({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (vacationType)
-                        setPdf({ type: "vacation", _id: item._id });
+                        setPdf([{ type: "vacation", id: item._id }]);
                       else
                         console.warn(
                           "Only vacation, material requisitions and vehicle usage have pdf templates to render."

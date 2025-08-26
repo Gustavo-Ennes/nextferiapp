@@ -21,7 +21,7 @@ export const ListItemMenu = ({ props }: { props: ListItemMenuItem }) => {
   const handleDropdownClick = () => setIsDropdownOpen(!isDropdownOpen);
 
   const handleItemClick = ({ pdfType, href }: SubMenuItem) => {
-    if (pdfType) setPdf({ type: pdfType });
+    if (pdfType) setPdf([]);
     else if (href) router.push(href);
   };
 

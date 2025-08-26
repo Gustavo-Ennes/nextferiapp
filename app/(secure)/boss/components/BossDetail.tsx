@@ -15,11 +15,15 @@ import { Boss } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
+import { useLoading } from "@/context/LoadingContext";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export function BossDetail({ boss }: { boss: Boss }) {
   const { id } = useParams();
   const router = useRouter();
   const { open } = useModal();
+  const { setLoading } = useLoading();
+  const { addSnack } = useSnackbar();
 
   const handleEdit = () => router.push(`/boss/form?id=${id}`);
   const handleDelete = () =>
@@ -34,7 +38,21 @@ export function BossDetail({ boss }: { boss: Boss }) {
           headers: {
             "Content-Type": "application/json",
           },
-        });
+        })
+          .then(() => {
+            setLoading(false);
+            addSnack({
+              message: "Você deletou um chefe",
+              severity: "success",
+            });
+          })
+          .catch((err) => {
+            console.error(err);
+            addSnack({
+              message: "Eita, houve um problema deletando um chefe.",
+            });
+          })
+          .finally(() => router.push("/boss"));
       },
     });
 

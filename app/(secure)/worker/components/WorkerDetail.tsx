@@ -17,19 +17,14 @@ import { Worker } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
+import { useLoading } from "@/context/LoadingContext";
+import { useSnackbar } from "@/context/SnackbarContext";
 
 export function WorkerDetail({ worker }: { worker: Worker }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useLoading();
+  const { addSnack } = useSnackbar();
   const { open } = useModal();
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" mt={6}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   const handleEdit = () => router.push(`/worker/form?id=${worker._id}`);
   const handleDelete = () =>
@@ -39,11 +34,20 @@ export function WorkerDetail({ worker }: { worker: Worker }) {
       onConfirm: async () => {
         setLoading(true);
         fetch(`/api/worker/${worker._id}`, { method: "delete" })
-          .then((res) => res.json())
-          .then((data) => {
+          .then(() => {
             setLoading(false);
-            router.push("/worker");
-          });
+            addSnack({
+              message: "Você deletou um servidor",
+              severity: "success",
+            });
+          })
+          .catch((err) => {
+            console.error(err);
+            addSnack({
+              message: "Eita, houve um problema deletando um servidor.",
+            });
+          })
+          .finally(() => router.push("/worker"));
       },
     });
 

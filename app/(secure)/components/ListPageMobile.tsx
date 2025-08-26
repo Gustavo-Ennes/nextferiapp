@@ -50,10 +50,11 @@ export function ListPageMobile<T extends Entity>({
 
   const handlePdf = (e: MouseEvent, item: Entity) => {
     e.stopPropagation();
-    if (vacationType) setPdf({ type: "vacation", _id: item._id });
-    else console.warn(
-      "Only vacation, material requisitions and vehicle usage have pdf templates to render."
-    );
+    if (vacationType) setPdf([{ type: "vacation", id: item._id }]);
+    else
+      console.warn(
+        "Only vacation, material requisitions and vehicle usage have pdf templates to render."
+      );
   };
 
   const handleDelete = (e: MouseEvent, item: Entity) => {

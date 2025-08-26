@@ -6,33 +6,22 @@ import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { PdfFloatingButtonBox, PdfPreviewBox } from "./styled";
-import { TabData } from "../materialRequisition/types";
-import { PdfPreviewTypeProp } from "@/context/types";
 import { useSnackbar } from "@/context/SnackbarContext";
+import { PdfPreviewItem } from "@/context/types";
 
-export const PdfPreview = ({
-  data,
-  type,
-  id,
-}: {
-  data?: TabData[];
-  type?: PdfPreviewTypeProp;
-  id?: string;
-}) => {
+export const PdfPreview = ({ items }: { items: PdfPreviewItem[] }) => {
   const { addSnack } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
 
   const body = {
-    type,
-    data,
-    _id: id,
+    items,
   };
 
   const fetchCallback = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
     setUrl(url);
-    if (type !== "materialRequisition") setOpen(true);
+    if (items[0] && items[0].type !== "materialRequisition") setOpen(true);
     addSnack({ message: "Seu pdf está pronto!" });
   };
 
@@ -56,8 +45,8 @@ export const PdfPreview = ({
 
   useEffect(() => {
     setOpen(false);
-    if (type) fetchPdf();
-  }, [data, type, id]);
+    fetchPdf();
+  }, [items]);
 
   const iconButton = !url ? (
     <CircularProgress sx={{ color: "#fff" }} size={15} />
@@ -99,12 +88,14 @@ export const PdfPreview = ({
               </IconButton>
             </Box>
             {url && (
-              <iframe
-                src={url}
-                width="100%"
-                height="100%"
-                style={{ border: "none", margin: "10px" }}
-              />
+              <Box mt={1} height="100%" overflow="scroll">
+                <iframe
+                  src={url}
+                  width="100%"
+                  height="100%"
+                  style={{ border: "none" }}
+                />
+              </Box>
             )}
           </Box>
         )}

@@ -1,4 +1,5 @@
 import { TabData } from "../(secure)/materialRequisition/types";
+import { Vacation } from "../types";
 
 export interface Response<T> {
   data: T;
@@ -17,12 +18,21 @@ export interface PaginatedResponse<T> {
 }
 
 export type PeriodOptionsType = "past" | "future" | "present";
-export interface PdfRouteBody {
-  type: "vacation" | "relation" | "materialRequisition" | "vehicleUsage";
+export type PdfRouteType =
+  | "vacation"
+  | "relation"
+  | "materialRequisition"
+  | "vehicleUsage"
+  | "cancellation";
+export type PdfOptions = {
+  type: PdfRouteType;
   relationType?: string;
   _id?: string;
   period?: PeriodOptionsType;
   data?: TabData[];
+};
+export interface PdfRouteBody {
+  items: PdfOptions[];
 }
 export interface VacationsResolverArgsInterface {
   fromWorker?: string;

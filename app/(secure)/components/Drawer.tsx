@@ -50,7 +50,7 @@ export const Drawer = () => {
         itemIcon: <Article />,
       },
       {
-        pdfType: "materialRequisition",
+        pdfType: "cancellation",
         itemLabel: "Req. Material. Combust.",
         itemIcon: <Article />,
       },
@@ -58,7 +58,7 @@ export const Drawer = () => {
   };
 
   const listClickAction = (href: string) => {
-    setPdf({});
+    setPdf([]);
     router.push(href);
   };
 
