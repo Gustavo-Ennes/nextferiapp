@@ -9,7 +9,7 @@ import {
 import { workers } from "../worker/mock";
 import { bosses } from "../boss/mock";
 import { endOfMorning } from "@/app/utils";
-import { Vacation } from "@/app/types";
+import type { Vacation } from "@/app/types";
 
 const now = new Date().toISOString();
 const today = startOfDay(new Date()).toISOString();

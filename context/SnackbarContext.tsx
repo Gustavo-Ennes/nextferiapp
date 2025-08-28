@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState } from "react";
 import { Alert, Slide, Snackbar } from "@mui/material";
-import { AlertSeverity } from "./types";
+import { type AlertSeverity } from "./types";
 import { indigo } from "@mui/material/colors";
 
 const SnackbarContext = createContext<{
@@ -37,9 +37,13 @@ export const SnackbarProvider = ({
 
   const getAlertBackgrondColor = (severity?: AlertSeverity) => {
     if (severity === "error") return "#9E2F39";
-    if (severity == "success") return "#2F9E49";
+    if (severity === "success") return "#2F9E49";
+    if (severity === "warning") return "#9e9c2fff";
     return indigo[700];
   };
+
+  const autoHideDuration =
+    severity === "error" || severity === "warning" ? 5000 : 3000;
 
   return (
     <SnackbarContext.Provider value={{ addSnack }}>
@@ -51,7 +55,7 @@ export const SnackbarProvider = ({
           open={!!message}
           slots={{ transition: Slide }}
           onClose={() => setMessage(undefined)}
-          autoHideDuration={3000}
+          autoHideDuration={autoHideDuration}
         >
           <Alert
             onClose={() => setMessage(undefined)}

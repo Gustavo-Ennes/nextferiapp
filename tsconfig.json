@@ -20,7 +20,16 @@
     ],
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    /* ⚠️ Boas práticas e disciplina */
+    "noUnusedLocals": true, // Variáveis locais não utilizadas viram erro
+    "noUnusedParameters": true, // Parâmetros de função não utilizados viram erro
+    "noFallthroughCasesInSwitch": true, // Evita cair de um case para outro sem break
+    "noImplicitReturns": true, // Força funções a sempre retornar algo em todos os caminhos
+
+    /* ⚠️ Organização de imports */
+    "verbatimModuleSyntax": true,
+    "preserveValueImports": false // Remove valores não usados nos imports
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

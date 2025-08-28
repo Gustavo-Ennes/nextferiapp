@@ -1,4 +1,4 @@
-import { Worker } from "@/app/types";
+import type { Worker } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 
 const WorkerList = async ({

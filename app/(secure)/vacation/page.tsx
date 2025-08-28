@@ -1,4 +1,4 @@
-import { Vacation } from "@/app/types";
+import type { Vacation } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 import { parseVacations } from "./parse";
 

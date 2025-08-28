@@ -1,6 +1,6 @@
 import { StandardFonts } from "pdf-lib";
 
-import { Vacation } from "@/app/types";
+import type { Vacation } from "@/app/types";
 import {
   createHeader,
   createFooter,
@@ -8,7 +8,7 @@ import {
   createParagraph,
   drawTopRightText,
 } from "../factory";
-import { RenderParam } from "../types";
+import type { RenderParam } from "../types";
 import { getHeightObject } from "../utils";
 import { translateVacation } from "../vacation/utils";
 import {
@@ -17,7 +17,7 @@ import {
   getTranslatedPeriod,
 } from "./data";
 import { drawVacationRelationLine } from "./vacationLine";
-import { VacationType } from "@/app/(secure)/vacation/types";
+import type { VacationType } from "@/app/(secure)/vacation/types";
 
 const render = async ({
   document,

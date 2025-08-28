@@ -1,4 +1,4 @@
-import { Boss } from "@/app/types";
+import type { Boss } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 
 const BossList = async ({

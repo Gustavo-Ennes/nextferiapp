@@ -11,35 +11,55 @@ import {
   Button,
 } from "@mui/material";
 
-import { Vacation } from "@/app/types";
+import type { Vacation } from "@/app/types";
 import { format } from "date-fns";
 import { useModal } from "@/context/ModalContext";
 import { ButtonMenu } from "../../components/ButtonMenu";
-import { MenuItem } from "../../components/types";
+import type { MenuItem } from "../../components/types";
 import { capitalizeName } from "@/app/utils";
 import { getTypeLabel } from "../utils";
 import { useRouter } from "next/navigation";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
-// import { PdfPreviewItem } from "@/context/types";
 
 export function VacationDetail({ vacation }: { vacation: Vacation }) {
   const { open } = useModal();
   const { setPdf } = usePdfPreview();
   const router = useRouter();
-  const url = `${process.env.NEXT_PUBLIC_URL}/api/vacation/${vacation._id}`;
+  const url = `/api/vacation/${vacation._id}`;
 
-  // const submitFn = ({
-  //   option,
-  //   withPdf,
-  // }: {
-  //   option: "cancel" | "reschedule";
-  //   withPdf: boolean;
-  // }) => {
-  //   const pdfItems: PdfPreviewItem[] = [];
+  const submitFn = async ({
+    option,
+    withPdf,
+    obs,
+  }: {
+    option: "cancel" | "reschedule";
+    withPdf?: boolean;
+    obs?: string;
+  }) => {
+    const body: Partial<Vacation> = { cancelled: true, observation: obs };
 
-  //   if(option === 'cancel')
-  // };
+    await fetch(url, {
+      method: "put",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const vacationsUrl = `/vacation${
+      vacation.type !== "normal" ? `/${vacation.type}` : ""
+    }`;
+    const createVacationUrl = `/vacation/form?type=${vacation.type}&isReschedule={true}&id=${vacation._id}`;
+    router.push(option === "reschedule" ? createVacationUrl : vacationsUrl);
+
+    if (withPdf) {
+      setPdf({
+        items: [{ type: "cancellation", id: vacation._id }],
+        open: false,
+      });
+    }
+  };
 
   const cancelMenuItems: MenuItem[] = [
     {
@@ -49,16 +69,9 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           title: "Cancelar folga",
           description: "Deseja cancelar essa folga?",
           input: true,
-          onConfirm: async (obs) => {
-            // fetch(url, {
-            //   method: "post",
-            //   headers: {
-            //     "Content-Type": "application/json",
-            //   },
-            //   body: JSON.stringify(formData),
-            // });
-          },
+          onConfirm: async (obs) => submitFn({ option: "cancel", obs }),
         }),
+      disabled: false,
     },
     {
       label: "Cancelar com requisição",
@@ -67,10 +80,10 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           title: "Cancelar e imprimir requisição de cancelamento",
           description: "Deseja cancelar e imprimir a requisição para o RH?",
           input: true,
-          onConfirm: async (obs) => {
-            console.log("Observação para impressão:", obs);
-          },
+          onConfirm: async (obs) =>
+            submitFn({ option: "cancel", withPdf: true, obs }),
         }),
+      disabled: false,
     },
     {
       label: "Remarcar",
@@ -80,10 +93,9 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           description:
             "Deseja cancelar(sem requerimento RH) e remarcar essa folga?",
           input: true,
-          onConfirm: async (obs) => {
-            console.log("Observação para remarcação:", obs);
-          },
+          onConfirm: async (obs) => submitFn({ option: "reschedule", obs }),
         }),
+      disabled: !vacation.worker.isActive || !vacation.worker,
     },
     {
       label: "Remarcar com requisição",
@@ -93,10 +105,10 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           description:
             "Deseja cancelar com requirimento para o RH e remarcar essa folga?",
           input: true,
-          onConfirm: async (obs) => {
-            console.log("Observação para remarcação:", obs);
-          },
+          onConfirm: async (obs) =>
+            submitFn({ option: "reschedule", withPdf: true, obs }),
         }),
+      disabled: !vacation.worker.isActive || !vacation.worker,
     },
   ];
   const workerName = capitalizeName(vacation?.worker?.name);
@@ -136,7 +148,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           {vacation.deferred && (
             <Box>
               <Typography variant="subtitle2">Status</Typography>
-              <Typography>Indeferida / Remarcada</Typography>
+              <Typography>Deferida</Typography>
             </Box>
           )}
 
@@ -155,10 +167,14 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
         alignContent="center"
         justifyContent="space-between"
       >
-        <ButtonMenu items={cancelMenuItems} />
+        <ButtonMenu items={cancelMenuItems} vacation={vacation} />
         <Button
           variant="contained"
-          onClick={() => setPdf([{ type: "vacation", id: vacation._id }])}
+          onClick={() =>
+            setPdf({
+              items: [{ type: "vacation", id: vacation._id }],
+            })
+          }
         >
           Ver pdf
         </Button>

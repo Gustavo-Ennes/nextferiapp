@@ -12,8 +12,7 @@ import {
   createTitle,
 } from "../factory";
 import { getHeightObject, getBoss } from "../utils";
-import { translateMonth, translateVacation } from "./utils";
-import { cancellationParagraph } from "../cancellation/text";
+import { getParagraph, translateMonth, translateVacation } from "./utils";
 
 const drawHalfPage = async ({
   document,
@@ -21,7 +20,7 @@ const drawHalfPage = async ({
   vacation,
 }: DrawHalfPageParams): Promise<void> => {
   const page = document.getPage(0);
-  const paragraph = cancellationParagraph(vacation);
+  const paragraph = getParagraph(vacation);
   const font = await document.embedFont(StandardFonts.Helvetica);
   const vacationsDuration = (vacation.duration ?? vacation.daysQtd) as number;
   const vacationPeriod =
@@ -39,7 +38,7 @@ const drawHalfPage = async ({
     document,
     height,
     size: 19,
-    title: `Requerimento de CANCELAMENTO de${translateVacation(vacation.type)}`,
+    title: `Requerimento de ${translateVacation(vacation.type)}`,
   });
   height.stepHugeLine();
   await createParagraph({

@@ -1,5 +1,5 @@
 import { DepartmentDetail } from "../components/DepartmentDetail";
-import { Worker } from "@/app/types";
+import type { Worker } from "@/app/types";
 
 export default async function DepartmentViewPage({
   params,

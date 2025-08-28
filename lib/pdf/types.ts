@@ -1,8 +1,11 @@
 /* eslint-disable no-unused-vars */
 import type { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
 
-import { Vacation, Worker, Department } from "@/app/types";
-import { CarEntry, TabData } from "@/app/(secure)/materialRequisition/types";
+import type { Vacation, Worker, Department } from "@/app/types";
+import type {
+  CarEntry,
+  TabData,
+} from "@/app/(secure)/materialRequisition/types";
 
 type LineData = (string | undefined)[];
 type TableData = LineData[];

@@ -1,7 +1,7 @@
 import dbConnect from "@/lib/database/database";
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
-import { PdfOptions, PdfRouteBody } from "../types";
+import type { PdfOptions, PdfRouteBody } from "../types";
 import {
   materialRequisitionRender,
   vacationRender,
@@ -35,16 +35,15 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    console.log("🚀 ~ POST ~ error:", error);
     return NextResponse.json({ error });
   }
 }
 
 const checkPdfBodyProps = (body: PdfOptions) => {
-  const { _id, type, relationType, period } = body;
+  const { id, type, relationType, period } = body;
   switch (type) {
     case "vacation":
-      if (!_id) throw new Error("Id is needed to print a vacation");
+      if (!id) throw new Error("Id is needed to print a vacation");
       break;
     case "relation":
       if (!relationType)
@@ -56,8 +55,7 @@ const checkPdfBodyProps = (body: PdfOptions) => {
     case "vehicleUsage":
       break;
     case "cancellation":
-      if (!_id)
-        throw new Error("Id is needed to print a vacation cancellation");
+      if (!id) throw new Error("Id is needed to print a vacation cancellation");
       break;
     default:
       throw new Error("Property type is invalid.");
@@ -71,7 +69,7 @@ const render = async ({
   body: PdfOptions;
   document: PDFDocument;
 }) => {
-  const { _id, type, relationType, period, data } = body;
+  const { id, type, relationType, period, data } = body;
   let instance;
   switch (type) {
     case "materialRequisition":
@@ -85,14 +83,13 @@ const render = async ({
       return relationRender({ document, instances, period, type });
     case "vacation":
       instance = await Vacation.findOne({
-        _id,
+        _id: id,
         $or: [{ cancelled: false }, { cancelled: undefined }],
       }).populate("worker boss");
       return vacationRender({ document, instance });
     case "cancellation":
       instance = await Vacation.findOne({
-        _id,
-        $or: [{ cancelled: false }, { cancelled: undefined }],
+        _id: id,
       }).populate("worker boss");
       return cancellationRender({ document, instance });
     case "vehicleUsage":

@@ -1,8 +1,8 @@
-import { ReactNode } from "react";
-import { Entity, EntityType, Vacation } from "../../types";
-import { PaginatedResponse } from "@/app/api/types";
-import { VacationType } from "../vacation/types";
-import { PdfPreviewTypeProp } from "@/context/types";
+import type { ReactNode } from "react";
+import type { Entity, EntityType } from "../../types";
+import type { PaginatedResponse } from "@/app/api/types";
+import type { VacationType } from "../vacation/types";
+import type { PdfPreviewTypeProp } from "@/context/types";
 
 export interface ItemListProps<T extends { _id: string }> {
   pagination: PaginatedResponse<T>;
@@ -14,6 +14,7 @@ export interface ItemListProps<T extends { _id: string }> {
 export type MenuItem = {
   label: string;
   action: () => void;
+  disabled: boolean;
 };
 
 export type SubMenuItem = {

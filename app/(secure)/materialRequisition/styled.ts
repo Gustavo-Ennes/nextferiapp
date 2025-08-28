@@ -1,5 +1,5 @@
-import { Card, styled, Box } from "@mui/material";
-import { CarEntry } from "./types";
+import { Card, styled } from "@mui/material";
+import type { CarEntry } from "./types";
 
 export const GridCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "selectedCar",

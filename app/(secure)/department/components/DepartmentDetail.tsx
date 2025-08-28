@@ -11,7 +11,7 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import { Department } from "@/app/types";
+import type { Department } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";

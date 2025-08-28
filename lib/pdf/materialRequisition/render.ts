@@ -1,4 +1,4 @@
-import { PDFPage, StandardFonts } from "pdf-lib";
+import { StandardFonts } from "pdf-lib";
 
 import {
   createHeader,
@@ -7,13 +7,8 @@ import {
   createTable,
   createTitle,
 } from "../factory";
-import {
-  Height,
-  MaterialRequisitionDrawBlockParam,
-  RenderParam,
-} from "../types";
+import type { MaterialRequisitionDrawBlockParam, RenderParam } from "../types";
 import { getHeightObject } from "../utils";
-import { materialRequisitionData } from "./data";
 import { parseMaterialRequisitionData } from "./utils";
 import { splitEvery } from "ramda";
 
@@ -155,8 +150,6 @@ const drawBlock = async ({
     x: (page.getWidth() / 6) * 5,
   });
   height.stepHugeLine();
-
-  console.log(`Drawed a block for #${data.prefix}.`);
 };
 
 const render = async ({ document, data }: RenderParam): Promise<void> => {
@@ -183,13 +176,9 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
               page = document.addPage();
               height = getHeightObject(page);
               headerY = undefined;
-              console.log(`page added: #${document.getPageCount()}`);
             } else if (blockCounter > 0 && blockCounter % 2 > 0) {
               height.stepLines(3, "regular");
               headerY = height.actual;
-              console.log(
-                `second block added to page #${document.getPageCount()}`
-              );
             }
 
             await drawBlock({
@@ -203,24 +192,13 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
               tabData,
             });
             blockCounter++;
-            console.log("🚀 ~ render ~ blockCounter:", blockCounter);
           }
         }
       }
     }
   } catch (error) {
-    console.log("🚀 ~ MATERIALREQUISITION render ~ error:", error);
+    console.error("~ MATERIALREQUISITION render ~ error:", error);
   }
-
-  // await drawBlock({
-  //   document,
-  //   font,
-  //   fontSize,
-  //   headerY: height.actual, VER PQ DISSO
-  //   height,
-  //   page,
-  //   data,
-  // });
 };
 
 export { render };

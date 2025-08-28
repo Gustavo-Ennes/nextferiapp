@@ -1,5 +1,4 @@
-import { TabData } from "../(secure)/materialRequisition/types";
-import { Vacation } from "../types";
+import type { TabData } from "../(secure)/materialRequisition/types";
 
 export interface Response<T> {
   data: T;
@@ -27,7 +26,7 @@ export type PdfRouteType =
 export type PdfOptions = {
   type: PdfRouteType;
   relationType?: string;
-  _id?: string;
+  id?: string;
   period?: PeriodOptionsType;
   data?: TabData[];
 };

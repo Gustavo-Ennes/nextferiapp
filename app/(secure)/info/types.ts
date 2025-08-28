@@ -1,4 +1,4 @@
-import { Vacation, Worker } from "@/app/types";
+import type { Vacation, Worker } from "@/app/types";
 
 export type CardParam = {
   label: string;
@@ -6,7 +6,7 @@ export type CardParam = {
   lines?: {
     primary: string;
     secondary: string;
-  }[],
+  }[];
   icon?: React.ReactNode;
   details?: string[];
 };

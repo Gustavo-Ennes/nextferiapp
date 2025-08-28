@@ -1,4 +1,4 @@
-import { Vacation, Worker } from "@/app/types";
+import type { Vacation, Worker } from "@/app/types";
 import { capitalizeName } from "@/app/utils";
 
 const getNoInstancesText = (instanceTranslatedPluralName: string) =>

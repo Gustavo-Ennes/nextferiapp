@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { getDaysUntilWorkerReturns } from "@/app/utils";
 import { addSeconds, format } from "date-fns";
 import NumberCard from "./NumberCard";
@@ -13,7 +13,7 @@ import {
   HourglassTop,
   Person,
 } from "@mui/icons-material";
-import { Vacation, Worker, Department } from "@/app/types";
+import type { Vacation, Worker, Department } from "@/app/types";
 import { TitleTypography } from "../../components/TitleTypography";
 
 function Dashboard({

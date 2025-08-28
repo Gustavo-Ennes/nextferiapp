@@ -1,4 +1,4 @@
-import { Worker, Boss, Vacation } from "@/app/types";
+import type { Worker, Boss, Vacation } from "@/app/types";
 import * as z from "zod";
 import { VacationValidator } from "./validator";
 
@@ -13,4 +13,5 @@ export interface VacationProps {
   defaultValues?: Vacation;
   id?: string;
   type: VacationType;
+  isReschedule?: boolean;
 }

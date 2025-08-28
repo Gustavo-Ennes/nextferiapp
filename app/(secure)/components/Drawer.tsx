@@ -9,11 +9,11 @@ import {
 import { navList } from "../navList";
 import { DrawerContent } from "../styled";
 import { ListItemMenu } from "./ListItemMenu";
-import { Print, Article, Logout } from "@mui/icons-material";
-import { ReactNode } from "react";
+import { Logout, PictureAsPdf, Receipt } from "@mui/icons-material";
+import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
-import { ListItemMenuItem } from "./types";
+import type { ListItemMenuItem } from "./types";
 
 export const Drawer = () => {
   const router = useRouter();
@@ -40,25 +40,7 @@ export const Drawer = () => {
     ],
   });
 
-  const auxProps: ListItemMenuItem = {
-    label: "Auxiliares",
-    icon: <Print />,
-    items: [
-      {
-        pdfType: "vehicleUsage",
-        itemLabel: "Relatório uso veículo",
-        itemIcon: <Article />,
-      },
-      {
-        pdfType: "cancellation",
-        itemLabel: "Req. Material. Combust.",
-        itemIcon: <Article />,
-      },
-    ],
-  };
-
   const listClickAction = (href: string) => {
-    setPdf([]);
     router.push(href);
   };
 
@@ -79,10 +61,30 @@ export const Drawer = () => {
             <ListItemMenu props={getVacationProps(icon)} key={href} />
           )
         )}
-
         <Divider />
 
-        <ListItemMenu props={auxProps} />
+        <ListItemButton
+          key={"materialRequisition"}
+          sx={{ my: 1 }}
+          onClick={() => router.push("materialRequisition")}
+        >
+          <ListItemIcon>
+            <Receipt />
+          </ListItemIcon>
+          <ListItemText primary={"Req. de materiais"} />
+        </ListItemButton>
+        <Divider />
+
+        <ListItemButton
+          key={"vehicleUsage"}
+          sx={{ my: 1 }}
+          onClick={() => setPdf({ items: [{ type: "vehicleUsage" }] })}
+        >
+          <ListItemIcon>
+            <PictureAsPdf />
+          </ListItemIcon>
+          <ListItemText primary={"Rel. uso veículo"} />
+        </ListItemButton>
 
         <Divider />
 

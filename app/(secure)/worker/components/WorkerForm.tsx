@@ -12,17 +12,17 @@ import {
   FormHelperText,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { WorkerFormData, WorkerProps } from "../types";
+import type { WorkerFormData, WorkerProps } from "../types";
 import { DatePicker } from "@mui/x-date-pickers";
 import { WorkerValidator } from "../validator";
 import { prepareDefaults, workerBaseline } from "../utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { toDate, isValid as dateFnsIsValid } from "date-fns";
-import { PickerValue } from "@mui/x-date-pickers/internals";
+import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { capitalizeFirstLetter } from "@/app/utils";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { SnackbarData } from "@/context/types";
+import type { SnackbarData } from "@/context/types";
 
 export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   const router = useRouter();

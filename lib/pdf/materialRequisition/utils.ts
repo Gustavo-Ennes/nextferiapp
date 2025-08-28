@@ -1,5 +1,8 @@
-import { CarEntry, FuelType } from "@/app/(secure)/materialRequisition/types";
-import { LineData, TableData } from "../types";
+import type {
+  CarEntry,
+  FuelType,
+} from "@/app/(secure)/materialRequisition/types";
+import type { LineData, TableData } from "../types";
 import { format } from "date-fns";
 
 export const parseMaterialRequisitionData = ({

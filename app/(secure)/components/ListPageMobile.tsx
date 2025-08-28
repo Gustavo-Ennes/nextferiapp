@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent } from "react";
+import type { MouseEvent } from "react";
 import {
   List,
   ListItem,
@@ -12,10 +12,10 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useRouter } from "next/navigation";
-import { ItemListProps } from "./types";
+import type { ItemListProps } from "./types";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
-import { Entity, Vacation, Worker } from "@/app/types";
+import type { Entity, Vacation, Worker } from "@/app/types";
 import { PictureAsPdf } from "@mui/icons-material";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 
@@ -50,7 +50,7 @@ export function ListPageMobile<T extends Entity>({
 
   const handlePdf = (e: MouseEvent, item: Entity) => {
     e.stopPropagation();
-    if (vacationType) setPdf([{ type: "vacation", id: item._id }]);
+    if (vacationType) setPdf({ items: [{ type: "vacation", id: item._id }] });
     else
       console.warn(
         "Only vacation, material requisitions and vehicle usage have pdf templates to render."

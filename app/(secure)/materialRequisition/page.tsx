@@ -11,8 +11,12 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { NewTabDialog } from "./components/TabDialog";
-import { TabData } from "./types";
-import { getLocalStorageData, removeAllCarEntries } from "./utils";
+import type { LocalStorageData, TabData } from "./types";
+import {
+  getLocalStorageData,
+  removeAllCarEntries,
+  setLocalStorageData,
+} from "./utils";
 import { Tab as MaterialRequisitionTab } from "./components/Tab";
 import { TabPanel } from "./components/TabPanel";
 import { Close } from "@mui/icons-material";
@@ -20,34 +24,39 @@ import { head, isNil, reject } from "ramda";
 import { TitleTypography } from "../components/TitleTypography";
 
 export default function MaterialRequisitionPage() {
-  const [tabsData, setTabsData] = useState<TabData[]>(
-    getLocalStorageData().data ?? []
-  );
+  const [tabsData, setTabsData] = useState<TabData[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [newTabDialog, setNewTabDialog] = useState(false);
   const [tabCounter, setTabCounter] = useState(0);
 
   // Load
   useEffect(() => {
-    try {
-      const { data, activeTab } = getLocalStorageData();
-
-      if (data.length) {
-        setTabsData(data);
-        setActiveTab(activeTab);
-        setTabCounter(data.length);
-      }
-    } catch (error) {
-      console.error("Error parsing material requisition data: ", error);
-    }
+    getLocalStorageData()
+      .then(({ activeTab, data }: LocalStorageData) => {
+        if (data.length) {
+          setTabsData(data);
+          setActiveTab(activeTab);
+          setTabCounter(data.length);
+        }
+      })
+      .catch((err) => {
+        console.error("Error parsing material requisition data: ", err);
+      });
   }, []);
 
   // Persist
   useEffect(() => {
-    localStorage.setItem("tabsData", JSON.stringify(tabsData));
+    getLocalStorageData().then((oldData: LocalStorageData) => {
+      const newData = { ...oldData, data: tabsData };
+      setLocalStorageData(newData);
+    });
   }, [tabsData]);
+
   useEffect(() => {
-    localStorage.setItem("activeTab", JSON.stringify(activeTab));
+    getLocalStorageData().then((oldData: LocalStorageData) => {
+      const newData = { ...oldData, activeTab };
+      setLocalStorageData(newData);
+    });
   }, [activeTab]);
 
   const createTab = (name: string) => {
@@ -73,7 +82,6 @@ export default function MaterialRequisitionPage() {
     );
     const newTabs = [...anotherTabs];
     if (tabData.carEntries?.length) newTabs.push(tabData);
-    console.log("🚀 ~ onTabsDataChange ~ tabData:", tabData);
 
     setTabsData(newTabs);
   };

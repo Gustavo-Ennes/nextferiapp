@@ -10,13 +10,13 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { BossFormData, BossProps } from "../types";
+import { useForm, type SubmitHandler, Controller } from "react-hook-form";
+import type { BossFormData, BossProps } from "../types";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BossValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { SnackbarData } from "@/context/types";
+import type { SnackbarData } from "@/context/types";
 
 export function BossForm({ defaultValues, workers }: BossProps) {
   const router = useRouter();

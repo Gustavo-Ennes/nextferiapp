@@ -9,7 +9,7 @@ import {
   List,
 } from "@mui/material";
 import { useState } from "react";
-import { ListItemMenuItem, SubMenuItem } from "./types";
+import type { ListItemMenuItem, SubMenuItem } from "./types";
 import { useRouter } from "next/navigation";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 
@@ -21,7 +21,7 @@ export const ListItemMenu = ({ props }: { props: ListItemMenuItem }) => {
   const handleDropdownClick = () => setIsDropdownOpen(!isDropdownOpen);
 
   const handleItemClick = ({ pdfType, href }: SubMenuItem) => {
-    if (pdfType) setPdf([]);
+    if (pdfType) setPdf({ items: [{ type: pdfType }] });
     else if (href) router.push(href);
   };
 

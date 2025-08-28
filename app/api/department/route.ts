@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import DepartmentModel from "@/models/Department";
-import { Department } from "@/app/types";
-import { PaginatedResponse } from "../types";
+import type { Department } from "@/app/types";
+import type { PaginatedResponse } from "../types";
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -42,7 +42,6 @@ export async function GET(req: NextRequest) {
       hasPrevPage: page > 1,
     });
   } catch (error) {
-    console.log("🚀 ~ GET ~ error:", error);
     return NextResponse.json({ error });
   }
 }

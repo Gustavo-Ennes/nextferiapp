@@ -1,6 +1,6 @@
 import { isValid } from "date-fns";
-import { MinMaxStringMessageParam, WorkerFormData } from "./types";
-import { Worker } from "@/app/types";
+import type { MinMaxStringMessageParam, WorkerFormData } from "./types";
+import type { Worker } from "@/app/types";
 import { WorkerValidator } from "./validator";
 
 const translatedProps = {

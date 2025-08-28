@@ -1,5 +1,6 @@
 import { VacationDetail } from "../components/VacationDetail";
 import { parseVacation } from "../parse";
+import { redirect } from "next/navigation";
 
 export default async function VacationViewPage({
   params,
@@ -10,7 +11,9 @@ export default async function VacationViewPage({
   const { data: vacation } = await (
     await fetch(`${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`)
   ).json();
-  const parsedVacation = parseVacation(vacation);
-
-  return <VacationDetail vacation={parsedVacation} />;
+  if (vacation) {
+    const parsedVacation = parseVacation(vacation);
+    return <VacationDetail vacation={parsedVacation} />;
+  }
+  return redirect('/not-found');
 }

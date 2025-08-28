@@ -1,4 +1,4 @@
-import { Department, Worker } from "@/app/types";
+import type { Department, Worker } from "@/app/types";
 import * as z from "zod";
 import { WorkerValidator } from "./validator";
 

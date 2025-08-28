@@ -6,7 +6,7 @@ import type {
   Vacation as VacationInterface,
   Boss as BossInterface,
 } from "@/app/types";
-import { GetMultiTextWidthParam } from "./types";
+import type { GetMultiTextWidthParam } from "./types";
 
 const getHeightObject = (page: PDFPage) => ({
   actual: page.getHeight() - 80,
@@ -79,7 +79,8 @@ const calculateCellRealWidth = (
 const getBoss = async (
   vacation?: VacationInterface
 ): Promise<BossInterface | null> => {
-  const isDirector = vacation?.type === "normal" || vacation?.type === "vacation";
+  const isDirector = vacation?.type === "normal";
+
   return await Boss.findOne({ isDirector }).exec();
 };
 

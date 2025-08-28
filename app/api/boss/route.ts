@@ -1,8 +1,8 @@
 import { NextResponse, NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import BossModel from "@/models/Boss";
-import { Boss } from "@/app/types";
-import { PaginatedResponse } from "../types";
+import type { Boss } from "@/app/types";
+import type { PaginatedResponse } from "../types";
 
 export async function GET(req: NextRequest) {
   await dbConnect();

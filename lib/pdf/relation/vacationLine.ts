@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 import { PDFDocument, PDFFont } from "pdf-lib";
 
-import { Vacation } from "@/app/types";
+import type { Vacation } from "@/app/types";
 import { createParagraph } from "../factory";
-import { Height } from "../types";
+import type { Height } from "../types";
 import { getRelationItemText } from "./data";
 
 const drawVacationRelationLine = async ({

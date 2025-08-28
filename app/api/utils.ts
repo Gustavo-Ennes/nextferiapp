@@ -7,11 +7,11 @@ import {
 } from "date-fns";
 import { mergeAll } from "ramda";
 
-import {
+import type {
   VacationsQueryOptionsInterface,
   VacationsResolverArgsInterface,
 } from "./types";
-import { Vacation } from "../types";
+import type { Vacation } from "../types";
 
 const buildOptions = ({
   deferred,
@@ -43,19 +43,21 @@ const buildOptions = ({
 
 const updateVacationDates = (vacation: Vacation): Vacation => ({
   ...vacation,
-  startDate: startOfDay(new Date(vacation.startDate)),
-  endDate: endOfDay(
-    addDays(
-      new Date(vacation.startDate),
-      ((vacation.duration ?? vacation.daysQtd) as number) - 1
-    )
-  ),
-  returnDate: startOfDay(
-    addDays(
-      new Date(vacation.startDate),
-      ((vacation.duration ?? vacation.daysQtd) as number)
-    )
-  ),
+  ...(vacation.startDate && {
+    startDate: startOfDay(new Date(vacation.startDate)).toISOString(),
+    endDate: endOfDay(
+      addDays(
+        new Date(vacation.startDate),
+        ((vacation.duration ?? vacation.daysQtd) as number) - 1
+      )
+    ).toISOString(),
+    returnDate: startOfDay(
+      addDays(
+        new Date(vacation.startDate),
+        (vacation.duration ?? vacation.daysQtd) as number
+      )
+    ).toISOString(),
+  }),
 });
 
 export { buildOptions, updateVacationDates };

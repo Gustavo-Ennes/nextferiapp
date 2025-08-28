@@ -1,7 +1,7 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import type { Document } from "mongoose";
 import { Boss, Worker } from "./index";
-import { VacationType } from "@/app/(secure)/vacation/types";
+import type { VacationType } from "@/app/(secure)/vacation/types";
 
 export interface Vacation extends Document {
   duration?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
@@ -18,6 +18,22 @@ export interface Vacation extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface OldVacation {
+  _id: string;
+  dausQtd: number;
+  startDate: Date;
+  worker: string;
+  type: VacationType | "vacation";
+  deferred: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  boss: string;
+  endDate: Date;
+  observation?: string;
+}
+
+export type TransitionVacation = Vacation | OldVacation;
 
 const VacationSchema = new Schema<Vacation>(
   {

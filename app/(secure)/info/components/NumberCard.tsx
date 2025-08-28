@@ -1,5 +1,5 @@
 import { Box, Collapse, Paper, Typography } from "@mui/material";
-import { CardParam } from "../types";
+import type { CardParam } from "../types";
 import { useState } from "react";
 
 const NumberCard = ({ label, quantity = 0, icon, details }: CardParam) => {

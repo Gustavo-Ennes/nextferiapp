@@ -1,5 +1,5 @@
 import { Document, Schema, models, model } from "mongoose";
-import { Department } from "./Department";
+import type { Department } from "./Department";
 
 export interface Worker extends Document {
   name: string;

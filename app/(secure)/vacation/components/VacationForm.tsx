@@ -13,19 +13,19 @@ import {
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useRouter } from "next/navigation";
-import { VacationFormData, VacationProps } from "../types";
+import type { VacationFormData, VacationProps } from "../types";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import { VacationValidator } from "../validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { translateEntityKey } from "@/app/translate";
 import { useEffect } from "react";
 import { prepareDefaults, baselineForType } from "../utils";
 import { toDate, isValid as dateFNSIsValid } from "date-fns";
-import { PickerValue } from "@mui/x-date-pickers/internals";
+import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { SnackbarData } from "@/context/types";
+import type { SnackbarData } from "@/context/types";
 
 export function VacationForm({
   defaultValues,
@@ -33,6 +33,7 @@ export function VacationForm({
   workers,
   bosses,
   type = "normal",
+  isReschedule = false,
 }: VacationProps) {
   const router = useRouter();
   const { addSnack } = useSnackbar();
@@ -52,14 +53,17 @@ export function VacationForm({
   });
 
   const onSubmit: SubmitHandler<VacationFormData> = async (formData) => {
-    const method = id ? "PUT" : "POST";
-    const url = id
-      ? `${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`
-      : `${process.env.NEXT_PUBLIC_URL}/api/vacation`;
+    const method = !id || isReschedule ? "post" : "put";
+    const url =
+      !id || isReschedule
+        ? `${process.env.NEXT_PUBLIC_URL}/api/vacation`
+        : `${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}`;
+
     const translatedVacationType = translateEntityKey({
       entity: "vacation",
       key: defaultValues?.type ?? type,
     })?.toLowerCase();
+
     const snackbarData: SnackbarData = { message: "" };
 
     const res = await fetch(url, {
@@ -86,7 +90,10 @@ export function VacationForm({
       )} ${defaultValues ? "editado(a)" : "criado(a)"} com sucesso!`;
       snackbarData.severity = "success";
 
-      setPdf([{ type: "vacation", id: _id }]);
+      setPdf({
+        items: [{ type: "vacation", id: _id as string }],
+        add: isReschedule,
+      });
     }
 
     router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
@@ -110,6 +117,15 @@ export function VacationForm({
       setValue("duration", watchForm.period === "half" ? 0.5 : 1);
     }
   }, [watchForm.period]);
+
+  if (defaultValues?.worker?.isActive === false) {
+    addSnack({
+      message:
+        "Não é possível reagendar uma folga para um trabalhador inativo.",
+      severity: "warning",
+    });
+    router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
+  }
 
   return (
     <Grid
@@ -228,6 +244,7 @@ export function VacationForm({
                   labelId="period-label"
                   value={field.value}
                   label="Período"
+                  disabled={isReschedule}
                 >
                   <MenuItem value={"-"}>
                     <em>Selecione o período</em>
@@ -300,6 +317,7 @@ export function VacationForm({
                 labelId="boss-label"
                 value={field.value}
                 label="Aprovante"
+                disabled={isReschedule}
               >
                 <MenuItem value={"-"}>
                   <em>Selecione quem aprova</em>

@@ -2,7 +2,7 @@
 
 import { Button, Box, Grid, Divider } from "@mui/material";
 import { useEffect, useState } from "react";
-import { CarEntry, FuelingData, FuelType } from "../types";
+import type { CarEntry, FuelingData, FuelType } from "../types";
 import { TabFormInfo } from "./TabFormInfo";
 import { TabFormFuelings } from "./TabFormFuelings";
 

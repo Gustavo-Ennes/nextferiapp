@@ -1,4 +1,4 @@
-import { TabData } from "@/app/(secure)/materialRequisition/types";
+import type { TabData } from "@/app/(secure)/materialRequisition/types";
 
 export type PdfPreviewTypeProp =
   | "vacation"
@@ -14,7 +14,7 @@ export type PdfPreviewItem = {
 };
 
 export type PdfPreviewType = {
-  setPdf: (items: PdfPreviewItem[]) => void;
+  setPdf: (param: SetPdfCallbackParam) => void;
 };
 
 export type AlertSeverity = "info" | "success" | "warning" | "error";
@@ -22,4 +22,25 @@ export type AlertSeverity = "info" | "success" | "warning" | "error";
 export type SnackbarData = {
   message: string;
   severity?: AlertSeverity;
+};
+
+export type SetPdfCallbackParam = {
+  items: PdfPreviewItem[];
+  add?: boolean;
+  open?: boolean;
+};
+
+
+export type ModalContextType = {
+  open: (options: ModalOptions) => void;
+  close: () => void;
+};
+
+export type ModalOptions = {
+  title: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  input?: boolean;
+  onConfirm: (observation: string) => Promise<void>;
 };

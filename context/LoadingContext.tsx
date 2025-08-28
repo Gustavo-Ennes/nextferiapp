@@ -3,7 +3,6 @@
 import { Backdrop } from "@mui/material";
 import { createContext, useCallback, useContext, useState } from "react";
 import "./loading.css";
-import { indigo } from "@mui/material/colors";
 
 const LoadingContext = createContext<{
   setLoading: (isLoading: boolean) => void;

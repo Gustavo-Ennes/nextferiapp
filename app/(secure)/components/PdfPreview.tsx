@@ -7,9 +7,15 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { PdfFloatingButtonBox, PdfPreviewBox } from "./styled";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { PdfPreviewItem } from "@/context/types";
+import type { PdfPreviewItem } from "@/context/types";
 
-export const PdfPreview = ({ items }: { items: PdfPreviewItem[] }) => {
+export const PdfPreview = ({
+  items,
+  openAfterLoad,
+}: {
+  items: PdfPreviewItem[];
+  openAfterLoad: boolean;
+}) => {
   const { addSnack } = useSnackbar();
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
@@ -21,7 +27,7 @@ export const PdfPreview = ({ items }: { items: PdfPreviewItem[] }) => {
   const fetchCallback = (blob: Blob) => {
     const url = URL.createObjectURL(blob);
     setUrl(url);
-    if (items[0] && items[0].type !== "materialRequisition") setOpen(true);
+    setOpen(openAfterLoad);
     addSnack({ message: "Seu pdf está pronto!" });
   };
 
@@ -56,9 +62,11 @@ export const PdfPreview = ({ items }: { items: PdfPreviewItem[] }) => {
     <PictureAsPdfIcon />
   );
 
-  const tooltipLabel = url
-    ? "Clique para exibir seu pdf"
-    : "Seu pdf está sendo gerado";
+  const tooltipLabel = !url
+    ? "Seu pdf está sendo gerado"
+    : open
+    ? "Clique para esconder seu pdf"
+    : "Clique para exibir seu pdf";
 
   return (
     <>
@@ -93,7 +101,7 @@ export const PdfPreview = ({ items }: { items: PdfPreviewItem[] }) => {
                   src={url}
                   width="100%"
                   height="100%"
-                  style={{ border: "none" }}
+                  style={{ border: "none", zIndex: 1000 }}
                 />
               </Box>
             )}

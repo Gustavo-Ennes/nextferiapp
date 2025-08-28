@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { TabPanelProps } from "../types";
+import type { TabPanelProps } from "../types";
 
 export const TabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;

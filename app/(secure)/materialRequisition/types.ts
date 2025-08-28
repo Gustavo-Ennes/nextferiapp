@@ -1,3 +1,5 @@
+import type { PdfPreviewItem } from "@/context/types";
+
 export type FuelType = "gas" | "s500" | "s10" | "arla";
 
 export interface FuelingData {
@@ -28,4 +30,5 @@ export interface TabPanelProps {
 export interface LocalStorageData {
   data: TabData[];
   activeTab: number;
+  pdfData: PdfPreviewItem[]
 }

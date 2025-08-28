@@ -2,7 +2,7 @@
 
 import { Box, Divider } from "@mui/material";
 import { CardsGrid } from "./CardGrid";
-import { CarEntry, TabData } from "../types";
+import type { CarEntry, TabData } from "../types";
 import { TabForm } from "./TabForm";
 import { useState } from "react";
 

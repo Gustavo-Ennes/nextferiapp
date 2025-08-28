@@ -1,7 +1,7 @@
 import type { Vacation } from "@/app/types";
 
 import { dayOffParagraph, licenseParagraph, vacationParagraph } from "./text";
-import { VacationType } from "@/app/(secure)/vacation/types";
+import type { VacationType } from "@/app/(secure)/vacation/types";
 
 const numberToNumberString = (number: number): string => {
   if (number === 15) return "quinze";

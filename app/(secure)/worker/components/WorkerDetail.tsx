@@ -1,19 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
   Typography,
   Box,
-  CircularProgress,
   Button,
   Divider,
   Grid,
   Paper,
   Stack,
 } from "@mui/material";
-import { Worker } from "@/app/types";
+import type { Worker } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";

@@ -8,8 +8,8 @@ import {
   MenuItem,
 } from "@mui/material";
 import { fuelList } from "../utils";
-import { FuelType } from "../types";
-import { SetStateAction } from "react";
+import type { FuelType } from "../types";
+import type { SetStateAction } from "react";
 
 export const TabFormInfo = ({
   vehicle,

@@ -7,12 +7,16 @@ import { updateVacationDates } from "../../utils";
 export async function GET(req: NextRequest) {
   await dbConnect();
   const { url } = req;
-  const id = url?.split("/").pop();
+  const id = url?.split("/").pop()?.split('?')[0];
+  const searchParams = req.nextUrl.searchParams;
+  const cancelled = Boolean(searchParams.get("cancelled")) ?? false;
 
   try {
     const vacation = await Vacation.findOne({
       _id: id,
-      $or: [{ cancelled: false }, { cancelled: undefined }],
+      ...(!cancelled && {
+        $or: [{ cancelled: false }, { cancelled: undefined }],
+      }),
     })
       .populate("worker")
       .populate("boss");

@@ -5,8 +5,11 @@ import { useEffect, useState } from "react";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { TabData } from "../types";
-import { PdfFloatingButtonBox, PdfPreviewBox } from "@/app/(secure)/components/styled";
+import type { TabData } from "../types";
+import {
+  PdfFloatingButtonBox,
+  PdfPreviewBox,
+} from "@/app/(secure)/components/styled";
 
 export const PdfPreviewPanel = ({ data = [] }: { data: TabData[] }) => {
   const [open, setOpen] = useState(false);

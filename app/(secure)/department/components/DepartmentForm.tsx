@@ -11,13 +11,13 @@ import {
   Select,
   TextField,
 } from "@mui/material";
-import { DepartmentFormData, DepartmentProps } from "../types";
+import type { DepartmentFormData, DepartmentProps } from "../types";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { DepartmentValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { SnackbarData } from "@/context/types";
+import type { SnackbarData } from "@/context/types";
 
 export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   const router = useRouter();

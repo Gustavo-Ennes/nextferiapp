@@ -6,7 +6,7 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
-import { CardParam } from "../types";
+import type { CardParam } from "../types";
 
 const TextCard = ({ label, lines , icon}: CardParam) =>
   lines?.length ? (

@@ -5,7 +5,7 @@ import Loader from "./components/Loader";
 import { Box, IconButton, Toolbar, Typography } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { AppBar, Drawer as MuiDrawer, Main } from "./styled";
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Drawer } from "./components/Drawer";
 import { useRouter } from "next/navigation";
 

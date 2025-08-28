@@ -2,7 +2,6 @@ import {
   Box,
   AppBar as MuiAppBar,
   Drawer as MuiDrawer,
-  Typography,
   styled,
 } from "@mui/material";
 

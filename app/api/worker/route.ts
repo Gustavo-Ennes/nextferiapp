@@ -1,9 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import { Worker } from "@/app/types";
+import type { Worker } from "@/app/types";
 import WorkerModel from "@/models/Worker";
 import { revalidatePath } from "next/cache";
-import { PaginatedResponse } from "../types";
+import type { PaginatedResponse } from "../types";
 
 export async function GET(req: NextRequest) {
   await dbConnect();

@@ -1,10 +1,9 @@
 import { StandardFonts } from "pdf-lib";
 
-import type { Vacation, Worker, Boss } from "@/app/types";
+import type { Vacation } from "@/app/types";
 import type { DrawHalfPageParams, RenderParam } from "../types";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import {
-  createDuration,
   createFooter,
   createHeader,
   createParagraph,
@@ -23,9 +22,6 @@ const drawHalfPage = async ({
   const page = document.getPage(0);
   const paragraph = cancellationParagraph(vacation);
   const font = await document.embedFont(StandardFonts.Helvetica);
-  const vacationsDuration = (vacation.duration ?? vacation.daysQtd) as number;
-  const vacationPeriod =
-    vacation.period ?? (vacationsDuration < 1 ? "half" : "full");
 
   await createHeader(document);
   await createFooter(document);

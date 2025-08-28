@@ -1,5 +1,5 @@
 import { fuelList } from "./utils";
-import { FuelingData, TabData } from "./types";
+import type { FuelingData, TabData } from "./types";
 
 const MIN_TABS = 1;
 const MAX_TABS = 5;
@@ -18,11 +18,9 @@ function randomDateInJuly(index: number): Date {
   return new Date(`2025-07-${String(day).padStart(2, "0")}T08:00:00`);
 }
 
-function generateFuelingData(
-  count: number
-): FuelingData[] {
+function generateFuelingData(count: number): FuelingData[] {
   return Array.from({ length: count }, (_, i) => ({
-    id:i,
+    id: i,
     date: randomDateInJuly(i + 1),
     quantity: MIN_FUELINGS + Math.random() * MAX_PER_FUELING,
     ...(getRamdomBool() && {

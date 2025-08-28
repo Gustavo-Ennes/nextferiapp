@@ -1,10 +1,9 @@
 import { NextResponse, NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import { Vacation } from "@/app/types";
+import type { Vacation } from "@/app/types";
 import VacationModel from "@/models/Vacation";
-import { startOfDay, endOfDay, addDays } from "date-fns";
 import { revalidatePath } from "next/cache";
-import { PaginatedResponse } from "../types";
+import type { PaginatedResponse } from "../types";
 import { updateVacationDates } from "../utils";
 
 export async function GET(req: NextRequest) {

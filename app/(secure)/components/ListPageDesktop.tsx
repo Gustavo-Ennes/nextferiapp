@@ -20,8 +20,8 @@ import { useRouter } from "next/navigation";
 import { StyledRow } from "./styled";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
-import { ItemListProps } from "./types";
-import { Entity, Vacation } from "@/app/types";
+import type { ItemListProps } from "./types";
+import type { Entity, Vacation } from "@/app/types";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 
 export const ListPageDesktop = <T extends Entity>({
@@ -120,7 +120,7 @@ export const ListPageDesktop = <T extends Entity>({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (vacationType)
-                        setPdf([{ type: "vacation", id: item._id }]);
+                        setPdf({ items: [{ type: "vacation", id: item._id }] });
                       else
                         console.warn(
                           "Only vacation, material requisitions and vehicle usage have pdf templates to render."

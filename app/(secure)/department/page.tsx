@@ -1,4 +1,4 @@
-import { Department } from "@/app/types";
+import type { Department } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 
 const DepartmentList = async ({

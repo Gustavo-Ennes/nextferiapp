@@ -6,7 +6,7 @@ import {
   createTable,
   createTitle,
 } from "../factory";
-import { RenderParam } from "../types";
+import type { RenderParam } from "../types";
 import { getHeightObject } from "../utils";
 import { fuelingTableData, vehicleUsageTableData } from "./data";
 

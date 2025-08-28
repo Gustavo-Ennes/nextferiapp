@@ -1,4 +1,4 @@
-import { Worker } from "@/app/types";
+import type { Worker } from "@/app/types";
 import { departments } from "../department/mock";
 
 export const workers: Worker[] = [

@@ -1,6 +1,6 @@
 import { sum } from "ramda";
 
-import { GetMultiTextWidthParam } from "./types";
+import type { GetMultiTextWidthParam } from "./types";
 import { getMultiTextMeasures } from "./utils";
 
 const calculateColumnsXArray = (textParams: GetMultiTextWidthParam) => {

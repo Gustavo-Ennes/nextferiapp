@@ -1,14 +1,16 @@
 import { format } from "date-fns";
-import { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
+import type { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
 // import { mockedTabsData } from "./mock";
 
-export const getLocalStorageData = (): LocalStorageData => {
-  const data: TabData[] = JSON.parse(
-    localStorage.getItem("tabsData") as string
-  );
-  const activeTab = parseInt(localStorage.getItem("activeTab") ?? "0");
+export const setLocalStorageData = (data: LocalStorageData) => {
+  localStorage.setItem("feriapp", JSON.stringify(data));
+  dispatchEvent(new Event("feriapp"));
+};
 
-  return { data, activeTab };
+export const getLocalStorageData = async (): Promise<LocalStorageData> => {
+  const rawData = localStorage.getItem("feriapp") as string;
+  const data: LocalStorageData = await JSON.parse(rawData);
+  return data;
 
   // USE TO GENERATE RANDOM DATA(config in mock.ts)
   // const data = mockedTabsData();

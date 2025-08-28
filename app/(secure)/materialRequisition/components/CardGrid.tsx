@@ -13,7 +13,7 @@ import {
   CalendarMonth,
   Speed,
 } from "@mui/icons-material";
-import { CarEntry, TabData } from "../types";
+import type { CarEntry, TabData } from "../types";
 import { Close } from "@mui/icons-material";
 import { format } from "date-fns";
 import { GridCard } from "../styled";

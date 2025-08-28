@@ -1,7 +1,7 @@
-import { Vacation } from "@/app/types";
-import { VacationFormData } from "./types";
+import type { Vacation } from "@/app/types";
+import type { VacationFormData } from "./types";
 import { VacationValidator } from "./validator";
-import { isValid } from "date-fns";
+import { format, isValid, toDate } from "date-fns";
 
 export const getTypeLabel = (type: string) => {
   switch (type) {
@@ -70,11 +70,20 @@ export function normalizeRaw(raw: Vacation): Partial<VacationFormData> {
   return out;
 }
 
-export function prepareDefaults(raw?: any): VacationFormData {
-  const type = raw?.type ?? "normal";
+export function prepareDefaults(raw: Vacation): VacationFormData {
+  const type = raw.type ?? "normal";
   const baseline = baselineForType(type);
   const normalized = normalizeRaw(raw);
-  const candidate = { ...baseline, ...normalized };
+  const candidate = {
+    ...baseline,
+    ...normalized,
+    ...(raw.cancelled && {
+      observation: `${raw.observation}\nReagendada: data anterior(${format(
+        toDate(raw.startDate),
+        "dd/MM/yy"
+      )})[${raw._id}]`,
+    }),
+  };
   const parsed = VacationValidator.safeParse(candidate);
   if (parsed.success) return parsed.data;
   console.warn("prepareDefaults: schema failed", parsed.error.issues);

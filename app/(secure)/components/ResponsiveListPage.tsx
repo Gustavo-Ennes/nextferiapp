@@ -4,17 +4,17 @@ import { useTheme } from "@mui/material/styles";
 import { Typography, useMediaQuery, Button, Grid } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { redirect } from "next/navigation";
-import { Entity } from "@/app/types";
+import type { Entity } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
 import { ListPageMobile } from "./ListPageMobile";
 import { sumarizeVacation } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { useModal } from "@/context/ModalContext";
-import { Vacation, Worker } from "@/app/types";
+import type { Vacation, Worker } from "@/app/types";
 import { useRouter } from "next/navigation";
-import { ResponsiveListPageParam } from "./types";
+import type { ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { SnackbarData } from "@/context/types";
+import type { SnackbarData } from "@/context/types";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,

@@ -1,5 +1,5 @@
 import { format, addDays, startOfDay, endOfYesterday, set } from "date-fns";
-import { Boss, Entity, Vacation, Worker } from "./types";
+import type { Boss, Entity, Vacation, Worker } from "./types";
 import { translateEntityKey } from "./translate";
 
 export const formatCellContent = <T extends Entity>({
@@ -132,14 +132,17 @@ export const defaultEntityTableFields = {
 export const capitalizeFirstLetter = (str?: string): string =>
   str ? str.charAt(0)?.toUpperCase() + str.slice(1) : "";
 
-export const capitalizeName = (name: string): string => {
-  const names = name.split(" ");
+export const capitalizeName = (name?: string): string => {
+  const names = name?.split(" ") ?? [""];
   const notCapitalizable = ["da", "das", "de", "di", "do", "dos"];
   return names
     .map((name) =>
       !notCapitalizable.includes(name)
-        ? `${name[0].toUpperCase()}${name.substring(1)}`
+        ? `${name[0]?.toUpperCase()}${name?.substring(1)}`
         : name
     )
     .join(" ");
 };
+
+// comparar vacation no atlas pra ver se atualizou cancelled e se redirecionou corretamente, e se remarcar
+// se adicionou o pdf das férias novas com a do cancelamento

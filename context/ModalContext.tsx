@@ -10,20 +10,7 @@ import {
   TextField,
 } from "@mui/material";
 import { createContext, useContext, useState, useCallback } from "react";
-
-type ModalContextType = {
-  open: (options: ModalOptions) => void;
-  close: () => void;
-};
-
-type ModalOptions = {
-  title: string;
-  description?: string;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  input?: boolean;
-  onConfirm: (observation: string) => Promise<void>;
-};
+import type { ModalContextType, ModalOptions } from "./types";
 
 const ModalContext = createContext<ModalContextType | null>(null);
 

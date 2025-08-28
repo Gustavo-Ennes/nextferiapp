@@ -1,4 +1,4 @@
-import { Department } from "@/app/types";
+import type { Department } from "@/app/types";
 import { bosses } from "../boss/mock";
 
 const now = new Date().toISOString();

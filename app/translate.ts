@@ -1,4 +1,4 @@
-import { EntityType } from "./types";
+import type { EntityType } from "./types";
 import { capitalizeFirstLetter } from "./utils";
 
 export const translateEntityKey = ({
