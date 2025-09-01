@@ -18,6 +18,7 @@ import {
   getLocalStorageData,
   setLocalStorageData,
 } from "@/app/(secure)/materialRequisition/utils";
+import { equals } from "ramda";
 
 const PfdPreviewContext = createContext<PdfPreviewType | null>(null);
 
@@ -34,19 +35,26 @@ export const PdfPreviewProvider = ({
   children: React.ReactNode;
 }) => {
   const [items, setItems] = useState<PdfPreviewItem[]>([]);
-  const [open, setOpen] = useState(true);
-  const [openingsCounter, setOpeningsCounter] = useState(0);
+  const [opened, setOpened] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [shouldOpenAfterLoad, setShouldOpenAfterLoad] = useState(true);
   const { addSnack } = useSnackbar();
 
   const setPdf = useCallback(
-    async ({ items, add, open = true }: SetPdfCallbackParam) => {
+    async ({ items: newItems, add, open = true }: SetPdfCallbackParam) => {
       try {
         const localData = await getLocalStorageData();
+        setShouldOpenAfterLoad(open);
         setLocalStorageData({
-          ...localData,
-          pdfData: add ? [...localData.pdfData, ...items] : items,
+          data: {
+            ...localData,
+            pdfData: {
+              items: add ? [...localData.pdfData.items, ...newItems] : newItems,
+              opened: false,
+            },
+          },
+          dispatch: true,
         });
-        setOpen(open);
         addSnack({
           message: "Carregando pdf..",
         });
@@ -64,29 +72,41 @@ export const PdfPreviewProvider = ({
   useEffect(() => {
     const setData = async () => {
       const data = await getLocalStorageData();
-      setItems(data.pdfData);
-      setOpeningsCounter(0);
+      if (!equals(data?.pdfData.items, items)) setItems(data.pdfData.items);
+
+      setOpened(data?.pdfData?.opened);
     };
 
-    addEventListener("feriapp", async () => {
-      setData();
-    });
-    dispatchEvent(new Event("feriapp"));
+    addEventListener("pfdDataUpdate", setData);
+    dispatchEvent(new Event("pfdDataUpdate"));
 
-    return () => removeEventListener("feriapp", () => undefined);
+    return () => removeEventListener("pfdDataUpdate", () => undefined);
   }, []);
 
   useEffect(() => {
-    if (open) setOpeningsCounter(openingsCounter + 1);
+    if (open && !opened) {
+      getLocalStorageData().then((data) => {
+        setOpened(true);
+        setLocalStorageData({
+          data: { ...data, pdfData: { ...data.pdfData, opened: true } },
+        });
+      });
+    }
   }, [open]);
 
-  const shouldOpenAfterLoad = open && openingsCounter === 0;
+  const shouldShowPdfPreview = items.length;
 
   return (
     <PfdPreviewContext.Provider value={{ setPdf }}>
       {children}
-      {items.length && (
-        <PdfPreview items={items} openAfterLoad={shouldOpenAfterLoad} />
+      {shouldShowPdfPreview && (
+        <PdfPreview
+          items={items}
+          open={open}
+          setOpen={setOpen}
+          opened={opened}
+          openAfterLoad={shouldOpenAfterLoad}
+        />
       )}
     </PfdPreviewContext.Provider>
   );

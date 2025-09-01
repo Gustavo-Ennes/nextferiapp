@@ -10,7 +10,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PdfPreviewProvider } from "@/context/PdfPreviewContext";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { LoadingProvider } from "@/context/LoadingContext";
-import './global.css';
+import "./global.css";
 
 export default function RootLayout({
   children,

@@ -48,14 +48,14 @@ export default function MaterialRequisitionPage() {
   useEffect(() => {
     getLocalStorageData().then((oldData: LocalStorageData) => {
       const newData = { ...oldData, data: tabsData };
-      setLocalStorageData(newData);
+      setLocalStorageData({ data: newData });
     });
   }, [tabsData]);
 
   useEffect(() => {
     getLocalStorageData().then((oldData: LocalStorageData) => {
       const newData = { ...oldData, activeTab };
-      setLocalStorageData(newData);
+      setLocalStorageData({ data: newData });
     });
   }, [activeTab]);
 

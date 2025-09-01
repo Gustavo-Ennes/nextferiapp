@@ -1,34 +1,45 @@
 "use client";
 
 import { Box, CircularProgress, IconButton, Tooltip } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { PdfFloatingButtonBox, PdfPreviewBox } from "./styled";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { PdfPreviewItem } from "@/context/types";
 
 export const PdfPreview = ({
   items,
+  open,
+  opened,
   openAfterLoad,
+  setOpen,
 }: {
   items: PdfPreviewItem[];
+  open: boolean;
+  opened: boolean;
   openAfterLoad: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { addSnack } = useSnackbar();
-  const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
 
   const body = {
     items,
   };
 
-  const fetchCallback = (blob: Blob) => {
+  const fetchCallback = async (blob: Blob) => {
     const url = URL.createObjectURL(blob);
+
     setUrl(url);
-    setOpen(openAfterLoad);
-    addSnack({ message: "Seu pdf está pronto!" });
+    addSnack({
+      message: !opened
+        ? "Seu pdf está pronto!"
+        : "Clique no ícone flutuante para abrir seu pdf.",
+    });
+    if (!opened && openAfterLoad) {
+      setOpen(true);
+    }
   };
 
   const fetchPdf = () => {
@@ -46,13 +57,15 @@ export const PdfPreview = ({
 
   useEffect(() => {
     fetchPdf();
-    return () => setOpen(false);
   }, []);
 
   useEffect(() => {
-    setOpen(false);
     fetchPdf();
   }, [items]);
+
+  const handleOpen = () => {
+    setOpen((prev) => !prev);
+  };
 
   const iconButton = !url ? (
     <CircularProgress sx={{ color: "#fff" }} size={15} />
@@ -74,7 +87,7 @@ export const PdfPreview = ({
       <PdfFloatingButtonBox open={open}>
         <Tooltip title={tooltipLabel}>
           <IconButton
-            onClick={() => setOpen((prev) => !prev)}
+            onClick={handleOpen}
             sx={{
               bgcolor: "primary.main",
               color: "#fff",
@@ -90,11 +103,6 @@ export const PdfPreview = ({
       <PdfPreviewBox open={open}>
         {open && (
           <Box height="100%">
-            <Box display="flex" justifyContent="flex-end" p={1}>
-              <IconButton onClick={() => setOpen(false)}>
-                <ChevronLeftIcon />
-              </IconButton>
-            </Box>
             {url && (
               <Box mt={1} height="100%" overflow="scroll">
                 <iframe

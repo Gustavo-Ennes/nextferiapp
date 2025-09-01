@@ -2,14 +2,27 @@ import { format } from "date-fns";
 import type { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
 // import { mockedTabsData } from "./mock";
 
-export const setLocalStorageData = (data: LocalStorageData) => {
-  localStorage.setItem("feriapp", JSON.stringify(data));
-  dispatchEvent(new Event("feriapp"));
+export const setLocalStorageData = ({
+  data,
+  dispatch,
+}: {
+  data: LocalStorageData;
+  dispatch?: boolean;
+}) => {
+  localStorage.setItem("pfdDataUpdate", JSON.stringify(data));
+  if (dispatch) dispatchEvent(new Event("pfdDataUpdate"));
 };
 
 export const getLocalStorageData = async (): Promise<LocalStorageData> => {
-  const rawData = localStorage.getItem("feriapp") as string;
-  const data: LocalStorageData = await JSON.parse(rawData);
+  const rawData = localStorage.getItem("pfdDataUpdate") as string;
+  const emptyData: LocalStorageData = {
+    activeTab: 1,
+    data: [],
+    pdfData: { items: [], opened: false },
+  };
+  const data: LocalStorageData = rawData
+    ? await JSON.parse(rawData)
+    : emptyData;
   return data;
 
   // USE TO GENERATE RANDOM DATA(config in mock.ts)

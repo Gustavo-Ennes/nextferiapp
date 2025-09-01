@@ -27,8 +27,13 @@ export interface TabPanelProps {
   value: number;
 }
 
+export interface PdfData {
+  items: PdfPreviewItem[];
+  opened: boolean;
+}
+
 export interface LocalStorageData {
   data: TabData[];
   activeTab: number;
-  pdfData: PdfPreviewItem[]
+  pdfData: PdfData;
 }
