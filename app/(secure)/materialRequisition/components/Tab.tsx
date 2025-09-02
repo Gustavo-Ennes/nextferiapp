@@ -51,7 +51,7 @@ export const Tab = ({
 
   return (
     tabData && (
-      <Box>
+      <Box >
         <TabForm onSubmit={submitData} selectedCarEntry={selectedCar} />
         <Divider sx={{ my: 2 }} />
         <CardsGrid

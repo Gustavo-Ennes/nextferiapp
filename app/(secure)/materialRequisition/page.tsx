@@ -22,12 +22,14 @@ import { TabPanel } from "./components/TabPanel";
 import { Close } from "@mui/icons-material";
 import { head, isNil, reject } from "ramda";
 import { TitleTypography } from "../components/TitleTypography";
+import { usePdfPreview } from "@/context/PdfPreviewContext";
 
 export default function MaterialRequisitionPage() {
   const [tabsData, setTabsData] = useState<TabData[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [newTabDialog, setNewTabDialog] = useState(false);
   const [tabCounter, setTabCounter] = useState(0);
+  const { setPdf } = usePdfPreview();
 
   // Load
   useEffect(() => {
@@ -49,6 +51,10 @@ export default function MaterialRequisitionPage() {
     getLocalStorageData().then((oldData: LocalStorageData) => {
       const newData = { ...oldData, data: tabsData };
       setLocalStorageData({ data: newData });
+      setPdf({
+        items: [{ data: tabsData, type: "materialRequisition" }],
+        open: false,
+      });
     });
   }, [tabsData]);
 
@@ -112,7 +118,6 @@ export default function MaterialRequisitionPage() {
       sx={{
         flexGrow: 1,
         display: "flex",
-        height: 224,
       }}
     >
       <Grid size={12}>
@@ -145,7 +150,7 @@ export default function MaterialRequisitionPage() {
               label={tabData.department}
               value={idx}
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              sx={{ fontSize: 13 }}
+              sx={{ fontSize: 13, zIndex: 1 }}
               icon={<TabCloseIcon tabData={tabData} />}
               iconPosition="end"
             />

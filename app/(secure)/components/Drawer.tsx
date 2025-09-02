@@ -66,7 +66,7 @@ export const Drawer = () => {
         <ListItemButton
           key={"materialRequisition"}
           sx={{ my: 1 }}
-          onClick={() => router.push("materialRequisition")}
+          onClick={() => router.push("/materialRequisition")}
         >
           <ListItemIcon>
             <Receipt />
