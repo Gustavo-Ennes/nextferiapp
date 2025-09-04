@@ -19,6 +19,7 @@ import {
   setLocalStorageData,
 } from "@/app/(secure)/materialRequisition/utils";
 import { equals } from "ramda";
+import { usePathname } from "next/navigation";
 
 const PfdPreviewContext = createContext<PdfPreviewType | null>(null);
 
@@ -39,6 +40,8 @@ export const PdfPreviewProvider = ({
   const [open, setOpen] = useState(false);
   const [shouldOpenAfterLoad, setShouldOpenAfterLoad] = useState(true);
   const { addSnack } = useSnackbar();
+  const pathName = usePathname();
+  const forbidenRoutes = ["not-found", "login"];
 
   const setPdf = useCallback(
     async ({ items: newItems, add, open = true }: SetPdfCallbackParam) => {
@@ -94,7 +97,8 @@ export const PdfPreviewProvider = ({
     }
   }, [open]);
 
-  const shouldShowPdfPreview = items.length;
+  const shouldShowPdfPreview =
+    items.length && !forbidenRoutes.includes(pathName.split("/")[1]);
 
   return (
     <PfdPreviewContext.Provider value={{ setPdf }}>

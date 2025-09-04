@@ -31,7 +31,7 @@ const Main = styled("main")(({ theme }) => ({
 
 const DrawerContent = styled(Box)(({ theme }) => ({
   textAlign: "center",
-  marginTop: theme.spacing(10),
+  marginTop: theme.spacing(9),
 }));
 
 export { AppBar, Drawer, Main, DrawerContent };

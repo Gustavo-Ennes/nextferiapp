@@ -88,8 +88,8 @@ const ResponsiveListPage = <T extends Entity>({
   });
 
   return (
-    <Grid container>
-      <Grid size={12}>
+    <Grid container maxWidth={'md'} m='auto' p={2}>
+      <Grid size={10}>
         <Typography
           variant="h4"
           gutterBottom
@@ -97,19 +97,22 @@ const ResponsiveListPage = <T extends Entity>({
           textAlign={isMobile ? "center" : "left"}
         >
           {pageTitle ?? titleFromRoutePrefix}{" "}
-          <Button
-            variant="contained"
-            onClick={() =>
-              router.push(
-                `/${routePrefix}/form${
-                  vacationType ? `?type=${vacationType}` : ""
-                }`
-              )
-            }
-          >
-            <Add />
-          </Button>
         </Typography>
+      </Grid>
+      <Grid size={2} alignItems={'stretch'} justifyContent={'end'}>
+        <Button
+          variant="contained"
+          sx={{float: 'right', mt: '3px'}}
+          onClick={() =>
+            router.push(
+              `/${routePrefix}/form${
+                vacationType ? `?type=${vacationType}` : ""
+              }`
+            )
+          }
+        >
+          <Add />
+        </Button>
       </Grid>
 
       <Grid size={12}>
