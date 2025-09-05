@@ -3,7 +3,8 @@ import { VacationForm } from "../components/VacationForm";
 import type { VacationType } from "../types";
 import { TitleTypography } from "../../components/TitleTypography";
 import { translateEntityKey } from "@/app/translate";
-import type { Vacation } from "@/app/types";
+import type { Boss, Vacation, Worker } from "@/app/types";
+import { fetchAllPaginated, fetchOne } from "../../utils";
 
 export default async function VacationFormPage({
   searchParams,
@@ -15,25 +16,19 @@ export default async function VacationFormPage({
   }>;
 }) {
   const { id, type, isReschedule } = await searchParams;
-  const cancelledSearchParam = "?cancelled=true";
-  let vacation: { data?: Vacation } = {};
+  let vacation: Vacation | undefined;
 
   // quering for a cancelled vacation in case of reschedule
   // just to use the defaultValues
   if (id)
-    vacation = await (
-      await fetch(
-        `${process.env.NEXT_PUBLIC_URL}/api/vacation/${id}${
-          isReschedule ? cancelledSearchParam : ""
-        }`
-      )
-    ).json();
-  const { data: bosses } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss`)
-  ).json();
-  const { data: workers } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker`)
-  ).json();
+    vacation = await fetchOne<Vacation>({
+      type: "vacation",
+      id,
+      ...(isReschedule && { params: { cancelled: true } }),
+    });
+
+  const bosses = await fetchAllPaginated<Boss>({ type: "boss" });
+  const workers = await fetchAllPaginated<Worker>({ type: "worker" });
 
   const title = `${
     isReschedule ? "Reagendar" : id ? "Editar" : "Criar"
@@ -45,7 +40,7 @@ export default async function VacationFormPage({
         <>
           <TitleTypography>{title}</TitleTypography>
           <VacationForm
-            defaultValues={vacation.data}
+            defaultValues={vacation}
             type={type}
             bosses={bosses}
             workers={workers}

@@ -1,3 +1,5 @@
+import type { Boss } from "@/app/types";
+import { fetchOne } from "../../utils";
 import { BossDetail } from "../components/BossDetail";
 
 export default async function BossViewPage({
@@ -6,9 +8,7 @@ export default async function BossViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { data: boss } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss/${id}`)
-  ).json();
+  const boss = await fetchOne<Boss>({ type: "boss", id });
 
   return <BossDetail boss={boss} />;
 }

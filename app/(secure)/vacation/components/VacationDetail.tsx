@@ -145,10 +145,12 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
             <Typography>{period}</Typography>
           </Box>
 
-          {vacation.deferred && (
+          {vacation.cancelled !== undefined && (
             <Box>
               <Typography variant="subtitle2">Status</Typography>
-              <Typography>Deferida</Typography>
+              <Typography>
+                {vacation.cancelled ? "Cancelada" : "Deferida"}
+              </Typography>
             </Box>
           )}
 

@@ -15,7 +15,11 @@ import type {
 } from "./types";
 
 import { getTableInfo } from "./table";
-import { calculateCellRealWidth, getMultiTextMeasures } from "./utils";
+import {
+  calculateCellRealWidth,
+  formatMatriculation,
+  getMultiTextMeasures,
+} from "./utils";
 import { translateVacationPeriod } from "./vacation/utils";
 
 const createHeader = async (
@@ -141,7 +145,7 @@ const createSign = async ({
   x = 300,
 }: CreateSignParams): Promise<void> => {
   const page = document.getPage(document.getPageCount() - 1);
-  const matriculationText = `Matr.: ${matriculation}`;
+  const matriculationText = `Matr.: ${formatMatriculation(matriculation)}`;
   const regularFont = await document.embedFont(StandardFonts.Helvetica);
   const boldFont = await document.embedFont(StandardFonts.HelveticaBold);
   const regularFontSize = 12;
@@ -187,9 +191,8 @@ const createDuration = async ({
   height: Height;
   period: string;
 }): Promise<void> => {
-  const text = duration <= 1
-    ? `${translateVacationPeriod(period)}`
-    : `${duration} dias`;
+  const text =
+    duration <= 1 ? `${translateVacationPeriod(period)}` : `${duration} dias`;
   const offset = 20;
   drawTopRightText({ document, fontSize: 12, height, offset, text });
 };
@@ -283,7 +286,7 @@ const drawTableLine = async ({
     }
   });
 
-  height.actual -= (highestCellSize * 0.2);
+  height.actual -= highestCellSize * 0.2;
   // each cell (except first) draws a vertical line in x1 point
   line.forEach((_, index) => {
     const x = columnsXArray[index];

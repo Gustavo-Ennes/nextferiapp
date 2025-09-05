@@ -1,3 +1,5 @@
+import type { Worker } from "@/app/types";
+import { fetchOne } from "../../utils";
 import { WorkerDetail } from "../components/WorkerDetail";
 
 export default async function WorkerViewPage({
@@ -6,9 +8,7 @@ export default async function WorkerViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { data: worker } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker/${id}`)
-  ).json();
+  const worker = await fetchOne<Worker>({ type: "worker", id });
 
   return <WorkerDetail worker={worker} />;
 }

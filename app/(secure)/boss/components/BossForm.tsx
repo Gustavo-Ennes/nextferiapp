@@ -27,7 +27,7 @@ export function BossForm({ defaultValues, workers }: BossProps) {
     formState: { errors, isValid, isSubmitting },
   } = useForm<BossFormData>({
     resolver: zodResolver(BossValidator),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       worker: defaultValues?.worker?._id ?? "_",
       role: defaultValues?.role ?? "",

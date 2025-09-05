@@ -1,5 +1,6 @@
 import type { Boss } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
+import { fetchPaginatedByPage } from "../utils";
 
 const BossList = async ({
   searchParams,
@@ -7,12 +8,10 @@ const BossList = async ({
   searchParams: Promise<{ page: number }>;
 }) => {
   const { page } = await searchParams;
-  const fetchBosses = async () => {
-    "use server";
-    return fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss?page=${page ?? 1}`);
-  };
-  const res = await fetchBosses();
-  const paginatedResponse = await res.json();
+  const paginatedResponse = await fetchPaginatedByPage<Boss>({
+    type: "boss",
+    params: { page: page ?? 1 },
+  });
 
   return (
     <ResponsiveListPage<Boss>

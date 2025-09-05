@@ -28,7 +28,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     formState: { errors, isValid, isSubmitting },
   } = useForm<DepartmentFormData>({
     resolver: zodResolver(DepartmentValidator),
-    mode: "onChange",
+    mode: "onTouched",
     defaultValues: {
       name: defaultValues?.name ?? "",
       responsible: defaultValues?.responsible?._id ?? "_",

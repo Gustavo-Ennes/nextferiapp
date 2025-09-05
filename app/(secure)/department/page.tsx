@@ -1,5 +1,6 @@
 import type { Department } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
+import { fetchPaginatedByPage } from "../utils";
 
 const DepartmentList = async ({
   searchParams,
@@ -7,13 +8,10 @@ const DepartmentList = async ({
   searchParams: Promise<{ page: number }>;
 }) => {
   const { page } = await searchParams;
-  const fetchDepartments = async () => {
-    return fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/department?page=${page ?? 1}`
-    );
-  };
-  const res = await fetchDepartments();
-  const paginatedResponse = await res.json();
+  const paginatedResponse = await fetchPaginatedByPage<Department>({
+    type: "department",
+    params: { page: page ?? 1 },
+  });
 
   return (
     <ResponsiveListPage<Department>

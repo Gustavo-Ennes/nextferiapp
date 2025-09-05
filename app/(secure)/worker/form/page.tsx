@@ -1,4 +1,6 @@
+import type { Department, Worker } from "@/app/types";
 import { TitleTypography } from "../../components/TitleTypography";
+import { fetchAllPaginated, fetchOne } from "../../utils";
 import { WorkerForm } from "../components/WorkerForm";
 import { Container } from "@mui/material";
 
@@ -8,12 +10,11 @@ export default async function WorkerFormPage({
   searchParams: Promise<{ id: string }>;
 }) {
   const { id } = await searchParams;
-  const { data: worker } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker/${id}`)
-  ).json();
-  const { data: departments } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/department`)
-  ).json();
+
+  const worker = await fetchOne<Worker>({ type: "worker", id });
+  const departments = await fetchAllPaginated<Department>({
+    type: "department",
+  });
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>

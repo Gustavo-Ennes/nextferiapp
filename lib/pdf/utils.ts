@@ -1,5 +1,5 @@
 import { PDFPage, TextAlignment, layoutMultilineText } from "pdf-lib";
-import { range } from "ramda";
+import { range, slice, takeLast } from "ramda";
 
 import Boss from "@/models/Boss";
 import type {
@@ -82,6 +82,20 @@ const getBoss = async (
   const isDirector = vacation?.type === "normal";
 
   return await Boss.findOne({ isDirector }).exec();
+};
+
+export const formatMatriculation = (matriculation?: string): string => {
+  if (!matriculation) return "";
+
+  const lastDigit = takeLast(1, matriculation);
+  const middleDigits = slice(
+    matriculation.length - 4,
+    matriculation.length - 1,
+    matriculation
+  );
+  const firstDigits = slice(0, matriculation.length - 4, matriculation);
+
+  return `${firstDigits}.${middleDigits}-${lastDigit}`;
 };
 
 export {

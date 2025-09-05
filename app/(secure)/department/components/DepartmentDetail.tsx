@@ -78,8 +78,7 @@ export function DepartmentDetail({
           <Box>
             <Typography variant="subtitle2">Responsável</Typography>
             <Typography>
-              {capitalizeName(department?.responsible?.worker?.name ?? "") ??
-                "Excuído(a)"}
+              {capitalizeName(department?.responsible?.worker?.name)}
             </Typography>
           </Box>
 

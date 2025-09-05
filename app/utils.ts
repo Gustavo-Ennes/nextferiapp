@@ -119,7 +119,9 @@ export const sumarizeVacation = ({
   const vacationPeriod = isDayOff ? dayOffPeriod : periodString;
   const workerString = ` do(a) servidor(a) ${worker?.name}(${worker?.matriculation})`;
 
-  return `${typeString} ${startString} ${formatedDate}${vacationPeriod}${worker ? workerString : ''}`;
+  return `${typeString} ${startString} ${formatedDate}${vacationPeriod}${
+    worker ? workerString : ""
+  }`;
 };
 
 export const defaultEntityTableFields = {
@@ -133,7 +135,7 @@ export const capitalizeFirstLetter = (str?: string): string =>
   str ? str.charAt(0)?.toUpperCase() + str.slice(1) : "";
 
 export const capitalizeName = (name?: string): string => {
-  const names = name?.split(" ") ?? [""];
+  const names = name?.split(" ") ?? ["excluído"];
   const notCapitalizable = ["da", "das", "de", "di", "do", "dos"];
   return names
     .map((name) =>
@@ -143,6 +145,3 @@ export const capitalizeName = (name?: string): string => {
     )
     .join(" ");
 };
-
-// comparar vacation no atlas pra ver se atualizou cancelled e se redirecionou corretamente, e se remarcar
-// se adicionou o pdf das férias novas com a do cancelamento

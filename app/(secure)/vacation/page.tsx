@@ -1,6 +1,7 @@
 import type { Vacation } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 import { parseVacations } from "./parse";
+import { fetchPaginatedByPage } from "../utils";
 
 const VacationList = async ({
   searchParams,
@@ -8,13 +9,11 @@ const VacationList = async ({
   searchParams: Promise<{ page: number }>;
 }) => {
   const { page } = await searchParams;
-  const fetchVacations = async () => {
-    return fetch(
-      `${process.env.NEXT_PUBLIC_URL}/api/vacation?page=${page ?? 1}`
-    );
-  };
-  const res = await fetchVacations();
-  const paginatedResponse = await res.json();
+  const paginatedResponse = await fetchPaginatedByPage<Vacation>({
+    type: "vacation",
+    params: { type: "normal", page: page ?? 1 },
+  });
+
   paginatedResponse.data = parseVacations(paginatedResponse.data);
 
   return (

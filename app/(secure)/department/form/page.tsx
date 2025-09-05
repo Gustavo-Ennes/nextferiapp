@@ -1,6 +1,8 @@
 import { Container } from "@mui/material";
 import { DepartmentForm } from "../components/DepartmentForm";
 import { TitleTypography } from "../../components/TitleTypography";
+import { fetchAllPaginated, fetchOne } from "../../utils";
+import type { Department, Boss } from "@/app/types";
 
 export default async function DepartmentFormPage({
   searchParams,
@@ -8,12 +10,8 @@ export default async function DepartmentFormPage({
   searchParams: Promise<{ id: string }>;
 }) {
   const { id } = await searchParams;
-  const { data: department } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/department/${id}`)
-  ).json();
-  const { data: bosses } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss`)
-  ).json();
+  const department = await fetchOne<Department>({ type: "department", id });
+  const bosses = await fetchAllPaginated<Boss>({ type: "boss" });
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>

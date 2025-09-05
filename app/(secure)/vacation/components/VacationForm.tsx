@@ -324,7 +324,7 @@ export function VacationForm({
                 </MenuItem>
                 {bosses?.map((boss) => (
                   <MenuItem key={`opt-${boss._id}`} value={boss._id}>
-                    {capitalizeName(boss.worker?.name ?? "")}
+                    {capitalizeName(boss.worker?.name)}
                   </MenuItem>
                 ))}
               </Select>

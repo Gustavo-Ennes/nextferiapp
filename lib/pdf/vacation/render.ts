@@ -73,7 +73,7 @@ const drawHalfPage = async ({
     document,
     height,
     matriculation: vacation.worker?.matriculation ?? "",
-    name: capitalizeName(vacation.worker?.name ?? "Servidor excluído"),
+    name: capitalizeName(vacation.worker?.name),
     role: capitalizeFirstLetter(vacation.worker?.role) ?? "",
   });
 

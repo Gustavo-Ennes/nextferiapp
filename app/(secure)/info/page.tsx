@@ -5,23 +5,16 @@ import {
   getWorkersOnVacation,
 } from "@/app/utils";
 import { Dashboard } from "./components/Dashboard";
+import { fetchAllPaginated } from "../utils";
+import type { Department, Vacation, Worker } from "@/app/types";
 
 export default async function DashboardServer() {
-  const [vacationsRes, workersRes, departmentsRes] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/vacation`, {
-      cache: "no-store",
-    }),
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker`, {
-      cache: "no-store",
-    }),
-    fetch(`${process.env.NEXT_PUBLIC_URL}/api/department`, {
-      cache: "no-store",
-    }),
+  const [vacations, workers, departments] = await Promise.all([
+    fetchAllPaginated<Vacation>({ type: "vacation" }),
+    fetchAllPaginated<Worker>({ type: "worker" }),
+    fetchAllPaginated<Department>({ type: "department" }),
   ]);
 
-  const { data: vacations } = await vacationsRes.json();
-  const { data: workers } = await workersRes.json();
-  const { data: departments } = await departmentsRes.json();
   const onVacationToday = getWorkersOnVacation(vacations);
   const returningToday = getTodayReturns(vacations);
   const upcomingLeaves = getUpcomingLeaves(vacations);

@@ -1,5 +1,6 @@
 import type { Worker } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
+import { fetchPaginatedByPage } from "../utils";
 
 const WorkerList = async ({
   searchParams,
@@ -7,12 +8,10 @@ const WorkerList = async ({
   searchParams: Promise<{ page: number }>;
 }) => {
   const { page } = await searchParams;
-  const fetchWorkers = async () => {
-    "use server";
-    return fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker?page=${page ?? 1}`);
-  };
-  const res = await fetchWorkers();
-  const paginatedResponse = await res.json();
+  const paginatedResponse = await fetchPaginatedByPage<Worker>({
+    type: "worker",
+    params: { page: page ?? 1 },
+  });
 
   return (
     <ResponsiveListPage<Worker>

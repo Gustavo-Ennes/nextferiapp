@@ -1,6 +1,8 @@
 import { Container } from "@mui/material";
 import { BossForm } from "../components/BossForm";
 import { TitleTypography } from "../../components/TitleTypography";
+import { fetchAllPaginated, fetchOne } from "../../utils";
+import { type Boss, type Worker } from "@/app/types";
 
 export default async function BossFormPage({
   searchParams,
@@ -8,12 +10,9 @@ export default async function BossFormPage({
   searchParams: Promise<{ id: string; type: string }>;
 }) {
   const { id } = await searchParams;
-  const { data: boss } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/boss/${id}`)
-  ).json();
-  const { data: workers } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker`)
-  ).json();
+
+  const boss = await fetchOne<Boss>({ type: "boss", id });
+  const workers = await fetchAllPaginated<Worker>({ type: "worker" });
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>

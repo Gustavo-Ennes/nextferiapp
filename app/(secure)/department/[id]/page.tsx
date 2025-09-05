@@ -1,5 +1,6 @@
+import { fetchAllPaginated, fetchOne } from "../../utils";
 import { DepartmentDetail } from "../components/DepartmentDetail";
-import type { Worker } from "@/app/types";
+import type { Department, Worker } from "@/app/types";
 
 export default async function DepartmentViewPage({
   params,
@@ -7,12 +8,8 @@ export default async function DepartmentViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { data: department } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/department/${id}`)
-  ).json();
-  const { data: workers } = await (
-    await fetch(`${process.env.NEXT_PUBLIC_URL}/api/worker`)
-  ).json();
+  const department = await fetchOne<Department>({ type: "department", id });
+  const workers = await fetchAllPaginated<Worker>({ type: "worker" });
 
   const workerQuantity = workers.filter(
     ({ department: workerDepartment }: Worker) =>
