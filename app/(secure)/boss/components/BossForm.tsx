@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { BossValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
+import { capitalizeName } from "@/app/utils";
 
 export function BossForm({ defaultValues, workers }: BossProps) {
   const router = useRouter();
@@ -95,7 +96,7 @@ export function BossForm({ defaultValues, workers }: BossProps) {
                   </MenuItem>
                   {workers.map((worker) => (
                     <MenuItem key={worker._id} value={worker._id}>
-                      {worker.name}
+                      {capitalizeName(worker.name)}
                     </MenuItem>
                   ))}
                 </Select>

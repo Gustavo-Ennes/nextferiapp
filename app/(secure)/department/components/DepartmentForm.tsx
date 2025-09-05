@@ -18,6 +18,7 @@ import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { DepartmentValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
+import { capitalizeName } from "@/app/utils";
 
 export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   const router = useRouter();
@@ -117,7 +118,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
                 </MenuItem>
                 {bosses?.map((boss) => (
                   <MenuItem key={boss._id} value={boss._id}>
-                    {boss.worker?.name}
+                    {capitalizeName(boss.worker?.name)}
                   </MenuItem>
                 ))}
               </Select>
