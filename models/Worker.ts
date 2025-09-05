@@ -33,7 +33,7 @@ export const WorkerSchema = new Schema<Worker>(
     matriculation: {
       type: String,
       required: [true, "Please provide the worker matriculation."],
-      maxlength: [6, "matriculation cannot be more than 6 characters"],
+      maxlength: [7, "matriculation cannot be more than 7 characters"],
       minlength: [4, "matriculation cannot be less than 4 characters"],
     },
     admissionDate: {

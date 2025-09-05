@@ -35,11 +35,11 @@ export const CardsGrid = ({
   return (
     <Grid container spacing={2}>
       {sortedCarEntries?.map((car, idx) => (
-        <Tooltip
-          title={`Clique para editar o #${car.prefix}`}
-          sx={{ cursor: "pointer" }}
-        >
-          <Grid size={{ sm: 12, md: 6 }} key={idx} onClick={() => onEdit(car)}>
+        <Grid size={{ sm: 12, md: 6 }} key={idx} onClick={() => onEdit(car)}>
+          <Tooltip
+            title={`Clique para editar o #${car.prefix}`}
+            sx={{ cursor: "pointer" }}
+          >
             <GridCard car={car} selectedCar={selectedCar}>
               <IconButton
                 size="small"
@@ -90,8 +90,8 @@ export const CardsGrid = ({
                 ))}
               </CardContent>
             </GridCard>
-          </Grid>
-        </Tooltip>
+          </Tooltip>
+        </Grid>
       ))}
     </Grid>
   );

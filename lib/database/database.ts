@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import "@/models";
+// import { afterInit } from "@/script/afterInit";
 
 declare global {
   var mongoose: any; // This must be a `var` and not a `let / const`
@@ -38,6 +39,8 @@ async function dbConnect() {
     throw e;
   }
 
+
+  // await afterInit()
   return cached.conn;
 }
 

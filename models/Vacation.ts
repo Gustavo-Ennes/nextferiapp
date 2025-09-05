@@ -21,7 +21,7 @@ export interface Vacation extends Document {
 
 export interface OldVacation {
   _id: string;
-  dausQtd: number;
+  daysQtd: number;
   startDate: Date;
   worker: string;
   type: VacationType | "vacation";
