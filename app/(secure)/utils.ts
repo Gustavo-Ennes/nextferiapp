@@ -76,3 +76,6 @@ const concatSearchParams = ({
   }
   return baseUrl;
 };
+
+export const limitText = (text: string): string =>
+  text.length < 25 ? text : `${text.slice(0, 22)}...`;

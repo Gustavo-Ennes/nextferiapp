@@ -1,4 +1,9 @@
-import { Box, styled, TableRow } from "@mui/material";
+import {
+  Box,
+  ListItemIcon as ListItemIconMui,
+  styled,
+  TableRow,
+} from "@mui/material";
 
 export const Overlay = styled("div")(({ theme }) => ({
   height: "85vh",
@@ -38,4 +43,11 @@ export const PdfPreviewBox = styled(Box, {
   oveflow: "hidden",
   boxShadow: "3",
   transition: "width 0.3s ease",
+}));
+
+export const BlueItemIcon = styled(ListItemIconMui, {
+  shouldForwardProp: (prop) => prop !== "isSubItem",
+})<{ isSubItem?: boolean }>(({ isSubItem = false }) => ({
+  color: "#526891ff",
+  fontSize: isSubItem ? "10px" : "15px",
 }));

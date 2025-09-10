@@ -95,6 +95,7 @@ const ResponsiveListPage = <T extends Entity>({
           gutterBottom
           mb={4}
           textAlign={isMobile ? "center" : "left"}
+          color="primary"
         >
           {pageTitle ?? titleFromRoutePrefix}{" "}
         </Typography>

@@ -2,9 +2,9 @@ import { signOut } from "@/auth";
 import {
   List,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
   Divider,
+  ListItemIcon,
 } from "@mui/material";
 import { navList } from "../navList";
 import { DrawerContent } from "../styled";
@@ -14,6 +14,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import type { ListItemMenuItem } from "./types";
+import { BlueItemIcon } from "./styled";
 
 export const Drawer = () => {
   const router = useRouter();
@@ -54,7 +55,7 @@ export const Drawer = () => {
               sx={{ my: 1 }}
               onClick={() => listClickAction(href)}
             >
-              <ListItemIcon>{icon}</ListItemIcon>
+              <BlueItemIcon>{icon}</BlueItemIcon>
               <ListItemText primary={label} />
             </ListItemButton>
           ) : (
@@ -68,9 +69,9 @@ export const Drawer = () => {
           sx={{ my: 1 }}
           onClick={() => router.push("/materialRequisition")}
         >
-          <ListItemIcon>
+          <BlueItemIcon>
             <Receipt />
-          </ListItemIcon>
+          </BlueItemIcon>
           <ListItemText primary={"Req. de materiais"} />
         </ListItemButton>
         <Divider />
@@ -80,9 +81,9 @@ export const Drawer = () => {
           sx={{ my: 1 }}
           onClick={() => setPdf({ items: [{ type: "vehicleUsage" }] })}
         >
-          <ListItemIcon>
+          <BlueItemIcon>
             <PictureAsPdf />
-          </ListItemIcon>
+          </BlueItemIcon>
           <ListItemText primary={"Rel. uso veículo"} />
         </ListItemButton>
 
@@ -90,7 +91,7 @@ export const Drawer = () => {
 
         <ListItemButton onClick={() => signOut({ redirectTo: "/login" })}>
           <ListItemIcon>
-            <Logout />
+            <Logout color="error" />
           </ListItemIcon>
           <ListItemText primary="Sair" />
         </ListItemButton>

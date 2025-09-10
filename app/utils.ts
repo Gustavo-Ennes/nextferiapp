@@ -1,26 +1,30 @@
 import { format, addDays, startOfDay, endOfYesterday, set } from "date-fns";
 import type { Boss, Entity, Vacation, Worker } from "./types";
 import { translateEntityKey } from "./translate";
+import { limitText } from "./(secure)/utils";
 
 export const formatCellContent = <T extends Entity>({
   value,
   isName,
   isDate,
+  capitalize,
 }: {
   value: T[keyof T];
   // when value isn't a obj
   isName?: boolean;
   isDate?: boolean;
+  capitalize?: boolean;
 }) => {
   try {
     if (value === true) return "Sim";
     if (value === false) return "Não";
     // when value is a obj I want to show the entity name(except vacation)
     if ((value as Entity)?._id)
-      return capitalizeName(
-        (value as Worker).name ?? (value as Boss).worker?.name
+      return limitText(
+        capitalizeName((value as Worker).name ?? (value as Boss).worker?.name)
       );
     if (isName && value) return capitalizeName(value as string);
+    if (capitalize && value) return capitalizeFirstLetter(value as string);
     if (isDate) return format(new Date(value as string), "dd/MM/yyyy");
     if (value === undefined || value === null) return "Excluído(a)";
     return String(value);

@@ -1,17 +1,12 @@
 "use client";
 
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import {
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Collapse,
-  List,
-} from "@mui/material";
+import { ListItemButton, ListItemText, Collapse, List } from "@mui/material";
 import { useState } from "react";
 import type { ListItemMenuItem, SubMenuItem } from "./types";
 import { useRouter } from "next/navigation";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
+import { BlueItemIcon } from "./styled";
 
 export const ListItemMenu = ({ props }: { props: ListItemMenuItem }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -28,7 +23,7 @@ export const ListItemMenu = ({ props }: { props: ListItemMenuItem }) => {
   return (
     <>
       <ListItemButton onClick={handleDropdownClick} sx={{ my: 1 }}>
-        <ListItemIcon>{props.icon}</ListItemIcon>
+        <BlueItemIcon>{props.icon}</BlueItemIcon>
         <ListItemText primary={props.label} />
         {isDropdownOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
@@ -41,7 +36,7 @@ export const ListItemMenu = ({ props }: { props: ListItemMenuItem }) => {
               key={`drawer-${props.label}-${prop.itemLabel}`}
               onClick={() => handleItemClick(prop)}
             >
-              <ListItemIcon>{prop.itemIcon}</ListItemIcon>
+              <BlueItemIcon>{prop.itemIcon}</BlueItemIcon>
               <ListItemText
                 primary={prop.itemLabel}
                 slotProps={{

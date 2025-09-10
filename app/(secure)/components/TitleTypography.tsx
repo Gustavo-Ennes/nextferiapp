@@ -13,6 +13,7 @@ export const TitleTypography = ({
     gutterBottom
     mb={4}
     textAlign={isMobile ? "center" : "left"}
+    color='primary'
   >
     {children}
   </Typography>

@@ -57,7 +57,7 @@ export const ListPageDesktop = <T extends Entity>({
 
   const onPageChange = (page: number) =>
     router.push(
-      `/vacation${vacationType ? `/${vacationType}` : ""}?page=${page}`
+      `/vacation${vacationType ? `?type=${vacationType}&` : "?"}page=${page}`
     );
 
   const isDate = (key: string): boolean => {
@@ -74,15 +74,18 @@ export const ListPageDesktop = <T extends Entity>({
   return (
     <Box>
       <TableContainer component={Paper}>
-        <Table>
+        <Table size="small">
           <TableHead>
-            <TableRow>
+            <TableRow sx={{ bgcolor: "#EEF" }}>
               {headers.map((key) => (
                 <TableCell key={key}>
-                  {translateEntityKey({ entity: routePrefix as any, key })}
+                  {translateEntityKey({
+                    entity: routePrefix as any,
+                    key,
+                  }).toUpperCase()}
                 </TableCell>
               ))}
-              <TableCell align="center">Ações</TableCell>
+              <TableCell align="center">AÇÕES</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -99,6 +102,7 @@ export const ListPageDesktop = <T extends Entity>({
                           value: item[key as keyof T],
                           isName: key === "name",
                           isDate: isDate(key),
+                          capitalize: key === "role",
                         })}
                   </TableCell>
                 ))}
@@ -106,10 +110,14 @@ export const ListPageDesktop = <T extends Entity>({
                   <IconButton
                     onClick={(e) => handleEdit(e, item._id)}
                     disabled={vacationType && !(item as Vacation).worker}
+                    sx={{ color: "#8f8c5dff" }}
                   >
                     <EditIcon />
                   </IconButton>
-                  <IconButton onClick={(e) => handleDelete(e, item)}>
+                  <IconButton
+                    onClick={(e) => handleDelete(e, item)}
+                    sx={{ color: "#915252ff" }}
+                  >
                     <DeleteIcon />
                   </IconButton>
                   <IconButton
@@ -117,6 +125,7 @@ export const ListPageDesktop = <T extends Entity>({
                       display:
                         routePrefix === "vacation" ? "inline-block" : "none",
                     }}
+                    sx={{ color: "#526891ff" }}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (vacationType)
