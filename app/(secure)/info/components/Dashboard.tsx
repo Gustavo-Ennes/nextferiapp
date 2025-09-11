@@ -75,7 +75,7 @@ function Dashboard({
           <NumberCard
             label="Servidores"
             quantity={workers.length}
-            icon={<Person />}
+            icon={<Person color="primary" />}
           />
         </Grid>
 
@@ -83,7 +83,7 @@ function Dashboard({
           <NumberCard
             label="Departamentos"
             quantity={departments.length}
-            icon={<Business />}
+            icon={<Business color="primary" />}
           />
         </Grid>
 
@@ -91,7 +91,7 @@ function Dashboard({
           <NumberCard
             label="Folgando hoje"
             quantity={onVacationToday.length}
-            icon={<BusAlert />}
+            icon={<BusAlert color="primary" />}
             details={onVacationTodayDetails}
           />
         </Grid>
@@ -100,7 +100,7 @@ function Dashboard({
           <NumberCard
             label="Retornando hoje"
             quantity={returningToday.length}
-            icon={<DirectionsBus />}
+            icon={<DirectionsBus color="primary" />}
             details={returningTodayDetails}
           />
         </Grid>
@@ -119,7 +119,7 @@ function Dashboard({
         >
           <TextCard
             label="Próximas Saídas"
-            icon={<HourglassTop />}
+            icon={<HourglassTop color="warning" />}
             lines={upcomingLeavesLines}
           />
         </Grid>
@@ -131,7 +131,7 @@ function Dashboard({
         >
           <TextCard
             label="Próximos Retornos"
-            icon={<HourglassBottom />}
+            icon={<HourglassBottom color="success" />}
             lines={upcomingReturnsLines}
           />
         </Grid>

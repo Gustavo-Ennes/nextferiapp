@@ -1,6 +1,7 @@
 import { Box, Collapse, Paper, Typography } from "@mui/material";
 import type { CardParam } from "../types";
 import { useState } from "react";
+import { capitalizeName } from "@/app/utils";
 
 const NumberCard = ({ label, quantity = 0, icon, details }: CardParam) => {
   const [open, setOpen] = useState(false);
@@ -20,7 +21,7 @@ const NumberCard = ({ label, quantity = 0, icon, details }: CardParam) => {
         <Collapse in={open}>
           {details?.map((detail, idx) => (
             <Typography key={idx} variant="body2" sx={{ mt: 1 }}>
-              {detail}
+              {capitalizeName(detail)}
             </Typography>
           ))}
         </Collapse>
