@@ -18,6 +18,7 @@ const drawHalfPage = async ({
   document,
   height,
   vacation,
+  isDayOff = false,
 }: DrawHalfPageParams): Promise<void> => {
   const page = document.getPage(0);
   const paragraph = getParagraph(vacation);
@@ -34,6 +35,9 @@ const drawHalfPage = async ({
     height,
     period: vacationPeriod,
   });
+
+  if (isDayOff) height.stepLines(2);
+
   await createTitle({
     document,
     height,
@@ -41,6 +45,7 @@ const drawHalfPage = async ({
     title: `Requerimento de ${translateVacation(vacation.type)}`,
   });
   height.stepHugeLine();
+  if (isDayOff) height.stepLines(2);
   await createParagraph({
     document,
     font,
@@ -56,6 +61,9 @@ const drawHalfPage = async ({
   ).getDate()} de ${translateMonth(
     new Date(vacation.updatedAt).getMonth()
   )} de ${new Date(vacation.updatedAt).getFullYear()}`;
+
+  if (isDayOff) height.stepLines(2);
+
   await createParagraph({
     document,
     height,
@@ -69,6 +77,9 @@ const drawHalfPage = async ({
   });
 
   height.stepLines(3, "huge");
+
+  if (isDayOff) height.stepLines(3);
+
   await createSign({
     document,
     height,
@@ -92,6 +103,9 @@ const drawHalfPage = async ({
     role: bossRole,
     worker: bossWorker,
   } = vacation.boss ?? (await getBoss(vacation)) ?? "Chefe excluído";
+
+  if (isDayOff) height.stepLines(2);
+
   await createSign({
     document,
     height,
@@ -106,19 +120,23 @@ const render = async ({ document, instance }: RenderParam): Promise<void> => {
     const page = document.addPage();
     const height = getHeightObject(page);
     const vacation = instance as Vacation;
+    const isDayOff = vacation.type === "dayOff";
+
+    if (!isDayOff) {
+      await drawHalfPage({
+        document,
+        height,
+        vacation,
+      });
+
+      height.stepLines(4, "huge");
+    }
 
     await drawHalfPage({
       document,
       height,
       vacation,
-    });
-
-    height.stepLines(4, "huge");
-
-    await drawHalfPage({
-      document,
-      height,
-      vacation,
+      isDayOff,
     });
   }
 };

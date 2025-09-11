@@ -82,6 +82,7 @@ type DrawHalfPageParams = {
   height: Height;
   document: PDFDocument;
   vacation: Vacation;
+  isDayOff?: boolean;
 };
 
 type TableParams = {

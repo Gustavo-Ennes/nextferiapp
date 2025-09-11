@@ -210,7 +210,7 @@ const drawTopRightText = ({
   fontSize?: number;
   offset?: number;
 }) => {
-  const page = document.getPage(document.getPageCount() - 1);
+  const page = document.getPage(document.getPageCount() - 1); 
   page.drawText(text, {
     size: fontSize,
     x: page.getWidth() - 100 - offset,
