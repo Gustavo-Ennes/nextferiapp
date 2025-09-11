@@ -18,7 +18,7 @@ const ResponsiveAppBar = ({
   user?: User;
 }) => (
   <AppBar position="fixed">
-    <Container maxWidth="xl">
+    <Container maxWidth={false}>
       <Toolbar disableGutters>
         <IconButton
           color="inherit"
@@ -36,7 +36,9 @@ const ResponsiveAppBar = ({
         <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }} />
         <Box sx={{ flexGrow: 0 }}>
           {user && (
-            <Tooltip title={user.name}><Avatar alt={user.name as string} src={user.image as string} /></Tooltip>
+            <Tooltip title={user.name}>
+              <Avatar alt={user.name as string} src={user.image as string} />
+            </Tooltip>
           )}
         </Box>
       </Toolbar>

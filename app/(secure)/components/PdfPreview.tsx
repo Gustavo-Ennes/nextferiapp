@@ -104,12 +104,17 @@ export const PdfPreview = ({
         {open && (
           <Box height="100%">
             {url && (
-              <Box mt={1} height="100%" overflow="scroll">
+              // less then 8: pdf toolbar goes behind appbar
+              <Box pt={8} height="100%" overflow="scroll">
                 <iframe
                   src={url}
-                  width="100%"
-                  height="100%"
-                  style={{ border: "none", zIndex: 1000 }}
+                  content="application/pdf"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    border: "none",
+                    zIndex: 1000,
+                  }}
                 />
               </Box>
             )}
