@@ -3,7 +3,7 @@
 import { Box, Button, Container } from "@mui/material";
 import { redirect } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-import { TitleTypography } from "./components/TitleTypography";
+import { TitleTypography } from "../(secure)/components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
 
 const LoginPage = () => {
