@@ -1,8 +1,12 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import BossModel from "@/models/Boss";
 import type { Boss } from "@/app/types";
-import type { PaginatedResponse } from "../types";
+import { optionsResponse, responseWithHeaders } from "../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -27,7 +31,7 @@ export async function GET(req: NextRequest) {
     ]);
     const totalPages = Math.ceil(totalItems / limit);
 
-    return NextResponse.json<PaginatedResponse<Boss>>({
+    return responseWithHeaders<Boss>({
       data,
       currentPage: page,
       totalItems,
@@ -37,7 +41,7 @@ export async function GET(req: NextRequest) {
       hasPrevPage: page > 1,
     });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Boss>({ error: (error as Error).message });
   }
 }
 
@@ -48,8 +52,8 @@ export async function POST(req: NextRequest) {
   try {
     const boss = await BossModel.create(body);
 
-    return NextResponse.json({ data: boss });
+    return responseWithHeaders({ data: boss });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders({ error: (error as Error).message });
   }
 }

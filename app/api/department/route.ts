@@ -1,8 +1,12 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import DepartmentModel from "@/models/Department";
 import type { Department } from "@/app/types";
-import type { PaginatedResponse } from "../types";
+import { optionsResponse, responseWithHeaders } from "../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -32,7 +36,7 @@ export async function GET(req: NextRequest) {
     ]);
     const totalPages = Math.ceil(totalItems / limit);
 
-    return NextResponse.json<PaginatedResponse<Department>>({
+    return responseWithHeaders<Department>({
       data,
       currentPage: page,
       totalItems,
@@ -42,7 +46,7 @@ export async function GET(req: NextRequest) {
       hasPrevPage: page > 1,
     });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }
 
@@ -53,8 +57,8 @@ export async function POST(req: NextRequest) {
   try {
     const department = await DepartmentModel.create(body);
 
-    return NextResponse.json({ data: department });
+    return responseWithHeaders<Department>({ data: department });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }

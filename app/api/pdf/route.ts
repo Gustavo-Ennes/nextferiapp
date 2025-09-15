@@ -10,7 +10,11 @@ import {
   cancellationRender,
 } from "@/lib/pdf";
 import Vacation from "@/models/Vacation";
-import { buildOptions } from "../utils";
+import { buildOptions, headers, optionsResponse } from "../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function POST(req: NextRequest) {
   await dbConnect();
@@ -30,6 +34,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(buffer, {
       status: 200,
       headers: {
+        ...headers,
         "Content-Type": "application/pdf",
         "Content-Disposition": 'inline; filename="generated.pdf"',
       },

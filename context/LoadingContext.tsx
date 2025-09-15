@@ -1,8 +1,7 @@
 "use client";
 
-import { Backdrop } from "@mui/material";
+import { Loader } from "@/app/(secure)/components/Loader";
 import { createContext, useCallback, useContext, useState } from "react";
-import "./loading.css";
 
 const LoadingContext = createContext<{
   setLoading: (isLoading: boolean) => void;
@@ -30,17 +29,7 @@ export const LoadingProvider = ({
   return (
     <LoadingContext.Provider value={{ setLoading, isLoading }}>
       {children}
-      <Backdrop
-        sx={(theme) => ({
-          color: "#fff",
-          zIndex: theme.zIndex.drawer + 1,
-          backgroundColor: "rgba(25, 44, 160, 0.4)",
-        })}
-        open={isLoading}
-        onClick={() => undefined}
-      >
-        <div className="loader"></div>
-      </Backdrop>
+      <Loader isLoading={isLoading} />
     </LoadingContext.Provider>
   );
 };

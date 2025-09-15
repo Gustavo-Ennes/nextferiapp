@@ -1,4 +1,7 @@
 import type { TabData } from "../(secure)/materialRequisition/types";
+import type { Entity } from "../types";
+
+export type ResponseType<T extends Entity> = Response<T> | PaginatedResponse<T>;
 
 export interface Response<T> {
   data?: T;

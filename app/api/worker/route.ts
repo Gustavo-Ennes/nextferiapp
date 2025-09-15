@@ -1,9 +1,13 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import type { Worker } from "@/app/types";
 import WorkerModel from "@/models/Worker";
 import { revalidatePath } from "next/cache";
-import type { PaginatedResponse } from "../types";
+import { responseWithHeaders, optionsResponse } from "../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -28,7 +32,7 @@ export async function GET(req: NextRequest) {
     ]);
     const totalPages = Math.ceil(totalItems / limit);
 
-    return NextResponse.json<PaginatedResponse<Worker>>({
+    return responseWithHeaders<Worker>({
       data,
       currentPage: page,
       totalItems,
@@ -38,7 +42,7 @@ export async function GET(req: NextRequest) {
       hasPrevPage: page > 1,
     });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Worker>({ error: (error as Error).message });
   }
 }
 
@@ -50,9 +54,9 @@ export async function POST(req: NextRequest) {
     const worker = await WorkerModel.create(body);
 
     revalidatePath("/worker");
-    return NextResponse.json({ data: worker });
+    return responseWithHeaders<Worker>({ data: worker });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Worker>({ error: (error as Error).message });
   }
 }
 

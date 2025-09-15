@@ -1,10 +1,17 @@
-import { NextResponse, NextRequest } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import type { Vacation } from "@/app/types";
 import VacationModel from "@/models/Vacation";
 import { revalidatePath } from "next/cache";
-import type { PaginatedResponse } from "../types";
-import { updateVacationDates } from "../utils";
+import {
+  optionsResponse,
+  responseWithHeaders,
+  updateVacationDates,
+} from "../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -32,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     const totalPages = Math.ceil(totalItems / limit);
 
-    return NextResponse.json<PaginatedResponse<Vacation>>({
+    return responseWithHeaders<Vacation>({
       data,
       currentPage: page,
       totalItems,
@@ -42,7 +49,7 @@ export async function GET(req: NextRequest) {
       hasPrevPage: page > 1,
     });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Vacation>({ error: (error as Error).message });
   }
 }
 
@@ -55,8 +62,8 @@ export async function POST(req: NextRequest) {
     const vacation = await VacationModel.create(bodyWithUpdatedDates);
     revalidatePath("/vacation");
 
-    return NextResponse.json({ data: vacation });
+    return responseWithHeaders<Vacation>({ data: vacation });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Vacation>({ error: (error as Error).message });
   }
 }

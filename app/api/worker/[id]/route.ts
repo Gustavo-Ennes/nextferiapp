@@ -1,7 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import Worker from "@/models/Worker";
+import WorkerModel from "@/models/Worker";
+import type { Worker } from "@/app/types";
 import { revalidatePath } from "next/cache";
+import { optionsResponse, responseWithHeaders } from "../../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -9,14 +15,16 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const worker = await Worker.findOne({ _id: id, isActive: true }).populate(
-      "department"
-    );
-    if (!worker) return NextResponse.json({ error: "Worker not found." });
+    const worker = await WorkerModel.findOne({
+      _id: id,
+      isActive: true,
+    }).populate("department");
+    if (!worker)
+      return responseWithHeaders<Worker>({ error: "Worker not found." });
 
-    return NextResponse.json({ success: true, data: worker });
+    return responseWithHeaders<Worker>({ data: worker });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Worker>({ error: (error as Error).message });
   }
 }
 
@@ -27,13 +35,14 @@ export async function PUT(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const worker = await Worker.findByIdAndUpdate(id, body);
-    if (!worker) return NextResponse.json({ error: "Worker not found." });
+    const worker = await WorkerModel.findByIdAndUpdate(id, body);
+    if (!worker)
+      return responseWithHeaders<Worker>({ error: "Worker not found." });
 
     revalidatePath("/worker");
-    return NextResponse.json({ data: worker });
+    return responseWithHeaders<Worker>({ data: worker });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Worker>({ error: (error as Error).message });
   }
 }
 
@@ -43,12 +52,13 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const worker = await Worker.findByIdAndUpdate(id, { isActive: false });
-    if (!worker) return NextResponse.json({ error: "Worker not found." });
+    const worker = await WorkerModel.findByIdAndUpdate(id, { isActive: false });
+    if (!worker)
+      return responseWithHeaders<Worker>({ error: "Worker not found." });
 
     revalidatePath("/worker");
-    return NextResponse.json({ data: worker });
+    return responseWithHeaders<Worker>({ data: worker });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Worker>({ error: (error as Error).message });
   }
 }

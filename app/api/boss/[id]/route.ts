@@ -1,6 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import Boss from "@/models/Boss";
+import BossModel from "@/models/Boss";
+import { optionsResponse, responseWithHeaders } from "../../utils";
+import type { Boss } from "@/app/types";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -8,14 +14,14 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const boss = await Boss.findOne({ _id: id, isActive: true }).populate(
+    const boss = await BossModel.findOne({ _id: id, isActive: true }).populate(
       "worker"
     );
-    if (!boss) return NextResponse.json({ error: "Boss not found." });
+    if (!boss) return responseWithHeaders<Boss>({ error: "Boss not found." });
 
-    return NextResponse.json({ success: true, data: boss });
+    return responseWithHeaders<Boss>({ data: boss });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Boss>({ error: (error as Error).message });
   }
 }
 
@@ -26,12 +32,12 @@ export async function PUT(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const boss = await Boss.findByIdAndUpdate(id, body);
-    if (!boss) return NextResponse.json({ error: "Boss not found." });
+    const boss = await BossModel.findByIdAndUpdate(id, body);
+    if (!boss) return responseWithHeaders<Boss>({ error: "Boss not found." });
 
-    return NextResponse.json({ data: boss });
+    return responseWithHeaders<Boss>({ data: boss });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Boss>({ error: (error as Error).message });
   }
 }
 
@@ -41,11 +47,11 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const boss = await Boss.findByIdAndUpdate(id, { isActive: false });
-    if (!boss) return NextResponse.json({ error: "Boss not found." });
+    const boss = await BossModel.findByIdAndUpdate(id, { isActive: false });
+    if (!boss) return responseWithHeaders<Boss>({ error: "Boss not found." });
 
-    return NextResponse.json({ data: boss });
+    return responseWithHeaders<Boss>({ data: boss });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Boss>({ error: (error as Error).message });
   }
 }

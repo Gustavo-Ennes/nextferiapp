@@ -8,10 +8,29 @@ import {
 import { mergeAll } from "ramda";
 
 import type {
+  Response,
+  ResponseType,
   VacationsQueryOptionsInterface,
   VacationsResolverArgsInterface,
 } from "./types";
-import type { Vacation } from "../types";
+import type { Boss, Entity, Vacation } from "../types";
+import { NextResponse } from "next/server";
+
+export const headers = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Allow-Credentials": "true",
+};
+
+export const responseWithHeaders = <T extends Entity>(data: ResponseType<T>) =>
+  NextResponse.json(data, {
+    headers,
+    status: (data as Response<Boss>).error ? 400 : 200,
+  });
+
+export const optionsResponse = () =>
+  new NextResponse(null, { status: 200, headers });
 
 const buildOptions = ({
   deferred,

@@ -1,6 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import Department from "@/models/Department";
+import DepartmentModel from "@/models/Department";
+import type { Department } from "@/app/types";
+import { optionsResponse, responseWithHeaders } from "../../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -8,7 +14,7 @@ export async function GET(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const department = await Department.findOne({
+    const department = await DepartmentModel.findOne({
       _id: id,
       isActive: true,
     }).populate({
@@ -19,11 +25,13 @@ export async function GET(req: NextRequest) {
     });
 
     if (!department)
-      return NextResponse.json({ error: "Department not found." });
+      return responseWithHeaders<Department>({
+        error: "Department not found.",
+      });
 
-    return NextResponse.json({ success: true, data: department });
+    return responseWithHeaders<Department>({ data: department });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }
 
@@ -34,13 +42,15 @@ export async function PUT(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const department = await Department.findByIdAndUpdate(id, body);
+    const department = await DepartmentModel.findByIdAndUpdate(id, body);
     if (!department)
-      return NextResponse.json({ error: "Department not found." });
+      return responseWithHeaders<Department>({
+        error: "Department not found.",
+      });
 
-    return NextResponse.json({ data: department });
+    return responseWithHeaders<Department>({ data: department });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }
 
@@ -50,14 +60,16 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const department = await Department.findByIdAndUpdate(id, {
+    const department = await DepartmentModel.findByIdAndUpdate(id, {
       isActive: false,
     });
     if (!department)
-      return NextResponse.json({ error: "Department not found." });
+      return responseWithHeaders<Department>({
+        error: "Department not found.",
+      });
 
-    return NextResponse.json({ data: department });
+    return responseWithHeaders<Department>({ data: department });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }

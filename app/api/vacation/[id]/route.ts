@@ -1,18 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import Vacation from "@/models/Vacation";
+import VacationModel from "@/models/Vacation";
+import type { Vacation } from "@/app/types";
 import { revalidatePath } from "next/cache";
-import { updateVacationDates } from "../../utils";
+import {
+  optionsResponse,
+  responseWithHeaders,
+  updateVacationDates,
+} from "../../utils";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
   const { url } = req;
-  const id = url?.split("/").pop()?.split('?')[0];
+  const id = url?.split("/").pop()?.split("?")[0];
   const searchParams = req.nextUrl.searchParams;
   const cancelled = Boolean(searchParams.get("cancelled")) ?? false;
 
   try {
-    const vacation = await Vacation.findOne({
+    const vacation = await VacationModel.findOne({
       _id: id,
       ...(!cancelled && {
         $or: [{ cancelled: false }, { cancelled: undefined }],
@@ -21,11 +30,12 @@ export async function GET(req: NextRequest) {
       .populate("worker")
       .populate("boss");
 
-    if (!vacation) return NextResponse.json({ error: "Vacation not found." });
+    if (!vacation)
+      return responseWithHeaders<Vacation>({ error: "Vacation not found." });
 
-    return NextResponse.json({ success: true, data: vacation });
+    return responseWithHeaders<Vacation>({ data: vacation });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Vacation>({ error: (error as Error).message });
   }
 }
 
@@ -40,13 +50,17 @@ export async function PUT(req: NextRequest) {
 
   try {
     const bodyWithUpdatedDates = updateVacationDates(body);
-    const vacation = await Vacation.findByIdAndUpdate(id, bodyWithUpdatedDates);
+    const vacation = await VacationModel.findByIdAndUpdate(
+      id,
+      bodyWithUpdatedDates
+    );
 
-    if (!vacation) return NextResponse.json({ error: "Vacation not found." });
+    if (!vacation)
+      return responseWithHeaders<Vacation>({ error: "Vacation not found." });
 
-    return NextResponse.json({ data: vacation });
+    return responseWithHeaders<Vacation>({ data: vacation });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Vacation>({ error: (error as Error).message });
   }
 }
 
@@ -56,12 +70,15 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const vacation = await Vacation.findByIdAndUpdate(id, { cancelled: true });
+    const vacation = await VacationModel.findByIdAndUpdate(id, {
+      cancelled: true,
+    });
 
-    if (!vacation) return NextResponse.json({ error: "Vacation not found." });
+    if (!vacation)
+      return responseWithHeaders<Vacation>({ error: "Vacation not found." });
 
-    return NextResponse.json({ data: vacation });
+    return responseWithHeaders<Vacation>({ data: vacation });
   } catch (error) {
-    return NextResponse.json({ error });
+    return responseWithHeaders<Vacation>({ error: (error as Error).message });
   }
 }
