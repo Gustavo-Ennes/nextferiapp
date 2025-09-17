@@ -2,6 +2,8 @@ import { Grid, TextField, Button } from "@mui/material";
 import type { SetStateAction } from "react";
 import { FuelingFormList } from "./FuelingFormList";
 import type { FuelingData } from "../types";
+import { DatePicker } from "@mui/x-date-pickers";
+import { startOfDay } from "date-fns";
 
 export const TabFormFuelings = ({
   date,
@@ -26,12 +28,15 @@ export const TabFormFuelings = ({
 }) => (
   <Grid container spacing={2} sx={{ height: "100%" }}>
     <Grid size={4}>
-      <TextField
-        size="small"
-        fullWidth
-        type="date"
-        value={date.toISOString().split("T")[0]}
-        onChange={(e) => setDate(new Date(e.target.value))}
+      <DatePicker
+        value={date}
+        onChange={(e) => (e ? setDate(startOfDay(e)) : undefined)}
+        sx={{ width: 1 }}
+        label="Data"
+        format="dd/MM/yyyy"
+        slotProps={{
+          textField: { size: "small" },
+        }}
       />
     </Grid>
     <Grid size={3}>
