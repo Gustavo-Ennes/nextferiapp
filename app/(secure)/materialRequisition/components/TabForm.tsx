@@ -44,7 +44,6 @@ export const TabForm = ({
       ]);
       setDate(new Date());
       setQuantity(0);
-      setFuel("gas");
     }
   };
 
