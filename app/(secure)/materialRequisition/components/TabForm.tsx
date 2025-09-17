@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, Box, Grid, Divider } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { CarEntry, FuelingData, FuelType } from "../types";
 import { TabFormInfo } from "./TabFormInfo";
 import { TabFormFuelings } from "./TabFormFuelings";
@@ -24,6 +24,7 @@ export const TabForm = ({
   const [fuelings, setFuelings] = useState<FuelingData[]>(
     selectedCarEntry?.fuelings ?? []
   );
+  const vechicleEquipInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setVehicle(selectedCarEntry?.vehicle ?? "");
@@ -58,6 +59,7 @@ export const TabForm = ({
       setPrefix(0);
       setFuelings([]);
       setFuel("gas");
+      vechicleEquipInputRef?.current?.focus();
     }
   };
 
@@ -86,6 +88,7 @@ export const TabForm = ({
           setFuel={setFuel}
           setPrefix={setPrefix}
           setVehicle={setVehicle}
+          vechicleEquipInputRef={vechicleEquipInputRef}
         />
       </Grid>
       <Grid size={12} component={Divider} />

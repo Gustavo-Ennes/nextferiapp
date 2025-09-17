@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { fuelList } from "../utils";
 import type { FuelType } from "../types";
-import type { SetStateAction } from "react";
+import type { SetStateAction, RefObject } from "react";
 
 export const TabFormInfo = ({
   vehicle,
@@ -18,6 +18,7 @@ export const TabFormInfo = ({
   setVehicle,
   setPrefix,
   setFuel,
+  vechicleEquipInputRef,
 }: {
   vehicle: string;
   prefix: number;
@@ -25,6 +26,7 @@ export const TabFormInfo = ({
   setVehicle: (value: SetStateAction<string>) => void;
   setPrefix: (value: SetStateAction<number>) => void;
   setFuel: (value: SetStateAction<FuelType>) => void;
+  vechicleEquipInputRef: RefObject<HTMLInputElement | null>;
 }) => {
   return (
     <Grid container spacing={2}>
@@ -34,6 +36,8 @@ export const TabFormInfo = ({
           label="Veículo/Equip."
           value={vehicle}
           onChange={(e) => setVehicle(e.target.value)}
+          inputRef={vechicleEquipInputRef}
+          autoFocus
           fullWidth
         />
       </Grid>
