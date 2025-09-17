@@ -1,5 +1,6 @@
 import { fuelList } from "./utils";
 import type { FuelingData, TabData } from "./types";
+import { getDaysInMonth, set } from "date-fns";
 
 const MIN_TABS = 1;
 const MAX_TABS = 5;
@@ -11,17 +12,19 @@ const MAX_PER_FUELING = 249;
 const MIN_KM = 1000;
 const MAX_KM = 950000;
 
-const getRamdomBool = () => Math.random() * 2 > 1;
+const getRamdomBool = () => Math.random() * 4 > 1;
 
-function randomDateInJuly(index: number): Date {
-  const day = 1 + ((index * 3) % 28);
-  return new Date(`2025-07-${String(day).padStart(2, "0")}T08:00:00`);
+function randomDateInJuly(): Date {
+  const date = Math.floor(
+    1 + Math.random() * getDaysInMonth(new Date().toISOString())
+  );
+  return set(new Date(), { date });
 }
 
 function generateFuelingData(count: number): FuelingData[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    date: randomDateInJuly(i + 1),
+    date: randomDateInJuly(),
     quantity: MIN_FUELINGS + Math.random() * MAX_PER_FUELING,
     ...(getRamdomBool() && {
       kmHr: Math.round(MIN_KM + Math.random() * MAX_KM),

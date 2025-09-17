@@ -1,6 +1,6 @@
-import { format } from "date-fns";
+import { format, isSameDay, toDate } from "date-fns";
 import type { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
-// import { mockedTabsData } from "./mock";
+import { mockedTabsData } from "./mock";
 
 export const setLocalStorageData = ({
   data,
@@ -15,22 +15,30 @@ export const setLocalStorageData = ({
 
 export const getLocalStorageData = async (): Promise<LocalStorageData> => {
   const rawData = localStorage.getItem("pfdDataUpdate") as string;
-  const emptyData: LocalStorageData = {
-    activeTab: 1,
-    data: [],
-    pdfData: { items: [], opened: false },
-  };
-  const data: LocalStorageData = rawData
-    ? await JSON.parse(rawData)
-    : emptyData;
-  return data;
+  // const emptyData: LocalStorageData = {
+  //   activeTab: 1,
+  //   data: [],
+  //   pdfData: { items: [], opened: false },
+  // };
+  // const data: LocalStorageData = rawData
+  //   ? await JSON.parse(rawData)
+  //   : emptyData;
+  // return data;
 
   // USE TO GENERATE RANDOM DATA(config in mock.ts)
-  // const data = mockedTabsData();
-  // return {
-  //   data,
-  //   activeTab: Math.floor(Math.random() * data.length),
-  // };
+  const mockedData = mockedTabsData();
+  const localData = rawData
+    ? await JSON.parse(rawData)
+    : {
+        data: mockedData,
+        activeTab: Math.floor(Math.random() * mockedData.length),
+        pdfData: {
+          items: [{ data: mockedData, type: "materialRequisition" }],
+          opened: false,
+        },
+      };
+
+  return localData;
 };
 
 export const a11yProps = (index: number) => ({
@@ -47,3 +55,13 @@ export const removeAllCarEntries = (tabData: TabData): TabData => ({
   ...tabData,
   carEntries: [],
 });
+
+export const sortCarFuelings = (fuelings: FuelingData[]): FuelingData[] =>
+  fuelings.sort((a, b) =>
+    // in case fuelings in the same day
+    isSameDay(a.date, b.date)
+      ? // we consider the kmHr
+        (a.kmHr ?? 0) - (b.kmHr ?? 0)
+      : // or just the date
+        toDate(a.date).getTime() - toDate(b.date).getTime()
+  );

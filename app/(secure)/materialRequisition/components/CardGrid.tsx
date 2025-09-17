@@ -17,6 +17,7 @@ import type { CarEntry, TabData } from "../types";
 import { Close } from "@mui/icons-material";
 import { format } from "date-fns";
 import { GridCard } from "../styled";
+import { sortCarFuelings } from "../utils";
 
 export const CardsGrid = ({
   tabData,
@@ -30,8 +31,9 @@ export const CardsGrid = ({
   selectedCar?: CarEntry;
 }) => {
   const sortedCarEntries = tabData.carEntries?.sort(
-    (a, b) => b.prefix - a.prefix
+    (a, b) => a.prefix - b.prefix
   );
+
   return (
     <Grid container spacing={2}>
       {sortedCarEntries?.map((car, idx) => (
@@ -61,12 +63,11 @@ export const CardsGrid = ({
 
                 <Divider sx={{ my: 1 }} />
 
-                {car.fuelings.map((fueling, i) => (
+                {sortCarFuelings(car.fuelings).map((fueling, i) => (
                   <Grid container key={`fueling-${i}`}>
                     <Grid size={4} m="auto">
                       <Typography gutterBottom fontSize={11}>
-                        #{fueling.id}{" "}
-                        <CalendarMonth sx={{ mr: 1, fontSize: 11 }} />
+                        #{i} <CalendarMonth sx={{ mr: 1, fontSize: 11 }} />
                         {format(fueling.date, "dd/MM/yy")}{" "}
                       </Typography>
                     </Grid>

@@ -1,7 +1,7 @@
 import { Grid, Box, Chip, Badge, Typography } from "@mui/material";
 import type { FuelingData } from "../types";
 import { Close, LocalGasStation } from "@mui/icons-material";
-import { getLabel } from "../utils";
+import { getLabel, sortCarFuelings } from "../utils";
 
 export const FuelingFormList = ({
   fuelings,
@@ -14,11 +14,11 @@ export const FuelingFormList = ({
     <Box sx={{ overflow: "scroll", maxHeight: "100%" }}>
       {fuelings.length ? (
         <Grid container padding={1} justifyContent="center" alignItems="center">
-          {fuelings.map((fueling, idx) => (
+          {sortCarFuelings(fuelings).map((fueling, idx) => (
             <Grid key={`fueling-${idx}`} size={4}>
               <Chip
                 icon={
-                  <Badge badgeContent={fueling.id.toString()}>
+                  <Badge badgeContent={idx.toString()}>
                     <LocalGasStation sx={{ fontSize: 14, color: "primary" }} />
                   </Badge>
                 }

@@ -11,6 +11,7 @@ import type { MaterialRequisitionDrawBlockParam, RenderParam } from "../types";
 import { getHeightObject } from "../utils";
 import { parseMaterialRequisitionData } from "./utils";
 import { splitEvery } from "ramda";
+import { sortCarFuelings } from "@/app/(secure)/materialRequisition/utils";
 
 const BLOCK_MAX_LINES = 10;
 
@@ -169,7 +170,7 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
           // spliting the fuelings by chuncks of 10(max lines in block, start new at 11)
           const carFuelingsInChunksOfTen = splitEvery(
             BLOCK_MAX_LINES,
-            carEntry.fuelings
+            sortCarFuelings(carEntry.fuelings)
           );
           for (const tenFuelingBlock of carFuelingsInChunksOfTen) {
             if (blockCounter > 0 && blockCounter % 2 === 0) {
