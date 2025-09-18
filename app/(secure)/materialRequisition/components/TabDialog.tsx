@@ -8,7 +8,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { useRef, useState } from "react";
+import { useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 
 export const NewTabDialog = ({
   open,
@@ -22,6 +22,18 @@ export const NewTabDialog = ({
   const [name, setName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const onEntered = () => inputRef?.current?.focus();
+
+  const handleCreate = (
+    e:
+      | KeyboardEvent<HTMLDivElement>
+      | MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onCreate(name.trim());
+    setName("");
+    onClose();
+  };
 
   return (
     <Dialog
@@ -39,6 +51,9 @@ export const NewTabDialog = ({
           onChange={(e) => setName(e.target.value)}
           sx={{ my: 2 }}
           inputRef={inputRef}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleCreate(e);
+          }}
         />
       </DialogContent>
       <DialogActions>
@@ -46,10 +61,7 @@ export const NewTabDialog = ({
         <Button
           disabled={!name.trim()}
           variant="contained"
-          onClick={() => {
-            onCreate(name.trim());
-            setName("");
-          }}
+          onClick={(e) => handleCreate(e)}
         >
           Criar
         </Button>
