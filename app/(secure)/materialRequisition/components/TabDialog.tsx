@@ -8,7 +8,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 export const NewTabDialog = ({
   open,
@@ -20,17 +20,25 @@ export const NewTabDialog = ({
   onCreate: (name: string) => void;
 }) => {
   const [name, setName] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const onEntered = () => inputRef?.current?.focus();
+
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      slotProps={{ transition: { onEntered } }}
+    >
       <DialogTitle>Adicionar departamento</DialogTitle>
       <DialogContent>
         <TextField
-          label="Nome do departamento"
+          label="Nome"
           fullWidth
           value={name}
           size="small"
           onChange={(e) => setName(e.target.value)}
-          sx={{ p: 1 }}
+          sx={{ my: 2 }}
+          inputRef={inputRef}
         />
       </DialogContent>
       <DialogActions>
