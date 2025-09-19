@@ -36,4 +36,5 @@ export interface LocalStorageData {
   data: TabData[];
   activeTab: number;
   pdfData: PdfData;
+  lastPage?: string;
 }

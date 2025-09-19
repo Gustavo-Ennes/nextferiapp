@@ -1,7 +1,13 @@
-import { redirect } from "next/navigation";
+"use client";
 
-async function Page() {
-  return redirect("/info");
+import { useRouter } from "next/navigation";
+import { getLocalStorageData } from "./(secure)/materialRequisition/utils";
+
+function Page() {
+  const router = useRouter();
+  getLocalStorageData().then(({ lastPage }) =>
+    router.push(lastPage ?? "/info")
+  );
 }
 
 export default Page;
