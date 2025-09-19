@@ -5,6 +5,7 @@ import {
   Typography,
   Divider,
   Tooltip,
+  Chip,
 } from "@mui/material";
 import {
   Tag,
@@ -18,6 +19,7 @@ import { Close } from "@mui/icons-material";
 import { format } from "date-fns";
 import { GridCard } from "../styled";
 import { sortCarFuelings } from "../utils";
+import { capitalizeName } from "@/app/utils";
 
 export const CardsGrid = ({
   tabData,
@@ -43,53 +45,83 @@ export const CardsGrid = ({
             sx={{ cursor: "pointer" }}
           >
             <GridCard car={car} selectedCar={selectedCar}>
-              <IconButton
-                size="small"
-                onClick={() => onRemove(car.prefix)}
-                sx={{ position: "absolute", top: 8, right: 8 }}
-              >
-                <Close />
-              </IconButton>
-
-              <CardContent>
-                <Typography variant="body2">
-                  <DirectionsCar sx={{ mr: 1, fontSize: 18 }} />
-                  {car.vehicle}
-                </Typography>
-
-                <Typography variant="body2">
-                  <Tag sx={{ mr: 1, fontSize: 18 }} /> {car.prefix}
-                </Typography>
-
-                <Divider sx={{ my: 1 }} />
-
-                {sortCarFuelings(car.fuelings).map((fueling, i) => (
-                  <Grid container key={`fueling-${i}`}>
-                    <Grid size={4} m="auto">
-                      <Typography gutterBottom fontSize={11}>
-                        #{i} <CalendarMonth sx={{ mr: 1, fontSize: 11 }} />
-                        {format(fueling.date, "dd/MM/yy")}{" "}
-                      </Typography>
-                    </Grid>
-
-                    <Grid size={4} m="auto">
-                      <Typography gutterBottom fontSize={11}>
-                        <LocalGasStation sx={{ ml: 1, fontSize: 11 }} />{" "}
-                        {fueling.quantity.toFixed(3)}
-                      </Typography>
-                    </Grid>
-
-                    <Grid size={4} m="auto">
-                      {fueling.kmHr && (
-                        <Typography gutterBottom fontSize={11}>
-                          <Speed sx={{ ml: 1, fontSize: 11 }} />{" "}
-                          {fueling.kmHr.toFixed(0)}
-                        </Typography>
-                      )}
-                    </Grid>
+              <Grid container>
+                <Grid container size={10}>
+                  <Grid size={8}>
+                    <Typography variant="body2">
+                      <Chip
+                        icon={<DirectionsCar sx={{ mr: 1, fontSize: 18 }} />}
+                        label={capitalizeName(car.vehicle)}
+                        variant="outlined"
+                        color="primary"
+                        size="small"
+                        sx={{ p: 1 }}
+                      />
+                    </Typography>
                   </Grid>
-                ))}
-              </CardContent>
+                  <Grid size={4}>
+                    <Chip
+                      icon={<LocalGasStation sx={{ mr: 1, fontSize: 18 }} />}
+                      label={capitalizeName(car.fuel)}
+                      variant="outlined"
+                      color="secondary"
+                      size="small"
+                      sx={{ p: 1 }}
+                    />
+                  </Grid>
+                  <Grid size={12}>
+                    <Chip
+                      icon={<Tag sx={{ mr: 1, fontSize: 18 }} />}
+                      label={car.prefix}
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      sx={{ p: 1 }}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid size={2}>
+                  <IconButton
+                    size="small"
+                    onClick={() => onRemove(car.prefix)}
+                    sx={{ position: "absolute", top: 8, right: 8 }}
+                  >
+                    <Close />
+                  </IconButton>
+                </Grid>
+                <Grid size={12}>
+                  <CardContent>
+                    <Divider sx={{ mb: 1 }} />
+
+                    {sortCarFuelings(car.fuelings).map((fueling, i) => (
+                      <Grid container key={`fueling-${i}`}>
+                        <Grid size={4} m="auto">
+                          <Typography gutterBottom fontSize={11}>
+                            #{i} <CalendarMonth sx={{ mr: 1, fontSize: 11 }} />
+                            {format(fueling.date, "dd/MM/yy")}{" "}
+                          </Typography>
+                        </Grid>
+
+                        <Grid size={4} m="auto">
+                          <Typography gutterBottom fontSize={11}>
+                            <LocalGasStation sx={{ ml: 1, fontSize: 11 }} />{" "}
+                            {fueling.quantity.toFixed(3)}
+                          </Typography>
+                        </Grid>
+
+                        <Grid size={4} m="auto">
+                          {fueling.kmHr && (
+                            <Typography gutterBottom fontSize={11}>
+                              <Speed sx={{ ml: 1, fontSize: 11 }} />{" "}
+                              {fueling.kmHr.toFixed(0)}
+                            </Typography>
+                          )}
+                        </Grid>
+                      </Grid>
+                    ))}
+                  </CardContent>
+                </Grid>
+              </Grid>
             </GridCard>
           </Tooltip>
         </Grid>

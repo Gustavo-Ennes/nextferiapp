@@ -10,4 +10,5 @@ export const GridCard = styled(Card, {
   maxHeight: "150px",
   scrollBehavior: "smooth",
   overflow: "scroll",
+  padding: 10
 }));
