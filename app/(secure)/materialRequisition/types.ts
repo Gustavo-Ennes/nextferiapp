@@ -38,3 +38,9 @@ export interface LocalStorageData {
   pdfData: PdfData;
   lastPage?: string;
 }
+
+export interface DialogData {
+  message: string;
+  title: string;
+  onConfirm: () => void;
+}

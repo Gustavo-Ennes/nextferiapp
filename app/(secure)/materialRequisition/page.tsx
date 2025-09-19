@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { NewTabDialog } from "./components/TabDialog";
-import type { LocalStorageData, TabData } from "./types";
+import type { DialogData, LocalStorageData, TabData } from "./types";
 import {
   getLocalStorageData,
   removeAllCarEntries,
@@ -23,11 +23,14 @@ import { Close } from "@mui/icons-material";
 import { head, isNil, reject } from "ramda";
 import { TitleTypography } from "../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
+import { ConfirmationDialog } from "../components/ConfirmationDialog";
 
 export default function MaterialRequisitionPage() {
   const [tabsData, setTabsData] = useState<TabData[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [newTabDialog, setNewTabDialog] = useState(false);
+  const [confirmationDialog, setConfirmationDialog] = useState(false);
+  const [dialogData, setDialogData] = useState<DialogData>();
   const [tabCounter, setTabCounter] = useState(0);
   const { setPdf } = usePdfPreview();
 
@@ -101,11 +104,31 @@ export default function MaterialRequisitionPage() {
     onTabsDataChange(tabWithoutCarEntries);
   };
 
+  const openResetDialog = () => {
+    setDialogData({
+      title: "Começar tudo novamente?",
+      message:
+        "Ao confirmar, você apagará todas as abas e seu conteúdo. Quer prosseguir?",
+      onConfirm: () => setTabsData([]),
+    });
+    setConfirmationDialog(true);
+  };
+
+  const openCloseTabDialog = (tabData: TabData) => {
+    setDialogData({
+      title: "Excluir aba?",
+      message:
+        "Ao confirmar, todas os carros e abastecimentos dessa aba serão perdidos. Quer prosseguir?",
+      onConfirm: () => onTabClose(tabData),
+    });
+    setConfirmationDialog(true);
+  };
+
   const TabCloseIcon = ({ tabData }: { tabData: TabData }) => (
     <Tooltip title="Fechar a aba">
       <Close
         sx={{ fontSize: 12, zIndex: 2000 }}
-        onClick={() => onTabClose(tabData)}
+        onClick={() => openCloseTabDialog(tabData)}
       />
     </Tooltip>
   );
@@ -127,11 +150,22 @@ export default function MaterialRequisitionPage() {
       </Grid>
       <Grid size={2}>
         <Button
-          variant="contained"
+          variant="outlined"
+          size="small"
           onClick={() => setNewTabDialog(true)}
-          sx={{ width: 1, padding: 1 }}
+          sx={{ width: 1, padding: 1, m: 1 }}
         >
-          Novo departamento
+          Adicionar
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          color="error"
+          disabled={!tabsData.length}
+          onClick={openResetDialog}
+          sx={{ width: 1, padding: 1, m: 1 }}
+        >
+          Resetar
         </Button>
 
         <Tabs
@@ -173,7 +207,7 @@ export default function MaterialRequisitionPage() {
             </TabPanel>
           ))
         ) : (
-          <Typography>
+          <Typography sx={{ p: 2 }}>
             Adicione uma aba para requisições de um departamento.
           </Typography>
         )}
@@ -184,6 +218,19 @@ export default function MaterialRequisitionPage() {
         onClose={() => setNewTabDialog(false)}
         onCreate={createTab}
       />
+
+      {dialogData && (
+        <ConfirmationDialog
+          message={dialogData.message}
+          onClose={() => setConfirmationDialog(false)}
+          open={confirmationDialog}
+          onConfirm={() => {
+            setConfirmationDialog(false);
+            dialogData.onConfirm();
+          }}
+          title={dialogData.title}
+        />
+      )}
     </Grid>
   );
 }
