@@ -58,6 +58,7 @@ export const TabForm = ({
       setPrefix(0);
       setFuelings([]);
       setFuel("gas");
+      setKmHr(undefined);
       vechicleEquipInputRef?.current?.focus();
     }
   };
