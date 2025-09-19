@@ -117,7 +117,11 @@ export const TabForm = ({
           variant="contained"
           onClick={handleSubmit}
           disabled={
-            !vehicle || !prefix || !isSelectedCarEditing() || prefixExists
+            !vehicle ||
+            !prefix ||
+            !isSelectedCarEditing() ||
+            prefixExists ||
+            !fuelings.length
           }
         >
           {buttonLabel}
