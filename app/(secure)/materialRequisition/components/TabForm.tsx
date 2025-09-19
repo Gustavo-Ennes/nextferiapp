@@ -2,16 +2,19 @@
 
 import { Button, Box, Grid, Divider } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
-import type { CarEntry, FuelingData, FuelType } from "../types";
+import type { CarEntry, FuelingData, FuelType, TabData } from "../types";
 import { TabFormInfo } from "./TabFormInfo";
 import { TabFormFuelings } from "./TabFormFuelings";
+import { prefixExistsInTabData } from "../utils";
 
 export const TabForm = ({
   onSubmit,
   selectedCarEntry,
+  tabData,
 }: {
   onSubmit: (car: CarEntry) => void;
   selectedCarEntry?: CarEntry;
+  tabData: TabData;
 }) => {
   const [vehicle, setVehicle] = useState(selectedCarEntry?.vehicle ?? "");
   const [prefix, setPrefix] = useState(selectedCarEntry?.prefix ?? 0);
@@ -78,6 +81,8 @@ export const TabForm = ({
     );
   };
 
+  const prefixExists = prefixExistsInTabData({ prefix, tabData });
+
   return (
     <Grid container component={Box} spacing={2} alignContent="start">
       <Grid size={12}>
@@ -89,6 +94,7 @@ export const TabForm = ({
           setPrefix={setPrefix}
           setVehicle={setVehicle}
           vechicleEquipInputRef={vechicleEquipInputRef}
+          prefixExists={prefixExists}
         />
       </Grid>
       <Grid size={12} component={Divider} />
@@ -110,7 +116,9 @@ export const TabForm = ({
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={!vehicle || !prefix || !isSelectedCarEditing()}
+          disabled={
+            !vehicle || !prefix || !isSelectedCarEditing() || prefixExists
+          }
         >
           {buttonLabel}
         </Button>

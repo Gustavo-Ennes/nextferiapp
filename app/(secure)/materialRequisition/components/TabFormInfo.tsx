@@ -19,6 +19,7 @@ export const TabFormInfo = ({
   setPrefix,
   setFuel,
   vechicleEquipInputRef,
+  prefixExists,
 }: {
   vehicle: string;
   prefix: number;
@@ -27,6 +28,7 @@ export const TabFormInfo = ({
   setPrefix: (value: SetStateAction<number>) => void;
   setFuel: (value: SetStateAction<FuelType>) => void;
   vechicleEquipInputRef: RefObject<HTMLInputElement | null>;
+  prefixExists: boolean;
 }) => {
   return (
     <Grid container spacing={2}>
@@ -50,6 +52,8 @@ export const TabFormInfo = ({
           type="number"
           onChange={(e) => setPrefix(parseInt(e.target.value))}
           fullWidth
+          helperText={prefixExists ? `Prefixo ${prefix} já foi criado.` : ""}
+          error={prefixExists}
         />
       </Grid>
 

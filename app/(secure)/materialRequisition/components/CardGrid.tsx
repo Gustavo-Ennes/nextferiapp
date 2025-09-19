@@ -48,16 +48,14 @@ export const CardsGrid = ({
               <Grid container>
                 <Grid container size={10}>
                   <Grid size={8}>
-                    <Typography variant="body2">
-                      <Chip
-                        icon={<DirectionsCar sx={{ mr: 1, fontSize: 18 }} />}
-                        label={capitalizeName(car.vehicle)}
-                        variant="outlined"
-                        color="primary"
-                        size="small"
-                        sx={{ p: 1 }}
-                      />
-                    </Typography>
+                    <Chip
+                      icon={<DirectionsCar sx={{ mr: 1, fontSize: 18 }} />}
+                      label={capitalizeName(car.vehicle)}
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      sx={{ p: 1 }}
+                    />
                   </Grid>
                   <Grid size={4}>
                     <Chip

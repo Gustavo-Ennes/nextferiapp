@@ -1,6 +1,7 @@
 import { format, isSameDay, toDate } from "date-fns";
 import type { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
 import { mockedTabsData } from "./mock";
+import { pluck } from "ramda";
 
 export const setLocalStorageData = ({
   data,
@@ -65,3 +66,15 @@ export const sortCarFuelings = (fuelings: FuelingData[]): FuelingData[] =>
       : // or just the date
         toDate(a.date).getTime() - toDate(b.date).getTime()
   );
+
+export const prefixExistsInTabData = ({
+  prefix,
+  tabData: { carEntries },
+}: {
+  tabData: TabData;
+  prefix: number;
+}) => {
+  const prefixes = pluck("prefix", carEntries ?? []);
+
+  return prefixes.includes(prefix);
+};
