@@ -11,7 +11,7 @@ export const TitleTypography = ({
   <Typography
     variant="h4"
     gutterBottom
-    mb={4}
+    mb={1}
     textAlign={isMobile ? "center" : "left"}
     color='primary'
   >

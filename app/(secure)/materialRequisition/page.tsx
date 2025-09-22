@@ -184,7 +184,7 @@ export default function MaterialRequisitionPage() {
               label={tabData.department}
               value={idx}
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              sx={{ fontSize: 13, zIndex: 1 }}
+              sx={{ fontSize: 12, zIndex: 1 }}
               icon={<TabCloseIcon tabData={tabData} />}
               iconPosition="end"
             />

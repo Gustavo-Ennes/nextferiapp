@@ -1,7 +1,7 @@
 import { format, isSameDay, toDate } from "date-fns";
 import type { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
-import { mockedTabsData } from "./mock";
 import { pluck } from "ramda";
+// import { mockedTabsData } from "./mock";
 
 export const setLocalStorageData = ({
   data,
@@ -16,30 +16,31 @@ export const setLocalStorageData = ({
 
 export const getLocalStorageData = async (): Promise<LocalStorageData> => {
   const rawData = localStorage.getItem("pfdDataUpdate") as string;
-  // const emptyData: LocalStorageData = {
-  //   activeTab: 1,
-  //   data: [],
-  //   pdfData: { items: [], opened: false },
-  // };
-  // const data: LocalStorageData = rawData
-  //   ? await JSON.parse(rawData)
-  //   : emptyData;
-  // return data;
+  const emptyData: LocalStorageData = {
+    activeTab: 1,
+    data: [],
+    pdfData: { items: [], opened: false },
+  };
+  const data: LocalStorageData = rawData
+    ? await JSON.parse(rawData)
+    : emptyData;
+  return data;
 
   // USE TO GENERATE RANDOM DATA(config in mock.ts)
-  const mockedData = mockedTabsData();
-  const localData = rawData
-    ? await JSON.parse(rawData)
-    : {
-        data: mockedData,
-        activeTab: Math.floor(Math.random() * mockedData.length),
-        pdfData: {
-          items: [{ data: mockedData, type: "materialRequisition" }],
-          opened: false,
-        },
-      };
+  // (ERASE LOCALHOST TO GENERATE NEW MOCKED DATA)
+  // const mockedData = mockedTabsData();
+  // const localData = rawData
+  //   ? await JSON.parse(rawData)
+  //   : {
+  //       data: mockedData,
+  //       activeTab: Math.floor(Math.random() * mockedData.length),
+  //       pdfData: {
+  //         items: [{ data: mockedData, type: "materialRequisition" }],
+  //         opened: false,
+  //       },
+  //     };
 
-  return localData;
+  // return localData;
 };
 
 export const a11yProps = (index: number) => ({
