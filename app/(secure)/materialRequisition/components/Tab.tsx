@@ -20,7 +20,7 @@ export const Tab = ({
     const updatedTabData: TabData = tabData;
     const carsExceptCarToEdit =
       tabData?.carEntries?.filter(
-        (otherCar) => otherCar.prefix !== car.prefix
+        (otherCar) => otherCar.prefix !== selectedCar?.prefix
       ) ?? [];
 
     // I delete one car's fuelings

@@ -81,7 +81,9 @@ export const TabForm = ({
     );
   };
 
-  const prefixExists = prefixExistsInTabData({ prefix, tabData });
+  const prefixExists =
+    prefixExistsInTabData({ prefix, tabData }) &&
+    prefix !== selectedCarEntry?.prefix;
 
   return (
     <Grid container component={Box} spacing={2} alignContent="start">
@@ -120,7 +122,7 @@ export const TabForm = ({
             !vehicle ||
             !prefix ||
             !isSelectedCarEditing() ||
-            prefixExists ||
+            (prefixExists && selectedCarEntry?.prefix !== prefix) ||
             !fuelings.length
           }
         >
