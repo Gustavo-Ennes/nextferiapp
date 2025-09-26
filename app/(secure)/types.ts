@@ -9,9 +9,10 @@ export type SearchParams = {
   cancelled?: boolean;
   isActive?: boolean;
   isDirector?: boolean;
+  worker?: string;
 };
 
-export type FetchManyParam = { type: EntityType; params?: SearchParams };
+export type FetchManyParam = { type?: EntityType; params?: SearchParams };
 
 export type FetchOneParam = {
   id: string;

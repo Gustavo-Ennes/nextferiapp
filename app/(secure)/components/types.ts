@@ -36,3 +36,9 @@ export type ResponsiveListPageParam<T> = {
   pageTitle?: string;
   vacationType?: VacationType;
 };
+
+export type DataListItem = {
+  primaryText: string;
+  secondaryText?: string;
+  id: string;
+};

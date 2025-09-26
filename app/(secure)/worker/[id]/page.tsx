@@ -1,5 +1,5 @@
-import type { Worker } from "@/app/types";
-import { fetchOne } from "../../utils";
+import type { Vacation, Worker } from "@/app/types";
+import { fetchAllPaginated, fetchOne } from "../../utils";
 import { WorkerDetail } from "../components/WorkerDetail";
 
 export default async function WorkerViewPage({
@@ -9,6 +9,10 @@ export default async function WorkerViewPage({
 }) {
   const { id } = await params;
   const worker = await fetchOne<Worker>({ type: "worker", id });
+  const workerVacations = await fetchAllPaginated<Vacation>({
+    params: { worker: worker._id, type: "all" },
+    type: "vacation",
+  });
 
-  return <WorkerDetail worker={worker} />;
+  return <WorkerDetail worker={worker} workerVacations={workerVacations} />;
 }

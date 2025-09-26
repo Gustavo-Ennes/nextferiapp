@@ -1,7 +1,9 @@
 import type { Vacation } from "@/app/types";
 import type { VacationFormData } from "./types";
 import { VacationValidator } from "./validator";
-import { format, isValid, toDate } from "date-fns";
+import { format, isThisYear, isValid, toDate } from "date-fns";
+import type { DataListItem } from "../components/types";
+import { prop, sum, uniqBy } from "ramda";
 
 export const getTypeLabel = (type: string) => {
   switch (type) {
@@ -93,3 +95,31 @@ export function prepareDefaults(raw: Vacation): VacationFormData {
 
 export const isMultipleOf = (value: number, step: number) =>
   Math.abs(value / step - Math.round(value / step)) < Number.EPSILON;
+
+export const parseToDataList = (vacations: Vacation[]): DataListItem[] =>
+  uniqBy(
+    prop("id"),
+    vacations.map(({ type, startDate, period, duration, _id }) => ({
+      primaryText: format(toDate(startDate), "dd/MM/yyyy"),
+      secondaryText:
+        type === "dayOff"
+          ? period === "full"
+            ? "Integral"
+            : "Meio-expediente"
+          : `${duration} dias.`,
+      id: _id,
+    }))
+  );
+
+export const getWorkerDayOffsLeft = (vacations: Vacation[]): number => {
+  const DAYOFFS_A_YEAR = 6;
+  const dayOffsTakenThisYear = sum(
+    vacations
+      .filter(
+        ({ type, startDate }) => type === "dayOff" && isThisYear(startDate)
+      )
+      .map((vacation) => vacation.duration)
+  );
+
+  return DAYOFFS_A_YEAR - dayOffsTakenThisYear;
+};
