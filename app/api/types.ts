@@ -1,5 +1,5 @@
 import type { TabData } from "../(secure)/materialRequisition/types";
-import type { Entity } from "../types";
+import type { Boss, Department, Entity, Vacation, Worker } from "../types";
 
 export type ResponseType<T extends Entity> = Response<T> | PaginatedResponse<T>;
 
@@ -54,4 +54,22 @@ export interface VacationsQueryOptionsInterface {
   type?: string;
   deferred?: boolean;
   enjoyed?: boolean;
+}
+export interface AggregatedVacation extends Omit<Vacation, "worker" | "boss"> {
+  workerData: Worker;
+  bossData: Boss;
+}
+
+export interface AggregatedDepartment extends Omit<Department, "responsible"> {
+  responsibleData: Boss;
+  workerData: Worker;
+}
+
+export interface AggregatedBoss extends Omit<Boss, "worker"> {
+  workerData: Worker;
+}
+
+export interface FacetResult<T extends object> {
+  totalItems: Array<{ count: number }>;
+  data: T[];
 }

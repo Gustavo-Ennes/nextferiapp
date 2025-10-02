@@ -63,19 +63,19 @@ const buildOptions = ({
 const updateVacationDates = (vacation: Vacation): Vacation => ({
   ...vacation,
   ...(vacation.startDate && {
-    startDate: startOfDay(new Date(vacation.startDate)).toISOString(),
+    startDate: startOfDay(new Date(vacation.startDate)),
     endDate: endOfDay(
       addDays(
         new Date(vacation.startDate),
         ((vacation.duration ?? vacation.daysQtd) as number) - 1
       )
-    ).toISOString(),
+    ),
     returnDate: startOfDay(
       addDays(
         new Date(vacation.startDate),
         (vacation.duration ?? vacation.daysQtd) as number
       )
-    ).toISOString(),
+    ),
   }),
 });
 

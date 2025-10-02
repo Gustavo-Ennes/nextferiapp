@@ -1,8 +1,15 @@
 "use client";
 
 import { useTheme } from "@mui/material/styles";
-import { Typography, useMediaQuery, Button, Grid } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import {
+  Typography,
+  useMediaQuery,
+  Button,
+  Grid,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
+import { Add, Search } from "@mui/icons-material";
 import { redirect } from "next/navigation";
 import type { Entity } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
@@ -15,18 +22,22 @@ import { useRouter } from "next/navigation";
 import type { ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
+import { useState } from "react";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
   routePrefix,
   pageTitle,
   vacationType,
+  contains,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const { addSnack } = useSnackbar();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { open, close } = useModal();
   const router = useRouter();
+  const [search, setSearch] = useState(contains);
+
   const traslatedEntityName = translateEntityKey({
     entity: routePrefix,
     key: "translated",
@@ -82,28 +93,38 @@ const ResponsiveListPage = <T extends Entity>({
     });
   };
 
+  const handleSearch = (term: string) => {
+    setSearch(term);
+    router.replace(
+      `/${routePrefix}${
+        vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
+      }?page=1${term ? `&contains=${encodeURIComponent(term)}` : ""}`
+    );
+  };
+
   const titleFromRoutePrefix = translateEntityKey({
     entity: routePrefix,
     key: "translatedPlural",
   });
 
   return (
-    <Grid container maxWidth={'md'} m='auto' p={2}>
+    <Grid container maxWidth={"md"} m="auto" p={2}>
       <Grid size={10}>
         <Typography
           variant="h4"
           gutterBottom
-          mb={4}
+          mb={2}
           textAlign={isMobile ? "center" : "left"}
           color="primary"
         >
           {pageTitle ?? titleFromRoutePrefix}{" "}
         </Typography>
       </Grid>
-      <Grid size={2} alignItems={'stretch'} justifyContent={'end'}>
+
+      <Grid size={2} alignItems={"stretch"} justifyContent={"end"}>
         <Button
           variant="contained"
-          sx={{float: 'right', mt: '3px'}}
+          sx={{ float: "right", mt: "3px" }}
           onClick={() =>
             router.push(
               `/${routePrefix}/form${
@@ -114,6 +135,29 @@ const ResponsiveListPage = <T extends Entity>({
         >
           <Add />
         </Button>
+      </Grid>
+
+      <Grid size={5} offset={7}>
+        <TextField
+          size="small"
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
+          sx={{ pb: 2, alignSelf: "right" }}
+          placeholder={`Buscar um(a) ${translateEntityKey({
+            entity: routePrefix,
+            key: "translated",
+          })}`}
+          fullWidth
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search color="primary" />
+                </InputAdornment>
+              ),
+            },
+          }}
+        />
       </Grid>
 
       <Grid size={12}>
@@ -130,6 +174,7 @@ const ResponsiveListPage = <T extends Entity>({
             routePrefix={routePrefix}
             onDelete={(entity) => handleConfirmDelete(entity)}
             vacationType={vacationType}
+            contains={search}
           />
         )}
       </Grid>

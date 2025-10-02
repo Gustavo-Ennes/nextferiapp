@@ -1,20 +1,23 @@
 import type { Vacation } from "@/app/types";
 import { ResponsiveListPage } from "../../components/ResponsiveListPage";
-import { parseVacations } from "../parse";
 import { fetchPaginatedByPage } from "../../utils";
+import type { SearchParams } from "../../types";
 
 const LicenseList = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ page: number }>;
+  searchParams: Promise<{ page: number; contains?: string }>;
 }) => {
-  const { page } = await searchParams;
+  const { page, contains } = await searchParams;
+  const params: SearchParams = {
+    type: "license",
+    page: page ?? 1,
+    ...(contains && { contains }),
+  };
   const paginatedResponse = await fetchPaginatedByPage<Vacation>({
     type: "vacation",
-    params: { type: "license", page: page ?? 1 },
+    params,
   });
-
-  paginatedResponse.data = parseVacations(paginatedResponse.data);
 
   return (
     <ResponsiveListPage<Vacation>
@@ -22,6 +25,7 @@ const LicenseList = async ({
       routePrefix="vacation"
       pageTitle="Licenças-Prêmio"
       vacationType="license"
+      contains={contains}
     />
   );
 };

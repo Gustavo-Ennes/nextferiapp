@@ -29,6 +29,7 @@ export const ListPageDesktop = <T extends Entity>({
   routePrefix,
   onDelete,
   vacationType,
+  contains,
 }: ItemListProps<T>) => {
   const router = useRouter();
   const { setPdf } = usePdfPreview();
@@ -55,10 +56,15 @@ export const ListPageDesktop = <T extends Entity>({
     onDelete(entity);
   };
 
-  const onPageChange = (page: number) =>
-    router.push(
-      `/vacation${vacationType ? `?type=${vacationType}&` : "?"}page=${page}`
-    );
+  const onPageChange = (page: number) => {
+    const url = `/vacation${
+      vacationType ? `/${vacationType}?` : "?"
+    }page=${page}${
+      contains ? `&contains=${encodeURIComponent(contains)}` : ""
+    }`;
+
+    return router.push(url);
+  };
 
   const isDate = (key: string): boolean => {
     return [

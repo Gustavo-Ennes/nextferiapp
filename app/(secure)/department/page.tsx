@@ -5,18 +5,19 @@ import { fetchPaginatedByPage } from "../utils";
 const DepartmentList = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ page: number }>;
+  searchParams: Promise<{ page: number; contains?: string }>;
 }) => {
-  const { page } = await searchParams;
+  const { page, contains } = await searchParams;
   const paginatedResponse = await fetchPaginatedByPage<Department>({
     type: "department",
-    params: { page: page ?? 1 },
+    params: { page: page ?? 1, ...(contains && { contains }) },
   });
 
   return (
     <ResponsiveListPage<Department>
       paginatedResponse={paginatedResponse}
       routePrefix="department"
+      contains={contains}
     />
   );
 };

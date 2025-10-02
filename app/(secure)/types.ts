@@ -10,6 +10,7 @@ export type SearchParams = {
   isActive?: boolean;
   isDirector?: boolean;
   worker?: string;
+  contains?: string;
 };
 
 export type FetchManyParam = { type?: EntityType; params?: SearchParams };

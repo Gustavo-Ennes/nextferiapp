@@ -1,37 +1,6 @@
-import mongoose, { Schema, model, models } from "mongoose";
-import type { Document } from "mongoose";
-import { Boss, Worker } from "./index";
-import type { VacationType } from "@/app/(secure)/vacation/types";
-
-export interface Vacation extends Document {
-  duration?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
-  daysQtd?: 0.5 | 1 | 15 | 30 | 45 | 60 | 75 | 90;
-  type: VacationType;
-  period?: "half" | "full";
-  startDate: Date;
-  endDate: Date;
-  deferred: boolean;
-  worker: mongoose.Types.ObjectId | Worker.Worker;
-  boss: mongoose.Types.ObjectId | Boss.Boss;
-  observation?: string;
-  cancelled?: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface OldVacation {
-  _id: string;
-  daysQtd: number;
-  startDate: Date;
-  worker: string;
-  type: VacationType | "vacation";
-  deferred: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  boss: string;
-  endDate: Date;
-  observation?: string;
-}
+import { Schema, model, models } from "mongoose";
+import type { OldVacation, Vacation } from "@/app/types";
+import { addMilliseconds, toDate } from "date-fns";
 
 export type TransitionVacation = Vacation | OldVacation;
 
@@ -97,7 +66,14 @@ const VacationSchema = new Schema<Vacation>(
   },
   {
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   }
 );
+
+VacationSchema.virtual("returnDate").get(function () {
+  return addMilliseconds(toDate(this.endDate), 1);
+});
 
 export default models.Vacation || model<Vacation>("Vacation", VacationSchema);

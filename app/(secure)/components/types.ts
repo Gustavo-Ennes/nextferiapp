@@ -9,6 +9,7 @@ export interface ItemListProps<T extends { _id: string }> {
   routePrefix: EntityType;
   onDelete: (entity: Entity) => void;
   vacationType?: VacationType;
+  contains?: string;
 }
 
 export type MenuItem = {
@@ -35,6 +36,7 @@ export type ResponsiveListPageParam<T> = {
   routePrefix: EntityType;
   pageTitle?: string;
   vacationType?: VacationType;
+  contains?: string;
 };
 
 export type DataListItem = {

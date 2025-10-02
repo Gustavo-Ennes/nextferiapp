@@ -1,5 +1,4 @@
 import { VacationDetail } from "../components/VacationDetail";
-import { parseVacation } from "../parse";
 import { redirect } from "next/navigation";
 import type { Vacation } from "@/app/types";
 import { fetchOne } from "../../utils";
@@ -13,8 +12,7 @@ export default async function VacationViewPage({
   const vacation = await fetchOne<Vacation>({ type: "vacation", id });
 
   if (vacation) {
-    const parsedVacation = parseVacation(vacation);
-    return <VacationDetail vacation={parsedVacation} />;
+    return <VacationDetail vacation={vacation} />;
   }
 
   return redirect("/not-found");

@@ -16,11 +16,13 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
+    const contains = searchParams.get("contains");
 
     const skip = (page - 1) * limit;
 
     const filter = {
       isActive: true,
+      ...(contains && { name: { $regex: contains, $options: "i" } }),
     };
     const [data, totalItems] = await Promise.all([
       WorkerModel.find(filter)

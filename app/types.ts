@@ -30,17 +30,31 @@ export type Vacation = {
   daysQtd?: VacationDuration;
   type: VacationType;
   period: VacationPeriod; // para dayOff
-  startDate: string;
-  endDate: string;
-  returnDate?: string;
+  startDate: Date;
+  endDate: Date;
+  returnDate?: Date;
   deferred: boolean;
   worker: Worker;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   boss: Boss;
   observation?: string;
   cancelled?: boolean;
 };
+
+export interface OldVacation {
+  _id: string;
+  daysQtd: number;
+  startDate: Date;
+  worker: string;
+  type: VacationType | "vacation";
+  deferred: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  boss: string;
+  endDate: Date;
+  observation?: string;
+}
 
 export type Worker = {
   _id: string;
