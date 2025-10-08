@@ -16,11 +16,12 @@ import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
-import { Badge } from "@mui/icons-material";
-import { blue } from "@mui/material/colors";
 import { DataList } from "../../components/DataList";
 import { parseToDataList } from "../../vacation/utils";
 import { getWorkerDayOffsLeft } from "../../vacation/utils";
+import { getWorkerStatusIcons } from "../utils";
+import { formatMatriculation } from "@/lib/pdf/utils";
+import { WorkerStatusIcons } from "./WorkerStatus";
 
 export function WorkerDetail({
   worker,
@@ -37,8 +38,15 @@ export function WorkerDetail({
   const workerUnusedDayOffs = getWorkerDayOffsLeft(workerVacations);
   const dayOffText =
     workerUnusedDayOffs > 0
-      ? `Servidor ainda possui ${workerUnusedDayOffs} abonos.`
+      ? `Servidor ainda possui ${workerUnusedDayOffs} abono${
+          workerUnusedDayOffs > 1 ? "s" : ""
+        }.`
       : `Servidor já tirou todas as suas abonadas esse ano.`;
+
+  const workerIcons = getWorkerStatusIcons({
+    worker,
+    vacations: workerVacations,
+  });
 
   const handleEdit = () => router.push(`/worker/form?id=${worker._id}`);
   const handleDelete = () =>
@@ -64,6 +72,38 @@ export function WorkerDetail({
           .finally(() => router.push("/worker"));
       },
     });
+  const handleChangeExternality = () => {
+    const body = JSON.stringify({
+      ...worker,
+      department: worker.department._id,
+      isExternal: !worker.isExternal,
+      id: undefined,
+    });
+    open({
+      title: "Modificar externalidade",
+      description: `Deseja atualizar o servidor ${capitalizeName(
+        worker.name
+      )} como ${worker.isExternal ? "interno" : "externo"}?`,
+      onConfirm: async () => {
+        setLoading(true);
+        fetch(`/api/worker/${worker._id}`, { method: "put", body })
+          .then(() => {
+            setLoading(false);
+            addSnack({
+              message: "Você modificou a externalidade de um servidor.",
+              severity: "success",
+            });
+          })
+          .catch((err) => {
+            console.error(err);
+            addSnack({
+              message: "Eita, houve um problema modificando um servidor.",
+            });
+          })
+          .finally(() => router.push("/worker"));
+      },
+    });
+  };
 
   return (
     <Container maxWidth="sm" sx={{ mt: 1 }}>
@@ -72,14 +112,12 @@ export function WorkerDetail({
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Grid container spacing={2}>
           <Grid size={12}>
-            <Box>
-              <Typography variant="h5" textAlign={"center"}>
-                <Badge
-                  sx={{ mr: 1, color: blue[800], float: "left", fontSize: 45 }}
-                />
-                {capitalizeName(worker?.name)}
-              </Typography>
-            </Box>
+            <Typography variant="h5" textAlign={"center"}>
+              {capitalizeName(worker?.name)}
+            </Typography>
+            <Grid size={12} alignItems="center" justifyContent="center">
+              <WorkerStatusIcons workerIcons={workerIcons} />
+            </Grid>
           </Grid>
 
           <Grid size={12}>
@@ -96,7 +134,9 @@ export function WorkerDetail({
 
             <Box p={1}>
               <Typography variant="subtitle1">Matrícula</Typography>
-              <Typography variant="button">{worker?.matriculation}</Typography>
+              <Typography variant="button">
+                {formatMatriculation(worker?.matriculation)}
+              </Typography>
             </Box>
 
             <Box p={1}>
@@ -123,6 +163,15 @@ export function WorkerDetail({
       >
         <Button variant="contained" onClick={handleDelete}>
           Excluir
+        </Button>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleChangeExternality}
+        >
+          {`Marcar trabalhador como ${
+            worker.isExternal ? "interno" : "externo"
+          }`}
         </Button>
         <Button variant="contained" onClick={handleEdit}>
           Editar

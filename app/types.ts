@@ -6,13 +6,13 @@ import type {
 
 export type Boss = {
   _id: string;
-  name: string;
   role: string;
   isDirector: boolean;
-  worker?: Worker;
+  worker: Worker;
   createdAt: string;
   updatedAt: string;
   isActive: boolean;
+  isExternal?: boolean;
 };
 
 export type Department = {
@@ -68,6 +68,7 @@ export type Worker = {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  isExternal?: boolean;
 };
 
 export type Entity = Worker | Vacation | Department | Boss;

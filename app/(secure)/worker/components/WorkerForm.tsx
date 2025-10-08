@@ -10,6 +10,9 @@ import {
   Select,
   Grid,
   FormHelperText,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import type { WorkerFormData, WorkerProps } from "../types";
@@ -185,7 +188,7 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
         />
       </Grid>
 
-      <Grid size={12} component={FormControl} fullWidth>
+      <Grid size={7} component={FormControl} fullWidth>
         <Controller
           name="department"
           control={control}
@@ -214,6 +217,21 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
                 <FormHelperText>{errors.department.message}</FormHelperText>
               )}
             </FormControl>
+          )}
+        />
+      </Grid>
+      <Grid size={5}>
+        <Controller
+          name="isExternal"
+          control={control}
+          render={({ field }) => (
+            <FormGroup>
+              <FormControlLabel
+                control={<Checkbox {...field} checked={field.value} />}
+                slotProps={{ typography: { fontSize: 12 } }}
+                label="Trabalhador externo?"
+              />
+            </FormGroup>
           )}
         />
       </Grid>

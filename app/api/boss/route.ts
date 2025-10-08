@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import BossModel from "@/models/Boss";
+import WorkerModel from "@/models/Worker";
 import type { Boss } from "@/app/types";
 import { optionsResponse, responseWithHeaders } from "../utils";
 import type { AggregatedBoss, FacetResult } from "../types";
@@ -90,7 +91,14 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   try {
-    const boss = await BossModel.create(body);
+    const worker = await WorkerModel.findOne({ _id: body.worker });
+
+    if (!worker) throw new Error("No worker found for given id.");
+
+    const boss = await BossModel.create({
+      ...body,
+      isExternal: worker.isExternal,
+    });
 
     return responseWithHeaders({ data: boss });
   } catch (error) {

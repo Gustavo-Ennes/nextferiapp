@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { minMaxStringMessage } from "./utils";
 import { isValid } from "date-fns";
+import { minMaxStringMessage } from "./validatorUtils";
 
 const departmentMissingStr = "O departamento é obrigatório.";
 
@@ -36,5 +36,5 @@ export const WorkerValidator = z.object({
       .min(4, minMaxStringMessage({ prop: "justification", condition: "min" }))
       .max(6, minMaxStringMessage({ prop: "justification", condition: "max" }))
   ),
-  isDirector: z.boolean(),
+  isExternal: z.optional(z.boolean().default(false)),
 });

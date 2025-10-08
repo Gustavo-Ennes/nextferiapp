@@ -6,6 +6,7 @@ import VacationModel from "@/models/Vacation";
 import type { AggregatedVacation, FacetResult } from "../types";
 import { revalidatePath } from "next/cache";
 import { addMilliseconds } from "date-fns";
+import { Types } from "mongoose";
 
 export async function GET(req: NextRequest) {
   await dbConnect();
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
     // --- 1. CONSTRUÇÃO DO FILTRO BASE ---
     const baseFilter = {
       ...(typeFilter && { type: typeFilter }),
-      ...(worker && { worker }),
+      ...(worker && { worker: new Types.ObjectId(worker) }),
       $or: [{ cancelled: false }, { cancelled: undefined }],
     };
 
@@ -78,7 +79,6 @@ export async function GET(req: NextRequest) {
 
     // 4. Ordenação
     pipeline.push({ $sort: { startDate: -1 } });
-    console.log("🚀 ~ GET ~ pipeline:", JSON.stringify(pipeline, null, 2));
 
     // 5. Paginação e Contagem Total
     const [data] = await VacationModel.aggregate<

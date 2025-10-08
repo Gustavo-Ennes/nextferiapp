@@ -57,7 +57,7 @@ export const ListPageDesktop = <T extends Entity>({
   };
 
   const onPageChange = (page: number) => {
-    const url = `/vacation${
+    const url = `/${routePrefix}${
       vacationType ? `/${vacationType}?` : "?"
     }page=${page}${
       contains ? `&contains=${encodeURIComponent(contains)}` : ""

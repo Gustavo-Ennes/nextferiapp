@@ -13,6 +13,6 @@ export default async function WorkerViewPage({
     params: { worker: worker._id, type: "all" },
     type: "vacation",
   });
-
+  
   return <WorkerDetail worker={worker} workerVacations={workerVacations} />;
 }

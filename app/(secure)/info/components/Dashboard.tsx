@@ -1,8 +1,8 @@
 "use client";
 
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { getDaysUntilWorkerReturns } from "@/app/utils";
-import { addSeconds, format } from "date-fns";
+import { format } from "date-fns";
 import NumberCard from "./NumberCard";
 import TextCard from "./TextCard";
 import {
@@ -60,14 +60,21 @@ function Dashboard({
     secondary: `Saindo dia ${format(startDate, "dd/MM/yyyy")}`,
   }));
 
-  const upcomingReturnsLines = upcomingReturns?.map(({ worker, endDate }) => ({
-    primary: worker?.name,
-    secondary: `Retornando dia ${format(addSeconds(endDate, 1), "dd/MM/yyyy")}`,
-  }));
+  const upcomingReturnsLines = upcomingReturns?.map(
+    ({ worker, returnDate }) => ({
+      primary: worker?.name,
+      secondary: `Retornando dia ${format(returnDate as Date, "dd/MM/yyyy")}`,
+    })
+  );
 
   return (
     <Box>
-      <TitleTypography>{today}</TitleTypography>
+      <TitleTypography other={{ textAlign: "center" }}>
+        Departamento de Transporte
+      </TitleTypography>
+      <Typography textAlign={"center"} fontSize={22} mb={2} color="secondary">
+        {today}
+      </Typography>
 
       {/* Cards de estatísticas */}
       <Grid container spacing={3}>

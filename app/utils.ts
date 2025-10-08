@@ -1,7 +1,18 @@
-import { format, addDays, startOfDay, endOfYesterday, set } from "date-fns";
+import {
+  toDate,
+  format,
+  addDays,
+  startOfDay,
+  endOfYesterday,
+  set,
+  differenceInDays,
+  addMilliseconds,
+} from "date-fns";
 import type { Boss, Entity, Vacation, Worker } from "./types";
+import type { WorkerStatus } from "./(secure)/worker/types";
 import { translateEntityKey } from "./translate";
 import { limitText } from "./(secure)/utils";
+import { prop, uniqBy } from "ramda";
 
 export const formatCellContent = <T extends Entity>({
   value,
@@ -25,7 +36,7 @@ export const formatCellContent = <T extends Entity>({
       );
     if (isName && value) return capitalizeName(value as string);
     if (capitalize && value) return capitalizeFirstLetter(value as string);
-    if (isDate) return format(new Date(value as string), "dd/MM/yyyy");
+    if (isDate) return format(toDate(value as string), "dd/MM/yyyy");
     if (value === undefined || value === null) return "Excluído(a)";
     return String(value);
   } catch {
@@ -40,7 +51,7 @@ export const getUpcomingReturns = (
   vacations
     ? vacations.filter(
         ({ endDate }) =>
-          new Date(endDate) >= today && new Date(endDate) <= addDays(today, 10)
+          toDate(endDate) >= today && toDate(endDate) <= addDays(today, 10)
       )
     : [];
 
@@ -51,32 +62,57 @@ export const getUpcomingLeaves = (
   vacations
     ? vacations.filter(
         ({ startDate }) =>
-          new Date(startDate) >= today &&
-          new Date(startDate) <= addDays(today, 10)
+          toDate(startDate) >= today && toDate(startDate) <= addDays(today, 10)
       )
     : [];
 
 export const getTodayReturns = (vacations: Vacation[]): Vacation[] =>
   vacations
-    ? vacations.filter(
-        ({ endDate }) =>
-          new Date(endDate).getTime() === endOfYesterday().getTime()
-      )
+    ? vacations.filter(({ endDate }) => toDate(endDate) === endOfYesterday())
     : [];
+
+export const getWorkerStatus = (
+  worker: Worker,
+  vacations?: Vacation[]
+): WorkerStatus => {
+  const vacation = vacations
+    ? vacations.find(
+        ({ startDate, endDate, worker: vacWorker }) =>
+          toDate(startDate) <= startOfDay(new Date()) &&
+          toDate(endDate) > startOfDay(new Date()) &&
+          vacWorker._id.toString() === worker._id.toString()
+      )
+    : undefined;
+
+  if (!worker.isActive) return "retired";
+
+  switch (vacation?.type) {
+    case "normal":
+      return "onVacation";
+    case "license":
+      return "onLicense";
+    case "dayOff":
+      return "onDayOff";
+    default:
+      return "active";
+  }
+};
 
 export const getWorkersOnVacation = (
   vacations?: Vacation[],
   today: Date = new Date()
 ): Worker[] =>
   vacations
-    ? vacations
-        .filter(({ startDate, endDate }) => {
-          return (
-            new Date(startDate) < startOfDay(today) &&
-            new Date(endDate) >= startOfDay(today)
-          );
-        })
-        .map((vacation) => vacation.worker)
+    ? uniqBy(
+        prop("_id"),
+        vacations
+          .filter(
+            ({ startDate, endDate }) =>
+              toDate(startDate) <= startOfDay(today) &&
+              toDate(endDate) > startOfDay(today)
+          )
+          .map((vacation) => vacation.worker)
+      )
     : [];
 
 // returning zero means the worker returns today
@@ -86,23 +122,55 @@ export const getDaysUntilWorkerReturns = (
   vacations?: Vacation[],
   today: Date = new Date()
 ): number => {
-  const vacation = vacations?.find(
-    (vac) =>
-      vac.worker?._id === worker._id &&
-      new Date(vac.startDate) <= today &&
-      new Date(vac.endDate) >= today
-  );
+  const getReturningDate = (endDate: Date) =>
+    addMilliseconds(toDate(endDate), 1);
+
+  const vacation = vacations
+    ?.filter(
+      (vac) =>
+        vac.worker?._id === worker._id &&
+        getReturningDate(vac.endDate) > startOfDay(today)
+    )
+    .sort(
+      (a, b) =>
+        getReturningDate(a.endDate).getTime() -
+        getReturningDate(b.endDate).getTime()
+    )?.[0];
   if (!vacation) return -1;
 
-  const daysUntilReturn = Math.ceil(
-    (new Date(vacation.endDate).getTime() - today.getTime()) /
-      (1000 * 60 * 60 * 24)
-  );
+  const daysUntilReturn =
+    differenceInDays(getReturningDate(vacation.endDate), startOfDay(today)) + 1;
+
   return daysUntilReturn >= 0 ? daysUntilReturn : -1;
 };
 
+// returning zero means the worker leaves today
+// return -1 means the worker hasn't a future vacation
+export const getDaysUntilWorkerLeave = (
+  worker: Worker,
+  vacations?: Vacation[],
+  today: Date = new Date()
+): number => {
+  const vacation = vacations
+    ?.filter(
+      (vac) =>
+        vac.worker?._id === worker._id &&
+        toDate(vac.startDate) > startOfDay(today)
+    )
+    .sort(
+      (a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime()
+    )?.[0];
+
+  if (!vacation) return -1;
+
+  const daysUntilLeave =
+    differenceInDays(toDate(vacation.startDate), startOfDay(today)) + 1;
+
+  return daysUntilLeave;
+};
+
 export const endOfMorning = (date: Date): Date => {
-  const newDate = new Date(date);
+  const newDate = toDate(date);
   set(newDate, { hours: 13, minutes: 29, seconds: 59, milliseconds: 999 });
   return newDate;
 };

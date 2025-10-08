@@ -1,7 +1,6 @@
 import { PDFPage, TextAlignment, layoutMultilineText } from "pdf-lib";
 import { range, slice, takeLast } from "ramda";
 
-import Boss from "@/models/Boss";
 import type {
   Vacation as VacationInterface,
   Boss as BossInterface,
@@ -79,6 +78,7 @@ const calculateCellRealWidth = (
 const getBoss = async (
   vacation?: VacationInterface
 ): Promise<BossInterface | null> => {
+  const Boss = (await import("@/models/Boss")).default;
   const isDirector = vacation?.type === "normal";
 
   return await Boss.findOne({ isDirector }).exec();

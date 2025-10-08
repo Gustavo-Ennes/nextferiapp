@@ -10,6 +10,7 @@ export interface Worker extends Document {
   department: Department | string;
   justification?: string;
   isActive: boolean;
+  isExternal?: boolean;
 }
 
 export const WorkerSchema = new Schema<Worker>(
@@ -50,10 +51,17 @@ export const WorkerSchema = new Schema<Worker>(
       type: Boolean,
       default: true,
     },
+    isExternal: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     collection: "workers",
     timestamps: true,
+    toJSON: {
+      virtuals: true,
+    },
   }
 );
 

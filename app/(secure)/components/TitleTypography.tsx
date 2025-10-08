@@ -3,17 +3,18 @@ import type { ReactNode } from "react";
 
 export const TitleTypography = ({
   children,
-  isMobile,
+  other,
 }: {
   children: ReactNode;
-  isMobile?: boolean;
+  other?: object;
 }) => (
   <Typography
     variant="h4"
     gutterBottom
-    mb={1}
-    textAlign={isMobile ? "center" : "left"}
-    color='primary'
+    mb={3}
+    textAlign="center"
+    color="primary"
+    {...other}
   >
     {children}
   </Typography>
