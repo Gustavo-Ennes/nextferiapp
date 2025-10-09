@@ -1,15 +1,8 @@
 "use client";
 
 import { useTheme } from "@mui/material/styles";
-import {
-  Typography,
-  useMediaQuery,
-  Button,
-  Grid,
-  TextField,
-  InputAdornment,
-} from "@mui/material";
-import { Add, Search } from "@mui/icons-material";
+import { Typography, useMediaQuery, Button, Grid } from "@mui/material";
+import { Add } from "@mui/icons-material";
 import { redirect } from "next/navigation";
 import type { Entity } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
@@ -23,6 +16,7 @@ import type { ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { useState } from "react";
+import { Search } from "./Search";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
@@ -30,6 +24,7 @@ const ResponsiveListPage = <T extends Entity>({
   pageTitle,
   vacationType,
   contains,
+  isExternal,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const { addSnack } = useSnackbar();
@@ -37,6 +32,7 @@ const ResponsiveListPage = <T extends Entity>({
   const { open, close } = useModal();
   const router = useRouter();
   const [search, setSearch] = useState(contains);
+  const useExternalFilter = routePrefix === "boss" || routePrefix === "worker";
 
   const traslatedEntityName = translateEntityKey({
     entity: routePrefix,
@@ -93,12 +89,14 @@ const ResponsiveListPage = <T extends Entity>({
     });
   };
 
-  const handleSearch = (term: string) => {
+  const handleSearch = (term: string, isExternal?: boolean) => {
     setSearch(term);
     router.replace(
       `/${routePrefix}${
         vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
-      }?page=1${term ? `&contains=${encodeURIComponent(term)}` : ""}`
+      }?page=1${term ? `&contains=${encodeURIComponent(term)}` : ""}${
+        isExternal !== undefined ? `&isExternal=${String(isExternal)}` : ""
+      }`
     );
   };
 
@@ -137,25 +135,15 @@ const ResponsiveListPage = <T extends Entity>({
         </Button>
       </Grid>
 
-      <Grid size={5} offset={7}>
-        <TextField
-          size="small"
-          value={search}
-          onChange={(e) => handleSearch(e.target.value)}
-          sx={{ pb: 2, alignSelf: "right" }}
-          placeholder={`Buscar um(a) ${translateEntityKey({
-            entity: routePrefix,
-            key: "translated",
-          })}`}
-          fullWidth
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search color="primary" />
-                </InputAdornment>
-              ),
-            },
+      <Grid size={12}>
+        <Search
+          handleSearch={handleSearch}
+          routePrefix={routePrefix}
+          isExternal={isExternal}
+          enabledProps={{
+            active: true,
+            external: useExternalFilter,
+            internal: useExternalFilter,
           }}
         />
       </Grid>

@@ -5,12 +5,20 @@ import { fetchPaginatedByPage } from "../utils";
 const BossList = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ page: number; contains?: string }>;
+  searchParams: Promise<{
+    page: number;
+    contains?: string;
+    isExternal?: boolean;
+  }>;
 }) => {
-  const { page, contains } = await searchParams;
+  const { page, contains, isExternal } = await searchParams;
   const paginatedResponse = await fetchPaginatedByPage<Boss>({
     type: "boss",
-    params: { page: page ?? 1, ...(contains && { contains }) },
+    params: {
+      page: page ?? 1,
+      ...(contains && { contains }),
+      ...(isExternal !== undefined && { isExternal }),
+    },
   });
 
   return (

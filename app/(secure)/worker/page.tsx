@@ -5,12 +5,20 @@ import { fetchPaginatedByPage } from "../utils";
 const WorkerList = async ({
   searchParams,
 }: {
-  searchParams: Promise<{ page: number; contains?: string }>;
+  searchParams: Promise<{
+    page: number;
+    contains?: string;
+    isExternal?: boolean;
+  }>;
 }) => {
-  const { page, contains } = await searchParams;
+  const { page, contains, isExternal } = await searchParams;
   const paginatedResponse = await fetchPaginatedByPage<Worker>({
     type: "worker",
-    params: { page: page ?? 1, ...(contains && { contains }) },
+    params: {
+      page: page ?? 1,
+      ...(contains && { contains }),
+      ...(isExternal !== undefined && { isExternal }),
+    },
   });
 
   return (
@@ -18,6 +26,7 @@ const WorkerList = async ({
       paginatedResponse={paginatedResponse}
       routePrefix="worker"
       contains={contains}
+      isExternal={isExternal}
     />
   );
 };

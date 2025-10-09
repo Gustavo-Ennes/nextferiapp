@@ -11,6 +11,7 @@ export type SearchParams = {
   isDirector?: boolean;
   worker?: string;
   contains?: string;
+  isExternal?: boolean;
 };
 
 export type FetchManyParam = { type?: EntityType; params?: SearchParams };

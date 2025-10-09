@@ -80,15 +80,12 @@ const drawHalfPage = async ({
       )}.`
     );
 
-  const {
-    name: bossName,
-    role: bossRole,
-    worker: bossWorker,
-  } = vacation.boss ?? (await getBoss(vacation)) ?? "Chefe excluído";
+  const { role: bossRole, worker: bossWorker } =
+    vacation.boss ?? (await getBoss(vacation)) ?? "Chefe excluído";
   await createSign({
     document,
     height,
-    name: bossName,
+    name: bossWorker.name,
     role: bossRole,
     worker: bossWorker,
   });

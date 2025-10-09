@@ -29,7 +29,7 @@ export function BossDetail({ boss }: { boss: Boss }) {
   const handleDelete = () =>
     open({
       title: "Excluir chefe",
-      description: `Deseja excuir o chefe ${capitalizeName(boss.name)}(${
+      description: `Deseja excuir o chefe ${capitalizeName(boss.worker.name)}(${
         boss.role
       })?`,
       onConfirm: async () => {
@@ -64,9 +64,7 @@ export function BossDetail({ boss }: { boss: Boss }) {
         <Stack spacing={2}>
           <Box>
             <Typography variant="subtitle2">Nome</Typography>
-            <Typography>
-              {capitalizeName(boss?.worker?.name ?? boss?.name)}
-            </Typography>
+            <Typography>{capitalizeName(boss?.worker?.name)}</Typography>
           </Box>
 
           <Divider />

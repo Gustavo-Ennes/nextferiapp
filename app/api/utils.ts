@@ -15,6 +15,7 @@ import type {
 } from "./types";
 import type { Boss, Entity, Vacation } from "../types";
 import { NextResponse } from "next/server";
+import type { Model } from "mongoose";
 
 export const headers = {
   "Access-Control-Allow-Origin": "*",
@@ -79,4 +80,38 @@ const updateVacationDates = (vacation: Vacation): Vacation => ({
   }),
 });
 
-export { buildOptions, updateVacationDates };
+const getBooleanStringSearchParam = (param: string | null): boolean | null => {
+  if (param === "false") return false;
+  if (param == "true") return true;
+  return null;
+};
+
+export { buildOptions, updateVacationDates, getBooleanStringSearchParam };
+
+// function to populate new default props to past documents without the prop
+export async function applyDefaultField<T>(model: Model<T>) {
+  try {
+    console.log("Iniciando migração de campo default...");
+
+    // Define o nome do campo e o valor padrão
+    const field = "isExternal";
+    const defaultValue = false;
+
+    // O filtro { [campo]: { $exists: false } } garante
+    // que apenas documentos que não têm o campo sejam atualizados.
+    const filter = { [field]: { $exists: false } };
+
+    // O update {$set: {[campo]: valorPadrao}} adiciona o campo com o valor.
+    const update = { $set: { [field]: defaultValue } };
+
+    const result = await model.updateMany(filter, update);
+
+    console.log(`Migração concluída!`);
+    console.log(
+      `Documentos encontrados para atualização: ${result.matchedCount}`
+    );
+    console.log(`Documentos modificados: ${result.modifiedCount}`);
+  } catch (error) {
+    console.error("Erro durante a migração:", error);
+  }
+}

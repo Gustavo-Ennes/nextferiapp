@@ -3,7 +3,11 @@ import dbConnect from "@/lib/database/database";
 import type { Worker } from "@/app/types";
 import WorkerModel from "@/models/Worker";
 import { revalidatePath } from "next/cache";
-import { responseWithHeaders, optionsResponse } from "../utils";
+import {
+  responseWithHeaders,
+  optionsResponse,
+  getBooleanStringSearchParam,
+} from "../utils";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -17,12 +21,16 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const contains = searchParams.get("contains");
+    const isExternal = getBooleanStringSearchParam(
+      searchParams.get("isExternal")
+    );
 
     const skip = (page - 1) * limit;
 
     const filter = {
       isActive: true,
       ...(contains && { name: { $regex: contains, $options: "i" } }),
+      ...(isExternal !== null && { isExternal }),
     };
     const [data, totalItems] = await Promise.all([
       WorkerModel.find(filter)

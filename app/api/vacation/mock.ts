@@ -11,11 +11,11 @@ import { bosses } from "../boss/mock";
 import { endOfMorning } from "@/app/utils";
 import type { Vacation } from "@/app/types";
 
-const now = new Date().toISOString();
-const today = startOfDay(new Date()).toISOString();
-const eightDaysAhead = addDays(today, 8).toISOString();
-const eightDaysAgo = subDays(today, 8).toISOString();
-const twentyDaysAhead = addDays(today, 20).toISOString();
+const now = new Date();
+const today = startOfDay(new Date());
+const eightDaysAhead = addDays(today, 8);
+const eightDaysAgo = subDays(today, 8);
+const twentyDaysAhead = addDays(today, 20);
 
 export const vacations: Vacation[] = [
   // começa em oito dias
@@ -25,7 +25,7 @@ export const vacations: Vacation[] = [
     period: "full",
     type: "normal",
     startDate: eightDaysAhead,
-    endDate: addDays(eightDaysAhead, 30).toISOString(),
+    endDate: addDays(eightDaysAhead, 30),
     deferred: false,
     worker: workers[0],
     createdAt: now,
@@ -39,7 +39,7 @@ export const vacations: Vacation[] = [
     type: "license",
     duration: 15,
     period: "full",
-    startDate: subDays(eightDaysAgo, 15).toISOString(),
+    startDate: subDays(eightDaysAgo, 15),
     endDate: eightDaysAhead,
     deferred: true,
     worker: workers[1],
@@ -53,7 +53,7 @@ export const vacations: Vacation[] = [
     type: "license",
     duration: 30,
     period: "full",
-    startDate: subDays(twentyDaysAhead, 30).toISOString(),
+    startDate: subDays(twentyDaysAhead, 30),
     endDate: twentyDaysAhead,
     deferred: false,
     worker: workers[2],
@@ -67,8 +67,8 @@ export const vacations: Vacation[] = [
     type: "normal",
     duration: 30,
     period: "full",
-    startDate: subDays(endOfYesterday(), 30).toISOString(),
-    endDate: endOfYesterday().toISOString(),
+    startDate: subDays(endOfYesterday(), 30),
+    endDate: endOfYesterday(),
     deferred: true,
     worker: workers[3],
     createdAt: now,
@@ -81,7 +81,7 @@ export const vacations: Vacation[] = [
     duration: 1,
     period: "full",
     startDate: eightDaysAhead,
-    endDate: endOfDay(toDate(eightDaysAhead)).toISOString(),
+    endDate: endOfDay(toDate(eightDaysAhead)),
     deferred: false,
     worker: workers[2],
     createdAt: now,
@@ -94,7 +94,7 @@ export const vacations: Vacation[] = [
     duration: 0.5,
     period: "half",
     startDate: eightDaysAhead,
-    endDate: endOfMorning(toDate(eightDaysAhead)).toISOString(),
+    endDate: endOfMorning(toDate(eightDaysAhead)),
     deferred: false,
     worker: workers[1],
     createdAt: now,
