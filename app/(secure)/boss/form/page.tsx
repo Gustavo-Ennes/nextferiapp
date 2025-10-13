@@ -12,7 +12,10 @@ export default async function BossFormPage({
   const { id } = await searchParams;
 
   const boss = await fetchOne<Boss>({ type: "boss", id });
-  const workers = await fetchAllPaginated<Worker>({ type: "worker" });
+  const workers = await fetchAllPaginated<Worker>({
+    type: "worker",
+    params: { isActive: true, isExternal: false },
+  });
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>

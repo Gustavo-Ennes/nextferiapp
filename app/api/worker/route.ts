@@ -24,14 +24,16 @@ export async function GET(req: NextRequest) {
     const isExternal = getBooleanStringSearchParam(
       searchParams.get("isExternal")
     );
+    const isActive = getBooleanStringSearchParam(searchParams.get("isActive"));
 
     const skip = (page - 1) * limit;
 
     const filter = {
-      isActive: true,
+      ...(isActive !== null && { isActive }),
       ...(contains && { name: { $regex: contains, $options: "i" } }),
       ...(isExternal !== null && { isExternal }),
     };
+
     const [data, totalItems] = await Promise.all([
       WorkerModel.find(filter)
         .sort({ name: 1 })

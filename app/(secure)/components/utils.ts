@@ -20,11 +20,17 @@ export const defineIsExternal = ({
   external,
 }: SearchProps): boolean | undefined => {
   let isExternal: boolean | undefined;
-
+  
   if ((internal && external) || (!internal && !external))
     isExternal = undefined;
   else if (internal && !external) isExternal = false;
   else if (!internal && external) isExternal = true;
-
+  
   return isExternal;
+};
+
+export const parseBool = (str?: string | null): boolean | undefined => {
+  if (str === "false") return false;
+  if (str === "true") return true;
+  return undefined;
 };

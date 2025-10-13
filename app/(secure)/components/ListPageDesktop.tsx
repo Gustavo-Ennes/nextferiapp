@@ -16,13 +16,14 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { PictureAsPdf } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { StyledRow } from "./styled";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import type { ItemListProps } from "./types";
 import type { Entity, Vacation } from "@/app/types";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
+import { parseBool } from "./utils";
 
 export const ListPageDesktop = <T extends Entity>({
   pagination: { data: items, currentPage, totalPages },
@@ -33,7 +34,9 @@ export const ListPageDesktop = <T extends Entity>({
 }: ItemListProps<T>) => {
   const router = useRouter();
   const { setPdf } = usePdfPreview();
+  const searchParams = useSearchParams();
   const headers: string[] = [];
+  const isExternal = parseBool(searchParams.get("isExternal"));
 
   if (items.length > 0)
     defaultEntityTableFields[routePrefix].forEach((key) => headers.push(key));
@@ -61,7 +64,7 @@ export const ListPageDesktop = <T extends Entity>({
       vacationType ? `/${vacationType}?` : "?"
     }page=${page}${
       contains ? `&contains=${encodeURIComponent(contains)}` : ""
-    }`;
+    }${isExternal !== undefined ? `&isExternal=${isExternal}` : ""}`;
 
     return router.push(url);
   };

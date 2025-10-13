@@ -11,7 +11,8 @@ export type CardParam = {
   details?: string[];
 };
 
-export type Data = {
+export type DashboardData = {
+  
   totalWorkers: number;
   totalDepartments: number;
   upcomingLeaves: Vacation[];

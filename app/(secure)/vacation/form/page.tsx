@@ -27,8 +27,14 @@ export default async function VacationFormPage({
       ...(isReschedule && { params: { cancelled: true } }),
     });
 
-  const bosses = await fetchAllPaginated<Boss>({ type: "boss" });
-  const workers = await fetchAllPaginated<Worker>({ type: "worker" });
+  const bosses = await fetchAllPaginated<Boss>({
+    type: "boss",
+    params: { isExternal: false },
+  });
+  const workers = await fetchAllPaginated<Worker>({
+    type: "worker",
+    params: { isActive: true, isExternal: false },
+  });
 
   const title = `${
     isReschedule ? "Reagendar" : id ? "Editar" : "Criar"

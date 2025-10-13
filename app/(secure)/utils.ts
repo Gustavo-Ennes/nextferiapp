@@ -1,4 +1,4 @@
-import { isEmpty } from "ramda";
+import { isEmpty, prop, uniqBy } from "ramda";
 import type { PaginatedResponse, Response } from "../api/types";
 import type { Entity } from "../types";
 import type { FetchManyParam, FetchOneParam, SearchParams } from "./types";
@@ -55,7 +55,7 @@ export const fetchAllPaginated = async <T extends Entity>({
     );
   }
 
-  return entities;
+  return uniqBy(prop("_id"), entities);
 };
 
 const concatSearchParams = ({

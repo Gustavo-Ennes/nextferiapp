@@ -3,7 +3,6 @@
 import { useTheme } from "@mui/material/styles";
 import { Typography, useMediaQuery, Button, Grid } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { redirect } from "next/navigation";
 import type { Entity } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
 import { ListPageMobile } from "./ListPageMobile";
@@ -78,11 +77,15 @@ const ResponsiveListPage = <T extends Entity>({
     open({
       title: "Confirme a exclusão",
       description: modalDescription,
-      onConfirm: () => {
-        onConfirmDelete(entity);
-        redirect(
+      onConfirm: async () => {
+        await onConfirmDelete(entity);
+        router.push(
           `/${routePrefix}${
             vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
+          }?page=${paginatedResponse.currentPage || "1"}${
+            isExternal !== null || isExternal !== undefined
+              ? `&isExternal=${isExternal}`
+              : ""
           }`
         );
       },
@@ -91,11 +94,13 @@ const ResponsiveListPage = <T extends Entity>({
 
   const handleSearch = (term: string, isExternal?: boolean) => {
     setSearch(term);
+    const isExternalString = String(isExternal);
+    console.log("🚀 ~ handleSearch ~ isExternalString:", isExternalString);
     router.replace(
       `/${routePrefix}${
         vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
       }?page=1${term ? `&contains=${encodeURIComponent(term)}` : ""}${
-        isExternal !== undefined ? `&isExternal=${String(isExternal)}` : ""
+        isExternal !== undefined ? `&isExternal=${isExternalString}` : ""
       }`
     );
   };

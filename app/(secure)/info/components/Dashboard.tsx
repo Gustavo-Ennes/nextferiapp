@@ -1,7 +1,7 @@
 "use client";
 
-import { Box, Grid, Typography } from "@mui/material";
-import { getDaysUntilWorkerReturns } from "@/app/utils";
+import { Box, Grid, Typography, Chip, Badge } from "@mui/material";
+import { capitalizeFirstLetter, getDaysUntilWorkerReturns } from "@/app/utils";
 import { format } from "date-fns";
 import NumberCard from "./NumberCard";
 import TextCard from "./TextCard";
@@ -15,6 +15,7 @@ import {
 } from "@mui/icons-material";
 import type { Vacation, Worker, Department } from "@/app/types";
 import { TitleTypography } from "../../components/TitleTypography";
+import { RoleIcon } from "./RoleIcons";
 
 function Dashboard({
   data,
@@ -27,6 +28,7 @@ function Dashboard({
     returningToday: Vacation[];
     upcomingLeaves: Vacation[];
     upcomingReturns: Vacation[];
+    workersByRole: Partial<Record<string, Worker[]>>;
   };
 }) {
   const today = new Date().toLocaleDateString("pt-BR");
@@ -38,7 +40,21 @@ function Dashboard({
     returningToday,
     upcomingLeaves,
     upcomingReturns,
+    workersByRole,
   } = data;
+
+  const activeWorkers = workers.filter(
+    (worker) => worker.isActive === true
+  ).length;
+  const inactiveWorkers = workers.filter(
+    (worker) => worker.isActive === false
+  ).length;
+  const externalWorkers = workers.filter(
+    (worker) => worker.isExternal == true
+  ).length;
+  const internalWorkers = workers.filter(
+    (worker) => worker.isExternal === false
+  ).length;
 
   const onVacationTodayDetails = onVacationToday
     ? onVacationToday.map((worker) =>
@@ -51,9 +67,15 @@ function Dashboard({
       )
     : ["Ninguém folgando hoje."];
 
-  const returningTodayDetails = returningToday
+  const returningTodayDetails = returningToday.length
     ? returningToday.map(({ worker }) => worker?.name)
     : ["Ninguém retornando hoje."];
+
+  const workerDetails = [
+    `${inactiveWorkers} servidores inativos ou desligados.`,
+    `${internalWorkers} servidores internos.`,
+    `${externalWorkers} servidores externos.`,
+  ];
 
   const upcomingLeavesLines = upcomingLeaves?.map(({ worker, startDate }) => ({
     primary: worker?.name,
@@ -76,13 +98,39 @@ function Dashboard({
         {today}
       </Typography>
 
-      {/* Cards de estatísticas */}
       <Grid container spacing={3}>
+        <Grid
+          container
+          size={12}
+          spacing={1}
+          justifyContent="center"
+          alignItems="center"
+        >
+          {Object.keys(workersByRole)
+            .sort((a, b) => a.localeCompare(b))
+            .map((key) => (
+              <Grid size="auto" key={`role-chip-${key}`}>
+                <Badge
+                  badgeContent={workersByRole[key]?.length ?? 0}
+                  color="primary"
+                >
+                  <Chip
+                    icon={<RoleIcon role={key} />}
+                    label={`${capitalizeFirstLetter(key)}`}
+                    variant="outlined"
+                    color="primary"
+                    size="small"
+                  />
+                </Badge>
+              </Grid>
+            ))}
+        </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
           <NumberCard
             label="Servidores"
-            quantity={workers.length}
+            quantity={activeWorkers}
             icon={<Person color="primary" />}
+            details={workerDetails}
           />
         </Grid>
 

@@ -11,7 +11,10 @@ export default async function DepartmentFormPage({
 }) {
   const { id } = await searchParams;
   const department = await fetchOne<Department>({ type: "department", id });
-  const bosses = await fetchAllPaginated<Boss>({ type: "boss" });
+  const bosses = await fetchAllPaginated<Boss>({
+    type: "boss",
+    params: { isExternal: false },
+  });
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>

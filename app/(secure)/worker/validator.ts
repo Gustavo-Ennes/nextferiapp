@@ -34,7 +34,10 @@ export const WorkerValidator = z.object({
     z
       .string()
       .min(4, minMaxStringMessage({ prop: "justification", condition: "min" }))
-      .max(6, minMaxStringMessage({ prop: "justification", condition: "max" }))
+      .max(
+        100,
+        minMaxStringMessage({ prop: "justification", condition: "max" })
+      )
   ),
   isExternal: z.optional(z.boolean().default(false)),
 });
