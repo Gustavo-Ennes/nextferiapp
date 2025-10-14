@@ -1,12 +1,20 @@
 import type { Vacation } from "@/app/types";
 import dbConnect from "@/lib/database/database";
 import type { NextRequest } from "next/server";
-import { responseWithHeaders, updateVacationDates } from "../utils";
+import {
+  optionsResponse,
+  responseWithHeaders,
+  updateVacationDates,
+} from "../utils";
 import VacationModel from "@/models/Vacation";
 import type { AggregatedVacation, FacetResult } from "../types";
 import { revalidatePath } from "next/cache";
 import { addMilliseconds } from "date-fns";
 import { Types } from "mongoose";
+
+export async function OPTIONS() {
+  return optionsResponse();
+}
 
 export async function GET(req: NextRequest) {
   await dbConnect();
