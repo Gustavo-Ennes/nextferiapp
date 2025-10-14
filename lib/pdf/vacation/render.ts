@@ -11,7 +11,7 @@ import {
   createSign,
   createTitle,
 } from "../factory";
-import { getHeightObject, getBoss } from "../utils";
+import { getHeightObject, getBoss, getWorker } from "../utils";
 import { getParagraph, translateMonth, translateVacation } from "./utils";
 
 const drawHalfPage = async ({
@@ -98,17 +98,16 @@ const drawHalfPage = async ({
       )}.`
     );
 
-  const { role: bossRole, worker: bossWorker } =
-    vacation.boss ?? (await getBoss(vacation)) ?? "Chefe excluído";
+  const worker = await getWorker(vacation.boss);
 
   if (isDayOff) height.stepLines(2);
 
   await createSign({
     document,
     height,
-    name: bossWorker.name,
-    role: bossRole,
-    worker: bossWorker,
+    name: worker?.name,
+    role: vacation.boss.role,
+    worker: worker ?? undefined,
   });
 };
 

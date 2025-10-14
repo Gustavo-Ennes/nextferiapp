@@ -4,6 +4,7 @@ import { range, slice, takeLast } from "ramda";
 import type {
   Vacation as VacationInterface,
   Boss as BossInterface,
+  Worker,
 } from "@/app/types";
 import type { GetMultiTextWidthParam } from "./types";
 
@@ -83,6 +84,13 @@ const getBoss = async (
 
   return await Boss.findOne({ isDirector }).exec();
 };
+const getWorker = async (
+  boss?: BossInterface
+): Promise<Worker | null> => {
+  const Worker = (await import("@/models/Worker")).default;
+
+  return await Worker.findOne({ _id: boss?.worker }).exec();
+};
 
 export const formatMatriculation = (matriculation?: string): string => {
   if (!matriculation) return "";
@@ -104,4 +112,5 @@ export {
   getMultiTextMeasures,
   sumMapUntil,
   calculateCellRealWidth,
+  getWorker
 };

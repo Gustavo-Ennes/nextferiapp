@@ -21,6 +21,7 @@ import {
   getMultiTextMeasures,
 } from "./utils";
 import { translateVacationPeriod } from "./vacation/utils";
+import { capitalizeName } from "@/app/utils";
 
 const createHeader = async (
   document: PDFDocument,
@@ -152,7 +153,7 @@ const createSign = async ({
   const boldFontSize = regularFontSize * 1.1;
   const textLines = [
     "_____________________",
-    name ?? worker?.name ?? "Excluído",
+    capitalizeName(name ?? worker?.name ?? "excluído"),
     role ?? "",
   ];
   const maxWidth = page.getWidth();
@@ -210,7 +211,7 @@ const drawTopRightText = ({
   fontSize?: number;
   offset?: number;
 }) => {
-  const page = document.getPage(document.getPageCount() - 1); 
+  const page = document.getPage(document.getPageCount() - 1);
   page.drawText(text, {
     size: fontSize,
     x: page.getWidth() - 100 - offset,
