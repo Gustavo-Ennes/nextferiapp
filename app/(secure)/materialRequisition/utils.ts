@@ -1,6 +1,6 @@
 import { format, isSameDay, toDate } from "date-fns";
 import type { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
-import { pluck } from "ramda";
+import { flatten, pluck } from "ramda";
 // import { mockedTabsData } from "./mock";
 
 export const setLocalStorageData = ({
@@ -78,4 +78,13 @@ export const prefixExistsInTabData = ({
   const prefixes = pluck("prefix", carEntries ?? []);
 
   return prefixes.includes(prefix);
+};
+
+export const resumeTabData = (tabData?: TabData): string => {
+  if (!tabData) return "";
+
+  const totalFuelings = flatten(
+    tabData.carEntries.map((carEntry) => carEntry.fuelings)
+  ).length;
+  return `${tabData.department} - ${tabData.carEntries.length} veículos - ${totalFuelings} abastecimentos`;
 };

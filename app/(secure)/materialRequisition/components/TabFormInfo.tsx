@@ -1,3 +1,5 @@
+"use client";
+
 import { translateEntityKey } from "@/app/translate";
 import {
   Grid,
@@ -9,7 +11,7 @@ import {
 } from "@mui/material";
 import { fuelList } from "../utils";
 import type { FuelType } from "../types";
-import type { SetStateAction, RefObject } from "react";
+import { type SetStateAction, type RefObject, useEffect } from "react";
 
 export const TabFormInfo = ({
   vehicle,
@@ -30,6 +32,10 @@ export const TabFormInfo = ({
   vechicleEquipInputRef: RefObject<HTMLInputElement | null>;
   prefixExists: boolean;
 }) => {
+  useEffect(() => {
+    vechicleEquipInputRef?.current?.focus();
+  }, []);
+
   return (
     <Grid container spacing={2}>
       <Grid size={12}>

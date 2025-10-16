@@ -8,6 +8,7 @@ import {
   Grid,
   Tooltip,
   Typography,
+  Chip,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { NewTabDialog } from "./components/TabDialog";
@@ -15,12 +16,13 @@ import type { DialogData, LocalStorageData, TabData } from "./types";
 import {
   getLocalStorageData,
   removeAllCarEntries,
+  resumeTabData,
   setLocalStorageData,
 } from "./utils";
 import { Tab as MaterialRequisitionTab } from "./components/Tab";
 import { TabPanel } from "./components/TabPanel";
-import { Close } from "@mui/icons-material";
-import { head, isNil, reject } from "ramda";
+import { Close, CorporateFareOutlined } from "@mui/icons-material";
+import { head, insert, isNil, pluck, reject, remove } from "ramda";
 import { TitleTypography } from "../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { ConfirmationDialog } from "../components/ConfirmationDialog";
@@ -31,7 +33,6 @@ export default function MaterialRequisitionPage() {
   const [newTabDialog, setNewTabDialog] = useState(false);
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [dialogData, setDialogData] = useState<DialogData>();
-  const [tabCounter, setTabCounter] = useState(0);
   const { setPdf } = usePdfPreview();
 
   // Load
@@ -41,7 +42,6 @@ export default function MaterialRequisitionPage() {
         if (data.length) {
           setTabsData(data);
           setActiveTab(activeTab);
-          setTabCounter(data.length);
         }
       })
       .catch((err) => {
@@ -74,25 +74,25 @@ export default function MaterialRequisitionPage() {
     if (existingTab) {
       setActiveTab(tabsData.indexOf(existingTab));
     } else {
+      const ids = pluck("id", tabsData);
+      const newId = Math.max(...ids) + 1;
       const newTab: TabData = {
+        id: newId ?? 1,
         department: name,
         carEntries: [],
       };
       setTabsData((prev) => [...prev, newTab]);
       setActiveTab(tabsData.length);
       setNewTabDialog(false);
-      setTabCounter(tabCounter + 1);
     }
   };
 
   const onTabsDataChange = (tabData: TabData) => {
-    const anotherTabs = tabsData.filter(
-      (tab) => tab.department !== tabData?.department
-    );
-    const newTabs = [...anotherTabs];
-    if (tabData.carEntries?.length) newTabs.push(tabData);
-
-    setTabsData(newTabs);
+    const tabDataId = tabsData.indexOf(tabData);
+    const anotherTabs = remove(tabDataId, 1, tabsData);
+    if (tabData.carEntries.length)
+      setTabsData(insert(tabDataId, tabData, anotherTabs));
+    else setTabsData(anotherTabs);
   };
 
   const onTabClose = (tabData: TabData) => {
@@ -147,8 +147,15 @@ export default function MaterialRequisitionPage() {
         <TitleTypography>
           Requisições de materiais - combustível
         </TitleTypography>
+        <Chip
+          color="primary"
+          icon={<CorporateFareOutlined />}
+          size="small"
+          label={resumeTabData(tabsData[activeTab])}
+          sx={{ float: "right", fontSize: 10, px: 2 }}
+        ></Chip>
       </Grid>
-      <Grid size={2}>
+      <Grid size={2} justifyContent="center" alignItems="center" px={1}>
         <Button
           variant="outlined"
           size="small"
@@ -178,34 +185,37 @@ export default function MaterialRequisitionPage() {
           orientation="vertical"
           sx={{ mb: 2, m: "auto", mt: 1 }}
         >
-          {tabsData.map((tabData, idx) => (
-            <Tab
-              key={idx}
-              label={tabData.department}
-              value={idx}
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              sx={{ fontSize: 12, zIndex: 1 }}
-              icon={<TabCloseIcon tabData={tabData} />}
-              iconPosition="end"
-            />
-          ))}
+          {tabsData
+            .sort((a, b) => a.id - b.id)
+            .map((tabData, idx) => (
+              <Tab
+                key={idx}
+                label={tabData.department}
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                sx={{ fontSize: 12, zIndex: 1 }}
+                icon={<TabCloseIcon tabData={tabData} />}
+                iconPosition="end"
+              />
+            ))}
         </Tabs>
       </Grid>
 
       <Grid size={10}>
         {tabsData.length ? (
-          tabsData.map((tabData, idx) => (
-            <TabPanel
-              index={activeTab}
-              value={idx}
-              key={`materialRequisitionTab${idx}`}
-            >
-              <MaterialRequisitionTab
-                data={tabData}
-                onDataChange={onTabsDataChange}
-              />
-            </TabPanel>
-          ))
+          tabsData
+            .sort((a, b) => a.id - b.id)
+            .map((tabData, idx) => (
+              <TabPanel
+                index={activeTab}
+                value={idx}
+                key={`materialRequisitionTab${idx}`}
+              >
+                <MaterialRequisitionTab
+                  data={tabData}
+                  onDataChange={onTabsDataChange}
+                />
+              </TabPanel>
+            ))
         ) : (
           <Typography sx={{ p: 2 }}>
             Adicione uma aba para requisições de um departamento.

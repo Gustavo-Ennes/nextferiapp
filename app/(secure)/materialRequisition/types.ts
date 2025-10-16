@@ -17,8 +17,9 @@ export interface CarEntry {
 }
 
 export interface TabData {
-  department?: string;
-  carEntries?: CarEntry[];
+  department: string;
+  carEntries: CarEntry[];
+  id: number;
 }
 
 export interface TabPanelProps {

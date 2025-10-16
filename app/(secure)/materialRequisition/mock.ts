@@ -52,7 +52,7 @@ export const mockedTabsData: () => TabData[] = () => {
 
   return Array.from({ length }, (_, tabIndex) => {
     return {
-      index: tabIndex,
+      id: tabIndex,
       department: `Departamento ${tabIndex + 1}`,
       carEntries: generateCarEntries(carCount, tabIndex),
     };
