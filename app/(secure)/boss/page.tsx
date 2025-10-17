@@ -2,24 +2,23 @@ import type { Boss } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 import { fetchPaginatedByPage } from "../utils";
 import { parseBool } from "../components/utils";
+import type { RawSearchParams } from "../types";
 
 const BossList = async ({
   searchParams,
 }: {
-  searchParams: Promise<{
-    page: number;
-    contains?: string;
-    isExternal?: string;
-  }>;
+  searchParams: Promise<RawSearchParams>;
 }) => {
-  const { page, contains, isExternal } = await searchParams;
+  const { page, contains, isExternal, isActive } = await searchParams;
   const isExternalBool = parseBool(isExternal);
+  const isActiveBool = parseBool(isActive);
   const paginatedResponse = await fetchPaginatedByPage<Boss>({
     type: "boss",
     params: {
-      page: page ?? 1,
+      page: page ? parseInt(page) : 1,
       ...(contains && { contains }),
       ...(isExternal !== undefined && { isExternal: isExternalBool }),
+      isActive: isActiveBool ?? true,
     },
   });
 

@@ -14,6 +14,7 @@ export default async function WorkerFormPage({
   const worker = await fetchOne<Worker>({ type: "worker", id });
   const departments = await fetchAllPaginated<Department>({
     type: "department",
+    params: { isActive: true },
   });
 
   return (

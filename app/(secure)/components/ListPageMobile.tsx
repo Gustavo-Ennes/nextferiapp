@@ -121,7 +121,11 @@ export function ListPageMobile<T extends Entity>({
                     edge="end"
                     size="small"
                     onClick={(e) => handleEdit(e, item)}
-                    disabled={vacationType && !(item as Vacation).worker}
+                    disabled={
+                      vacationType !== null &&
+                      vacationType !== undefined &&
+                      !(item as Vacation).worker
+                    }
                   >
                     <EditIcon fontSize="large" />
                   </IconButton>

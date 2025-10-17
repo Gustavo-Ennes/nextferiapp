@@ -2,7 +2,6 @@ import type { SearchParams } from "@/app/(secure)/types";
 import type { FacetResult, AggregatedBoss } from "@/app/api/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
 import BossModel from "@/models/Boss";
-import WorkerModel from "@/models/Worker";
 import type {
   FindOneRepositoryParam,
   PaginationRepositoryReturn,
@@ -10,18 +9,20 @@ import type {
 } from "./types";
 import type { Boss } from "@/app/types";
 import type { BossFormData } from "@/app/(secure)/boss/types";
+import { WorkerRepository } from "./worker";
 
 export const BossRepository = {
   async find({
     page,
     isExternal,
     contains,
+    isActive,
   }: SearchParams): Promise<PaginationRepositoryReturn<Boss>> {
     const skip = ((page as number) - 1) * PAGINATION_LIMIT;
 
     const filter = {
-      isActive: true,
-      ...(isExternal !== null && { isExternal }),
+      ...(isActive !== null && isActive !== undefined && { isActive }),
+      ...(isExternal !== null && isExternal !== undefined && { isExternal }),
     };
 
     const pipeline = [];
@@ -75,7 +76,10 @@ export const BossRepository = {
   },
 
   async create(payload: BossFormData): Promise<Boss> {
-    const worker = await WorkerModel.findOne({ _id: payload.worker });
+    const worker = await WorkerRepository.findOne({
+      id: payload.worker,
+      isActive: true,
+    });
 
     if (!worker) throw new Error("No worker found for given id.");
 
@@ -94,8 +98,8 @@ export const BossRepository = {
   }: FindOneRepositoryParam): Promise<Boss | null> {
     const boss = await BossModel.findOne({
       _id: id,
-      ...(isActive !== null && { isActive }),
-      ...(isExternal !== null && { isExternal }),
+      ...(isActive !== null && isActive !== undefined && { isActive }),
+      ...(isExternal !== null && isExternal !== undefined && { isExternal }),
     }).populate("worker");
 
     return boss;
@@ -108,10 +112,12 @@ export const BossRepository = {
     let worker: Worker | null = null;
 
     if (payload.worker)
-      worker = await WorkerModel.findOne({ _id: payload.worker });
+      worker = await WorkerRepository.findOne({
+        id: payload.worker,
+        isActive: true,
+      });
 
-    if (payload.worker && !worker)
-      throw new Error("No worker found for given id.");
+    if (payload.worker && !worker) throw new Error("Boss worker not found.");
 
     const boss = await BossModel.findByIdAndUpdate(id, payload);
 

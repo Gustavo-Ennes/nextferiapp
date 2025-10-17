@@ -29,7 +29,7 @@ export default async function VacationFormPage({
 
   const bosses = await fetchAllPaginated<Boss>({
     type: "boss",
-    params: { isExternal: false },
+    params: { isExternal: false, isActive: true },
   });
   const workers = await fetchAllPaginated<Worker>({
     type: "worker",

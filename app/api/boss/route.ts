@@ -21,11 +21,13 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const contains = searchParams.get("contains");
     const isExternal = parseBool(searchParams.get("isExternal"));
+    const isActive = parseBool(searchParams.get("isActive"));
 
     const { data, totalItems, totalPages } = await BossRepository.find({
       page,
       contains,
       isExternal,
+      isActive,
     });
 
     return responseWithHeaders<Boss>({

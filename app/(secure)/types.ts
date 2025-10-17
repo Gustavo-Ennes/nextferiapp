@@ -14,6 +14,17 @@ export type SearchParams = {
   isExternal?: boolean | null;
 };
 
+export type RawSearchParams = {
+  type?: VacationTypeParam | null;
+  page?: string | null;
+  cancelled?: string | null;
+  isActive?: string | null;
+  isDirector?: boolean | null;
+  worker?: string | null;
+  contains?: string | null;
+  isExternal?: string | null;
+};
+
 export type FetchManyParam = { type?: EntityType; params?: SearchParams };
 
 export type FetchOneParam = {

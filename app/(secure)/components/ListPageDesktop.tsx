@@ -118,7 +118,11 @@ export const ListPageDesktop = <T extends Entity>({
                 <TableCell align="center">
                   <IconButton
                     onClick={(e) => handleEdit(e, item._id)}
-                    disabled={vacationType && !(item as Vacation).worker}
+                    disabled={
+                      vacationType !== null &&
+                      vacationType !== undefined &&
+                      !(item as Vacation).worker
+                    }
                     sx={{ color: "#8f8c5dff" }}
                   >
                     <EditIcon />

@@ -7,11 +7,13 @@ import { type Boss, type Worker } from "@/app/types";
 export default async function BossFormPage({
   searchParams,
 }: {
-  searchParams: Promise<{ id: string; type: string }>;
+  searchParams: Promise<{ id?: string }>;
 }) {
   const { id } = await searchParams;
+  let boss: Boss | undefined;
 
-  const boss = await fetchOne<Boss>({ type: "boss", id });
+  if (id) boss = await fetchOne<Boss>({ type: "boss", id });
+
   const workers = await fetchAllPaginated<Worker>({
     type: "worker",
     params: { isActive: true, isExternal: false },

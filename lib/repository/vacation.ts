@@ -121,7 +121,7 @@ export const VacationRepository = {
   }: VacationFindOneRepositoryParam): Promise<Vacation | void> {
     const vacation = await VacationModel.findOne({
       _id: id,
-      ...(cancelled !== undefined && { cancelled }),
+      ...(cancelled !== undefined && cancelled !== null && { cancelled }),
     })
       .populate("worker")
       .populate("boss");

@@ -8,8 +8,8 @@ export interface ItemListProps<T extends { _id: string }> {
   pagination: PaginatedResponse<T>;
   routePrefix: EntityType;
   onDelete: (entity: Entity) => void;
-  vacationType?: VacationType;
-  contains?: string;
+  vacationType?: VacationType | null;
+  contains?: string | null;
 }
 
 export type MenuItem = {
@@ -35,8 +35,8 @@ export type ResponsiveListPageParam<T> = {
   paginatedResponse: PaginatedResponse<T>;
   routePrefix: EntityType;
   pageTitle?: string;
-  vacationType?: VacationType;
-  contains?: string;
+  vacationType?: VacationType | null;
+  contains?: string | null;
   isExternal?: boolean | null;
 };
 

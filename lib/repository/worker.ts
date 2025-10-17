@@ -19,9 +19,9 @@ export const WorkerRepository = {
     const skip = ((page as number) - 1) * PAGINATION_LIMIT;
 
     const filter = {
-      ...(isActive !== null && { isActive }),
+      ...(isActive !== null && isActive !== undefined && { isActive }),
       ...(contains && { name: { $regex: contains, $options: "i" } }),
-      ...(isExternal !== null && { isExternal }),
+      ...(isExternal !== null && isExternal !== undefined && { isExternal }),
     };
 
     const [data, totalItems] = await Promise.all([
@@ -45,8 +45,8 @@ export const WorkerRepository = {
   async findOne({ id, isActive, isExternal }: FindOneRepositoryParam) {
     const worker = await WorkerModel.findOne({
       _id: id,
-      ...(isActive !== undefined && { isActive }),
-      ...(isExternal !== undefined && { isActive }),
+      ...(isActive !== null && isActive !== undefined && { isActive }),
+      ...(isExternal !== null && isExternal !== undefined && { isExternal }),
     }).populate("department");
 
     return worker;

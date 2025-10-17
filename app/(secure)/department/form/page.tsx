@@ -13,7 +13,7 @@ export default async function DepartmentFormPage({
   const department = await fetchOne<Department>({ type: "department", id });
   const bosses = await fetchAllPaginated<Boss>({
     type: "boss",
-    params: { isExternal: false },
+    params: { isExternal: false, isActive: true },
   });
 
   return (

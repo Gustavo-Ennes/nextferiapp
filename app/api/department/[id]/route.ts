@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import DepartmentModel from "@/models/Department";
 import type { Department } from "@/app/types";
 import { optionsResponse, responseWithHeaders } from "../../utils";
+import { DepartmentRepository } from "@/lib/repository/department";
+import { parseBool } from "@/app/(secure)/components/utils";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -12,25 +13,19 @@ export async function GET(req: NextRequest) {
   await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop();
+  const { searchParams } = new URL(url);
+  const isActive = parseBool(searchParams.get("isActive"));
 
   try {
-    const department = await DepartmentModel.findOne({
-      _id: id,
-      isActive: true,
-    }).populate({
-      path: "responsible",
-      populate: {
-        path: "worker",
-      },
-    });
+    if (!id) throw new Error("No id provided.");
 
-    if (!department)
-      return responseWithHeaders<Department>({
-        error: "Department not found.",
-      });
+    const department = await DepartmentRepository.findOne({ id, isActive });
+
+    if (!department) throw new Error("Department not found.");
 
     return responseWithHeaders<Department>({ data: department });
   } catch (error) {
+    console.error("DEPARTMENT GET[id] ~ error:", error);
     return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }
@@ -38,18 +33,19 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   await dbConnect();
   const { url } = req;
-  const body = await req.json();
+  const payload = await req.json();
   const id = url?.split("/").pop();
 
   try {
-    const department = await DepartmentModel.findByIdAndUpdate(id, body);
-    if (!department)
-      return responseWithHeaders<Department>({
-        error: "Department not found.",
-      });
+    if (!id) throw new Error("No id provided.");
+
+    const department = await DepartmentRepository.update({ id, payload });
+
+    if (!department) throw new Error("Department not found.");
 
     return responseWithHeaders<Department>({ data: department });
   } catch (error) {
+    console.error("DEPARTMENT PUT ~ error:", error);
     return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }
@@ -60,16 +56,15 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    const department = await DepartmentModel.findByIdAndUpdate(id, {
-      isActive: false,
-    });
-    if (!department)
-      return responseWithHeaders<Department>({
-        error: "Department not found.",
-      });
+    if (!id) throw new Error("No id provided.");
+
+    const department = await DepartmentRepository.delete(id);
+
+    if (!department) throw new Error("Department not found.");
 
     return responseWithHeaders<Department>({ data: department });
   } catch (error) {
+    console.error("DEPARTMENT DELETE ~ error:", error);
     return responseWithHeaders<Department>({ error: (error as Error).message });
   }
 }
