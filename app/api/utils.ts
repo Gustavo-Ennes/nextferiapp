@@ -13,9 +13,10 @@ import type {
   VacationsQueryOptionsInterface,
   VacationsResolverArgsInterface,
 } from "./types";
-import type { Boss, Entity, Vacation } from "../types";
+import type { Boss, Entity } from "../types";
 import { NextResponse } from "next/server";
 import type { Model } from "mongoose";
+import type { VacationFormData } from "../(secure)/vacation/types";
 
 export const headers = {
   "Access-Control-Allow-Origin": "*",
@@ -61,22 +62,16 @@ const buildOptions = ({
   return options;
 };
 
-const updateVacationDates = (vacation: Vacation): Vacation => ({
+const updateVacationDates = (vacation: VacationFormData): VacationFormData => ({
   ...vacation,
   ...(vacation.startDate && {
-    startDate: startOfDay(new Date(vacation.startDate)),
+    startDate: startOfDay(new Date(vacation.startDate)).toISOString(),
     endDate: endOfDay(
-      addDays(
-        new Date(vacation.startDate),
-        ((vacation.duration ?? vacation.daysQtd) as number) - 1
-      )
-    ),
+      addDays(new Date(vacation.startDate), (vacation.duration as number) - 1)
+    ).toISOString(),
     returnDate: startOfDay(
-      addDays(
-        new Date(vacation.startDate),
-        (vacation.duration ?? vacation.daysQtd) as number
-      )
-    ),
+      addDays(new Date(vacation.startDate), vacation.duration)
+    ).toISOString(),
   }),
 });
 

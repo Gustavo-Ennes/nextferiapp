@@ -1,17 +1,17 @@
 import type { EntityType } from "../types";
-import type { VacationType } from "./vacation/types";
+import type { VacationTypeParam } from "./vacation/types";
 
 export type SearchParam = "type" | "page" | "cancelled" | "isActive";
 
 export type SearchParams = {
-  type?: VacationType;
-  page?: number;
-  cancelled?: boolean;
-  isActive?: boolean;
-  isDirector?: boolean;
-  worker?: string;
-  contains?: string;
-  isExternal?: boolean;
+  type?: VacationTypeParam | null;
+  page?: number | null;
+  cancelled?: boolean | null;
+  isActive?: boolean | null;
+  isDirector?: boolean | null;
+  worker?: string | null;
+  contains?: string | null;
+  isExternal?: boolean | null;
 };
 
 export type FetchManyParam = { type?: EntityType; params?: SearchParams };

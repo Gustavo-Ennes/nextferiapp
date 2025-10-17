@@ -30,6 +30,7 @@ export const VacationValidator = z
     worker: ObjectIdString,
     boss: ObjectIdString,
     observation: z.string().optional(),
+    cancelled: z.optional(z.boolean()),
   })
   .superRefine((data, ctx) => {
     /* Validações condicionais por tipo */
