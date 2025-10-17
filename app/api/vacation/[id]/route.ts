@@ -22,12 +22,11 @@ export async function GET(req: NextRequest) {
   const cancelled = parseBool(searchParams.get("cancelled")) ?? false;
 
   try {
-    if (!id) return responseWithHeaders<Vacation>({ error: "No id provided" });
+    if (!id) throw new Error("No id provided");
 
     const vacation = await VacationRepository.findOne({ id, cancelled });
 
-    if (!vacation)
-      return responseWithHeaders<Vacation>({ error: "Vacation not found." });
+    if (!vacation) throw new Error("Vacation not found.");
 
     return responseWithHeaders<Vacation>({ data: vacation });
   } catch (error) {
@@ -46,17 +45,16 @@ export async function PUT(req: NextRequest) {
   revalidatePath("/vacation");
 
   try {
-    if (!id) return responseWithHeaders<Vacation>({ error: "No id provided" });
+    if (!id) throw new Error("No id provided");
 
     const payload = updateVacationDates(body);
     const vacation = await VacationRepository.update({ id, payload });
 
-    if (!vacation)
-      return responseWithHeaders<Vacation>({ error: "Vacation not found." });
+    if (!vacation) throw new Error("Vacation not found.");
 
     return responseWithHeaders<Vacation>({ data: vacation });
   } catch (error) {
-    console.error("VACATION[id] PUT ~ error:", error);
+    console.error("VACATION PUT ~ error:", error);
     return responseWithHeaders<Vacation>({ error: (error as Error).message });
   }
 }
@@ -67,16 +65,15 @@ export async function DELETE(req: NextRequest) {
   const id = url?.split("/").pop();
 
   try {
-    if (!id) return responseWithHeaders<Vacation>({ error: "No id provided" });
+    if (!id) throw new Error("No id provided");
 
     const vacation = await VacationRepository.delete(id);
 
-    if (!vacation)
-      return responseWithHeaders<Vacation>({ error: "Vacation not found." });
+    if (!vacation) throw new Error("Vacation not found.");
 
     return responseWithHeaders<Vacation>({ data: vacation });
   } catch (error) {
-    console.error("VACATION[id] DELETE ~ error:", error);
+    console.error("VACATION DELETE ~ error:", error);
     return responseWithHeaders<Vacation>({ error: (error as Error).message });
   }
 }

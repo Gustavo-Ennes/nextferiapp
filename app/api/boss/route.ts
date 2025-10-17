@@ -3,12 +3,9 @@ import dbConnect from "@/lib/database/database";
 import BossModel from "@/models/Boss";
 import WorkerModel from "@/models/Worker";
 import type { Boss } from "@/app/types";
-import {
-  getBooleanStringSearchParam,
-  optionsResponse,
-  responseWithHeaders,
-} from "../utils";
+import { optionsResponse, responseWithHeaders } from "../utils";
 import type { AggregatedBoss, FacetResult } from "../types";
+import { parseBool } from "@/app/(secure)/components/utils";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -22,9 +19,7 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "20", 10);
     const contains = searchParams.get("contains");
-    const isExternal = getBooleanStringSearchParam(
-      searchParams.get("isExternal")
-    );
+    const isExternal = parseBool(searchParams.get("isExternal"));
 
     const skip = (page - 1) * limit;
 

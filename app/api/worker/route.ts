@@ -1,13 +1,14 @@
 import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
 import type { Worker } from "@/app/types";
-import WorkerModel from "@/models/Worker";
 import { revalidatePath } from "next/cache";
 import {
   responseWithHeaders,
   optionsResponse,
-  getBooleanStringSearchParam,
+  PAGINATION_LIMIT,
 } from "../utils";
+import { parseBool } from "@/app/(secure)/components/utils";
+import { WorkerRepository } from "@/lib/repository/worker";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -19,41 +20,28 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
     const contains = searchParams.get("contains");
-    const isExternal = getBooleanStringSearchParam(
-      searchParams.get("isExternal")
-    );
-    const isActive = getBooleanStringSearchParam(searchParams.get("isActive"));
+    const isExternal = parseBool(searchParams.get("isExternal"));
+    const isActive = parseBool(searchParams.get("isActive"));
 
-    const skip = (page - 1) * limit;
-
-    const filter = {
-      ...(isActive !== null && { isActive }),
-      ...(contains && { name: { $regex: contains, $options: "i" } }),
-      ...(isExternal !== null && { isExternal }),
-    };
-
-    const [data, totalItems] = await Promise.all([
-      WorkerModel.find(filter)
-        .sort({ name: 1 })
-        .skip(skip)
-        .limit(limit)
-        .populate("department"),
-      WorkerModel.countDocuments(filter),
-    ]);
-    const totalPages = Math.ceil(totalItems / limit);
+    const { data, totalItems, totalPages } = await WorkerRepository.find({
+      page,
+      contains,
+      isExternal,
+      isActive,
+    });
 
     return responseWithHeaders<Worker>({
       data,
       currentPage: page,
       totalItems,
       totalPages,
-      limit,
+      limit: PAGINATION_LIMIT,
       hasNextPage: page < totalPages,
       hasPrevPage: page > 1,
     });
   } catch (error) {
+    console.error("WORKER GET ~ error:", error);
     return responseWithHeaders<Worker>({ error: (error as Error).message });
   }
 }
@@ -63,13 +51,14 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   try {
-    const worker = await WorkerModel.create(body);
+    const worker = await WorkerRepository.create(body);
 
     revalidatePath("/worker");
     return responseWithHeaders<Worker>({ data: worker });
   } catch (error) {
+    console.error("WORKER POST ~ error:", error);
     return responseWithHeaders<Worker>({ error: (error as Error).message });
   }
 }
 
-// colocar admissionDate no form do worker
+// TODO colocar admissionDate no form do worker

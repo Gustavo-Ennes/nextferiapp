@@ -37,7 +37,7 @@ export type ResponsiveListPageParam<T> = {
   pageTitle?: string;
   vacationType?: VacationType;
   contains?: string;
-  isExternal?: boolean;
+  isExternal?: boolean | null;
 };
 
 export type DataListItem = {

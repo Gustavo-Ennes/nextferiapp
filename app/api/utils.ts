@@ -75,16 +75,8 @@ const updateVacationDates = (vacation: VacationFormData): VacationFormData => ({
   }),
 });
 
-const getBooleanStringSearchParam = (param: string | null): boolean | null => {
-  if (param === "false") return false;
-  if (param == "true") return true;
-  return null;
-};
-
-export { buildOptions, updateVacationDates, getBooleanStringSearchParam };
-
 // function to populate new default props to past documents without the prop
-export async function applyDefaultField<T>(model: Model<T>) {
+async function applyDefaultField<T>(model: Model<T>) {
   try {
     console.log("Iniciando migração de campo default...");
 
@@ -110,3 +102,12 @@ export async function applyDefaultField<T>(model: Model<T>) {
     console.error("Erro durante a migração:", error);
   }
 }
+
+const PAGINATION_LIMIT = 20 as const;
+
+export {
+  buildOptions,
+  updateVacationDates,
+  applyDefaultField,
+  PAGINATION_LIMIT,
+};

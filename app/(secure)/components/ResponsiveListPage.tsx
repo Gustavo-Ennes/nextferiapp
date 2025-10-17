@@ -95,7 +95,7 @@ const ResponsiveListPage = <T extends Entity>({
   const handleSearch = (term: string, isExternal?: boolean) => {
     setSearch(term);
     const isExternalString = String(isExternal);
-    console.log("🚀 ~ handleSearch ~ isExternalString:", isExternalString);
+
     router.replace(
       `/${routePrefix}${
         vacationType && vacationType !== "normal" ? `/${vacationType}` : ""

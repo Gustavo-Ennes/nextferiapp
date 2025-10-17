@@ -24,7 +24,7 @@ export const Search = ({
   handleSearch: (term: string, isExternal?: boolean) => void;
   routePrefix: EntityType;
   enabledProps: SearchProps;
-  isExternal?: boolean;
+  isExternal?: boolean | null;
 }) => {
   const [term, setTerm] = useState("");
   const [searchProps, setSearchProps] = useState<SearchProps>(

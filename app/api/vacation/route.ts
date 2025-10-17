@@ -3,6 +3,7 @@ import dbConnect from "@/lib/database/database";
 import type { NextRequest } from "next/server";
 import {
   optionsResponse,
+  PAGINATION_LIMIT,
   responseWithHeaders,
   updateVacationDates,
 } from "../utils";
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
       currentPage: page,
       totalItems,
       totalPages,
-      limit: 20,
+      limit: PAGINATION_LIMIT,
       hasNextPage: page < totalPages,
       hasPrevPage: page > 1,
     });
