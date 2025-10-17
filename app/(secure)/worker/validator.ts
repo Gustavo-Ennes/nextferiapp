@@ -40,4 +40,5 @@ export const WorkerValidator = z.object({
       )
   ),
   isExternal: z.optional(z.boolean().default(false)),
+  isActive: z.optional(z.boolean()),
 });

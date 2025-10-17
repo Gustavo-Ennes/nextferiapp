@@ -1,8 +1,5 @@
-import type { VacationFormData } from "@/app/(secure)/vacation/types";
-import type { Vacation } from "@/app/types";
-
-export type VacationFindRepositoryReturn = {
-  data: Vacation[];
+export type PaginationRepositoryReturn<T> = {
+  data: T[];
   totalItems: number;
   totalPages: number;
 };
@@ -12,7 +9,19 @@ export type VacationFindOneRepositoryParam = {
   cancelled?: boolean | null;
 };
 
-export type VacationUpdateRepositoryParam = {
+export type UpdateRepositoryParam<T> = {
   id: string;
-  payload: Partial<VacationFormData>;
-}
+  payload: Partial<T>;
+};
+
+export type FindOneRepositoryParam = {
+  id: string;
+  isActive?: boolean | null;
+  isExternal?: boolean | null;
+};
+
+export type BossFindOneRepositoryParam = {
+  id: string;
+  isActive?: boolean | null;
+  isExternal?: boolean | null;
+};

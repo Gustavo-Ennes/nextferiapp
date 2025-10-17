@@ -60,14 +60,12 @@ export function BossForm({ defaultValues, workers }: BossProps) {
       snackbarData.message = `Chefe ${
         defaultValues ? "editado" : "criado"
       } com sucesso!`;
-      snackbarData.message = "success";
     } catch (err) {
       console.error(err);
 
       snackbarData.message = `Eita, houve um erro na ${
         defaultValues ? "edição" : "criação"
       } do chefe.`;
-      snackbarData.severity = "error";
     } finally {
       router.push("/boss");
 

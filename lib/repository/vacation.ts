@@ -5,13 +5,12 @@ import { addMilliseconds } from "date-fns";
 import { Types } from "mongoose";
 import type {
   VacationFindOneRepositoryParam,
-  VacationFindRepositoryReturn,
-  VacationUpdateRepositoryParam,
+  PaginationRepositoryReturn,
+  UpdateRepositoryParam,
 } from "./types";
 import type { Vacation } from "@/app/types";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
-
-const LIMIT = 20;
+import { PAGINATION_LIMIT } from "@/app/api/utils";
 
 export const VacationRepository = {
   async find({
@@ -19,8 +18,8 @@ export const VacationRepository = {
     type,
     worker,
     contains,
-  }: SearchParams): Promise<VacationFindRepositoryReturn> {
-    const skip = ((page as number) - 1) * (LIMIT as number);
+  }: SearchParams): Promise<PaginationRepositoryReturn<Vacation>> {
+    const skip = ((page as number) - 1) * (PAGINATION_LIMIT as number);
     const typeFilter = type === "all" ? undefined : !type ? "normal" : type;
 
     // --- 1. CONSTRUÇÃO DO FILTRO BASE ---
@@ -90,14 +89,14 @@ export const VacationRepository = {
         $facet: {
           // Contagem total para a paginação
           totalItems: [{ $count: "count" }],
-          // Aplica skip e LIMIT
-          data: [{ $skip: skip }, { $limit: LIMIT }],
+          // Aplica skip e PAGINATION_LIMIT
+          data: [{ $skip: skip }, { $limit: PAGINATION_LIMIT }],
         },
       },
     ]).exec();
 
     const totalItems = data.totalItems[0]?.count || 0;
-    const totalPages = Math.ceil(totalItems / LIMIT);
+    const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
 
     // Ajusta o formato da resposta para corresponder ao seu modelo
     const finalData = data.data.map((doc: AggregatedVacation) => ({
@@ -133,7 +132,7 @@ export const VacationRepository = {
   async update({
     id,
     payload,
-  }: VacationUpdateRepositoryParam): Promise<Vacation> {
+  }: UpdateRepositoryParam<VacationFormData>): Promise<Vacation> {
     const vacation = await VacationModel.findByIdAndUpdate(id, payload);
     return vacation;
   },

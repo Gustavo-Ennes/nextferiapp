@@ -1,11 +1,13 @@
 import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import BossModel from "@/models/Boss";
-import WorkerModel from "@/models/Worker";
 import type { Boss } from "@/app/types";
-import { optionsResponse, responseWithHeaders } from "../utils";
-import type { AggregatedBoss, FacetResult } from "../types";
+import {
+  optionsResponse,
+  PAGINATION_LIMIT,
+  responseWithHeaders,
+} from "../utils";
 import { parseBool } from "@/app/(secure)/components/utils";
+import { BossRepository } from "@/lib/repository/boss";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -17,74 +19,26 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "20", 10);
     const contains = searchParams.get("contains");
     const isExternal = parseBool(searchParams.get("isExternal"));
 
-    const skip = (page - 1) * limit;
-
-    const filter = {
-      isActive: true,
-      ...(isExternal !== null && { isExternal }),
-    };
-
-    const pipeline = [];
-
-    pipeline.push({ $match: filter });
-
-    pipeline.push({
-      $lookup: {
-        from: "workers",
-        localField: "worker",
-        foreignField: "_id",
-        as: "workerData",
-      },
+    const { data, totalItems, totalPages } = await BossRepository.find({
+      page,
+      contains,
+      isExternal,
     });
-
-    pipeline.push({ $unwind: "$workerData" });
-
-    if (contains) {
-      const regex = new RegExp(contains, "i");
-      pipeline.push({
-        $match: {
-          "workerData.name": { $regex: regex },
-        },
-      });
-    }
-    pipeline.push({ $sort: { name: 1 as 1 } });
-
-    const [aggregationResult] = await BossModel.aggregate<
-      FacetResult<AggregatedBoss>
-    >([
-      ...pipeline,
-      {
-        $facet: {
-          totalItems: [{ $count: "count" }],
-          data: [{ $skip: skip }, { $limit: limit }],
-        },
-      },
-    ]).exec();
-
-    const totalItems = aggregationResult.totalItems[0]?.count || 0;
-    const rawData = aggregationResult.data;
-
-    const data = rawData.map((doc: AggregatedBoss) => ({
-      ...doc,
-      worker: doc.workerData,
-    }));
-
-    const totalPages = Math.ceil(totalItems / limit);
 
     return responseWithHeaders<Boss>({
       data,
       currentPage: page,
       totalItems,
       totalPages,
-      limit,
+      limit: PAGINATION_LIMIT,
       hasNextPage: page < totalPages,
       hasPrevPage: page > 1,
     });
   } catch (error) {
+    console.error("BOSS GET ~ error:", error);
     return responseWithHeaders<Boss>({ error: (error as Error).message });
   }
 }
@@ -94,17 +48,11 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   try {
-    const worker = await WorkerModel.findOne({ _id: body.worker });
-
-    if (!worker) throw new Error("No worker found for given id.");
-
-    const boss = await BossModel.create({
-      ...body,
-      isExternal: worker.isExternal,
-    });
+    const boss = await BossRepository.create(body);
 
     return responseWithHeaders({ data: boss });
   } catch (error) {
+    console.error("BOSS POST ~ error:", error);
     return responseWithHeaders({ error: (error as Error).message });
   }
 }

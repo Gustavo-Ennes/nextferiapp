@@ -11,4 +11,6 @@ export const BossValidator = z.object({
     .string()
     .min(1, "Campo obrigatório")
     .regex(/^[0-9a-fA-F]{24}$/, workerMissingStr),
+  isActive: z.optional(z.boolean()),
+  isExternal: z.optional(z.boolean()),
 });

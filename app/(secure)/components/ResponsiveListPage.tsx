@@ -3,13 +3,12 @@
 import { useTheme } from "@mui/material/styles";
 import { Typography, useMediaQuery, Button, Grid } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import type { Entity } from "@/app/types";
 import { ListPageDesktop } from "./ListPageDesktop";
 import { ListPageMobile } from "./ListPageMobile";
-import { sumarizeVacation } from "@/app/utils";
+import { capitalizeName, sumarizeVacation } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { useModal } from "@/context/ModalContext";
-import type { Vacation, Worker } from "@/app/types";
+import type { Vacation, Worker, Entity, Boss } from "@/app/types";
 import { useRouter } from "next/navigation";
 import type { ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
@@ -68,11 +67,14 @@ const ResponsiveListPage = <T extends Entity>({
       key: "translated",
     }).toLowerCase();
     const isNotDepartmentOrBoss = key !== "departamento" && key !== "chefe";
+    const name = capitalizeName(
+      (entity as Worker).name ?? (entity as Boss).worker.name
+    );
     const modalDescription = (entity as Vacation).type
       ? `Deseja excluir ${sumarizeVacation(entity as Vacation)}?`
-      : `Deseja excluir o(a) ${key}${isNotDepartmentOrBoss ? "(a)" : ""} ${
-          (entity as Worker).name
-        }( #${entity._id} )?`;
+      : `Deseja excluir o(a) ${key}${
+          isNotDepartmentOrBoss ? "(a)" : ""
+        } ${name}( #${entity._id} )?`;
 
     open({
       title: "Confirme a exclusão",
