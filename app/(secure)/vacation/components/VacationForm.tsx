@@ -19,13 +19,15 @@ import { VacationValidator } from "../validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { translateEntityKey } from "@/app/translate";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { prepareDefaults, baselineForType } from "../utils";
 import { toDate, isValid as dateFNSIsValid } from "date-fns";
 import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
+import type { Vacation } from "@/app/types";
+import { fetchAllPaginated } from "../../utils";
 
 export function VacationForm({
   defaultValues,
@@ -36,6 +38,7 @@ export function VacationForm({
   isReschedule = false,
 }: VacationProps) {
   const router = useRouter();
+  const [blockDayOffs, setBlockDayOffs] = useState(false);
   const { addSnack } = useSnackbar();
   const { setPdf } = usePdfPreview();
   const {
@@ -111,12 +114,36 @@ export function VacationForm({
     duration === 0.5 ? "half" : "full";
 
   const watchForm = watch();
+
   useEffect(() => {
     if (type === "dayOff") {
       errors.period = undefined;
       setValue("duration", watchForm.period === "half" ? 0.5 : 1);
     }
   }, [watchForm.period]);
+
+  useEffect(() => {
+    if (
+      watchForm.worker &&
+      watchForm.worker !== "-" &&
+      type === "dayOff" &&
+      !defaultValues
+    )
+      fetchAllPaginated<Vacation>({
+        type: "vacation",
+        params: {
+          worker: watchForm.worker,
+          type: "dayOff",
+          year: new Date().getFullYear(),
+        },
+      }).then((vacations) => {
+        const authorizedVacations = vacations.filter(
+          (vacation) =>
+            vacation.cancelled === false || vacation.cancelled === undefined
+        );
+        setBlockDayOffs(authorizedVacations.length >= 6);
+      });
+  }, [watchForm.worker]);
 
   if (defaultValues?.worker?.isActive === false) {
     addSnack({
@@ -139,7 +166,11 @@ export function VacationForm({
           name="worker"
           control={control}
           render={({ field }) => (
-            <FormControl fullWidth size="small" error={!!errors.worker}>
+            <FormControl
+              fullWidth
+              size="small"
+              error={!!errors.worker || blockDayOffs}
+            >
               <InputLabel id="worker-label">Servidor</InputLabel>
               <Select
                 {...field}
@@ -157,8 +188,11 @@ export function VacationForm({
                   </MenuItem>
                 ))}
               </Select>
-              {errors.worker && (
-                <FormHelperText>{errors.worker.message}</FormHelperText>
+              {(errors.worker || blockDayOffs) && (
+                <FormHelperText>
+                  {errors.worker?.message ??
+                    `Esse trabalhador já fruiu suas abonadas anuais.`}
+                </FormHelperText>
               )}
             </FormControl>
           )}
@@ -362,7 +396,9 @@ export function VacationForm({
         <Button
           type="submit"
           variant="contained"
-          disabled={!isValid || isSubmitting}
+          disabled={
+            !isValid || isSubmitting || (blockDayOffs && type === "dayOff")
+          }
           sx={{ width: 1 }}
         >
           {isSubmitting ? "Salvando..." : "Salvar"}

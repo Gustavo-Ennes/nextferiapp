@@ -1,7 +1,13 @@
 import type { SearchParams } from "@/app/(secure)/types";
 import type { FacetResult, AggregatedVacation } from "@/app/api/types";
 import VacationModel from "@/models/Vacation";
-import { addMilliseconds } from "date-fns";
+import {
+  addMilliseconds,
+  endOfYear,
+  setYear,
+  startOfYear,
+  toDate,
+} from "date-fns";
 import { Types } from "mongoose";
 import type {
   VacationFindOneRepositoryParam,
@@ -18,15 +24,27 @@ export const VacationRepository = {
     type,
     worker,
     contains,
+    year,
   }: SearchParams): Promise<PaginationRepositoryReturn<Vacation>> {
     const skip = ((page as number) - 1) * (PAGINATION_LIMIT as number);
     const typeFilter = type === "all" ? undefined : !type ? "normal" : type;
+    const period = year
+      ? {
+          start: startOfYear(setYear(new Date(), year)),
+          end: endOfYear(setYear(new Date(), year)),
+        }
+      : undefined;
 
     // --- 1. CONSTRUÇÃO DO FILTRO BASE ---
     const baseFilter = {
       ...(typeFilter && { type: typeFilter }),
       ...(worker && { worker: new Types.ObjectId(worker) }),
       $or: [{ cancelled: false }, { cancelled: undefined }],
+      ...(period && {
+        $and: [
+          { startDate: { $gte: period.start }, endDate: { $lt: period.end } },
+        ],
+      }),
     };
 
     // --- 2. QUERY PRINCIPAL (Aggregation Pipeline) ---
@@ -112,6 +130,20 @@ export const VacationRepository = {
   },
 
   async create(payload: VacationFormData): Promise<Vacation> {
+    let workerVacations: Vacation[] | undefined;
+    if (payload.type === "dayOff")
+      workerVacations = (
+        await this.find({
+          page: 1,
+          type: payload.type,
+          worker: payload.worker,
+          year: toDate(payload.startDate).getFullYear(),
+        })
+      ).data;
+
+    if (workerVacations?.length && workerVacations.length >= 6)
+      throw new Error("Worker exceeds his annual dayOff limits");
+
     return await VacationModel.create(payload);
   },
 

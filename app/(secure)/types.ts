@@ -12,6 +12,7 @@ export type SearchParams = {
   worker?: string | null;
   contains?: string | null;
   isExternal?: boolean | null;
+  year?: number | null;
 };
 
 export type RawSearchParams = {
@@ -23,6 +24,7 @@ export type RawSearchParams = {
   worker?: string | null;
   contains?: string | null;
   isExternal?: string | null;
+  year?: string | null;
 };
 
 export type FetchManyParam = { type?: EntityType; params?: SearchParams };

@@ -23,13 +23,15 @@ export async function GET(req: NextRequest) {
     const type = searchParams.get("type") as VacationType;
     const page = parseInt(searchParams.get("page") || "1", 10);
     const worker = searchParams.get("worker");
-    const contains = searchParams.get("contains"); // O termo de busca
+    const contains = searchParams.get("contains");
+    const year = parseInt(searchParams.get("year") || "1", 10);
 
     const { data, totalItems, totalPages } = await VacationRepository.find({
       type,
       page,
       worker,
       contains,
+      year: year !== 1 ? year : undefined,
     });
 
     const response = responseWithHeaders<Vacation>({
