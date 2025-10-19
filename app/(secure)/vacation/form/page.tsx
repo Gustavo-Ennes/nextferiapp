@@ -50,7 +50,7 @@ export default async function VacationFormPage({
             type={type}
             bosses={bosses}
             workers={workers}
-            id={isReschedule ? id : undefined}
+            id={id}
             isReschedule={isReschedule}
           />
         </>
