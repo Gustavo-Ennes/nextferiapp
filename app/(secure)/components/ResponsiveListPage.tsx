@@ -38,7 +38,9 @@ const ResponsiveListPage = <T extends Entity>({
   }).toLowerCase();
 
   const onConfirmDelete = async (entity: Entity) => {
-    const url = `${process.env.NEXT_PUBLIC_URL}/api/${routePrefix}/${entity._id}`;
+    const url = `${process.env.NEXT_PUBLIC_URL}/api/${routePrefix}/${
+      entity._id as string
+    }`;
     const snackbarData: SnackbarData = { message: "" };
 
     const res = await fetch(url, {
@@ -74,7 +76,7 @@ const ResponsiveListPage = <T extends Entity>({
       ? `Deseja excluir ${sumarizeVacation(entity as Vacation)}?`
       : `Deseja excluir o(a) ${key}${
           isNotDepartmentOrBoss ? "(a)" : ""
-        } ${name}( #${entity._id} )?`;
+        } ${name}( #${entity._id as string} )?`;
 
     open({
       title: "Confirme a exclusão",

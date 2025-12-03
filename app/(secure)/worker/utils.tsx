@@ -44,7 +44,7 @@ export function normalizeRaw(raw: Worker): Partial<WorkerFormData> {
   }
 
   if (out.department === "-") out.department = "";
-  else out.department = raw.department._id;
+  else out.department = raw.department._id as string;
   return out;
 }
 
@@ -133,7 +133,7 @@ export const getWorkerStatusIcons = ({
       name: "saindo",
       icon: <FlightTakeoff fontSize="small" color="warning" />,
       badgeContent: untilLeaveBadgeContent?.toString(),
-      tooltipContent: `Trabalhador folgará em ${daysUntilLeave} dia(s)`
+      tooltipContent: `Trabalhador folgará em ${daysUntilLeave} dia(s)`,
     });
 
   if (daysUntilReturn <= DAY_LIMIT && daysUntilReturn !== -1)

@@ -30,7 +30,7 @@ export function BossForm({ defaultValues, workers }: BossProps) {
     resolver: zodResolver(BossValidator),
     mode: "onTouched",
     defaultValues: {
-      worker: defaultValues?.worker?._id ?? "_",
+      worker: (defaultValues?.worker?._id as string) ?? "_",
       role: defaultValues?.role ?? "",
       isDirector: defaultValues?.isDirector ?? false,
     },
@@ -42,7 +42,9 @@ export function BossForm({ defaultValues, workers }: BossProps) {
     try {
       const method = defaultValues ? "PUT" : "POST";
       const url = defaultValues
-        ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${defaultValues._id}`
+        ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${
+            defaultValues._id as string
+          }`
         : `${process.env.NEXT_PUBLIC_URL}/api/boss`;
 
       const res = await fetch(url, {
@@ -93,7 +95,10 @@ export function BossForm({ defaultValues, workers }: BossProps) {
                     <em>Selecione o servidor</em>
                   </MenuItem>
                   {workers.map((worker) => (
-                    <MenuItem key={worker._id} value={worker._id}>
+                    <MenuItem
+                      key={worker._id as string}
+                      value={worker._id as string}
+                    >
                       {capitalizeName(worker.name)}
                     </MenuItem>
                   ))}

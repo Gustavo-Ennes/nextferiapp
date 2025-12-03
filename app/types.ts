@@ -3,9 +3,10 @@ import type {
   VacationPeriod,
   VacationType,
 } from "./(secure)/vacation/types";
+import { Types } from "mongoose";
 
 export type Boss = {
-  _id: string;
+  _id: Types.ObjectId | string;
   role: string;
   isDirector: boolean;
   worker: Worker;
@@ -16,7 +17,7 @@ export type Boss = {
 };
 
 export type Department = {
-  _id: string;
+  _id: Types.ObjectId | string;
   name: string;
   createdAt: string;
   updatedAt: string;
@@ -25,7 +26,7 @@ export type Department = {
 };
 
 export type Vacation = {
-  _id: string;
+  _id: Types.ObjectId | string;
   duration: VacationDuration;
   daysQtd?: VacationDuration;
   type: VacationType;
@@ -43,7 +44,7 @@ export type Vacation = {
 };
 
 export interface OldVacation {
-  _id: string;
+  _id: Types.ObjectId | string;
   daysQtd: number;
   startDate: Date;
   worker: string;
@@ -57,7 +58,7 @@ export interface OldVacation {
 }
 
 export type Worker = {
-  _id: string;
+  _id: Types.ObjectId | string;
   name: string;
   role: string;
   registry: string;

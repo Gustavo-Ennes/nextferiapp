@@ -54,17 +54,23 @@ export const ListPageDesktop = <T extends Entity>({
     );
   };
 
-  const handleDelete = (e: React.MouseEvent, entity: Entity) => {
+  const handleDelete = (e:  React.MouseEvent, entity: Entity) => {
     e.stopPropagation();
     onDelete(entity);
   };
 
   const onPageChange = (page: number) => {
-    const url = `/${routePrefix}${
-      vacationType ? `/${vacationType}?` : "?"
-    }page=${page}${
-      contains ? `&contains=${encodeURIComponent(contains)}` : ""
-    }${isExternal !== undefined ? `&isExternal=${isExternal}` : ""}`;
+    const baseUrl = `/${routePrefix}`;
+    const urlType =
+      vacationType && vacationType !== "normal" ? `/${vacationType}` : "";
+    const urlContains = contains ? `contains=${contains}` : "";
+    const urlPage = `page=${page ?? 1}`;
+    const urlIsExternal =
+      isExternal !== null && isExternal !== undefined
+        ? `isExternal=${isExternal.toString()}`
+        : "";
+
+    const url = `${baseUrl}${urlType}?${urlPage}${urlContains}${urlIsExternal}`;
 
     return router.push(url);
   };
@@ -99,7 +105,10 @@ export const ListPageDesktop = <T extends Entity>({
           </TableHead>
           <TableBody>
             {items.map((item) => (
-              <StyledRow key={item._id} onClick={() => handleView(item._id)}>
+              <StyledRow
+                key={item._id as string}
+                onClick={() => handleView(item._id as string)}
+              >
                 {headers.map((key) => (
                   <TableCell key={key}>
                     {key === "type"
@@ -117,7 +126,7 @@ export const ListPageDesktop = <T extends Entity>({
                 ))}
                 <TableCell align="center">
                   <IconButton
-                    onClick={(e) => handleEdit(e, item._id)}
+                    onClick={(e) => handleEdit(e, item._id as string)}
                     disabled={
                       vacationType !== null &&
                       vacationType !== undefined &&
@@ -142,7 +151,9 @@ export const ListPageDesktop = <T extends Entity>({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (vacationType)
-                        setPdf({ items: [{ type: "vacation", id: item._id }] });
+                        setPdf({
+                          items: [{ type: "vacation", id: item._id as string }],
+                        });
                       else
                         console.warn(
                           "Only vacation, material requisitions and vehicle usage have pdf templates to render."

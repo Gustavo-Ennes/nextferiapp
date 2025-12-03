@@ -48,14 +48,15 @@ export function WorkerDetail({
     vacations: workerVacations,
   });
 
-  const handleEdit = () => router.push(`/worker/form?id=${worker._id}`);
+  const handleEdit = () =>
+    router.push(`/worker/form?id=${worker._id as string}`);
   const handleDelete = () =>
     open({
       title: "Excluir servidor",
       description: `Deseja excluir o servidor ${capitalizeName(worker.name)}?`,
       onConfirm: async () => {
         setLoading(true);
-        fetch(`/api/worker/${worker._id}`, { method: "delete" })
+        fetch(`/api/worker/${worker._id as string}`, { method: "delete" })
           .then(() => {
             setLoading(false);
             addSnack({
@@ -75,7 +76,7 @@ export function WorkerDetail({
   const handleChangeExternality = () => {
     const body = JSON.stringify({
       ...worker,
-      department: worker.department._id,
+      department: worker.department._id as string,
       isExternal: !worker.isExternal,
       id: undefined,
     });
@@ -86,7 +87,10 @@ export function WorkerDetail({
       )} como ${worker.isExternal ? "interno" : "externo"}?`,
       onConfirm: async () => {
         setLoading(true);
-        fetch(`/api/worker/${worker._id}`, { method: "put", body })
+        fetch(`/api/worker/${worker._id as string}`, {
+          method: "put",
+          body,
+        })
           .then(() => {
             setLoading(false);
             addSnack({

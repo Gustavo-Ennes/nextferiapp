@@ -4,6 +4,8 @@ import { VacationValidator } from "./validator";
 import { format, isThisYear, isValid, toDate } from "date-fns";
 import type { DataListItem } from "../components/types";
 import { prop, sum, uniqBy } from "ramda";
+import { fetchAllPaginated } from "../utils";
+import type { SearchParams } from "../types";
 
 export const getTypeLabel = (type: string) => {
   switch (type) {
@@ -66,9 +68,9 @@ export function normalizeRaw(raw: Vacation): Partial<VacationFormData> {
     if (!Number.isNaN(n)) out.duration = n;
   }
   if (out.worker === "-") out.worker = "";
-  else if (raw.worker) out.worker = raw.worker._id;
+  else if (raw.worker) out.worker = raw.worker._id as string;
   if (out.boss === "-") out.boss = "";
-  else if (raw.boss) out.boss = raw.boss._id;
+  else if (raw.boss) out.boss = raw.boss._id as string;
   return out;
 }
 
@@ -83,7 +85,7 @@ export function prepareDefaults(raw: Vacation): VacationFormData {
       observation: `${raw.observation}\nReagendada: data anterior(${format(
         toDate(raw.startDate),
         "dd/MM/yy"
-      )})[${raw._id}]`,
+      )})[${raw._id as string}]`,
     }),
   };
   const parsed = VacationValidator.safeParse(candidate);
@@ -107,7 +109,7 @@ export const parseToDataList = (vacations: Vacation[]): DataListItem[] =>
             ? "Integral"
             : "Meio-expediente"
           : `${duration} dias.`,
-      id: _id,
+      id: _id as string,
     }))
   );
 
@@ -122,4 +124,21 @@ export const getWorkerDayOffsLeft = (vacations: Vacation[]): number => {
   );
 
   return DAYOFFS_A_YEAR - dayOffsTakenThisYear;
+};
+
+export const getAllAuthorized = async ({
+  params,
+}: {
+  params: SearchParams;
+}) => {
+  const all = await fetchAllPaginated<Vacation>({
+    type: "vacation",
+    params,
+  });
+  const authorized = all.filter(
+    (vacation) =>
+      vacation.cancelled === false || vacation.cancelled === undefined
+  );
+
+  return authorized;
 };

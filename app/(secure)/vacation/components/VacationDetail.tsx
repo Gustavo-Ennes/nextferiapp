@@ -26,7 +26,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
   const { open } = useModal();
   const { setPdf } = usePdfPreview();
   const router = useRouter();
-  const url = `/api/vacation/${vacation._id}`;
+  const url = `/api/vacation/${vacation._id as string}`;
 
   const submitFn = async ({
     option,
@@ -50,12 +50,14 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
     const vacationsUrl = `/vacation${
       vacation.type !== "normal" ? `/${vacation.type}` : ""
     }`;
-    const createVacationUrl = `/vacation/form?type=${vacation.type}&isReschedule={true}&id=${vacation._id}`;
+    const createVacationUrl = `/vacation/form?type=${
+      vacation.type
+    }&isReschedule={true}&id=${vacation._id as string}`;
     router.push(option === "reschedule" ? createVacationUrl : vacationsUrl);
 
     if (withPdf) {
       setPdf({
-        items: [{ type: "cancellation", id: vacation._id }],
+        items: [{ type: "cancellation", id: vacation._id as string }],
         open: false,
       });
     }
@@ -174,7 +176,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           variant="contained"
           onClick={() =>
             setPdf({
-              items: [{ type: "vacation", id: vacation._id }],
+              items: [{ type: "vacation", id: vacation._id as string }],
             })
           }
         >

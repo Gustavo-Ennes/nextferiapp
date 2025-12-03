@@ -49,7 +49,9 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   ) => {
     const method = defaultValues ? "PUT" : "POST";
     const url = defaultValues
-      ? `${process.env.NEXT_PUBLIC_URL}/api/worker/${defaultValues._id}`
+      ? `${process.env.NEXT_PUBLIC_URL}/api/worker/${
+          defaultValues._id as string
+        }`
       : `${process.env.NEXT_PUBLIC_URL}/api/worker`;
     const snackbarData: SnackbarData = { message: "" };
 
@@ -206,8 +208,8 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
                 </MenuItem>
                 {departments?.map((department) => (
                   <MenuItem
-                    key={`opt-${department._id}`}
-                    value={department._id}
+                    key={`opt-${department._id as string}`}
+                    value={department._id as string}
                   >
                     {capitalizeFirstLetter(department.name)}
                   </MenuItem>

@@ -30,7 +30,7 @@ export const formatCellContent = <T extends Entity>({
     if (value === true) return "Sim";
     if (value === false) return "Não";
     // when value is a obj I want to show the entity name(except vacation)
-    if ((value as Entity)?._id)
+    if ((value as Entity)?._id as string)
       return limitText(
         capitalizeName((value as Worker).name ?? (value as Boss).worker?.name)
       );
@@ -80,7 +80,7 @@ export const getWorkerStatus = (
         ({ startDate, endDate, worker: vacWorker }) =>
           toDate(startDate) <= startOfDay(new Date()) &&
           toDate(endDate) > startOfDay(new Date()) &&
-          vacWorker._id.toString() === worker._id.toString()
+          (vacWorker._id as string) === (worker._id as string)
       )
     : undefined;
 
@@ -128,7 +128,7 @@ export const getDaysUntilWorkerReturns = (
   const vacation = vacations
     ?.filter(
       (vac) =>
-        vac.worker?._id === worker._id &&
+        (vac.worker?._id as string) === (worker._id as string) &&
         getReturningDate(vac.endDate) > startOfDay(today)
     )
     .sort(
@@ -154,7 +154,7 @@ export const getDaysUntilWorkerLeave = (
   const vacation = vacations
     ?.filter(
       (vac) =>
-        vac.worker?._id === worker._id &&
+        (vac.worker?._id as string) === (worker._id as string) &&
         toDate(vac.startDate) > startOfDay(today)
     )
     .sort(

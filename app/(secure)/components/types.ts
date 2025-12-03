@@ -3,8 +3,9 @@ import type { Entity, EntityType } from "../../types";
 import type { PaginatedResponse } from "@/app/api/types";
 import type { VacationType } from "../vacation/types";
 import type { PdfPreviewTypeProp } from "@/context/types";
+import type { Types } from "mongoose";
 
-export interface ItemListProps<T extends { _id: string }> {
+export interface ItemListProps<T extends { _id: Types.ObjectId | string }> {
   pagination: PaginatedResponse<T>;
   routePrefix: EntityType;
   onDelete: (entity: Entity) => void;

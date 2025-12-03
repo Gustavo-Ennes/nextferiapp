@@ -2,6 +2,7 @@ import { isEmpty, prop, uniqBy } from "ramda";
 import type { PaginatedResponse, Response } from "../api/types";
 import type { Entity } from "../types";
 import type { FetchManyParam, FetchOneParam, SearchParams } from "./types";
+import { format } from "date-fns";
 
 export const fetchOne = async <T extends Entity>({
   id,
@@ -68,7 +69,14 @@ const concatSearchParams = ({
   if (params && !isEmpty(params)) {
     const url = "?".concat(
       Object.entries(params)
-        .map(([key, value]) => `${key}=${value}`)
+        .map(
+          ([key, value]) =>
+            `${key}=${
+              key === "to" || key === "from"
+                ? format(value as Date, "d-M-yy")
+                : value
+            }`
+        )
         .join("&")
     );
 

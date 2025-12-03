@@ -13,7 +13,7 @@ export default async function DepartmentViewPage({
 
   const workerQuantity = workers.filter(
     ({ department: workerDepartment }: Worker) =>
-      department?._id === workerDepartment?._id
+      (department?._id as string) === (workerDepartment?._id as string)
   ).length;
 
   return (

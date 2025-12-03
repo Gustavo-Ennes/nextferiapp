@@ -32,7 +32,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     mode: "onTouched",
     defaultValues: {
       name: defaultValues?.name ?? "",
-      responsible: defaultValues?.responsible?._id ?? "_",
+      responsible: (defaultValues?.responsible?._id as string) ?? "_",
       isActive: defaultValues?.isActive ?? true,
     },
   });
@@ -41,7 +41,9 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     const body = JSON.stringify(formData);
     const method = defaultValues ? "PUT" : "POST";
     const url = defaultValues
-      ? `${process.env.NEXT_PUBLIC_URL}/api/department/${defaultValues._id}`
+      ? `${process.env.NEXT_PUBLIC_URL}/api/department/${
+          defaultValues._id as string
+        }`
       : `${process.env.NEXT_PUBLIC_URL}/api/department`;
     const snackbarData: SnackbarData = { message: "" };
 
@@ -117,7 +119,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
                   <em>Selecione o responsável pelo novo departamento</em>
                 </MenuItem>
                 {bosses?.map((boss) => (
-                  <MenuItem key={boss._id} value={boss._id}>
+                  <MenuItem key={boss._id as string} value={boss._id as string}>
                     {capitalizeName(boss.worker?.name)}
                   </MenuItem>
                 ))}

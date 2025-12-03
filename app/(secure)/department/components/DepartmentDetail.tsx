@@ -30,7 +30,8 @@ export function DepartmentDetail({
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
 
-  const handleEdit = () => router.push(`/department/form?id=${department._id}`);
+  const handleEdit = () =>
+    router.push(`/department/form?id=${department._id as string}`);
   const handleDelete = () =>
     open({
       title: "Excluir chefe",
@@ -39,7 +40,7 @@ export function DepartmentDetail({
       )}?`,
       onConfirm: async () => {
         setLoading(true);
-        fetch(`/api/department/${department._id}`, {
+        fetch(`/api/department/${department._id as string}`, {
           method: "delete",
           headers: {
             "Content-Type": "application/json",

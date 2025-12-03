@@ -42,7 +42,7 @@ export function ListPageMobile<T extends Entity>({
   const handleEdit = (e: MouseEvent, item: Entity) => {
     e.stopPropagation();
     router.push(
-      `/${routePrefix}/form?id=${item._id}${
+      `/${routePrefix}/form?id=${item._id as string}${
         vacationType !== "normal" ? `&type=${vacationType}` : ""
       }`
     );
@@ -50,7 +50,8 @@ export function ListPageMobile<T extends Entity>({
 
   const handlePdf = (e: MouseEvent, item: Entity) => {
     e.stopPropagation();
-    if (vacationType) setPdf({ items: [{ type: "vacation", id: item._id }] });
+    if (vacationType)
+      setPdf({ items: [{ type: "vacation", id: item._id as string }] });
     else
       console.warn(
         "Only vacation, material requisitions and vehicle usage have pdf templates to render."
@@ -77,8 +78,8 @@ export function ListPageMobile<T extends Entity>({
 
         return (
           <ListItem
-            key={item._id}
-            onClick={() => router.push(`/${routePrefix}/${item._id}`)}
+            key={item._id as string}
+            onClick={() => router.push(`/${routePrefix}/${item._id as string}`)}
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -89,7 +90,7 @@ export function ListPageMobile<T extends Entity>({
             <Grid container width={1}>
               <Grid size={{ xs: 10, sm: 11 }}>
                 <Typography variant="h6">
-                  {label?.toUpperCase() || item._id}
+                  {label?.toUpperCase() || (item._id as string)}
                 </Typography>
 
                 <Divider />
