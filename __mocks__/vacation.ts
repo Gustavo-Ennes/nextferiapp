@@ -1,9 +1,10 @@
-import { addDays, startOfDay } from "date-fns";
+import { addDays, toDate } from "date-fns";
 import type { RawVacation } from "./types";
 import { Types } from "mongoose";
+import { startOfDaySP } from "@/app/utils";
 
-const today = startOfDay(new Date()).toISOString();
-const startDate = addDays(today, 8).toISOString();
+const today = startOfDaySP(new Date()).toISOString();
+const startDate = addDays(toDate(today), 8).toISOString();
 const endDate = addDays(startDate, 30).toISOString();
 
 export const getVacationMock = (): RawVacation => ({
