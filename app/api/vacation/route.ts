@@ -5,11 +5,12 @@ import {
   optionsResponse,
   PAGINATION_LIMIT,
   responseWithHeaders,
-  updateVacationDates,
 } from "../utils";
 import { revalidatePath } from "next/cache";
 import { VacationRepository } from "@/lib/repository/vacation";
 import type { VacationType } from "@/app/(secure)/vacation/types";
+import { endOfDay, parse } from "date-fns";
+import { startOfDaySP } from "@/app/utils";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -24,14 +25,22 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const worker = searchParams.get("worker");
     const contains = searchParams.get("contains");
-    const year = parseInt(searchParams.get("year") || "1", 10);
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    const fromDate = from
+      ? startOfDaySP(parse(from, "d-M-yy", new Date()))
+      : null;
+    const toDate = to
+      ? endOfDay(startOfDaySP(parse(to, "d-M-yy", new Date())))
+      : null;
 
     const { data, totalItems, totalPages } = await VacationRepository.find({
       type,
       page,
       worker,
       contains,
-      year: year !== 1 ? year : undefined,
+      from: fromDate,
+      to: toDate,
     });
 
     const response = responseWithHeaders<Vacation>({
@@ -56,8 +65,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
 
   try {
-    const bodyWithUpdatedDates = updateVacationDates(body);
-    const vacation = await VacationRepository.create(bodyWithUpdatedDates);
+    const vacation = await VacationRepository.create(body);
 
     revalidatePath("/vacation");
 

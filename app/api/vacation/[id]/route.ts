@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import {
   optionsResponse,
   responseWithHeaders,
-  updateVacationDates,
 } from "../../utils";
 import { parseBool } from "@/app/(secure)/components/utils";
 import { VacationRepository } from "@/lib/repository/vacation";
@@ -38,16 +37,13 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   await dbConnect();
   const { url } = req;
-  const body = await req.json();
+  const payload = await req.json();
   const id = url?.split("/").pop();
-  body.daysQtd = body.duration;
 
   revalidatePath("/vacation");
 
   try {
     if (!id) throw new Error("No id provided");
-
-    const payload = updateVacationDates(body);
     const vacation = await VacationRepository.update({ id, payload });
 
     if (!vacation) throw new Error("Vacation not found.");

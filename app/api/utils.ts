@@ -1,8 +1,5 @@
 import {
-  addDays,
-  endOfDay,
   endOfToday,
-  startOfDay,
   startOfToday,
 } from "date-fns";
 import { mergeAll } from "ramda";
@@ -16,7 +13,6 @@ import type {
 import type { Boss, Entity } from "../types";
 import { NextResponse } from "next/server";
 import type { Model } from "mongoose";
-import type { VacationFormData } from "../(secure)/vacation/types";
 
 export const headers = {
   "Access-Control-Allow-Origin": "*",
@@ -62,19 +58,6 @@ const buildOptions = ({
   return options;
 };
 
-const updateVacationDates = (vacation: VacationFormData): VacationFormData => ({
-  ...vacation,
-  ...(vacation.startDate && {
-    startDate: startOfDay(new Date(vacation.startDate)).toISOString(),
-    endDate: endOfDay(
-      addDays(new Date(vacation.startDate), (vacation.duration as number) - 1)
-    ).toISOString(),
-    returnDate: startOfDay(
-      addDays(new Date(vacation.startDate), vacation.duration)
-    ).toISOString(),
-  }),
-});
-
 // function to populate new default props to past documents without the prop
 async function applyDefaultField<T>(model: Model<T>) {
   try {
@@ -107,7 +90,6 @@ const PAGINATION_LIMIT = 20 as const;
 
 export {
   buildOptions,
-  updateVacationDates,
   applyDefaultField,
   PAGINATION_LIMIT,
 };
