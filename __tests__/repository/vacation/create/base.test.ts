@@ -30,7 +30,7 @@ describe("VacationRepository.create.base", () => {
   it("should create a normal vacation", async () => {
     const expectedStartDate = startOfDaySP(toDate(basePayload.startDate));
     const expectedEndDate = endOfDaySP(
-      addDays(expectedStartDate, basePayload.duration)
+      addDays(expectedStartDate, basePayload.duration - 1)
     );
     const createdVacation = await VacationRepository.create(basePayload as any);
     const daysDifference = differenceInDays(

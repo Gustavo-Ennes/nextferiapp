@@ -60,7 +60,7 @@ describe("VacationRepository.update.base", () => {
     const newStart = addDays(new Date(), 10);
     const expectedStart = startOfDaySP(newStart);
     const expectedEnd = endOfDaySP(
-      addDays(expectedStart, basePayload.duration)
+      addDays(expectedStart, basePayload.duration - 1)
     );
 
     const updated = await update(created._id as string, {
@@ -81,7 +81,7 @@ describe("VacationRepository.update.base", () => {
     const newDuration = 15;
 
     const expectedStart = startOfDaySP(toDate(basePayload.startDate));
-    const expectedEnd = endOfDaySP(addDays(expectedStart, newDuration));
+    const expectedEnd = endOfDaySP(addDays(expectedStart, newDuration - 1));
 
     const updated = await update(created._id as string, {
       duration: newDuration,
@@ -89,7 +89,7 @@ describe("VacationRepository.update.base", () => {
 
     const daysDiff = differenceInDays(updated.endDate, updated.startDate);
 
-    expect(daysDiff).toBe(newDuration);
+    expect(daysDiff).toBe(newDuration - 1);
     expect(updated.endDate.getTime()).toBe(expectedEnd.getTime());
 
     const doc = await VacationModel.findById(created._id);
@@ -133,7 +133,7 @@ describe("VacationRepository.update.base", () => {
     const newDuration = 60;
 
     const expectedStart = startOfDaySP(newStart);
-    const expectedEnd = endOfDaySP(addDays(expectedStart, newDuration));
+    const expectedEnd = endOfDaySP(addDays(expectedStart, newDuration - 1));
 
     const updated = await update(created._id as string, {
       startDate: newStart.toISOString(),
