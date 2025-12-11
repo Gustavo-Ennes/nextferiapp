@@ -4,8 +4,7 @@ import { VacationValidator } from "./validator";
 import { format, isThisYear, isValid, toDate } from "date-fns";
 import type { DataListItem } from "../components/types";
 import { prop, sum, uniqBy } from "ramda";
-import { fetchAllPaginated } from "../utils";
-import type { SearchParams } from "../types";
+import { startOfDaySP } from "@/app/utils";
 
 export const getTypeLabel = (type: string) => {
   switch (type) {
@@ -22,7 +21,7 @@ export const getTypeLabel = (type: string) => {
 
 /** baseline por tipo */
 export function baselineForType(type: Vacation["type"]): VacationFormData {
-  const now = new Date().toISOString();
+  const now = startOfDaySP(new Date()).toISOString();
   if (type === "dayOff") {
     return {
       type: "dayOff",
@@ -124,21 +123,4 @@ export const getWorkerDayOffsLeft = (vacations: Vacation[]): number => {
   );
 
   return DAYOFFS_A_YEAR - dayOffsTakenThisYear;
-};
-
-export const getAllAuthorized = async ({
-  params,
-}: {
-  params: SearchParams;
-}) => {
-  const all = await fetchAllPaginated<Vacation>({
-    type: "vacation",
-    params,
-  });
-  const authorized = all.filter(
-    (vacation) =>
-      vacation.cancelled === false || vacation.cancelled === undefined
-  );
-
-  return authorized;
 };

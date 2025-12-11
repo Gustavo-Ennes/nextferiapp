@@ -2,12 +2,15 @@ import {
   toDate,
   format,
   addDays,
-  startOfDay,
   endOfYesterday,
   set,
   differenceInDays,
   addMilliseconds,
+  startOfDay,
+  endOfDay,
+  addHours,
 } from "date-fns";
+import { toZonedTime, fromZonedTime } from "date-fns-tz";
 import type { Boss, Entity, Vacation, Worker } from "./types";
 import type { WorkerStatus } from "./(secure)/worker/types";
 import { translateEntityKey } from "./translate";
@@ -78,8 +81,8 @@ export const getWorkerStatus = (
   const vacation = vacations
     ? vacations.find(
         ({ startDate, endDate, worker: vacWorker }) =>
-          toDate(startDate) <= startOfDay(new Date()) &&
-          toDate(endDate) > startOfDay(new Date()) &&
+          toDate(startDate) <= startOfDaySP(new Date()) &&
+          toDate(endDate) > startOfDaySP(new Date()) &&
           (vacWorker._id as string) === (worker._id as string)
       )
     : undefined;
@@ -108,8 +111,8 @@ export const getWorkersOnVacation = (
         vacations
           .filter(
             ({ startDate, endDate }) =>
-              toDate(startDate) <= startOfDay(today) &&
-              toDate(endDate) > startOfDay(today)
+              toDate(startDate) <= startOfDaySP(today) &&
+              toDate(endDate) > startOfDaySP(today)
           )
           .map((vacation) => vacation.worker)
       )
@@ -129,7 +132,7 @@ export const getDaysUntilWorkerReturns = (
     ?.filter(
       (vac) =>
         (vac.worker?._id as string) === (worker._id as string) &&
-        getReturningDate(vac.endDate) > startOfDay(today)
+        getReturningDate(vac.endDate) > startOfDaySP(today)
     )
     .sort(
       (a, b) =>
@@ -139,7 +142,8 @@ export const getDaysUntilWorkerReturns = (
   if (!vacation) return -1;
 
   const daysUntilReturn =
-    differenceInDays(getReturningDate(vacation.endDate), startOfDay(today)) + 1;
+    differenceInDays(getReturningDate(vacation.endDate), startOfDaySP(today)) +
+    1;
 
   return daysUntilReturn >= 0 ? daysUntilReturn : -1;
 };
@@ -155,7 +159,7 @@ export const getDaysUntilWorkerLeave = (
     ?.filter(
       (vac) =>
         (vac.worker?._id as string) === (worker._id as string) &&
-        toDate(vac.startDate) > startOfDay(today)
+        toDate(vac.startDate) > startOfDaySP(today)
     )
     .sort(
       (a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime()
@@ -164,7 +168,7 @@ export const getDaysUntilWorkerLeave = (
   if (!vacation) return -1;
 
   const daysUntilLeave =
-    differenceInDays(toDate(vacation.startDate), startOfDay(today)) + 1;
+    differenceInDays(toDate(vacation.startDate), startOfDaySP(today)) + 1;
 
   return daysUntilLeave;
 };
@@ -216,4 +220,27 @@ export const capitalizeName = (name?: string): string => {
         : name
     )
     .join(" ");
+};
+
+export const startOfDaySP = (date: Date) => {
+  const zone = "America/Sao_Paulo";
+  const zoned = toZonedTime(date, zone);
+  const start = startOfDay(zoned);
+  return fromZonedTime(start, zone);
+};
+
+/**
+ * Retorna o último milissegundo do dia em SP (convertido para UTC).
+ */
+export const endOfDaySP = (date: Date): Date => {
+  // endOfDay() aplica no timezone local; SP via startOfDaySP já preserva consistência.
+  return endOfDay(startOfDaySP(date));
+};
+
+/**
+ * Retorna o último milissegundo de um período de 12 horas.
+ * Tecnicamente: start + 12h - 1ms
+ */
+export const endOfHalfDay = (date: Date): Date => {
+  return new Date(addHours(date, 12).getTime() - 1);
 };

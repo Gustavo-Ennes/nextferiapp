@@ -29,7 +29,7 @@ export const updateVacationDates = (
   if (duration === 1) {
     endDate = endOfDaySP(startDate);
   } else if (duration > 1) {
-    endDate = endOfDaySP(addDays(startDate, duration));
+    endDate = endOfDaySP(addDays(startDate, duration - 1));
   } else {
     endDate = endOfHalfDay(startDate);
   }

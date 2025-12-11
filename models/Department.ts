@@ -3,7 +3,7 @@ import { Boss } from ".";
 
 export interface Department extends Document {
   name: string;
-  responsible: Types.ObjectId | Boss.Boss;
+  responsible?: Types.ObjectId | Boss.Boss;
   isActive: boolean;
 }
 
@@ -17,7 +17,6 @@ export const DepartmentSchema = new Schema<Department>(
     responsible: {
       type: Schema.Types.ObjectId,
       ref: "Boss",
-      required: [true, "Please provide the department responsible."],
     },
     isActive: {
       type: Boolean,
