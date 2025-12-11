@@ -15,7 +15,10 @@ const DayOffList = async ({
     type: "dayOff",
     page: page ? parseInt(page) ?? 1 : 1,
     ...(contains && { contains }),
-    cancelled: cancelledBool ?? false,
+    cancelled:
+      cancelledBool !== null && cancelledBool !== undefined
+        ? cancelledBool
+        : false,
   };
 
   const paginatedResponse = await fetchPaginatedByPage<Vacation>({

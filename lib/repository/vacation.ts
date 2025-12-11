@@ -33,6 +33,8 @@ export const VacationRepository = {
     contains,
     from,
     to,
+    cancelled,
+    exclude,
   }: SearchParams): Promise<PaginationRepositoryReturn<Vacation>> {
     const skip = ((page as number) - 1) * (PAGINATION_LIMIT as number);
     const typeFilter = type === "all" ? undefined : !type ? "normal" : type;
@@ -53,62 +55,32 @@ export const VacationRepository = {
       conditions.push({ worker: new Types.ObjectId(worker) });
     }
 
-    conditions.push({ $or: [{ cancelled: false }, { cancelled: undefined }] });
+    if (exclude && isObjectIdOrHexString(exclude)) {
+      conditions.push({ _id: { $ne: new Types.ObjectId(exclude) } });
+    }
 
-    if (period) {
-      const periodConditions = [];
+    if (cancelled !== null && cancelled !== undefined)
+      conditions.push({ cancelled });
 
-      if (period.start && period.end) {
-        periodConditions.push({
-          $or: [
-            // or vacation starts before period and ends in period
-            {
-              $and: [
-                { startDate: { $lt: period.start } },
-                { endDate: { $gte: period.start } },
-              ],
-            },
-            // or vacation is within period
-            {
-              $and: [
-                { startDate: { $gte: period.start } },
-                { endDate: { $lte: period.end } },
-              ],
-            },
-            // or vacation starts in period and ends after period
-            {
-              $and: [
-                { startDate: { $lte: period.end } },
-                { endDate: { $gt: period.end } },
-              ],
-            },
-            // or vacation starts before period and ends after period
-            {
-              $and: [
-                { startDate: { $lte: period.end } },
-                { endDate: { $gt: period.end } },
-              ],
-            },
-          ],
-        });
-      } else if (period.start) {
-        periodConditions.push({
-          $or: [
-            { startDate: { $gte: period.start } },
-            { endDate: { $gte: period.start } },
-          ],
-        });
-      } else if (period.end) {
-        periodConditions.push({
-          $or: [
-            { endDate: { $lte: period.end } },
-            { startDate: { $lte: period.end } },
-          ],
-        });
-      }
-      if (periodConditions.length > 0) {
-        conditions.push(periodConditions[0]);
-      }
+    const periodConditions: any[] = [];
+    if (period && period.start && period.end) {
+      // overlap check: existing.start <= period.end AND existing.end >= period.start
+      conditions.push({
+        startDate: { $lte: period.end },
+        endDate: { $gte: period.start },
+      });
+    } else if (period && period.start) {
+      conditions.push({
+        endDate: { $gte: period.start },
+      });
+    } else if (period && period.end) {
+      conditions.push({
+        startDate: { $lte: period.end },
+      });
+    }
+
+    if (periodConditions.length > 0) {
+      conditions.push(periodConditions[0]);
     }
 
     const baseFilter = {

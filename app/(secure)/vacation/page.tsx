@@ -15,7 +15,10 @@ const VacationList = async ({
     type: "normal",
     page: page ? parseInt(page) ?? 1 : 1,
     ...(contains && { contains }),
-    cancelled: cancelledBool ?? true,
+    cancelled:
+      cancelledBool !== null && cancelledBool !== undefined
+        ? cancelledBool
+        : false,
   };
   const paginatedResponse = await fetchPaginatedByPage<Vacation>({
     type: "vacation",

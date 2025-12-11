@@ -11,6 +11,7 @@ import { VacationRepository } from "@/lib/repository/vacation";
 import type { VacationType } from "@/app/(secure)/vacation/types";
 import { endOfDay, parse } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
+import { parseBool } from "@/app/(secure)/components/utils";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -27,6 +28,8 @@ export async function GET(req: NextRequest) {
     const contains = searchParams.get("contains");
     const from = searchParams.get("from");
     const to = searchParams.get("to");
+    const cancelled = parseBool(searchParams.get("cancelled"));
+    const exclude = searchParams.get("exclude");
     const fromDate = from
       ? startOfDaySP(parse(from, "d-M-yy", new Date()))
       : null;
@@ -41,6 +44,8 @@ export async function GET(req: NextRequest) {
       contains,
       from: fromDate,
       to: toDate,
+      cancelled,
+      exclude,
     });
 
     const response = responseWithHeaders<Vacation>({
