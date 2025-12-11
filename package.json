@@ -44,5 +44,8 @@
     "mongoose": "^8.19.1",
     "ts-node": "^10.9.2",
     "typescript": "latest"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }
