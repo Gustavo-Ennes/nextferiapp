@@ -41,7 +41,7 @@ describe("VacationRepository.create.base", () => {
     expect(createdVacation).toHaveProperty("_id");
     expect(createdVacation.type).toBe(basePayload.type);
     expect(createdVacation.duration).toBe(basePayload.duration);
-    expect(daysDifference).toBe(basePayload.duration);
+    expect(daysDifference).toBe(basePayload.duration - 1);
     expect(createdVacation.startDate.getTime()).toBe(
       expectedStartDate.getTime()
     );

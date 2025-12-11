@@ -1,10 +1,11 @@
 import type { Vacation } from "@/app/types";
 import type { VacationFormData } from "./types";
 import { VacationValidator } from "./validator";
-import { format, isThisYear, isValid, toDate } from "date-fns";
+import { addDays, format, isThisYear, isValid, toDate } from "date-fns";
 import type { DataListItem } from "../components/types";
 import { prop, sum, uniqBy } from "ramda";
-import { startOfDaySP } from "@/app/utils";
+import { endOfDaySP, endOfHalfDay, startOfDaySP } from "@/app/utils";
+import { fetchAllPaginated } from "../utils";
 
 export const getTypeLabel = (type: string) => {
   switch (type) {
@@ -123,4 +124,52 @@ export const getWorkerDayOffsLeft = (vacations: Vacation[]): number => {
   );
 
   return DAYOFFS_A_YEAR - dayOffsTakenThisYear;
+};
+
+export const checkDayOffsCount = () => {};
+
+export const checkOverlappingVacations = async (
+  watchForm: VacationFormData,
+  id?: string | null
+) => {
+  const from = startOfDaySP(toDate(watchForm.startDate));
+  const to =
+    watchForm.duration < 1
+      ? endOfHalfDay(from)
+      : watchForm.duration === 1
+      ? endOfDaySP(from)
+      : endOfDaySP(addDays(from, watchForm.duration - 1));
+
+  const conflicting = await fetchAllPaginated<Vacation>({
+    type: "vacation",
+    params: {
+      worker: watchForm.worker,
+      type: "all",
+      from,
+      to,
+      cancelled: false,
+      ...(id && { exclude: id }),
+    },
+  });
+
+  if (conflicting.length > 0)
+    console.warn(
+      `Conflicting vacations: ${JSON.stringify(
+        conflicting
+          .sort(
+            (a, b) =>
+              toDate(a.startDate).getTime() - toDate(b.startDate).getTime()
+          )
+          .map(({ duration, startDate, _id, endDate }) => ({
+            _id,
+            duration,
+            startDate,
+            endDate,
+          })),
+        null,
+        2
+      )}`
+    );
+
+  return conflicting;
 };

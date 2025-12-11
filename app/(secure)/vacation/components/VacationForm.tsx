@@ -14,19 +14,36 @@ import {
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useRouter } from "next/navigation";
 import type { VacationFormData, VacationProps } from "../types";
-import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
+import {
+  capitalizeFirstLetter,
+  capitalizeName,
+  startOfDaySP,
+} from "@/app/utils";
 import { VacationValidator } from "../validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { translateEntityKey } from "@/app/translate";
 import { useEffect, useState } from "react";
-import { prepareDefaults, baselineForType } from "../utils";
-import { toDate, isValid as dateFNSIsValid } from "date-fns";
+import {
+  prepareDefaults,
+  baselineForType,
+  checkOverlappingVacations,
+} from "../utils";
+import {
+  toDate,
+  isValid as dateFNSIsValid,
+  startOfYear,
+  format,
+} from "date-fns";
 import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import type { Vacation } from "@/app/types";
+import {
+  translateVacation,
+  translateVacationPeriod,
+} from "@/lib/pdf/vacation/utils";
 import { fetchAllPaginated } from "../../utils";
 
 export function VacationForm({
@@ -38,7 +55,10 @@ export function VacationForm({
   isReschedule = false,
 }: VacationProps) {
   const router = useRouter();
-  const [blockDayOffs, setBlockDayOffs] = useState(false);
+  const [blockedByDayOffsCount, setBlockedByDayOffsCount] = useState(false);
+  const [periodConflictingVacations, setPeriodConflictingVacations] = useState<
+    Vacation[]
+  >([]);
   const { addSnack } = useSnackbar();
   const { setPdf } = usePdfPreview();
   const {
@@ -128,22 +148,30 @@ export function VacationForm({
       watchForm.worker !== "-" &&
       type === "dayOff" &&
       !defaultValues
-    )
+    ) {
       fetchAllPaginated<Vacation>({
         type: "vacation",
         params: {
           worker: watchForm.worker,
-          type: "dayOff",
-          year: new Date().getFullYear(),
+          type,
+          from: startOfYear(toDate(watchForm.startDate)),
+          cancelled: false,
         },
-      }).then((vacations) => {
-        const authorizedVacations = vacations.filter(
-          (vacation) =>
-            vacation.cancelled === false || vacation.cancelled === undefined
-        );
-        setBlockDayOffs(authorizedVacations.length >= 6);
-      });
-  }, [watchForm.worker]);
+      }).then((authorizedDayOffs) =>
+        setBlockedByDayOffsCount(authorizedDayOffs.length >= 6)
+      );
+    }
+  }, [watchForm.worker, watchForm.startDate]);
+
+  useEffect(() => {
+    if (watchForm.worker && watchForm.worker !== "-" && watchForm.startDate) {
+      checkOverlappingVacations(watchForm, id).then(
+        (conflicting: Vacation[]) => {
+          setPeriodConflictingVacations(conflicting);
+        }
+      );
+    }
+  }, [watchForm.startDate, watchForm.duration]);
 
   if (defaultValues?.worker?.isActive === false) {
     addSnack({
@@ -153,6 +181,32 @@ export function VacationForm({
     });
     router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
   }
+
+  const getPeriodConflictMessage = () => {
+    if (!periodConflictingVacations.length) return "";
+
+    const moreThanOneConflict = periodConflictingVacations.length > 1;
+    const firstConflictingVacation = periodConflictingVacations[0];
+    const vacationType = firstConflictingVacation.type;
+    const translatedPeriod = translateVacationPeriod(
+      firstConflictingVacation.period
+    );
+    const msgStart = moreThanOneConflict
+      ? `Vários conflitos: 1 -`
+      : "Conflito:";
+    const translatedVacationType = translateVacation(vacationType);
+    const period = `${format(
+      toDate(firstConflictingVacation.startDate),
+      "dd/MM/yyyy"
+    )} ~ ${
+      vacationType !== "dayOff"
+        ? format(toDate(firstConflictingVacation.endDate), "dd/MM/yyyy")
+        : translatedPeriod
+    }`;
+    const final = moreThanOneConflict ? "..." : "";
+
+    return `${msgStart} ${translatedVacationType}(${period})${final}`;
+  };
 
   return (
     <Grid
@@ -169,7 +223,7 @@ export function VacationForm({
             <FormControl
               fullWidth
               size="small"
-              error={!!errors.worker || blockDayOffs}
+              error={!!errors.worker || blockedByDayOffsCount}
             >
               <InputLabel id="worker-label">Servidor</InputLabel>
               <Select
@@ -183,12 +237,15 @@ export function VacationForm({
                   <em>Selecione o servidor</em>
                 </MenuItem>
                 {workers?.map((worker) => (
-                  <MenuItem key={worker._id} value={worker._id}>
+                  <MenuItem
+                    key={worker._id as string}
+                    value={worker._id as string}
+                  >
                     {capitalizeName(worker?.name)}
                   </MenuItem>
                 ))}
               </Select>
-              {(errors.worker || blockDayOffs) && (
+              {(errors.worker || blockedByDayOffsCount) && (
                 <FormHelperText>
                   {errors.worker?.message ??
                     `Esse trabalhador já fruiu suas abonadas anuais.`}
@@ -210,18 +267,25 @@ export function VacationForm({
                 value={toDate(field.value)}
                 onChange={(e: PickerValue) =>
                   e && dateFNSIsValid(e)
-                    ? setValue("startDate", e.toISOString())
+                    ? setValue("startDate", startOfDaySP(e).toISOString())
                     : new Date().toISOString()
                 }
                 sx={{ width: 1 }}
                 label="Início"
                 format="dd/MM/yyyy"
                 slotProps={{
-                  textField: { size: "small", error: !!errors.startDate },
+                  textField: {
+                    size: "small",
+                    error:
+                      !!errors.startDate ||
+                      periodConflictingVacations.length > 0,
+                  },
                 }}
               />
-              {errors.startDate && (
-                <FormHelperText>{errors.startDate.message}</FormHelperText>
+              {(errors.startDate || periodConflictingVacations.length > 0) && (
+                <FormHelperText>
+                  {errors.startDate?.message ?? getPeriodConflictMessage()}
+                </FormHelperText>
               )}
             </>
           )}
@@ -357,7 +421,10 @@ export function VacationForm({
                   <em>Selecione quem aprova</em>
                 </MenuItem>
                 {bosses?.map((boss) => (
-                  <MenuItem key={`opt-${boss._id}`} value={boss._id}>
+                  <MenuItem
+                    key={`opt-${boss._id as string}`}
+                    value={boss._id as string}
+                  >
                     {capitalizeName(boss.worker?.name)}
                   </MenuItem>
                 ))}
@@ -397,7 +464,10 @@ export function VacationForm({
           type="submit"
           variant="contained"
           disabled={
-            !isValid || isSubmitting || (blockDayOffs && type === "dayOff")
+            !isValid ||
+            isSubmitting ||
+            (blockedByDayOffsCount && type === "dayOff") ||
+            periodConflictingVacations.length > 0
           }
           sx={{ width: 1 }}
         >
