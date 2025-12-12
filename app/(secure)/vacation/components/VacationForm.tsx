@@ -97,11 +97,11 @@ export function VacationForm({
       body: JSON.stringify(formData),
     });
     const {
-      data: { _id },
+      data, error
     } = await res.json();
 
-    if (!res.ok) {
-      console.error(await res.json());
+    if (!res.ok || error) {
+      console.error(error);
 
       snackbarData.message = `Eita, houve um erro na ${
         defaultValues ? "edição" : "criação"
@@ -114,7 +114,7 @@ export function VacationForm({
       snackbarData.severity = "success";
 
       setPdf({
-        items: [{ type: "vacation", id: _id as string }],
+        items: [{ type: "vacation", id: data._id as string }],
         add: isReschedule,
       });
     }

@@ -131,10 +131,11 @@ export const validateDayOffsQuantity = async (
       $lte: lastDay,
     },
     type: "dayOff",
-    cancelled: false,
+    $or: [{ cancelled: false }, { cancelled: undefined }],
     worker: payload.worker ?? vacation?.worker,
     ...(vacation && { _id: { $ne: vacation._id } }),
   });
+
   const sameMonthDayOffs = sameYearDayOffs.filter(({ startDate }) =>
     isSameMonth(startDate, (payload.startDate ?? vacation?.startDate) as Date)
   );

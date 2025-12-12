@@ -168,7 +168,6 @@ export const VacationRepository = {
   },
 
   async create(payload: VacationFormData): Promise<Vacation> {
-    let workerVacations: Vacation[] | undefined;
     let validPayload: VacationFormData | null = null;
 
     const result = VacationCreateSchema.safeParse(payload);
@@ -178,18 +177,6 @@ export const VacationRepository = {
     } else {
       validPayload = result.data as VacationFormData;
     }
-    if (validPayload.type === "dayOff")
-      workerVacations = (
-        await this.find({
-          page: 1,
-          type: validPayload.type,
-          worker: validPayload.worker,
-          from: startOfYear(toDate(validPayload.startDate)),
-        })
-      ).data;
-
-    if (workerVacations?.length && workerVacations.length >= 6)
-      throw new Error("Worker exceeds his annual dayOff limits (6).");
 
     const worker = await WorkerRepository.findOne({
       id: validPayload.worker,

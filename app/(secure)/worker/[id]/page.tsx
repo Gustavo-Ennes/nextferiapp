@@ -10,7 +10,7 @@ export default async function WorkerViewPage({
   const { id } = await params;
   const worker = await fetchOne<Worker>({ type: "worker", id });
   const workerVacations = await fetchAllPaginated<Vacation>({
-    params: { worker: worker._id as string, type: "all" },
+    params: { worker: worker._id as string, type: "all", cancelled: false },
     type: "vacation",
   });
 
