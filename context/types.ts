@@ -1,4 +1,4 @@
-import type { TabData } from "@/app/(secure)/materialRequisition/types";
+import type { TabData } from "@/lib/repository/weeklyFuellingSummary/types";
 
 export type PdfPreviewTypeProp =
   | "vacation"
@@ -29,7 +29,6 @@ export type SetPdfCallbackParam = {
   add?: boolean;
   open?: boolean;
 };
-
 
 export type ModalContextType = {
   open: (options: ModalOptions) => void;

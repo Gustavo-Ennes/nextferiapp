@@ -1,4 +1,4 @@
-import type { TabData } from "../(secure)/materialRequisition/types";
+import type { TabData } from "../../lib/repository/weeklyFuellingSummary/types";
 import type { Boss, Department, Entity, Vacation, Worker } from "../types";
 
 export type ResponseType<T extends Entity> = Response<T> | PaginatedResponse<T>;
