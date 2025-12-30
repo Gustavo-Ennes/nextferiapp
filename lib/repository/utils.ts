@@ -3,6 +3,7 @@ import { endOfDaySP, endOfHalfDay, startOfDaySP } from "@/app/utils";
 import { addDays, endOfYear, isSameMonth, startOfYear } from "date-fns";
 import VacationModel from "@/models/Vacation";
 import type { Vacation } from "@/app/types";
+import { pluck, sum } from "ramda";
 
 export const updateVacationDates = (
   payload: VacationFormData | Partial<VacationFormData>,
@@ -140,10 +141,13 @@ export const validateDayOffsQuantity = async (
     isSameMonth(startDate, (payload.startDate ?? vacation?.startDate) as Date)
   );
 
-  if (sameYearDayOffs.length >= 6)
+  if (getTotalDuration(sameYearDayOffs) >= 6)
     throw new Error("Worker exceeds his annual dayOff limits (6).");
-  if (sameMonthDayOffs.length >= 1)
+  if (getTotalDuration(sameMonthDayOffs) >= 1)
     throw new Error("Worker exceeds his monthly dayOff limits (1).");
 
   return payload;
 };
+
+export const getTotalDuration = (vacations: Vacation[]): number =>
+  sum(pluck("duration", vacations));

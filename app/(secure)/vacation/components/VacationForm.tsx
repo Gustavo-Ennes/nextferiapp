@@ -45,6 +45,7 @@ import {
   translateVacationPeriod,
 } from "@/lib/pdf/vacation/utils";
 import { fetchAllPaginated } from "../../utils";
+import { pluck, sum } from "ramda";
 
 export function VacationForm({
   defaultValues,
@@ -96,9 +97,7 @@ export function VacationForm({
       },
       body: JSON.stringify(formData),
     });
-    const {
-      data, error
-    } = await res.json();
+    const { data, error } = await res.json();
 
     if (!res.ok || error) {
       console.error(error);
@@ -157,9 +156,10 @@ export function VacationForm({
           from: startOfYear(toDate(watchForm.startDate)),
           cancelled: false,
         },
-      }).then((authorizedDayOffs) =>
-        setBlockedByDayOffsCount(authorizedDayOffs.length >= 6)
-      );
+      }).then((authorizedDayOffs) => {
+        const dayOffSum = sum(pluck("duration", authorizedDayOffs));
+        return setBlockedByDayOffsCount(dayOffSum >= 6);
+      });
     }
   }, [watchForm.worker, watchForm.startDate]);
 
