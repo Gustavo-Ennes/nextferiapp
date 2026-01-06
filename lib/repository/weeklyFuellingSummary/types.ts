@@ -1,5 +1,4 @@
 import type { PdfPreviewItem } from "@/context/types";
-import type { Types } from "mongoose";
 
 export type FuelType = "gas" | "s500" | "s10" | "arla";
 
@@ -34,7 +33,6 @@ export interface PdfData {
 }
 
 export interface LocalStorageData {
-  weeklySummaryId?: Types.ObjectId | string;
   data: TabData[];
   activeTab: number;
   pdfData: PdfData;

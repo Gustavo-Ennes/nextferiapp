@@ -1,8 +1,54 @@
 import { isEmpty, prop, uniqBy } from "ramda";
 import type { PaginatedResponse, Response } from "../api/types";
 import type { Entity } from "../types";
-import type { FetchManyParam, FetchOneParam, SearchParams } from "./types";
+import type {
+  CreateOrUpdateWeeklySummaryParam,
+  FetchManyParam,
+  FetchOneParam,
+  SearchParams,
+} from "./types";
 import { format } from "date-fns";
+import type { WeeklyFuellingSummary } from "@/models/WeeklyFuellingSummary";
+
+export const deleteWeeklySummary = async (id: string) => {
+  const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary/${id}`;
+  const res = await fetch(url, {
+    method: "delete",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const { data: summary } = await res.json();
+
+  return summary;
+};
+
+export const createOrUpdateWeeklySummary = async ({
+  id,
+  payload,
+}: CreateOrUpdateWeeklySummaryParam) => {
+  const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary`;
+  const res = await fetch(url, {
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ payload, id }),
+  });
+  const { data: summary } = await res.json();
+
+  return summary;
+};
+
+export const fetchActualWeeklyFuellingSummary = async () => {
+  const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary/actual`;
+
+  const { data }: Response<WeeklyFuellingSummary | null> = await (
+    await fetch(url)
+  ).json();
+
+  return data;
+};
 
 export const fetchOne = async <T extends Entity>({
   id,

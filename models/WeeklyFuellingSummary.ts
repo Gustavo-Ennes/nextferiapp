@@ -39,7 +39,7 @@ export interface WeeklyFuellingSummary extends Document {
 
 const WeeklyFuellingSummarySchema = new Schema(
   {
-    weekStart: { type: Date, required: true, index: true },
+    weekStart: { type: Date, required: true, index: true, unique: true },
     departments: { type: [DepartmentSummarySchema], default: [] },
     createdAt: { type: Date, default: Date.now },
   },
@@ -50,7 +50,7 @@ const WeeklyFuellingSummarySchema = new Schema(
 );
 
 export const WeeklyFuellingSummaryModel =
-  mongoose.models.FuellingWeeklySummary ||
+  mongoose.models.WeeklyFuellingSummary ||
   model<WeeklyFuellingSummary>(
     "WeeklyFuellingSummary",
     WeeklyFuellingSummarySchema

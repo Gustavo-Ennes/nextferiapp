@@ -54,7 +54,7 @@ export const ListPageDesktop = <T extends Entity>({
     );
   };
 
-  const handleDelete = (e:  React.MouseEvent, entity: Entity) => {
+  const handleDelete = (e: React.MouseEvent, entity: Entity) => {
     e.stopPropagation();
     onDelete(entity);
   };

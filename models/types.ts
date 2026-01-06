@@ -4,20 +4,20 @@ export type FuelTotals = Record<FuelType, number>;
 export type FuellingSummaryVehicle = {
   vehicle: string;
   prefix: number;
-  fuelType: string;
+  fuelType: FuelType;
   totalLiters: number;
   lastKm?: number;
 };
 
 export type FuellingSummaryDepartment = {
   name: string;
-
-  fuelTotals: {
-    gas: number;
-    s10: number;
-    s500: number;
-    arla: number;
-  };
-
+  fuelTotals: FuelTotals;
   vehicles: FuellingSummaryVehicle[];
 };
+
+export interface WeeklyFuellingSummary {
+  _id: string;
+  weekStart: string;
+  departments: FuellingSummaryDepartment[];
+  createdAt: string;
+}

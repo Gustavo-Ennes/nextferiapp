@@ -1,3 +1,4 @@
+import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { EntityType } from "../types";
 import type { VacationTypeParam } from "./vacation/types";
 
@@ -14,7 +15,7 @@ export type SearchParams = {
   isExternal?: boolean | null;
   from?: Date | null;
   to?: Date | null;
-  exclude?: string | null
+  exclude?: string | null;
 };
 
 export type RawSearchParams = {
@@ -36,4 +37,9 @@ export type FetchOneParam = {
   id: string;
   type: EntityType;
   params?: SearchParams;
+};
+
+export type CreateOrUpdateWeeklySummaryParam = {
+  id?: string;
+  payload: LocalStorageData;
 };

@@ -1,9 +1,8 @@
-import { FuelingWeeklySummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
+import { WeeklyFuellingSummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
 import { WeeklyFuellingSummaryModel } from "@/models/WeeklyFuellingSummary";
 import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import { startOfWeek } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
-import { Types } from "mongoose";
 import { clone, pluck, sum } from "ramda";
 
 const basePayload: LocalStorageData = {
@@ -39,32 +38,28 @@ const basePayload: LocalStorageData = {
   ],
 };
 
-describe("FuelingWeeklySummaryRepository.find", () => {
+describe("WeeklyFuellingSummaryRepository.findById", () => {
   it("returns null when summary does not exist", async () => {
-    const result = await FuelingWeeklySummaryRepository.find(
-      new Types.ObjectId().toString()
-    );
+    const result = await WeeklyFuellingSummaryRepository.findByWeekStart();
 
     expect(result).toBeNull();
   });
 
   it("returns summary when it exists", async () => {
-    const created = await FuelingWeeklySummaryRepository.createOrUpdate(
+    const created = await WeeklyFuellingSummaryRepository.createOrUpdate(
       basePayload
     );
 
-    const found = await FuelingWeeklySummaryRepository.find(
-      created!._id.toString()
-    );
+    const found = await WeeklyFuellingSummaryRepository.findByWeekStart();
 
     expect(found).not.toBeNull();
     expect(found?._id.toString()).toBe(created!._id.toString());
   });
 });
 
-describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
+describe("WeeklyFuellingSummaryRepository.createOrUpdate", () => {
   it("returns null if payload has no data", async () => {
-    const result = await FuelingWeeklySummaryRepository.createOrUpdate({
+    const result = await WeeklyFuellingSummaryRepository.createOrUpdate({
       data: [],
     } as any);
 
@@ -72,7 +67,7 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
   });
 
   it("creates a weekly summary when none exists", async () => {
-    const created = await FuelingWeeklySummaryRepository.createOrUpdate(
+    const created = await WeeklyFuellingSummaryRepository.createOrUpdate(
       basePayload
     );
 
@@ -82,7 +77,7 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
   });
 
   it("aggregates fuel totals and vehicle totals correctly", async () => {
-    const created = await FuelingWeeklySummaryRepository.createOrUpdate(
+    const created = await WeeklyFuellingSummaryRepository.createOrUpdate(
       basePayload
     );
 
@@ -95,7 +90,7 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
   });
 
   it("sets weekStart to the start of the week (Monday)", async () => {
-    const created = await FuelingWeeklySummaryRepository.createOrUpdate(
+    const created = await WeeklyFuellingSummaryRepository.createOrUpdate(
       basePayload
     );
 
@@ -107,9 +102,7 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
   });
 
   it("updates an existing weekly summary instead of creating a new one", async () => {
-    const created = await FuelingWeeklySummaryRepository.createOrUpdate(
-      basePayload
-    );
+    await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
 
     const updatePayload = clone(basePayload);
     updatePayload.data[0].carEntries[0].fuelings.push({
@@ -118,9 +111,8 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
       kmHr: 2000,
     });
 
-    const updated = await FuelingWeeklySummaryRepository.createOrUpdate(
-      updatePayload,
-      created!._id.toString()
+    const updated = await WeeklyFuellingSummaryRepository.createOrUpdate(
+      updatePayload
     );
 
     const count = await WeeklyFuellingSummaryModel.countDocuments();
@@ -133,7 +125,7 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
   });
 
   it("should update if no id provided, but weekly summary already exists for this week", async () => {
-    await FuelingWeeklySummaryRepository.createOrUpdate(basePayload);
+    await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
     const updatePayload = clone(basePayload);
     updatePayload.data[0].carEntries[0].fuelings.push({
       date: new Date(),
@@ -142,7 +134,7 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
     });
 
     const supposedlyCreated =
-      await FuelingWeeklySummaryRepository.createOrUpdate(updatePayload);
+      await WeeklyFuellingSummaryRepository.createOrUpdate(updatePayload);
 
     const count = await WeeklyFuellingSummaryModel.countDocuments();
 
@@ -153,40 +145,83 @@ describe("FuelingWeeklySummaryRepository.createOrUpdate", () => {
     expect(supposedlyCreated!.departments[0].vehicles[0].lastKm).toBe(2000);
   });
 
-  it("should THROW an error if id provided, but summary not found", async () => {
-    await FuelingWeeklySummaryRepository.createOrUpdate(basePayload);
-    const updatePayload = clone(basePayload);
-    updatePayload.data[0].carEntries[0].fuelings.push({
-      date: new Date(),
-      quantity: 50,
-      kmHr: 2000,
+  it("does not allow two summaries with the same weekStart", async () => {
+    const first = await WeeklyFuellingSummaryRepository.createOrUpdate(
+      basePayload
+    );
+
+    const secondPayload = clone(basePayload);
+    secondPayload.data[0].department = "educação";
+
+    const second = await WeeklyFuellingSummaryRepository.createOrUpdate(
+      secondPayload
+    );
+
+    const count = await WeeklyFuellingSummaryModel.countDocuments();
+
+    expect(count).toBe(1);
+    expect(second!._id.toString()).toBe(first!._id.toString());
+    expect(second!.departments[0].name).toBe("educação");
+  });
+
+  it("does not create a new summary when called multiple times in the same week", async () => {
+    await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
+
+    await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
+
+    await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
+
+    const count = await WeeklyFuellingSummaryModel.countDocuments();
+
+    expect(count).toBe(1);
+  });
+
+  it("throws duplicate key error if trying to manually insert same weekStart", async () => {
+    const weekStart = startOfWeek(startOfDaySP(new Date()), {
+      weekStartsOn: 1,
+    });
+
+    await WeeklyFuellingSummaryModel.create({
+      weekStart,
+      departments: [],
     });
 
     await expect(
-      FuelingWeeklySummaryRepository.createOrUpdate(
-        updatePayload,
-        new Types.ObjectId().toString()
-      )
-    ).rejects.toThrow(`Fuelling weekly summary not found.`);
+      WeeklyFuellingSummaryModel.create({
+        weekStart,
+        departments: [],
+      })
+    ).rejects.toThrow(/duplicate key/i);
   });
 });
 
-describe("FuelingWeeklySummaryRepository.delete", () => {
+describe("WeeklyFuellingSummaryRepository.delete", () => {
   it("throws if delete receives invalid id", async () => {
     await expect(
-      FuelingWeeklySummaryRepository.delete("invalid-id" as any)
+      WeeklyFuellingSummaryRepository.delete("invalid-id" as any)
     ).rejects.toThrow(/Id not found/i);
   });
 
   it("deletes a weekly summary by id", async () => {
-    const created = await FuelingWeeklySummaryRepository.createOrUpdate(
+    const created = await WeeklyFuellingSummaryRepository.createOrUpdate(
       basePayload
     );
 
-    await FuelingWeeklySummaryRepository.delete(created!._id);
+    await WeeklyFuellingSummaryRepository.delete(created!._id);
 
     const found = await WeeklyFuellingSummaryModel.findById(created!._id);
 
     expect(found).toBeNull();
+  });
+
+  it("deletes exactly one weekly summary", async () => {
+    const created = await WeeklyFuellingSummaryRepository.createOrUpdate(
+      basePayload
+    );
+
+    await WeeklyFuellingSummaryRepository.delete(created!._id);
+
+    const count = await WeeklyFuellingSummaryModel.countDocuments();
+    expect(count).toBe(0);
   });
 });

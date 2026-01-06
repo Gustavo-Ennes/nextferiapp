@@ -30,7 +30,7 @@ export function ListPageMobile<T extends Entity>({
   const getDefaultEntries = (obj: Entity) =>
     Object.entries(obj).filter(
       ([k]) =>
-        defaultEntityTableFields[routePrefix].includes(k) &&
+        defaultEntityTableFields[routePrefix].includes(k as never) &&
         !["name", "type"].includes(k)
     );
 

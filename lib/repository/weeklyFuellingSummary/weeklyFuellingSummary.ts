@@ -12,9 +12,16 @@ import type {
 import { startOfWeek } from "date-fns";
 import { isObjectIdOrHexString, Types } from "mongoose";
 
-export const FuelingWeeklySummaryRepository = {
-  async find(id: string): Promise<WeeklyFuellingSummary | null> {
-    return WeeklyFuellingSummaryModel.findById(id);
+export const WeeklyFuellingSummaryRepository = {
+  async findByWeekStart(): Promise<WeeklyFuellingSummary | null> {
+    const weekStart = startOfWeek(startOfDaySP(new Date()), {
+      weekStartsOn: 1,
+    });
+    return WeeklyFuellingSummaryModel.findOne({ weekStart });
+  },
+
+  async find(): Promise<WeeklyFuellingSummary[]> {
+    return WeeklyFuellingSummaryModel.find();
   },
 
   async delete(id: Types.ObjectId): Promise<void> {
@@ -24,32 +31,18 @@ export const FuelingWeeklySummaryRepository = {
   },
 
   async createOrUpdate(
-    payload: LocalStorageData,
-    id?: string
+    payload: LocalStorageData
   ): Promise<WeeklyFuellingSummary | null> {
     const payloadDepartments = payload.data;
-    const isUpdate = !!id;
-    const weekStart = startOfWeek(startOfDaySP(new Date()), {
-      weekStartsOn: 1,
-    });
-
-    let summaryToUpdate: WeeklyFuellingSummary | null = null;
-    let actualWeekSummary: WeeklyFuellingSummary | null =
-      await WeeklyFuellingSummaryModel.findOne({ weekStart });
-
-    if (id && !isObjectIdOrHexString(id))
-      throw new Error("Id must be an ObjectId.");
 
     if (!payloadDepartments || payloadDepartments.length === 0) {
-      console.info(`No data found in localstorage for fuelling weekly summary`);
+      console.info("No data found in localstorage for fuelling weekly summary");
       return null;
     }
 
-    summaryToUpdate = await WeeklyFuellingSummaryModel.findById(id);
-
-    if (isUpdate && !summaryToUpdate)
-      throw new Error("Fuelling weekly summary not found.");
-    if (!isUpdate && actualWeekSummary) summaryToUpdate = actualWeekSummary;
+    const weekStart = startOfWeek(startOfDaySP(new Date()), {
+      weekStartsOn: 1,
+    });
 
     const departments: FuellingSummaryDepartment[] = [];
 
@@ -60,21 +53,20 @@ export const FuelingWeeklySummaryRepository = {
         s500: 0,
         arla: 0,
       };
+
       const vehiclesTotals: FuellingSummaryVehicle[] = [];
 
       for (const car of dept.carEntries) {
         let totalLiters = 0;
-        let lastKm = undefined;
+        let lastKm: number | undefined;
 
         for (const f of car.fuelings) {
           totalLiters += f.quantity;
           lastKm = f.kmHr;
         }
 
-        // adiciona ao total por combustível
         fuelTotals[car.fuel] += totalLiters;
 
-        // adiciona aos veículos
         vehiclesTotals.push({
           vehicle: car.vehicle,
           prefix: car.prefix,
@@ -83,27 +75,31 @@ export const FuelingWeeklySummaryRepository = {
           lastKm,
         });
       }
+
       departments.push({
-        fuelTotals,
         name: dept.department,
+        fuelTotals,
         vehicles: vehiclesTotals,
       });
     }
 
-    if (summaryToUpdate) {
-      summaryToUpdate.weekStart = weekStart;
-      summaryToUpdate.departments = departments;
-    } else {
-      summaryToUpdate = new WeeklyFuellingSummaryModel({
-        weekStart,
-        departments,
-        createdAt: new Date(),
-      });
-    }
-    const savedSummary = await (
-      summaryToUpdate as WeeklyFuellingSummary
-    ).save();
+    const summary = await WeeklyFuellingSummaryModel.findOneAndUpdate(
+      { weekStart },
+      {
+        $set: {
+          departments,
+          weekStart,
+        },
+        $setOnInsert: {
+          createdAt: new Date(),
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
 
-    return savedSummary;
+    return summary;
   },
 };

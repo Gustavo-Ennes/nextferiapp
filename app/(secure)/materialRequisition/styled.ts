@@ -1,5 +1,5 @@
 import { Card, styled } from "@mui/material";
-import type { CarEntry } from "./types";
+import type { CarEntry } from "../../../lib/repository/weeklyFuellingSummary/types";
 
 export const GridCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "selectedCar",
@@ -10,5 +10,5 @@ export const GridCard = styled(Card, {
   maxHeight: "150px",
   scrollBehavior: "smooth",
   overflow: "scroll",
-  padding: 10
+  padding: 10,
 }));

@@ -3,7 +3,7 @@
 import { Grid, TextField, Button } from "@mui/material";
 import { type SetStateAction, useRef } from "react";
 import { FuelingFormList } from "./FuelingFormList";
-import type { FuelingData } from "../types";
+import type { FuelingData } from "../../../../lib/repository/weeklyFuellingSummary/types";
 import { DatePicker } from "@mui/x-date-pickers";
 import { startOfDay } from "date-fns";
 

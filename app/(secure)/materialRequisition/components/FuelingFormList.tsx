@@ -1,5 +1,5 @@
 import { Grid, Box, Chip, Badge, Typography } from "@mui/material";
-import type { FuelingData } from "../types";
+import type { FuelingData } from "../../../../lib/repository/weeklyFuellingSummary/types";
 import { Close, LocalGasStation } from "@mui/icons-material";
 import { getLabel, sortCarFuelings } from "../utils";
 
