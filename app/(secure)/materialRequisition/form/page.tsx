@@ -35,7 +35,7 @@ import {
   deleteWeeklySummary,
   fetchActualWeeklyFuellingSummary,
 } from "../../utils";
-import { type WeeklyFuellingSummary } from "@/models/WeeklyFuellingSummary";
+import { type WeeklyFuellingSummary } from "@/models/types";
 
 export default function MaterialRequisitionForm() {
   const [tabsData, setTabsData] = useState<TabData[]>([]);
