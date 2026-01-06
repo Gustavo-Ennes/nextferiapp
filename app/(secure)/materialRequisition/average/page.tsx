@@ -4,11 +4,11 @@ import { WeeklySummaryView } from "./WeeklySummaryView";
 
 async function getWeeklySummaries() {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary`,
+    `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary/actual`,
     { cache: "no-store" }
   );
 
-  if (!res.ok) throw new Error("Failed to fetch weekly summaries");
+  if (!res.ok) console.info("No weekly summary found.");
 
   const { data } = await res.json();
   return data;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Grid } from "@mui/material";
+import { Container, Grid, Paper, Typography } from "@mui/material";
 import { format } from "date-fns";
 import { useMemo, useState, useEffect } from "react";
 import { AverageHeader } from "../components/AverageHeader";
@@ -11,7 +11,7 @@ import type { WeeklyFuellingSummary } from "@/models/types";
 const ALL = "__ALL__";
 
 export function WeeklySummaryView({
-  summaries,
+  summaries = [],
 }: {
   summaries: WeeklyFuellingSummary[];
 }) {
@@ -93,36 +93,44 @@ export function WeeklySummaryView({
   }, [summaries, selectedDept]);
 
   return (
-    <Grid container spacing={2}>
+    <Container>
+      {summaries.length > 0 ? (
+        <Grid container spacing={2}>
+          <Grid size={12}>
+            <AverageHeader
+              departments={departments}
+              selectedDept={selectedDept}
+              onChange={(department: string) => {
+                setSelectedDept(department);
+              }}
+            />
+          </Grid>
+          {/* GRÁFICOS TOPO */}
+          <Grid size={12}>
+            <AverageCharts
+              barWeekly={barWeekly}
+              fuelEvolution={fuelEvolution}
+              pieData={pieData}
+            />
+          </Grid>
+          {/* LISTAGEM */}
+          <Grid size={12}>
+            <AverageDepartmentTabs
+              departments={departments}
+              summaries={summaries}
+              tabIndex={tabIndex}
+              onChange={(newIndex: number) => setTabIndex(newIndex)}
+            />
+          </Grid>
+        </Grid>
+      ) : (
+        <Paper sx={{p: 3}}>
+          <Typography textAlign={'center'}>
+            Não há resumos semanais a exibir.
+          </Typography>
+        </Paper>
+      )}
       {/* HEADER */}
-      <Grid size={12}>
-        <AverageHeader
-          departments={departments}
-          selectedDept={selectedDept}
-          onChange={(department: string) => {
-            setSelectedDept(department);
-          }}
-        />
-      </Grid>
-
-      {/* GRÁFICOS TOPO */}
-      <Grid size={12}>
-        <AverageCharts
-          barWeekly={barWeekly}
-          fuelEvolution={fuelEvolution}
-          pieData={pieData}
-        />
-      </Grid>
-
-      {/* LISTAGEM */}
-      <Grid size={12}>
-        <AverageDepartmentTabs
-          departments={departments}
-          summaries={summaries}
-          tabIndex={tabIndex}
-          onChange={(newIndex: number) => setTabIndex(newIndex)}
-        />
-      </Grid>
-    </Grid>
+    </Container>
   );
 }
