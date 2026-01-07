@@ -1,7 +1,7 @@
 import type {
   CarEntry,
   FuelType,
-} from "@/app/(secure)/materialRequisition/types";
+} from "@/lib/repository/weeklyFuellingSummary/types";
 import type { LineData, TableData } from "../types";
 import { format } from "date-fns";
 

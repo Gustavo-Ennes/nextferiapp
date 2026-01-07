@@ -51,9 +51,9 @@ export const translateEntityKey = ({
       license: "licença-prêmio",
       normal: "férias",
       returnDate: "Retorno",
-      vacation: 'Folga',
-      half: 'meio-período',
-      full: 'integral'
+      vacation: "Folga",
+      half: "meio-período",
+      full: "integral",
     },
     boss: {
       _id: "id",
@@ -72,6 +72,9 @@ export const translateEntityKey = ({
       s10: "Diesel S-10",
       s500: "Diesel S-500",
       arla: "Arla",
+    },
+    weeklyFuellingSummary: {
+      translated: "Resumo semanal de abastecimentos",
     },
   };
   return entity

@@ -1,7 +1,4 @@
-import {
-  endOfToday,
-  startOfToday,
-} from "date-fns";
+import { endOfToday, startOfToday } from "date-fns";
 import { mergeAll } from "ramda";
 
 import type {
@@ -20,6 +17,12 @@ export const headers = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization",
   "Access-Control-Allow-Credentials": "true",
 };
+
+export const genericResponseWithHeaders = (data: any) =>
+  NextResponse.json(data, {
+    headers,
+    status: (data as Response<Boss>).error ? 400 : 200,
+  });
 
 export const responseWithHeaders = <T extends Entity>(data: ResponseType<T>) =>
   NextResponse.json(data, {
@@ -88,8 +91,4 @@ async function applyDefaultField<T>(model: Model<T>) {
 
 const PAGINATION_LIMIT = 20 as const;
 
-export {
-  buildOptions,
-  applyDefaultField,
-  PAGINATION_LIMIT,
-};
+export { buildOptions, applyDefaultField, PAGINATION_LIMIT };

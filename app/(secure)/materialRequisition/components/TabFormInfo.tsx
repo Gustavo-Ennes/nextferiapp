@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import { fuelList } from "../utils";
-import type { FuelType } from "../types";
+import type { FuelType } from "../../../../lib/repository/weeklyFuellingSummary/types";
 import { type SetStateAction, type RefObject, useEffect } from "react";
 
 export const TabFormInfo = ({

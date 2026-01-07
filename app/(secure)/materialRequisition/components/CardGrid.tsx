@@ -16,7 +16,10 @@ import {
   CalendarMonth,
   Speed,
 } from "@mui/icons-material";
-import type { CarEntry, TabData } from "../types";
+import type {
+  CarEntry,
+  TabData,
+} from "../../../../lib/repository/weeklyFuellingSummary/types";
 import { Close } from "@mui/icons-material";
 import { format } from "date-fns";
 import { GridCard } from "../styled";
@@ -24,7 +27,7 @@ import { sortCarFuelings } from "../utils";
 import { capitalizeName } from "@/app/utils";
 import { ConfirmationDialog } from "../../components/ConfirmationDialog";
 import { useState, type MouseEvent } from "react";
-import type { DialogData } from "../types";
+import type { DialogData } from "../../../../lib/repository/weeklyFuellingSummary/types";
 
 export const CardsGrid = ({
   tabData,

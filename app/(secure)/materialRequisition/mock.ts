@@ -1,5 +1,8 @@
 import { fuelList } from "./utils";
-import type { FuelingData, TabData } from "./types";
+import type {
+  FuelingData,
+  TabData,
+} from "../../../lib/repository/weeklyFuellingSummary/types";
 import { getDaysInMonth, set } from "date-fns";
 
 const MIN_TABS = 1;
@@ -52,7 +55,7 @@ export const mockedTabsData: () => TabData[] = () => {
 
   return Array.from({ length }, (_, tabIndex) => {
     return {
-      id: tabIndex,
+      order: tabIndex,
       department: `Departamento ${tabIndex + 1}`,
       carEntries: generateCarEntries(carCount, tabIndex),
     };

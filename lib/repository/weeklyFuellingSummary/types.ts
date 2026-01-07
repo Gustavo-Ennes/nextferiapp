@@ -3,7 +3,6 @@ import type { PdfPreviewItem } from "@/context/types";
 export type FuelType = "gas" | "s500" | "s10" | "arla";
 
 export interface FuelingData {
-  id: number;
   date: Date;
   quantity: number;
   kmHr?: number;
@@ -19,7 +18,7 @@ export interface CarEntry {
 export interface TabData {
   department: string;
   carEntries: CarEntry[];
-  id: number;
+  order: number;
 }
 
 export interface TabPanelProps {

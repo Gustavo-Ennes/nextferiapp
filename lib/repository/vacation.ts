@@ -1,7 +1,7 @@
 import type { SearchParams } from "@/app/(secure)/types";
 import type { FacetResult, AggregatedVacation } from "@/app/api/types";
 import VacationModel from "@/models/Vacation";
-import { addMilliseconds, startOfYear, toDate } from "date-fns";
+import { addMilliseconds } from "date-fns";
 import { isObjectIdOrHexString, Types } from "mongoose";
 import type {
   VacationFindOneRepositoryParam,

@@ -21,6 +21,10 @@ async function dbConnect() {
     );
   }
 
+  if (process.env.NODE_ENV === "test") {
+    if (mongoose.connection.readyState === 1) return mongoose.connection;
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
@@ -38,7 +42,6 @@ async function dbConnect() {
     cached.promise = null;
     throw e;
   }
-
 
   // await afterInit()
   return cached.conn;

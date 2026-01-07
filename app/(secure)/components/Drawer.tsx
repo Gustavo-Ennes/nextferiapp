@@ -9,37 +9,15 @@ import {
 import { navList } from "../navList";
 import { DrawerContent } from "../styled";
 import { ListItemMenu } from "./ListItemMenu";
-import { Logout, PictureAsPdf, Receipt } from "@mui/icons-material";
-import type { ReactNode } from "react";
+import { Logout, PictureAsPdf } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
-import type { ListItemMenuItem } from "./types";
 import { BlueItemIcon } from "./styled";
+import { getVacationProps, getWeeklyFuellingSummaryProps } from "./utils";
 
 export const Drawer = () => {
   const router = useRouter();
   const { setPdf } = usePdfPreview();
-  const getVacationProps = (icon: ReactNode): ListItemMenuItem => ({
-    label: "Folgas",
-    icon,
-    items: [
-      {
-        itemLabel: "Férias",
-        itemIcon: icon,
-        href: "/vacation",
-      },
-      {
-        itemLabel: "Abonadas",
-        itemIcon: icon,
-        href: "/vacation/dayOff",
-      },
-      {
-        itemLabel: "Lic. Prêmio",
-        itemIcon: icon,
-        href: "/vacation/license",
-      },
-    ],
-  });
 
   const listClickAction = (href: string) => {
     router.push(href);
@@ -59,21 +37,15 @@ export const Drawer = () => {
               <ListItemText primary={label} />
             </ListItemButton>
           ) : (
-            <ListItemMenu props={getVacationProps(icon)} key={href} />
+            <ListItemMenu props={getVacationProps()} key={href} />
           )
         )}
         <Divider />
 
-        <ListItemButton
-          key={"materialRequisition"}
-          sx={{ my: 1 }}
-          onClick={() => router.push("/materialRequisition")}
-        >
-          <BlueItemIcon>
-            <Receipt />
-          </BlueItemIcon>
-          <ListItemText primary={"Req. de materiais"} />
-        </ListItemButton>
+        <ListItemMenu
+          props={getWeeklyFuellingSummaryProps()}
+          key="/weeklyFuellingSummary"
+        />
         <Divider />
 
         <ListItemButton

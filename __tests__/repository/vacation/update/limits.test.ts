@@ -30,15 +30,15 @@ describe("VacationRepository.update.limits", () => {
     VacationModel.create({
       ...basePayload,
       type: "dayOff",
-      duration: 0.5,
-      period: "half",
+      duration: 1,
+      period: "full",
       startDate: new Date(year, 0, day),
       worker: worker._id,
       boss: boss._id,
       cancelled,
     });
 
-  it("should NOT update type to dayOff if worker already used 6 dayOffs in the same year", async () => {
+  it("should NOT update type to dayOff if worker already used 6 dayOffs total in the same year", async () => {
     const year = new Date().getFullYear();
 
     // cria 6 dayOffs válidos

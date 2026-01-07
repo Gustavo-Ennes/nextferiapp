@@ -3,6 +3,7 @@ import type { Worker, Boss } from "@/app/types";
 import { createBaseEntities } from "../utils";
 import VacationModel from "@/models/Vacation";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
+import { setDate, setDay } from "date-fns";
 
 describe("VacationRepository.create.limits", () => {
   let worker: Worker;
@@ -25,8 +26,34 @@ describe("VacationRepository.create.limits", () => {
     };
   });
 
-  // shouldn't create if type is 'dayOff' and worker exceeds early dayOffs(6)
-  it("should NOT create a dayOff if worker already used 6 dayOffs in the same year", async () => {
+  it("should NOT create a dayOff in the same month for the same worker", async () => {
+    const today = new Date();
+
+    await VacationModel.create({
+      ...basePayload,
+      type: "dayOff",
+      period: "full",
+      duration: 1,
+      startDate: today,
+      worker: worker._id,
+      boss: boss._id,
+    });
+
+    const invalidPayload = {
+      ...basePayload,
+      type: "dayOff",
+      duration: 0.5,
+      period: "half",
+      startDate: setDate(today, 27).toISOString(),
+    };
+
+    await expect(
+      VacationRepository.create(invalidPayload as any)
+    ).rejects.toThrow("Worker exceeds his monthly dayOff limits (1).");
+  });
+
+  // shouldn't create if type is 'dayOff' and worker exceeds early dayOffs(6 days in period=full)
+  it("should NOT create a dayOff if worker already used 6 full dayOffs in the same year", async () => {
     const year = new Date().getFullYear();
 
     // cria 6 dayOffs no mesmo ano
@@ -34,8 +61,8 @@ describe("VacationRepository.create.limits", () => {
       await VacationModel.create({
         ...basePayload,
         type: "dayOff",
-        period: "half",
-        duration: 0.5,
+        period: "full",
+        duration: 1,
         startDate: new Date(year, 0, i + 1),
         worker: worker._id,
         boss: boss._id,
@@ -55,6 +82,38 @@ describe("VacationRepository.create.limits", () => {
       VacationRepository.create(invalidPayload as any)
     ).rejects.toThrow("Worker exceeds his annual dayOff limits (6).");
   });
+
+  it("should create a dayOff if worker has 6 daysOff,but some are half-period", async () => {
+    const year = new Date().getFullYear();
+
+    // cria 6 dayOffs no mesmo ano
+    for (let i = 0; i < 6; i++) {
+      await VacationModel.create({
+        ...basePayload,
+        type: "dayOff",
+        period: "full",
+        duration: 0.5,
+        startDate: new Date(year, 0, i + 1),
+        worker: worker._id,
+        boss: boss._id,
+      });
+    }
+
+    const testPayload = {
+      ...basePayload,
+      type: "dayOff",
+      duration: 1,
+      period: "full",
+      startDate: new Date(year, 6, 15).toISOString(),
+    };
+
+    const created = await VacationRepository.create(testPayload as any);
+
+    expect(created.type).toBe("dayOff");
+    expect(created.duration).toBe(1);
+    expect(created.startDate.getFullYear()).toBe(year);
+  });
+
   // should create dayOff for next year if this year is exceeded but next doesn't
   it("should create a dayOff for next year if current year is full but next year is available", async () => {
     const currentYear = new Date().getFullYear();

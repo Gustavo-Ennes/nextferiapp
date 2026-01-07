@@ -5,7 +5,7 @@ import type { Vacation, Worker, Department } from "@/app/types";
 import type {
   CarEntry,
   TabData,
-} from "@/app/(secure)/materialRequisition/types";
+} from "@/lib/repository/weeklyFuellingSummary/types";
 
 type LineData = (string | undefined)[];
 type TableData = LineData[];

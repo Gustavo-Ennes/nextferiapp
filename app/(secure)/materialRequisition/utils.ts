@@ -1,6 +1,13 @@
 import { format, isSameDay, toDate } from "date-fns";
-import type { FuelingData, FuelType, LocalStorageData, TabData } from "./types";
+import type {
+  FuelingData,
+  FuelType,
+  LocalStorageData,
+  TabData,
+} from "../../../lib/repository/weeklyFuellingSummary/types";
 import { flatten, pluck } from "ramda";
+import type { AverageDepartmentTableParam } from "./components/types";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 // import { mockedTabsData } from "./mock";
 
 export const setLocalStorageData = ({
@@ -87,4 +94,25 @@ export const resumeTabData = (tabData?: TabData): string => {
     tabData.carEntries.map((carEntry) => carEntry.fuelings)
   ).length;
   return `${tabData.department} - ${tabData.carEntries.length} veículos - ${totalFuelings} abastecimentos`;
+};
+
+export const getDepartmentWeeklyRows = (
+  summaries: WeeklyFuellingSummaryDTO[],
+  department: string
+): AverageDepartmentTableParam[] => {
+  return (
+    summaries
+      .map(({ weekStart, departments }) => {
+        const dept = departments.find((d) => d.name === department);
+
+        return {
+          weekStart,
+          ...(dept?.fuelTotals ?? {}),
+        };
+      })
+      .filter(Boolean)
+      .sort(
+        (a, b) => toDate(a.weekStart).getTime() - toDate(b.weekStart).getTime()
+      ) ?? []
+  );
 };

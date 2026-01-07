@@ -1,3 +1,4 @@
+import type { WeeklyFuellingSummary } from "@/models/WeeklyFuellingSummary";
 import type {
   VacationDuration,
   VacationPeriod,
@@ -72,5 +73,15 @@ export type Worker = {
   isExternal?: boolean;
 };
 
-export type Entity = Worker | Vacation | Department | Boss;
-export type EntityType = "department" | "worker" | "vacation" | "boss";
+export type Entity =
+  | Worker
+  | Vacation
+  | Department
+  | Boss
+  | WeeklyFuellingSummary;
+export type EntityType =
+  | "department"
+  | "worker"
+  | "vacation"
+  | "boss"
+  | "weeklyFuellingSummary";

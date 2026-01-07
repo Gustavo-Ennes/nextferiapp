@@ -11,25 +11,37 @@ import {
   Chip,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import { NewTabDialog } from "./components/TabDialog";
-import type { DialogData, LocalStorageData, TabData } from "./types";
+import { NewTabDialog } from "../components/TabDialog";
+import type {
+  DialogData,
+  LocalStorageData,
+  TabData,
+} from "../../../../lib/repository/weeklyFuellingSummary/types";
 import {
   getLocalStorageData,
   removeAllCarEntries,
   resumeTabData,
   setLocalStorageData,
-} from "./utils";
-import { Tab as MaterialRequisitionTab } from "./components/Tab";
-import { TabPanel } from "./components/TabPanel";
+} from "../utils";
+import { Tab as MaterialRequisitionTab } from "../components/Tab";
+import { TabPanel } from "../components/TabPanel";
 import { Close, CorporateFareOutlined } from "@mui/icons-material";
 import { head, insert, isNil, pluck, reject, remove } from "ramda";
-import { TitleTypography } from "../components/TitleTypography";
+import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
-import { ConfirmationDialog } from "../components/ConfirmationDialog";
+import { ConfirmationDialog } from "../../components/ConfirmationDialog";
+import {
+  createOrUpdateWeeklySummary,
+  deleteWeeklySummary,
+  fetchActualWeeklyFuellingSummary,
+} from "../../utils";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
-export default function MaterialRequisitionPage() {
+export default function MaterialRequisitionForm() {
   const [tabsData, setTabsData] = useState<TabData[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [weeklyFuellingSummary, setWeeklyFuellingSummary] =
+    useState<WeeklyFuellingSummaryDTO | null>();
   const [newTabDialog, setNewTabDialog] = useState(false);
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [dialogData, setDialogData] = useState<DialogData>();
@@ -38,10 +50,24 @@ export default function MaterialRequisitionPage() {
   // Load
   useEffect(() => {
     getLocalStorageData()
-      .then(({ activeTab, data }: LocalStorageData) => {
+      .then((localStorageData: LocalStorageData) => {
+        const { activeTab, data } = localStorageData;
+
         if (data.length) {
           setTabsData(data);
           setActiveTab(activeTab);
+        }
+
+        if (!weeklyFuellingSummary) {
+          fetchActualWeeklyFuellingSummary().then((summary) => {
+            setWeeklyFuellingSummary(summary);
+          });
+        } else {
+          createOrUpdateWeeklySummary({
+            payload: localStorageData,
+          }).then((summary) => {
+            setWeeklyFuellingSummary(summary);
+          });
         }
       })
       .catch((err) => {
@@ -52,12 +78,23 @@ export default function MaterialRequisitionPage() {
   // Persist
   useEffect(() => {
     getLocalStorageData().then((oldData: LocalStorageData) => {
-      const newData = { ...oldData, data: tabsData };
+      const newData = {
+        ...oldData,
+        data: tabsData,
+      };
       setLocalStorageData({ data: newData });
       setPdf({
         items: [{ data: tabsData, type: "materialRequisition" }],
         open: false,
       });
+
+      if (tabsData.length > 0) {
+        createOrUpdateWeeklySummary({
+          payload: newData,
+        });
+      } else {
+        handleDeleteWeeklySummary();
+      }
     });
   }, [tabsData]);
 
@@ -74,10 +111,10 @@ export default function MaterialRequisitionPage() {
     if (existingTab) {
       setActiveTab(tabsData.indexOf(existingTab));
     } else {
-      const ids = pluck("id", tabsData);
-      const newId = Math.max(...ids) + 1;
+      const orders = pluck("order", tabsData);
+      const newOrder = Math.max(...orders) + 1;
       const newTab: TabData = {
-        id: newId ?? 1,
+        order: newOrder ?? 1,
         department: name,
         carEntries: [],
       };
@@ -104,12 +141,22 @@ export default function MaterialRequisitionPage() {
     onTabsDataChange(tabWithoutCarEntries);
   };
 
+  const handleDeleteWeeklySummary = async () => {
+    if (weeklyFuellingSummary) {
+      deleteWeeklySummary(weeklyFuellingSummary._id.toString()).then(() => {
+        setWeeklyFuellingSummary(null);
+      });
+    }
+  };
+
   const openResetDialog = () => {
     setDialogData({
       title: "Começar tudo novamente?",
       message:
         "Ao confirmar, você apagará todas as abas e seu conteúdo. Quer prosseguir?",
-      onConfirm: () => setTabsData([]),
+      onConfirm: () => {
+        setTabsData([]);
+      },
     });
     setConfirmationDialog(true);
   };
@@ -186,7 +233,7 @@ export default function MaterialRequisitionPage() {
           sx={{ mb: 2, m: "auto", mt: 1 }}
         >
           {tabsData
-            .sort((a, b) => a.id - b.id)
+            .sort((a, b) => a.order - b.order)
             .map((tabData, idx) => (
               <Tab
                 key={idx}
@@ -203,7 +250,7 @@ export default function MaterialRequisitionPage() {
       <Grid size={10}>
         {tabsData.length ? (
           tabsData
-            .sort((a, b) => a.id - b.id)
+            .sort((a, b) => a.order - b.order)
             .map((tabData, idx) => (
               <TabPanel
                 index={activeTab}

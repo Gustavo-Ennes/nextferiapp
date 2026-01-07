@@ -205,6 +205,7 @@ export const defaultEntityTableFields = {
   worker: ["name", "role", "matriculation", "department"],
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
+  weeklyFuellingSummary: []
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>

@@ -2,7 +2,12 @@
 
 import { Button, Box, Grid, Divider } from "@mui/material";
 import { useEffect, useState, useRef } from "react";
-import type { CarEntry, FuelingData, FuelType, TabData } from "../types";
+import type {
+  CarEntry,
+  FuelingData,
+  FuelType,
+  TabData,
+} from "../../../../lib/repository/weeklyFuellingSummary/types";
 import { TabFormInfo } from "./TabFormInfo";
 import { TabFormFuelings } from "./TabFormFuelings";
 import { prefixExistsInTabData } from "../utils";
