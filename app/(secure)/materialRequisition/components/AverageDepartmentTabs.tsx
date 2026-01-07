@@ -1,7 +1,7 @@
-import type { WeeklyFuellingSummary } from "@/models/types";
 import { Paper, Tabs, Tab, Divider } from "@mui/material";
 import { getDepartmentWeeklyRows } from "../utils";
 import { AverageDepartmentTable } from "./AverageDepartmentTable";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 export const AverageDepartmentTabs = ({
   departments,
@@ -10,7 +10,7 @@ export const AverageDepartmentTabs = ({
   onChange,
 }: {
   departments: string[];
-  summaries: WeeklyFuellingSummary[];
+  summaries: WeeklyFuellingSummaryDTO[];
   tabIndex: number;
   onChange: (v: number) => void;
 }) => {

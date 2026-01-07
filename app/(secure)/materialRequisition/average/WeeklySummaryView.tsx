@@ -6,14 +6,14 @@ import { useMemo, useState, useEffect } from "react";
 import { AverageHeader } from "../components/AverageHeader";
 import { AverageCharts } from "../components/AverageCharts";
 import { AverageDepartmentTabs } from "../components/AverageDepartmentTabs";
-import type { WeeklyFuellingSummary } from "@/models/types";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 const ALL = "__ALL__";
 
 export function WeeklySummaryView({
   summaries = [],
 }: {
-  summaries: WeeklyFuellingSummary[];
+  summaries: WeeklyFuellingSummaryDTO[];
 }) {
   const departments = useMemo(() => {
     const set = new Set<string>();
@@ -124,8 +124,8 @@ export function WeeklySummaryView({
           </Grid>
         </Grid>
       ) : (
-        <Paper sx={{p: 3}}>
-          <Typography textAlign={'center'}>
+        <Paper sx={{ p: 3 }}>
+          <Typography textAlign={"center"}>
             Não há resumos semanais a exibir.
           </Typography>
         </Paper>

@@ -1,8 +1,8 @@
 import { startOfDaySP } from "@/app/utils";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import type {
   FuellingSummaryDepartment,
   FuellingSummaryVehicle,
-  WeeklyFuellingSummary,
 } from "@/models/types";
 import { addWeeks, startOfWeek } from "date-fns";
 import { Types } from "mongoose";
@@ -30,7 +30,7 @@ function randomFrom<T>(arr: T[]): T {
 
 export function generateWeeklyFuellingSummaryMock(
   params: WeeklySummaryMockParam
-): WeeklyFuellingSummary[] {
+): WeeklyFuellingSummaryDTO[] {
   const {
     weeks,
     departmentsPerWeek,
@@ -38,7 +38,7 @@ export function generateWeeklyFuellingSummaryMock(
     fuellingsPerVehicle,
     litersPerFuelling,
   } = params;
-  const departmentSummaries: WeeklyFuellingSummary[] = [];
+  const departmentSummaries: WeeklyFuellingSummaryDTO[] = [];
 
   for (let weekId = 0; weekId < weeks; weekId++) {
     const departmentQuantity = randomInt(
@@ -48,7 +48,7 @@ export function generateWeeklyFuellingSummaryMock(
     const weekStart = startOfWeek(
       addWeeks(startOfDaySP(new Date()), weekId)
     ).toISOString();
-    const weeklySummary: WeeklyFuellingSummary = {
+    const weeklySummary: WeeklyFuellingSummaryDTO = {
       _id: new Types.ObjectId().toString(),
       weekStart,
       createdAt: weekStart,

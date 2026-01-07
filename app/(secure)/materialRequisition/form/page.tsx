@@ -35,13 +35,13 @@ import {
   deleteWeeklySummary,
   fetchActualWeeklyFuellingSummary,
 } from "../../utils";
-import { type WeeklyFuellingSummary } from "@/models/types";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 export default function MaterialRequisitionForm() {
   const [tabsData, setTabsData] = useState<TabData[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [weeklyFuellingSummary, setWeeklyFuellingSummary] =
-    useState<WeeklyFuellingSummary | null>();
+    useState<WeeklyFuellingSummaryDTO | null>();
   const [newTabDialog, setNewTabDialog] = useState(false);
   const [confirmationDialog, setConfirmationDialog] = useState(false);
   const [dialogData, setDialogData] = useState<DialogData>();

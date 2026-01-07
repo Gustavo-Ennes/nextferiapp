@@ -8,7 +8,7 @@ import type {
   SearchParams,
 } from "./types";
 import { format } from "date-fns";
-import type { WeeklyFuellingSummary } from "@/models/types";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 export const deleteWeeklySummary = async (id: string) => {
   const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary/${id}`;
@@ -43,21 +43,11 @@ export const createOrUpdateWeeklySummary = async ({
 export const fetchActualWeeklyFuellingSummary = async () => {
   const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary/actual`;
 
-  const { data }: Response<WeeklyFuellingSummary | null> = await (
+  const { data }: Response<WeeklyFuellingSummaryDTO | null> = await (
     await fetch(url)
   ).json();
 
   return data;
-};
-
-export const fetchWeeklyFuellingSummaries = async () => {
-  const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary`;
-
-  const { data }: Response<WeeklyFuellingSummary[]> = await (
-    await fetch(url)
-  ).json();
-
-  return data ?? [];
 };
 
 export const fetchOne = async <T extends Entity>({

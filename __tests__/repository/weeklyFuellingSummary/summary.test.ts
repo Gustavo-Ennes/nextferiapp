@@ -1,7 +1,7 @@
 import { WeeklyFuellingSummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
 import { WeeklyFuellingSummaryModel } from "@/models/WeeklyFuellingSummary";
 import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
-import { startOfWeek } from "date-fns";
+import { startOfWeek, toDate } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
 import { clone, pluck, sum } from "ramda";
 
@@ -98,7 +98,9 @@ describe("WeeklyFuellingSummaryRepository.createOrUpdate", () => {
       weekStartsOn: 1,
     });
 
-    expect(created!.weekStart.getTime()).toBe(expectedWeekStart.getTime());
+    expect(toDate(created!.weekStart).getTime()).toBe(
+      expectedWeekStart.getTime()
+    );
   });
 
   it("updates an existing weekly summary instead of creating a new one", async () => {

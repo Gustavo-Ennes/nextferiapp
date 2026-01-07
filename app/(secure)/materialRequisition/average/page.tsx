@@ -1,9 +1,10 @@
 // import { generateWeeklyFuellingSummaryMock } from "./mock";
+
+import { WeeklyFuellingSummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
 import { WeeklySummaryView } from "./WeeklySummaryView";
-import { fetchWeeklyFuellingSummaries } from "../../utils";
 
 export default async function WeeklyFuellingSummaryPage() {
-  const summaries = await fetchWeeklyFuellingSummaries();
+  const summaries = await WeeklyFuellingSummaryRepository.find();
 
   return <WeeklySummaryView summaries={summaries} />;
 }

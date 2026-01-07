@@ -1,30 +1,44 @@
 import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import { startOfDaySP } from "@/app/utils";
-import {
-  WeeklyFuellingSummaryModel,
-  type WeeklyFuellingSummary,
-} from "@/models/WeeklyFuellingSummary";
+import { WeeklyFuellingSummaryModel } from "@/models/WeeklyFuellingSummary";
 import type {
   FuellingSummaryVehicle,
   FuelTotals,
   FuellingSummaryDepartment,
 } from "@/models/types";
 import { startOfWeek } from "date-fns";
-import { isObjectIdOrHexString, Types } from "mongoose";
+import { isObjectIdOrHexString } from "mongoose";
+import { parseWeeklySummaries, toWeeklySummaryDTO } from "./parse";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import dbConnect from "@/lib/database/database";
 
 export const WeeklyFuellingSummaryRepository = {
-  async findByWeekStart(): Promise<WeeklyFuellingSummary | null> {
+  async findByWeekStart(): Promise<WeeklyFuellingSummaryDTO | null> {
+    await dbConnect();
+
     const weekStart = startOfWeek(startOfDaySP(new Date()), {
       weekStartsOn: 1,
     });
-    return WeeklyFuellingSummaryModel.findOne({ weekStart });
+    const summary = await WeeklyFuellingSummaryModel.findOne({ weekStart });
+
+    if (!summary) return null;
+
+    const parsedSummary = toWeeklySummaryDTO(summary);
+    return parsedSummary;
   },
 
-  async find(): Promise<WeeklyFuellingSummary[]> {
-    return WeeklyFuellingSummaryModel.find();
+  async find(): Promise<WeeklyFuellingSummaryDTO[]> {
+    await dbConnect();
+
+    const summaries = await WeeklyFuellingSummaryModel.find();
+    const parsedSummaries = parseWeeklySummaries(summaries);
+
+    return parsedSummaries;
   },
 
-  async delete(id: Types.ObjectId): Promise<void> {
+  async delete(id: string): Promise<void> {
+    await dbConnect();
+
     if (!id || !isObjectIdOrHexString(id)) throw new Error("Id not found");
 
     await WeeklyFuellingSummaryModel.deleteOne({ _id: id });
@@ -32,7 +46,9 @@ export const WeeklyFuellingSummaryRepository = {
 
   async createOrUpdate(
     payload: LocalStorageData
-  ): Promise<WeeklyFuellingSummary | null> {
+  ): Promise<WeeklyFuellingSummaryDTO | null> {
+    await dbConnect();
+
     const payloadDepartments = payload.data;
 
     if (!payloadDepartments || payloadDepartments.length === 0) {
@@ -100,6 +116,7 @@ export const WeeklyFuellingSummaryRepository = {
       }
     );
 
-    return summary;
+    const parsedSummary = toWeeklySummaryDTO(summary);
+    return parsedSummary;
   },
 };

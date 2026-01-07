@@ -14,10 +14,3 @@ export type FuellingSummaryDepartment = {
   fuelTotals: FuelTotals;
   vehicles: FuellingSummaryVehicle[];
 };
-
-export interface WeeklyFuellingSummary {
-  _id: string;
-  weekStart: string;
-  departments: FuellingSummaryDepartment[];
-  createdAt: string;
-}

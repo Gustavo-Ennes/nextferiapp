@@ -6,8 +6,8 @@ import type {
   TabData,
 } from "../../../lib/repository/weeklyFuellingSummary/types";
 import { flatten, pluck } from "ramda";
-import type { WeeklyFuellingSummary } from "@/models/types";
 import type { AverageDepartmentTableParam } from "./components/types";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 // import { mockedTabsData } from "./mock";
 
 export const setLocalStorageData = ({
@@ -97,7 +97,7 @@ export const resumeTabData = (tabData?: TabData): string => {
 };
 
 export const getDepartmentWeeklyRows = (
-  summaries: WeeklyFuellingSummary[],
+  summaries: WeeklyFuellingSummaryDTO[],
   department: string
 ): AverageDepartmentTableParam[] => {
   return (
@@ -111,6 +111,8 @@ export const getDepartmentWeeklyRows = (
         };
       })
       .filter(Boolean)
-      .sort((a, b) => toDate(a.weekStart).getTime() - toDate(b.weekStart).getTime()) ?? []
+      .sort(
+        (a, b) => toDate(a.weekStart).getTime() - toDate(b.weekStart).getTime()
+      ) ?? []
   );
 };

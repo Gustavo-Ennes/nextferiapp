@@ -5,7 +5,7 @@
     "build": "next build",
     "start": "next start",
     "test": "NODE_ENV=test jest --runInBand",
-    "test:watch": "jest --watch"
+    "test:watch": "NODE_ENV=test jest --watch"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
