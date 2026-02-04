@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import type { Entity, EntityType } from "../../types";
 import type { PaginatedResponse } from "@/app/api/types";
-import type { VacationType } from "../vacation/types";
 import type { PdfPreviewTypeProp } from "@/context/types";
 import type { Types } from "mongoose";
+import type { VacationType } from "@/lib/repository/vacation/types";
 
 export interface ItemListProps<T extends { _id: Types.ObjectId | string }> {
   pagination: PaginatedResponse<T>;

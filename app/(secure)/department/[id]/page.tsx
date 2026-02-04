@@ -1,6 +1,6 @@
+import type { DepartmentDTO, WorkerDTO } from "@/dto";
 import { fetchAllPaginated, fetchOne } from "../../utils";
 import { DepartmentDetail } from "../components/DepartmentDetail";
-import type { Department, Worker } from "@/app/types";
 
 export default async function DepartmentViewPage({
   params,
@@ -8,12 +8,13 @@ export default async function DepartmentViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const department = await fetchOne<Department>({ type: "department", id });
-  const workers = await fetchAllPaginated<Worker>({ type: "worker" });
+  const department = await fetchOne<DepartmentDTO>({ type: "department", id });
+  const workers = await fetchAllPaginated<WorkerDTO>({ type: "worker" });
 
   const workerQuantity = workers.filter(
-    ({ department: workerDepartment }: Worker) =>
-      (department?._id as string) === (workerDepartment?._id as string)
+    ({ department: workerDepartment }: WorkerDTO) =>
+      (department?._id as string) ===
+      ((workerDepartment as DepartmentDTO)?._id as string)
   ).length;
 
   return (

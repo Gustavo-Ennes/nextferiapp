@@ -1,12 +1,12 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { Worker, Boss } from "@/app/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { Types } from "mongoose";
 import { createBaseEntities } from "../utils";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.create.missing", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {

@@ -1,13 +1,12 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { Worker, Boss } from "@/app/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { createBaseEntities } from "../utils";
-import VacationModel from "@/models/Vacation";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
-import { setDate, setDay } from "date-fns";
+import { setDate, toDate } from "date-fns";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.create.limits", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {
@@ -20,7 +19,7 @@ describe("VacationRepository.create.limits", () => {
       type: "normal",
       period: "full",
       startDate: new Date().toISOString(),
-      worker: worker._id.toString(),
+      worker: (worker as WorkerDTO)._id,
       boss: boss._id.toString(),
       observation: "Férias normais",
     };
@@ -29,12 +28,12 @@ describe("VacationRepository.create.limits", () => {
   it("should NOT create a dayOff in the same month for the same worker", async () => {
     const today = new Date();
 
-    await VacationModel.create({
+    await VacationRepository.create({
       ...basePayload,
       type: "dayOff",
       period: "full",
       duration: 1,
-      startDate: today,
+      startDate: today.toISOString(),
       worker: worker._id,
       boss: boss._id,
     });
@@ -58,12 +57,12 @@ describe("VacationRepository.create.limits", () => {
 
     // cria 6 dayOffs no mesmo ano
     for (let i = 0; i < 6; i++) {
-      await VacationModel.create({
+      await VacationRepository.create({
         ...basePayload,
         type: "dayOff",
         period: "full",
         duration: 1,
-        startDate: new Date(year, 0, i + 1),
+        startDate: new Date(year, i + 1, 1).toISOString(),
         worker: worker._id,
         boss: boss._id,
       });
@@ -88,12 +87,12 @@ describe("VacationRepository.create.limits", () => {
 
     // cria 6 dayOffs no mesmo ano
     for (let i = 0; i < 6; i++) {
-      await VacationModel.create({
+      await VacationRepository.create({
         ...basePayload,
         type: "dayOff",
-        period: "full",
+        period: "half",
         duration: 0.5,
-        startDate: new Date(year, 0, i + 1),
+        startDate: new Date(year, i + 1, 1).toISOString(),
         worker: worker._id,
         boss: boss._id,
       });
@@ -111,7 +110,7 @@ describe("VacationRepository.create.limits", () => {
 
     expect(created.type).toBe("dayOff");
     expect(created.duration).toBe(1);
-    expect(created.startDate.getFullYear()).toBe(year);
+    expect(toDate(created.startDate).getFullYear()).toBe(year);
   });
 
   // should create dayOff for next year if this year is exceeded but next doesn't
@@ -121,12 +120,12 @@ describe("VacationRepository.create.limits", () => {
 
     // enche o ano atual
     for (let i = 0; i < 6; i++) {
-      await VacationModel.create({
+      await VacationRepository.create({
         ...basePayload,
         type: "dayOff",
         period: "half",
         duration: 0.5,
-        startDate: new Date(currentYear, 0, i + 1),
+        startDate: new Date(currentYear, i + 1, 1).toISOString(),
         worker: worker._id,
         boss: boss._id,
       });
@@ -144,6 +143,6 @@ describe("VacationRepository.create.limits", () => {
 
     expect(created.type).toBe("dayOff");
     expect(created.duration).toBe(0.5);
-    expect(created.startDate.getFullYear()).toBe(nextYear);
+    expect(toDate(created.startDate).getFullYear()).toBe(nextYear);
   });
 });

@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import type { Worker } from "@/app/types";
 import { revalidatePath } from "next/cache";
 import {
   responseWithHeaders,
@@ -8,7 +7,8 @@ import {
   PAGINATION_LIMIT,
 } from "../utils";
 import { parseBool } from "@/app/(secure)/components/utils";
-import { WorkerRepository } from "@/lib/repository/worker";
+import { WorkerRepository } from "@/lib/repository/worker/worker";
+import type { WorkerDTO } from "@/dto";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
       isActive,
     });
 
-    return responseWithHeaders<Worker>({
+    return responseWithHeaders<WorkerDTO>({
       data,
       currentPage: page,
       totalItems,
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("WORKER GET ~ error:", error);
-    return responseWithHeaders<Worker>({ error: (error as Error).message });
+    return responseWithHeaders<WorkerDTO>({ error: (error as Error).message });
   }
 }
 
@@ -54,10 +54,10 @@ export async function POST(req: NextRequest) {
     const worker = await WorkerRepository.create(body);
 
     revalidatePath("/worker");
-    return responseWithHeaders<Worker>({ data: worker });
+    return responseWithHeaders<WorkerDTO>({ data: worker });
   } catch (error) {
     console.error("WORKER POST ~ error:", error);
-    return responseWithHeaders<Worker>({ error: (error as Error).message });
+    return responseWithHeaders<WorkerDTO>({ error: (error as Error).message });
   }
 }
 

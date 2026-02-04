@@ -1,22 +1,27 @@
-import type { Boss, Department } from "@/app/types";
 import type {
   FindOneRepositoryParam,
   PaginationRepositoryReturn,
   UpdateRepositoryParam,
-} from "./types";
+} from "../types";
 import type { SearchParams } from "@/app/(secure)/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
 import type { FacetResult, AggregatedDepartment } from "@/app/api/types";
 import DepartmentModel from "@/models/Department";
 import type { DepartmentFormData } from "@/app/(secure)/department/types";
-import { BossRepository } from "./boss";
+import { BossRepository } from "../boss/boss";
+import { parseDepartments, toDepartmentDTO } from "./parse";
+import type { DepartmentDTO } from "@/dto";
+import type { Worker } from "@/models/Worker";
+import type { Department } from "@/models/Department";
+import type { Boss } from "@/models/Boss";
+import type { BossDTO } from "@/dto";
 
 export const DepartmentRepository = {
   async find({
     page,
     contains,
     isActive,
-  }: SearchParams): Promise<PaginationRepositoryReturn<Department>> {
+  }: SearchParams): Promise<PaginationRepositoryReturn<DepartmentDTO>> {
     const skip = ((page as number) - 1) * PAGINATION_LIMIT;
 
     const filter = {
@@ -76,18 +81,22 @@ export const DepartmentRepository = {
     const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
     const rawData = aggregationResult.data;
 
-    const data = rawData.map((doc) => ({
-      ...doc,
-      responsible: {
-        ...doc.responsibleData,
-        worker: doc.workerData,
-      },
-    }));
+    const data: Department[] = rawData.map((doc) => {
+      const { workerData, responsibleData, ...rest } = doc;
 
-    return { data, totalItems, totalPages };
+      return {
+        ...rest,
+        responsible: {
+          ...responsibleData,
+          worker: workerData as Worker,
+        } as Boss,
+      };
+    });
+    const parsedDepartments = parseDepartments(data) as DepartmentDTO[];
+    return { data: parsedDepartments, totalItems, totalPages };
   },
 
-  async create(payload: DepartmentFormData): Promise<Department> {
+  async create(payload: DepartmentFormData): Promise<DepartmentDTO> {
     const boss = await BossRepository.findOne({
       id: payload.responsible,
       isActive: true,
@@ -97,13 +106,13 @@ export const DepartmentRepository = {
 
     const department = await DepartmentModel.create(payload);
 
-    return department;
+    return toDepartmentDTO(department.toObject()) as DepartmentDTO;
   },
 
   async findOne({
     id,
     isActive,
-  }: FindOneRepositoryParam): Promise<Department | null> {
+  }: FindOneRepositoryParam): Promise<DepartmentDTO | null> {
     const department = await DepartmentModel.findOne({
       _id: id,
       ...(isActive !== null && isActive !== undefined && { isActive }),
@@ -114,14 +123,16 @@ export const DepartmentRepository = {
       },
     });
 
-    return department;
+    return department
+      ? (toDepartmentDTO(department.toObject()) as DepartmentDTO)
+      : null;
   },
 
   async update({
     id,
     payload,
-  }: UpdateRepositoryParam<DepartmentFormData>): Promise<Department> {
-    let responsible: Boss | null = null;
+  }: UpdateRepositoryParam<DepartmentFormData>): Promise<DepartmentDTO> {
+    let responsible: BossDTO | null = null;
 
     if (payload.responsible)
       responsible = await BossRepository.findOne({
@@ -133,10 +144,10 @@ export const DepartmentRepository = {
       throw new Error("Department boss not found.");
 
     const department = await DepartmentModel.findByIdAndUpdate(id, payload);
-    return department;
+    return toDepartmentDTO(department.toObject()) as DepartmentDTO;
   },
 
-  async delete(id: string): Promise<Department> {
+  async delete(id: string): Promise<DepartmentDTO> {
     const department = await this.update({ id, payload: { isActive: false } });
     return department;
   },

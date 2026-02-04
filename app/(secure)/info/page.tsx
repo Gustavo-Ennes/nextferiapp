@@ -6,14 +6,17 @@ import {
 } from "@/app/utils";
 import { Dashboard } from "./components/Dashboard";
 import { fetchAllPaginated } from "../utils";
-import type { Department, Vacation, Worker } from "@/app/types";
 import { groupBy, prop } from "ramda";
+import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 export default async function DashboardServer() {
   const [vacations, workers, departments] = await Promise.all([
-    fetchAllPaginated<Vacation>({ type: "vacation", params: { type: "all" } }),
-    fetchAllPaginated<Worker>({ type: "worker" }),
-    fetchAllPaginated<Department>({ type: "department" }),
+    fetchAllPaginated<VacationDTO>({
+      type: "vacation",
+      params: { type: "all" },
+    }),
+    fetchAllPaginated<WorkerDTO>({ type: "worker" }),
+    fetchAllPaginated<DepartmentDTO>({ type: "department" }),
   ]);
 
   const onVacationToday = getWorkersOnVacation(vacations);

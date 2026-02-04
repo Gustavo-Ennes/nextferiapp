@@ -1,10 +1,10 @@
 import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import type { Worker } from "@/app/types";
 import { revalidatePath } from "next/cache";
 import { optionsResponse, responseWithHeaders } from "../../utils";
-import { WorkerRepository } from "@/lib/repository/worker";
+import { WorkerRepository } from "@/lib/repository/worker/worker";
 import { parseBool } from "@/app/(secure)/components/utils";
+import type { WorkerDTO } from "@/dto";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -25,10 +25,10 @@ export async function GET(req: NextRequest) {
 
     if (!worker) throw new Error("Worker not found.");
 
-    return responseWithHeaders<Worker>({ data: worker });
+    return responseWithHeaders<WorkerDTO>({ data: worker });
   } catch (error) {
     console.error("WORKER GET[id] ~ error:", error);
-    return responseWithHeaders<Worker>({ error: (error as Error).message });
+    return responseWithHeaders<WorkerDTO>({ error: (error as Error).message });
   }
 }
 
@@ -46,10 +46,10 @@ export async function PUT(req: NextRequest) {
     if (!worker) throw new Error("Worker not found.");
 
     revalidatePath("/worker");
-    return responseWithHeaders<Worker>({ data: worker });
+    return responseWithHeaders<WorkerDTO>({ data: worker });
   } catch (error) {
     console.error("WORKER PUT ~ error:", error);
-    return responseWithHeaders<Worker>({ error: (error as Error).message });
+    return responseWithHeaders<WorkerDTO>({ error: (error as Error).message });
   }
 }
 
@@ -66,9 +66,9 @@ export async function DELETE(req: NextRequest) {
     if (!worker) throw new Error("Worker not found.");
 
     revalidatePath("/worker");
-    return responseWithHeaders<Worker>({ data: worker });
+    return responseWithHeaders<WorkerDTO>({ data: worker });
   } catch (error) {
     console.error("WORKER DELETE ~ error:", error);
-    return responseWithHeaders<Worker>({ error: (error as Error).message });
+    return responseWithHeaders<WorkerDTO>({ error: (error as Error).message });
   }
 }

@@ -1,6 +1,5 @@
 import { StandardFonts } from "pdf-lib";
 
-import type { Vacation } from "@/app/types";
 import type { DrawHalfPageParams, RenderParam } from "../types";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import {
@@ -13,6 +12,7 @@ import {
 } from "../factory";
 import { getHeightObject, getBoss, getWorker } from "../utils";
 import { getParagraph, translateMonth, translateVacation } from "./utils";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 const drawHalfPage = async ({
   document,
@@ -23,14 +23,13 @@ const drawHalfPage = async ({
   const page = document.getPage(0);
   const paragraph = getParagraph(vacation);
   const font = await document.embedFont(StandardFonts.Helvetica);
-  const vacationsDuration = (vacation.duration ?? vacation.daysQtd) as number;
   const vacationPeriod =
-    vacation.period ?? (vacationsDuration < 1 ? "half" : "full");
+    vacation.period ?? (vacation.duration < 1 ? "half" : "full");
 
   await createHeader(document);
   await createFooter(document);
   await createDuration({
-    duration: vacationsDuration,
+    duration: vacation.duration,
     document,
     height,
     period: vacationPeriod,
@@ -83,9 +82,9 @@ const drawHalfPage = async ({
   await createSign({
     document,
     height,
-    matriculation: vacation.worker?.matriculation ?? "",
-    name: capitalizeName(vacation.worker?.name),
-    role: capitalizeFirstLetter(vacation.worker?.role) ?? "",
+    matriculation: (vacation.worker as WorkerDTO)?.matriculation ?? "",
+    name: capitalizeName((vacation.worker as WorkerDTO)?.name),
+    role: capitalizeFirstLetter((vacation.worker as WorkerDTO)?.role) ?? "",
   });
 
   height.stepLines(3, "huge");
@@ -98,7 +97,7 @@ const drawHalfPage = async ({
       )}.`
     );
 
-  const worker = await getWorker(vacation.boss);
+  const worker = await getWorker(vacation.boss as BossDTO);
 
   if (isDayOff) height.stepLines(2);
 
@@ -106,7 +105,7 @@ const drawHalfPage = async ({
     document,
     height,
     name: worker?.name,
-    role: vacation.boss.role,
+    role: (vacation.boss as BossDTO).role,
     worker: worker ?? undefined,
   });
 };
@@ -115,7 +114,7 @@ const render = async ({ document, instance }: RenderParam): Promise<void> => {
   if (document && instance) {
     const page = document.addPage();
     const height = getHeightObject(page);
-    const vacation = instance as Vacation;
+    const vacation = instance as VacationDTO;
     const isDayOff = vacation.type === "dayOff";
 
     if (!isDayOff) {

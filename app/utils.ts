@@ -11,11 +11,12 @@ import {
   addHours,
 } from "date-fns";
 import { toZonedTime, fromZonedTime } from "date-fns-tz";
-import type { Boss, Entity, Vacation, Worker } from "./types";
+import type { Entity } from "./types";
 import type { WorkerStatus } from "./(secure)/worker/types";
 import { translateEntityKey } from "./translate";
 import { limitText } from "./(secure)/utils";
 import { prop, uniqBy } from "ramda";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 export const formatCellContent = <T extends Entity>({
   value,
@@ -35,7 +36,10 @@ export const formatCellContent = <T extends Entity>({
     // when value is a obj I want to show the entity name(except vacation)
     if ((value as Entity)?._id as string)
       return limitText(
-        capitalizeName((value as Worker).name ?? (value as Boss).worker?.name)
+        capitalizeName(
+          (value as WorkerDTO).name ??
+            ((value as BossDTO).worker as WorkerDTO)?.name
+        )
       );
     if (isName && value) return capitalizeName(value as string);
     if (capitalize && value) return capitalizeFirstLetter(value as string);
@@ -48,9 +52,9 @@ export const formatCellContent = <T extends Entity>({
 };
 
 export const getUpcomingReturns = (
-  vacations: Vacation[],
+  vacations: VacationDTO[],
   today: Date = new Date()
-): Vacation[] =>
+): VacationDTO[] =>
   vacations
     ? vacations.filter(
         ({ endDate }) =>
@@ -59,9 +63,9 @@ export const getUpcomingReturns = (
     : [];
 
 export const getUpcomingLeaves = (
-  vacations: Vacation[],
+  vacations: VacationDTO[],
   today: Date = new Date()
-): Vacation[] =>
+): VacationDTO[] =>
   vacations
     ? vacations.filter(
         ({ startDate }) =>
@@ -69,21 +73,21 @@ export const getUpcomingLeaves = (
       )
     : [];
 
-export const getTodayReturns = (vacations: Vacation[]): Vacation[] =>
+export const getTodayReturns = (vacations: VacationDTO[]): VacationDTO[] =>
   vacations
     ? vacations.filter(({ endDate }) => toDate(endDate) === endOfYesterday())
     : [];
 
 export const getWorkerStatus = (
-  worker: Worker,
-  vacations?: Vacation[]
+  worker: WorkerDTO,
+  vacations?: VacationDTO[]
 ): WorkerStatus => {
   const vacation = vacations
     ? vacations.find(
         ({ startDate, endDate, worker: vacWorker }) =>
           toDate(startDate) <= startOfDaySP(new Date()) &&
           toDate(endDate) > startOfDaySP(new Date()) &&
-          (vacWorker._id as string) === (worker._id as string)
+          ((vacWorker as WorkerDTO)._id as string) === (worker._id as string)
       )
     : undefined;
 
@@ -102,9 +106,9 @@ export const getWorkerStatus = (
 };
 
 export const getWorkersOnVacation = (
-  vacations?: Vacation[],
+  vacations?: VacationDTO[],
   today: Date = new Date()
-): Worker[] =>
+): WorkerDTO[] =>
   vacations
     ? uniqBy(
         prop("_id"),
@@ -114,15 +118,15 @@ export const getWorkersOnVacation = (
               toDate(startDate) <= startOfDaySP(today) &&
               toDate(endDate) > startOfDaySP(today)
           )
-          .map((vacation) => vacation.worker)
+          .map((vacation) => vacation.worker as WorkerDTO)
       )
     : [];
 
 // returning zero means the worker returns today
 // return -1 means the worker is not on vacation
 export const getDaysUntilWorkerReturns = (
-  worker: Worker,
-  vacations?: Vacation[],
+  worker: WorkerDTO,
+  vacations?: VacationDTO[],
   today: Date = new Date()
 ): number => {
   const getReturningDate = (endDate: Date) =>
@@ -131,19 +135,21 @@ export const getDaysUntilWorkerReturns = (
   const vacation = vacations
     ?.filter(
       (vac) =>
-        (vac.worker?._id as string) === (worker._id as string) &&
-        getReturningDate(vac.endDate) > startOfDaySP(today)
+        ((vac.worker as WorkerDTO)?._id as string) === (worker._id as string) &&
+        getReturningDate(toDate(vac.endDate)) > startOfDaySP(today)
     )
     .sort(
       (a, b) =>
-        getReturningDate(a.endDate).getTime() -
-        getReturningDate(b.endDate).getTime()
+        getReturningDate(toDate(a.endDate)).getTime() -
+        getReturningDate(toDate(b.endDate)).getTime()
     )?.[0];
   if (!vacation) return -1;
 
   const daysUntilReturn =
-    differenceInDays(getReturningDate(vacation.endDate), startOfDaySP(today)) +
-    1;
+    differenceInDays(
+      getReturningDate(toDate(vacation.endDate)),
+      startOfDaySP(today)
+    ) + 1;
 
   return daysUntilReturn >= 0 ? daysUntilReturn : -1;
 };
@@ -151,14 +157,14 @@ export const getDaysUntilWorkerReturns = (
 // returning zero means the worker leaves today
 // return -1 means the worker hasn't a future vacation
 export const getDaysUntilWorkerLeave = (
-  worker: Worker,
-  vacations?: Vacation[],
+  worker: WorkerDTO,
+  vacations?: VacationDTO[],
   today: Date = new Date()
 ): number => {
   const vacation = vacations
     ?.filter(
       (vac) =>
-        (vac.worker?._id as string) === (worker._id as string) &&
+        ((vac.worker as WorkerDTO)?._id as string) === (worker._id as string) &&
         toDate(vac.startDate) > startOfDaySP(today)
     )
     .sort(
@@ -185,7 +191,7 @@ export const sumarizeVacation = ({
   startDate,
   duration,
   period,
-}: Vacation): string => {
+}: VacationDTO): string => {
   const isDayOff = type === "dayOff";
   const typeString = translateEntityKey({ entity: "vacation", key: type });
   const startString = isDayOff ? "em" : "à partir de";
@@ -193,7 +199,9 @@ export const sumarizeVacation = ({
   const periodString = !isDayOff ? `( ${duration}D )` : "";
   const dayOffPeriod = period === "half" ? "(meio-período)" : "";
   const vacationPeriod = isDayOff ? dayOffPeriod : periodString;
-  const workerString = ` do(a) servidor(a) ${worker?.name}(${worker?.matriculation})`;
+  const workerString = ` do(a) servidor(a) ${(worker as WorkerDTO)?.name}(${
+    (worker as WorkerDTO)?.matriculation
+  })`;
 
   return `${typeString} ${startString} ${formatedDate}${vacationPeriod}${
     worker ? workerString : ""
@@ -205,7 +213,7 @@ export const defaultEntityTableFields = {
   worker: ["name", "role", "matriculation", "department"],
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
-  weeklyFuellingSummary: []
+  weeklyFuellingSummary: [],
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>

@@ -1,11 +1,11 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { Worker, Boss } from "@/app/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { Types } from "mongoose";
 import { createBaseEntities } from "../utils";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.update.missing", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let vacationId: string;
 
   beforeEach(async () => {
@@ -18,8 +18,8 @@ describe("VacationRepository.update.missing", () => {
       type: "normal",
       period: "full",
       startDate: new Date().toISOString(),
-      worker: worker._id.toString(),
-      boss: boss._id.toString(),
+      worker: worker._id,
+      boss: boss._id,
       observation: "original",
     } as any);
 
@@ -90,7 +90,7 @@ describe("VacationRepository.update.missing", () => {
         id: vacationId,
         payload: { startDate: "not-a-date" as any },
       })
-    ).rejects.toThrow('StartDate is invalid.');
+    ).rejects.toThrow("StartDate is invalid.");
   });
 
   it("should NOT update if duration is NaN", async () => {
@@ -108,7 +108,7 @@ describe("VacationRepository.update.missing", () => {
         id: vacationId,
         payload: { duration: -5 },
       })
-    ).rejects.toThrow('Duration should be a positive number');
+    ).rejects.toThrow("Duration should be a positive number");
   });
 
   it("should NOT update if duration is zero", async () => {
@@ -117,7 +117,7 @@ describe("VacationRepository.update.missing", () => {
         id: vacationId,
         payload: { duration: 0 },
       })
-    ).rejects.toThrow('Duration should be a positive number');
+    ).rejects.toThrow("Duration should be a positive number");
   });
 
   it("should NOT update if worker is invalid ObjectId", async () => {
@@ -135,7 +135,7 @@ describe("VacationRepository.update.missing", () => {
         id: vacationId,
         payload: { boss: "abc123" as any },
       })
-    ).rejects.toThrow('Invalid id for boss');
+    ).rejects.toThrow("Invalid id for boss");
   });
 
   it("should NOT update if worker does NOT exist", async () => {

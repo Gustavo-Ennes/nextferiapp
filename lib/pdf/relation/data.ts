@@ -1,5 +1,5 @@
-import type { Vacation, Worker } from "@/app/types";
 import { capitalizeName } from "@/app/utils";
+import type { VacationDTO, WorkerDTO } from "@/dto";
 
 const getNoInstancesText = (instanceTranslatedPluralName: string) =>
   `Não há ${instanceTranslatedPluralName}.`;
@@ -19,15 +19,15 @@ const getRelationItemText = ({
 }: {
   index: number;
   formatedDate: string;
-  vacation: Vacation;
+  vacation: VacationDTO;
 }) => {
-  const { daysQtd, worker, duration } = vacation;
-  const dayQuantity = duration ?? daysQtd ?? 0;
-  const daysQtdString = `${dayQuantity < 1 ? "½" : daysQtd} dia${
+  const { worker, duration } = vacation;
+  const dayQuantity = duration ?? 0;
+  const daysQtdString = `${dayQuantity < 1 ? "½" : dayQuantity} dia${
     dayQuantity > 1 ? "s" : ""
   }`;
-  const workerString = `${capitalizeName((worker as Worker).name)}(${
-    (worker as Worker).matriculation
+  const workerString = `${capitalizeName((worker as WorkerDTO).name)}(${
+    (worker as WorkerDTO).matriculation
   })`;
   return `${index + 1} - ${formatedDate} - ${daysQtdString} - ${workerString}`;
 };

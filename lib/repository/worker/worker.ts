@@ -3,11 +3,13 @@ import type {
   PaginationRepositoryReturn,
   FindOneRepositoryParam,
   UpdateRepositoryParam,
-} from "./types";
-import type { Worker } from "@/app/types";
+} from "../types";
 import WorkerModel from "@/models/Worker";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
 import type { WorkerFormData } from "@/app/(secure)/worker/types";
+import type { WorkerDTO } from "@/dto";
+import { toWorkerDTO, parseWorkers } from "./parse";
+import type { Worker } from "@/models/Worker";
 
 export const WorkerRepository = {
   async find({
@@ -15,7 +17,7 @@ export const WorkerRepository = {
     isActive,
     isExternal,
     contains,
-  }: SearchParams): Promise<PaginationRepositoryReturn<Worker>> {
+  }: SearchParams): Promise<PaginationRepositoryReturn<WorkerDTO>> {
     const skip = ((page as number) - 1) * PAGINATION_LIMIT;
 
     const filter = {
@@ -29,35 +31,44 @@ export const WorkerRepository = {
         .sort({ name: 1 })
         .skip(skip)
         .limit(PAGINATION_LIMIT)
-        .populate("department"),
+        .populate("department")
+        .lean<Worker[]>(),
       WorkerModel.countDocuments(filter),
     ]);
     const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
+    const parsedWorkers = parseWorkers(data) as WorkerDTO[];
 
-    return { data, totalItems, totalPages };
+    return { data: parsedWorkers, totalItems, totalPages };
   },
 
-  async create(payload: WorkerFormData) {
+  async create(payload: WorkerFormData): Promise<WorkerDTO> {
     const worker = await WorkerModel.create(payload);
-    return worker;
+    return toWorkerDTO(worker.toObject()) as WorkerDTO;
   },
 
-  async findOne({ id, isActive, isExternal }: FindOneRepositoryParam) {
+  async findOne({
+    id,
+    isActive,
+    isExternal,
+  }: FindOneRepositoryParam): Promise<WorkerDTO | null> {
     const worker = await WorkerModel.findOne({
       _id: id,
       ...(isActive !== null && isActive !== undefined && { isActive }),
       ...(isExternal !== null && isExternal !== undefined && { isExternal }),
     }).populate("department");
 
-    return worker;
+    return worker ? (toWorkerDTO(worker.toObject()) as WorkerDTO) : null;
   },
 
-  async update({ id, payload }: UpdateRepositoryParam<WorkerFormData>) {
+  async update({
+    id,
+    payload,
+  }: UpdateRepositoryParam<WorkerFormData>): Promise<WorkerDTO> {
     const worker = await WorkerModel.findByIdAndUpdate(id, payload);
-    return worker;
+    return toWorkerDTO(worker.toObject()) as WorkerDTO;
   },
 
-  async delete(id: string) {
+  async delete(id: string): Promise<WorkerDTO> {
     const worker = await this.update({ id, payload: { isActive: false } });
     return worker;
   },

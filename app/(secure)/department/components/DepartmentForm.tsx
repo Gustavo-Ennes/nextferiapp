@@ -19,6 +19,7 @@ import { DepartmentValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { capitalizeName } from "@/app/utils";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   const router = useRouter();
@@ -32,7 +33,8 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     mode: "onTouched",
     defaultValues: {
       name: defaultValues?.name ?? "",
-      responsible: (defaultValues?.responsible?._id as string) ?? "_",
+      responsible:
+        ((defaultValues?.responsible as BossDTO)?._id as string) ?? "_",
       isActive: defaultValues?.isActive ?? true,
     },
   });
@@ -120,7 +122,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
                 </MenuItem>
                 {bosses?.map((boss) => (
                   <MenuItem key={boss._id as string} value={boss._id as string}>
-                    {capitalizeName(boss.worker?.name)}
+                    {capitalizeName((boss.worker as WorkerDTO)?.name)}
                   </MenuItem>
                 ))}
               </Select>

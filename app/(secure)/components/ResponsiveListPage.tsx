@@ -8,13 +8,14 @@ import { ListPageMobile } from "./ListPageMobile";
 import { capitalizeName, sumarizeVacation } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { useModal } from "@/context/ModalContext";
-import type { Vacation, Worker, Entity, Boss } from "@/app/types";
+import type { Entity } from "@/app/types";
 import { useRouter } from "next/navigation";
 import type { ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { useState } from "react";
 import { Search } from "./Search";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
@@ -70,10 +71,11 @@ const ResponsiveListPage = <T extends Entity>({
     }).toLowerCase();
     const isNotDepartmentOrBoss = key !== "departamento" && key !== "chefe";
     const name = capitalizeName(
-      (entity as Worker).name ?? (entity as Boss).worker.name
+      (entity as WorkerDTO).name ??
+        ((entity as BossDTO).worker as WorkerDTO).name
     );
-    const modalDescription = (entity as Vacation).type
-      ? `Deseja excluir ${sumarizeVacation(entity as Vacation)}?`
+    const modalDescription = (entity as VacationDTO).type
+      ? `Deseja excluir ${sumarizeVacation(entity as VacationDTO)}?`
       : `Deseja excluir o(a) ${key}${
           isNotDepartmentOrBoss ? "(a)" : ""
         } ${name}( #${entity._id as string} )?`;

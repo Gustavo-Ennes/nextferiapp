@@ -1,10 +1,10 @@
-import type { Boss, Department } from "@/app/types";
 import { DepartmentValidator } from "./validator";
 import * as z from "zod";
+import type { BossDTO, DepartmentDTO } from "@/dto";
 
 export type DepartmentFormData = z.infer<typeof DepartmentValidator>;
 
 export type DepartmentProps = {
-  defaultValues?: Department;
-  bosses?: Boss[];
+  defaultValues?: DepartmentDTO;
+  bosses?: BossDTO[];
 };

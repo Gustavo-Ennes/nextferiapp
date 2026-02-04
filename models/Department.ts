@@ -1,10 +1,13 @@
 import { Document, Schema, models, model, Types } from "mongoose";
-import { Boss } from ".";
+import type { Boss } from "./Boss";
 
 export interface Department extends Document {
+  _id: Types.ObjectId;
   name: string;
-  responsible?: Types.ObjectId | Boss.Boss;
+  responsible?: Types.ObjectId | Boss;
   isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const DepartmentSchema = new Schema<Department>(

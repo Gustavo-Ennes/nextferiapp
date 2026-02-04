@@ -1,12 +1,8 @@
 import { PDFPage, TextAlignment, layoutMultilineText } from "pdf-lib";
 import { range, slice, takeLast } from "ramda";
 
-import type {
-  Vacation as VacationInterface,
-  Boss as BossInterface,
-  Worker,
-} from "@/app/types";
 import type { GetMultiTextWidthParam } from "./types";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 const getHeightObject = (page: PDFPage) => ({
   actual: page.getHeight() - 80,
@@ -76,20 +72,18 @@ const calculateCellRealWidth = (
     : columnsXArray[index] - startX;
 
 // type vacation envolves money to the worker, so director sign, others not
-const getBoss = async (
-  vacation?: VacationInterface
-): Promise<BossInterface | null> => {
+const getBoss = async (vacation?: VacationDTO): Promise<BossDTO | null> => {
   const Boss = (await import("@/models/Boss")).default;
   const isDirector = vacation?.type === "normal";
 
   return await Boss.findOne({ isDirector }).exec();
 };
-const getWorker = async (
-  boss?: BossInterface
-): Promise<Worker | null> => {
-  const Worker = (await import("@/models/Worker")).default;
+const getWorker = async (boss?: BossDTO): Promise<WorkerDTO | null> => {
+  const { WorkerRepository } = await import("@/lib/repository/worker/worker");
 
-  return await Worker.findOne({ _id: boss?.worker }).exec();
+  return await WorkerRepository.findOne({
+    id: (boss?.worker as WorkerDTO)._id,
+  });
 };
 
 export const formatMatriculation = (matriculation?: string): string => {
@@ -112,5 +106,5 @@ export {
   getMultiTextMeasures,
   sumMapUntil,
   calculateCellRealWidth,
-  getWorker
+  getWorker,
 };

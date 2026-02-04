@@ -1,7 +1,6 @@
-import type { Vacation } from "@/app/types";
-
+import type { VacationDTO } from "@/dto";
 import { dayOffParagraph, licenseParagraph, vacationParagraph } from "./text";
-import type { VacationType } from "@/app/(secure)/vacation/types";
+import type { VacationType } from "@/lib/repository/vacation/types";
 
 const numberToNumberString = (number: number): string => {
   if (number === 15) return "quinze";
@@ -42,7 +41,7 @@ const translateVacationPeriod = (period: string): string => {
   return "";
 };
 
-const getParagraph = (vacation: Vacation): string => {
+const getParagraph = (vacation: VacationDTO): string => {
   if (vacation.type === "normal") return vacationParagraph(vacation);
   else if (vacation.type === "license") return licenseParagraph(vacation);
   else if (vacation.type === "dayOff") return dayOffParagraph(vacation);

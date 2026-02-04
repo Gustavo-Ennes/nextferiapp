@@ -1,10 +1,10 @@
 import { Container } from "@mui/material";
 import { VacationForm } from "../components/VacationForm";
-import type { VacationType } from "../types";
+import type { VacationType } from "@/lib/repository/vacation/types";
 import { TitleTypography } from "../../components/TitleTypography";
 import { translateEntityKey } from "@/app/translate";
-import type { Boss, Vacation, Worker } from "@/app/types";
 import { fetchAllPaginated, fetchOne } from "../../utils";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 export default async function VacationFormPage({
   searchParams,
@@ -16,22 +16,22 @@ export default async function VacationFormPage({
   }>;
 }) {
   const { id, type, isReschedule } = await searchParams;
-  let vacation: Vacation | undefined;
+  let vacation: VacationDTO | undefined;
 
   // quering for a cancelled vacation in case of reschedule
   // just to use the defaultValues
   if (id)
-    vacation = await fetchOne<Vacation>({
+    vacation = await fetchOne<VacationDTO>({
       type: "vacation",
       id,
       ...(isReschedule && { params: { cancelled: true } }),
     });
 
-  const bosses = await fetchAllPaginated<Boss>({
+  const bosses = await fetchAllPaginated<BossDTO>({
     type: "boss",
     params: { isExternal: false, isActive: true },
   });
-  const workers = await fetchAllPaginated<Worker>({
+  const workers = await fetchAllPaginated<WorkerDTO>({
     type: "worker",
     params: { isActive: true, isExternal: false },
   });

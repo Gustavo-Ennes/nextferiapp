@@ -21,9 +21,10 @@ import { StyledRow } from "./styled";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import type { ItemListProps } from "./types";
-import type { Entity, Vacation } from "@/app/types";
+import type { Entity } from "@/app/types";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { parseBool } from "./utils";
+import type { VacationDTO } from "@/dto";
 
 export const ListPageDesktop = <T extends Entity>({
   pagination: { data: items, currentPage, totalPages },
@@ -114,7 +115,7 @@ export const ListPageDesktop = <T extends Entity>({
                     {key === "type"
                       ? translateEntityKey({
                           entity: routePrefix,
-                          key: (item as Vacation)["type"],
+                          key: (item as VacationDTO)["type"],
                         })
                       : formatCellContent({
                           value: item[key as keyof T],
@@ -130,7 +131,7 @@ export const ListPageDesktop = <T extends Entity>({
                     disabled={
                       vacationType !== null &&
                       vacationType !== undefined &&
-                      !(item as Vacation).worker
+                      !(item as VacationDTO).worker
                     }
                     sx={{ color: "#8f8c5dff" }}
                   >

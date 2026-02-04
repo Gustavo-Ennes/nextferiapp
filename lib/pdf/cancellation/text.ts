@@ -1,26 +1,25 @@
 import { format } from "date-fns";
 
-import type { Vacation } from "@/app/types";
-
 import {
   numberToNumberString,
   translateVacation,
   translateVacationPeriod,
 } from "../vacation/utils";
+import type { VacationDTO } from "@/dto";
 
-const cancellationParagraphBegin = (vacation: Vacation): string => `
+const cancellationParagraphBegin = (vacation: VacationDTO): string => `
 \tAtravés deste, venho  solicitar o C A N C E L A M E N T O  da solicitação de ${translateVacation(
   vacation.type
 )} de ${
   vacation.type === "dayOff"
     ? translateVacationPeriod(vacation.type as string)
-    : `${vacation.duration || vacation.daysQtd} (${numberToNumberString(
-        vacation.duration ?? vacation.daysQtd ?? 0
+    : `${vacation.duration} (${numberToNumberString(
+        vacation.duration ?? 0
       )}) dia(s) de fruição`
 }, `;
 
 const cancellationParagraphEnd = (
-  vacation: Vacation
+  vacation: VacationDTO
 ): string => `com início no dia ${format(
   new Date(vacation.startDate),
   "dd/MM/yyyy"
@@ -30,7 +29,7 @@ const cancellationParagraphEnd = (
 )}.\n\nNesses termos, peço deferimento.
 `;
 
-const cancellationParagraph = (vacation: Vacation): string =>
+const cancellationParagraph = (vacation: VacationDTO): string =>
   cancellationParagraphBegin(vacation).concat(
     cancellationParagraphEnd(vacation)
   );

@@ -1,4 +1,4 @@
-import type { Boss } from "@/app/types";
+import type { BossDTO } from "@/dto";
 import { fetchOne } from "../../utils";
 import { BossDetail } from "../components/BossDetail";
 
@@ -8,7 +8,7 @@ export default async function BossViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const boss = await fetchOne<Boss>({ type: "boss", id });
+  const boss = await fetchOne<BossDTO>({ type: "boss", id });
 
   return <BossDetail boss={boss} />;
 }

@@ -1,14 +1,14 @@
-import { VacationRepository } from "@/lib/repository/vacation";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import VacationModel from "@/models/Vacation";
 import { addDays, toDate, differenceInDays, differenceInHours } from "date-fns";
 import { startOfDaySP, endOfDaySP, endOfHalfDay } from "@/app/utils";
-import type { Worker, Boss } from "@/app/types";
 import { createBaseEntities } from "../utils";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.update.base", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {
@@ -43,12 +43,19 @@ describe("VacationRepository.update.base", () => {
     expect(updated).toHaveProperty("_id", created._id);
     expect(updated.type).toBe(created.type);
     expect(updated.duration).toBe(created.duration);
-    expect(updated.startDate.getTime()).toBe(created.startDate.getTime());
-    expect(updated.endDate.getTime()).toBe(created.endDate.getTime());
+    expect(toDate(updated.startDate).getTime()).toBe(
+      toDate(created.startDate).getTime()
+    );
+    expect(toDate(updated.endDate).getTime()).toBe(
+      toDate(created.endDate).getTime()
+    );
     expect(updated.period).toBe(created.period);
     expect(updated.cancelled).toBe(created.cancelled);
-    expect(updated.worker).toHaveProperty("_id", created.worker);
-    expect(updated.boss).toHaveProperty("_id", created.boss);
+    expect(updated.worker).toHaveProperty(
+      "_id",
+      (created.worker as WorkerDTO)._id
+    );
+    expect(updated.boss).toHaveProperty("_id", (created.boss as BossDTO)._id);
     expect(updated.observation).not.toBe(created.observation);
 
     const doc = await VacationModel.findById(created._id);
@@ -63,12 +70,12 @@ describe("VacationRepository.update.base", () => {
       addDays(expectedStart, basePayload.duration - 1)
     );
 
-    const updated = await update(created._id as string, {
+    const updated = await update(created._id, {
       startDate: newStart.toISOString(),
     });
 
-    expect(updated.startDate.getTime()).toBe(expectedStart.getTime());
-    expect(updated.endDate.getTime()).toBe(expectedEnd.getTime());
+    expect(toDate(updated.startDate).getTime()).toBe(expectedStart.getTime());
+    expect(toDate(updated.endDate).getTime()).toBe(expectedEnd.getTime());
 
     const doc = await VacationModel.findById(created._id);
     expect(doc?.startDate.getTime()).toBe(expectedStart.getTime());
@@ -90,7 +97,7 @@ describe("VacationRepository.update.base", () => {
     const daysDiff = differenceInDays(updated.endDate, updated.startDate);
 
     expect(daysDiff).toBe(newDuration - 1);
-    expect(updated.endDate.getTime()).toBe(expectedEnd.getTime());
+    expect(toDate(updated.endDate).getTime()).toBe(expectedEnd.getTime());
 
     const doc = await VacationModel.findById(created._id);
     expect(doc?.duration).toBe(newDuration);
@@ -109,13 +116,13 @@ describe("VacationRepository.update.base", () => {
       period: "half",
     });
 
-    const expectedStart = startOfDaySP(created.startDate);
+    const expectedStart = startOfDaySP(toDate(created.startDate));
     const expectedEnd = endOfHalfDay(expectedStart);
 
     const hoursDiff = differenceInHours(updated.endDate, updated.startDate);
 
     expect(hoursDiff).toBe(11);
-    expect(updated.endDate.getTime()).toBe(expectedEnd.getTime());
+    expect(toDate(updated.endDate).getTime()).toBe(expectedEnd.getTime());
 
     const doc = await VacationModel.findById(created._id);
     expect(doc?.period).toBe("half");
@@ -140,8 +147,8 @@ describe("VacationRepository.update.base", () => {
       duration: newDuration,
     });
 
-    expect(updated.startDate.getTime()).toBe(expectedStart.getTime());
-    expect(updated.endDate.getTime()).toBe(expectedEnd.getTime());
+    expect(toDate(updated.startDate).getTime()).toBe(expectedStart.getTime());
+    expect(toDate(updated.endDate).getTime()).toBe(expectedEnd.getTime());
 
     const doc = await VacationModel.findById(created._id);
     expect(doc?.startDate.getTime()).toBe(expectedStart.getTime());

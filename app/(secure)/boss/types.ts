@@ -1,10 +1,10 @@
-import type { Worker, Boss } from "@/app/types";
 import { BossValidator } from "./validator";
 import * as z from "zod";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 export type BossFormData = z.infer<typeof BossValidator>;
 
 export interface BossProps {
-  defaultValues?: Boss;
-  workers: Worker[];
+  defaultValues?: BossDTO;
+  workers: WorkerDTO[];
 }

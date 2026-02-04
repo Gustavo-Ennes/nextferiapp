@@ -4,14 +4,14 @@ import { ArrowDropUp, ArrowDropDown } from "@mui/icons-material";
 import { Button, Menu, MenuItem as MuiMenuItem, Tooltip } from "@mui/material";
 import { useState } from "react";
 import type { MenuItem } from "./types";
-import type { Vacation } from "@/app/types";
+import type { VacationDTO, WorkerDTO } from "@/dto";
 
 export const ButtonMenu = ({
   items,
   vacation,
 }: {
   items: MenuItem[];
-  vacation: Vacation;
+  vacation: VacationDTO;
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -41,7 +41,7 @@ export const ButtonMenu = ({
   );
 
   const isWorkerInactive =
-    vacation.worker?.isActive === false || !vacation.worker;
+    (vacation.worker as WorkerDTO)?.isActive === false || !vacation.worker;
 
   return (
     <>

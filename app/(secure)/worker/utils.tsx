@@ -5,7 +5,6 @@ import type {
   WorkerStatus,
   WorkerStatusInfo,
 } from "./types";
-import type { Vacation, Worker } from "@/app/types";
 import { WorkerValidator } from "./validator";
 import {
   getDaysUntilWorkerLeave,
@@ -20,6 +19,7 @@ import {
   Person,
   PersonOff,
 } from "@mui/icons-material";
+import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 /** baseline por tipo */
 export const workerBaseline: WorkerFormData = {
@@ -32,7 +32,7 @@ export const workerBaseline: WorkerFormData = {
   isExternal: false,
 };
 
-export function normalizeRaw(raw: Worker): Partial<WorkerFormData> {
+export function normalizeRaw(raw: WorkerDTO): Partial<WorkerFormData> {
   if (!raw) return {};
   const out: WorkerFormData = { ...raw } as unknown as WorkerFormData;
   if (
@@ -44,7 +44,7 @@ export function normalizeRaw(raw: Worker): Partial<WorkerFormData> {
   }
 
   if (out.department === "-") out.department = "";
-  else out.department = raw.department._id as string;
+  else out.department = (raw.department as DepartmentDTO)._id as string;
   return out;
 }
 
@@ -82,8 +82,8 @@ export const getWorkerStatusIcons = ({
   worker,
   vacations,
 }: {
-  worker: Worker;
-  vacations: Vacation[];
+  worker: WorkerDTO;
+  vacations: VacationDTO[];
 }): WorkerStatusInfo[] => {
   const DAY_LIMIT = 10;
   const workerStatus = translateWorkerStatus(

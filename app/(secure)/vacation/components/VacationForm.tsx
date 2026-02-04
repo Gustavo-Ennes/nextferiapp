@@ -39,13 +39,13 @@ import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
-import type { Vacation } from "@/app/types";
 import {
   translateVacation,
   translateVacationPeriod,
 } from "@/lib/pdf/vacation/utils";
 import { fetchAllPaginated } from "../../utils";
 import { pluck, sum } from "ramda";
+import type { VacationDTO, WorkerDTO } from "@/dto";
 
 export function VacationForm({
   defaultValues,
@@ -58,7 +58,7 @@ export function VacationForm({
   const router = useRouter();
   const [blockedByDayOffsCount, setBlockedByDayOffsCount] = useState(false);
   const [periodConflictingVacations, setPeriodConflictingVacations] = useState<
-    Vacation[]
+    VacationDTO[]
   >([]);
   const { addSnack } = useSnackbar();
   const { setPdf } = usePdfPreview();
@@ -108,7 +108,7 @@ export function VacationForm({
       snackbarData.severity = "error";
     } else {
       snackbarData.message = `${capitalizeFirstLetter(
-        translatedVacationType
+        translatedVacationType,
       )} ${defaultValues ? "editado(a)" : "criado(a)"} com sucesso!`;
       snackbarData.severity = "success";
 
@@ -148,7 +148,7 @@ export function VacationForm({
       type === "dayOff" &&
       !defaultValues
     ) {
-      fetchAllPaginated<Vacation>({
+      fetchAllPaginated<VacationDTO>({
         type: "vacation",
         params: {
           worker: watchForm.worker,
@@ -166,14 +166,14 @@ export function VacationForm({
   useEffect(() => {
     if (watchForm.worker && watchForm.worker !== "-" && watchForm.startDate) {
       checkOverlappingVacations(watchForm, id).then(
-        (conflicting: Vacation[]) => {
+        (conflicting: VacationDTO[]) => {
           setPeriodConflictingVacations(conflicting);
-        }
+        },
       );
     }
   }, [watchForm.startDate, watchForm.duration]);
 
-  if (defaultValues?.worker?.isActive === false) {
+  if ((defaultValues?.worker as WorkerDTO)?.isActive === false) {
     addSnack({
       message:
         "Não é possível reagendar uma folga para um trabalhador inativo.",
@@ -189,7 +189,7 @@ export function VacationForm({
     const firstConflictingVacation = periodConflictingVacations[0];
     const vacationType = firstConflictingVacation.type;
     const translatedPeriod = translateVacationPeriod(
-      firstConflictingVacation.period
+      firstConflictingVacation.period,
     );
     const msgStart = moreThanOneConflict
       ? `Vários conflitos: 1 -`
@@ -197,7 +197,7 @@ export function VacationForm({
     const translatedVacationType = translateVacation(vacationType);
     const period = `${format(
       toDate(firstConflictingVacation.startDate),
-      "dd/MM/yyyy"
+      "dd/MM/yyyy",
     )} ~ ${
       vacationType !== "dayOff"
         ? format(toDate(firstConflictingVacation.endDate), "dd/MM/yyyy")
@@ -425,7 +425,7 @@ export function VacationForm({
                     key={`opt-${boss._id as string}`}
                     value={boss._id as string}
                   >
-                    {capitalizeName(boss.worker?.name)}
+                    {capitalizeName((boss.worker as WorkerDTO)?.name)}
                   </MenuItem>
                 ))}
               </Select>

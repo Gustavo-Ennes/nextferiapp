@@ -1,12 +1,21 @@
-import WorkerModel from "@/models/Worker";
-import BossModel from "@/models/Boss";
-import DepartmentModel from "@/models/Department";
+import WorkerModel, { type Worker } from "@/models/Worker";
+import BossModel, { type Boss } from "@/models/Boss";
+import DepartmentModel, { type Department } from "@/models/Department";
 import { getMocked } from "@/__mocks__";
 import type { RawDepartment } from "@/__mocks__/types";
 import { dissoc } from "ramda";
-import type { Boss, Department, Worker } from "@/app/types";
+import type { BossDTO, DepartmentDTO, WorkerDTO } from "@/dto";
+import { toBossDTO } from "@/lib/repository/boss/parse";
+import { toWorkerDTO } from "@/lib/repository/worker/parse";
+import { toDepartmentDTO } from "@/lib/repository/department/parse";
 
-export const createBaseEntities = async () => {
+export type BaseEntities = {
+  baseDepartment: DepartmentDTO;
+  baseBoss: BossDTO;
+  baseWorker: WorkerDTO;
+};
+
+export const createBaseEntities = async (): Promise<BaseEntities> => {
   const rawDepartment = getMocked("department") as RawDepartment;
   const departmentPayload = dissoc<RawDepartment, keyof RawDepartment>(
     "_id",
@@ -30,5 +39,9 @@ export const createBaseEntities = async () => {
   };
   const baseBoss: Boss = await BossModel.create(bossPayload);
 
-  return { baseDepartment, baseWorker, baseBoss };
+  return {
+    baseDepartment: toDepartmentDTO(baseDepartment) as DepartmentDTO,
+    baseWorker: toWorkerDTO(baseWorker) as WorkerDTO,
+    baseBoss: toBossDTO(baseBoss) as BossDTO,
+  };
 };

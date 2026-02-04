@@ -1,13 +1,13 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { Worker, Boss } from "@/app/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { createBaseEntities } from "../utils";
-import { addDays } from "date-fns";
+import { addDays, toDate } from "date-fns";
 import { endOfDaySP, endOfHalfDay } from "@/app/utils";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.update.duration", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {
@@ -50,8 +50,8 @@ describe("VacationRepository.update.duration", () => {
 
       expect(updated.duration).toBe(1);
       expect(updated.period).toBe("full");
-      expect(updated.startDate.getTime()).toBe(newStartDate.getTime());
-      expect(updated.endDate.getTime()).toBe(newEndDate.getTime());
+      expect(toDate(updated.startDate).getTime()).toBe(newStartDate.getTime());
+      expect(toDate(updated.endDate).getTime()).toBe(newEndDate.getTime());
     });
 
     it("should allow duration = 0.5 when period = half", async () => {
@@ -72,8 +72,8 @@ describe("VacationRepository.update.duration", () => {
 
       expect(updated.duration).toBe(0.5);
       expect(updated.period).toBe("half");
-      expect(updated.startDate.getTime()).toBe(newStartDate.getTime());
-      expect(updated.endDate.getTime()).toBe(newEndDate.getTime());
+      expect(toDate(updated.startDate).getTime()).toBe(newStartDate.getTime());
+      expect(toDate(updated.endDate).getTime()).toBe(newEndDate.getTime());
     });
 
     it("should NOT allow duration = 1 with period = half", async () => {

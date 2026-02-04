@@ -2,7 +2,7 @@
 
 import { Box, Grid, Typography, Chip, Badge } from "@mui/material";
 import { capitalizeFirstLetter, getDaysUntilWorkerReturns } from "@/app/utils";
-import { format } from "date-fns";
+import { format, toDate } from "date-fns";
 import NumberCard from "./NumberCard";
 import TextCard from "./TextCard";
 import {
@@ -13,24 +13,12 @@ import {
   HourglassTop,
   Person,
 } from "@mui/icons-material";
-import type { Vacation, Worker, Department } from "@/app/types";
 import { TitleTypography } from "../../components/TitleTypography";
 import { RoleIcon } from "./RoleIcons";
+import type { DashboardParam } from "../types";
+import type { WorkerDTO } from "@/dto";
 
-function Dashboard({
-  data,
-}: {
-  data: {
-    vacations: Vacation[];
-    departments: Department[];
-    workers: Worker[];
-    onVacationToday: Worker[];
-    returningToday: Vacation[];
-    upcomingLeaves: Vacation[];
-    upcomingReturns: Vacation[];
-    workersByRole: Partial<Record<string, Worker[]>>;
-  };
-}) {
+function Dashboard({ data }: { data: DashboardParam }) {
   const today = new Date().toLocaleDateString("pt-BR");
   const {
     vacations,
@@ -68,7 +56,7 @@ function Dashboard({
     : ["Ninguém folgando hoje."];
 
   const returningTodayDetails = returningToday.length
-    ? returningToday.map(({ worker }) => worker?.name)
+    ? returningToday.map(({ worker }) => (worker as WorkerDTO)?.name)
     : ["Ninguém retornando hoje."];
 
   const workerDetails = [
@@ -78,14 +66,17 @@ function Dashboard({
   ];
 
   const upcomingLeavesLines = upcomingLeaves?.map(({ worker, startDate }) => ({
-    primary: worker?.name,
+    primary: (worker as WorkerDTO)?.name,
     secondary: `Saindo dia ${format(startDate, "dd/MM/yyyy")}`,
   }));
 
   const upcomingReturnsLines = upcomingReturns?.map(
     ({ worker, returnDate }) => ({
-      primary: worker?.name,
-      secondary: `Retornando dia ${format(returnDate as Date, "dd/MM/yyyy")}`,
+      primary: (worker as WorkerDTO)?.name,
+      secondary: `Retornando dia ${format(
+        toDate(returnDate ?? ""),
+        "dd/MM/yyyy"
+      )}`,
     })
   );
 

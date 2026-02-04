@@ -1,12 +1,15 @@
 import { Document, Schema, models, model, Types } from "mongoose";
-import { Worker } from ".";
+import type { Worker } from "./Worker";
 
 export interface Boss extends Document {
+  _id: Types.ObjectId;
   role: string;
   isDirector: boolean;
   isActive: boolean;
   isExternal: boolean;
-  worker: Types.ObjectId | Worker.Worker;
+  worker: Types.ObjectId | Worker;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const BossSchema = new Schema<Boss>(

@@ -1,4 +1,4 @@
-import type { Department, Worker } from "@/app/types";
+import type { DepartmentDTO, WorkerDTO } from "@/dto";
 import { TitleTypography } from "../../components/TitleTypography";
 import { fetchAllPaginated, fetchOne } from "../../utils";
 import { WorkerForm } from "../components/WorkerForm";
@@ -11,8 +11,8 @@ export default async function WorkerFormPage({
 }) {
   const { id } = await searchParams;
 
-  const worker = await fetchOne<Worker>({ type: "worker", id });
-  const departments = await fetchAllPaginated<Department>({
+  const worker = await fetchOne<WorkerDTO>({ type: "worker", id });
+  const departments = await fetchAllPaginated<DepartmentDTO>({
     type: "department",
     params: { isActive: true },
   });

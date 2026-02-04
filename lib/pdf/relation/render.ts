@@ -1,6 +1,5 @@
 import { StandardFonts } from "pdf-lib";
 
-import type { Vacation } from "@/app/types";
 import {
   createHeader,
   createFooter,
@@ -17,7 +16,8 @@ import {
   getTranslatedPeriod,
 } from "./data";
 import { drawVacationRelationLine } from "./vacationLine";
-import type { VacationType } from "@/app/(secure)/vacation/types";
+import type { VacationType } from "@/lib/repository/vacation/types";
+import type { VacationDTO } from "@/dto";
 
 const render = async ({
   document,
@@ -71,7 +71,7 @@ const render = async ({
             font,
             height,
             index: i,
-            vacation: instances[i] as Vacation,
+            vacation: instances[i] as VacationDTO,
           });
           if (height.actual < 100) {
             page = document.addPage();

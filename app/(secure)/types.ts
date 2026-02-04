@@ -1,6 +1,6 @@
 import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { EntityType } from "../types";
-import type { VacationTypeParam } from "./vacation/types";
+import type { VacationTypeParam } from "@/lib/repository/vacation/types";
 
 export type SearchParam = "type" | "page" | "cancelled" | "isActive";
 

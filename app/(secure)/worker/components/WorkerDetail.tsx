@@ -10,7 +10,6 @@ import {
   Grid,
   Paper,
 } from "@mui/material";
-import type { Worker, Vacation } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
@@ -22,13 +21,14 @@ import { getWorkerDayOffsLeft } from "../../vacation/utils";
 import { getWorkerStatusIcons } from "../utils";
 import { formatMatriculation } from "@/lib/pdf/utils";
 import { WorkerStatusIcons } from "./WorkerStatus";
+import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 export function WorkerDetail({
   worker,
   workerVacations,
 }: {
-  worker: Worker;
-  workerVacations: Vacation[];
+  worker: WorkerDTO;
+  workerVacations: VacationDTO[];
 }) {
   const router = useRouter();
   const { setLoading } = useLoading();
@@ -76,7 +76,7 @@ export function WorkerDetail({
   const handleChangeExternality = () => {
     const body = JSON.stringify({
       ...worker,
-      department: worker.department._id as string,
+      department: (worker.department as DepartmentDTO)._id as string,
       isExternal: !worker.isExternal,
       id: undefined,
     });
@@ -146,7 +146,9 @@ export function WorkerDetail({
             <Box p={1}>
               <Typography variant="subtitle1">Departamento</Typography>
               <Typography variant="button">
-                {capitalizeFirstLetter(worker?.department?.name)}
+                {capitalizeFirstLetter(
+                  (worker?.department as DepartmentDTO)?.name
+                )}
               </Typography>
             </Box>
             <Box p={1} pt={5}>

@@ -1,19 +1,19 @@
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { endOfDaySP, endOfHalfDay, startOfDaySP } from "@/app/utils";
-import { addDays, endOfYear, isSameMonth, startOfYear } from "date-fns";
+import { addDays, endOfYear, isSameMonth, startOfYear, toDate } from "date-fns";
 import VacationModel from "@/models/Vacation";
-import type { Vacation } from "@/app/types";
 import { pluck, sum } from "ramda";
+import type { VacationDTO, WorkerDTO } from "@/dto";
 
 export const updateVacationDates = (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: Vacation
+  vacation?: VacationDTO
 ): VacationFormData | Partial<VacationFormData> => {
   if (!payload.startDate && !payload.duration) return payload;
 
   const startDate = payload.startDate
     ? startOfDaySP(new Date(payload.startDate))
-    : vacation?.startDate;
+    : toDate(vacation!.startDate);
   const duration = (payload.duration ?? vacation?.duration) as number;
 
   if (!startDate) {
@@ -28,11 +28,11 @@ export const updateVacationDates = (
   let endDate: Date;
 
   if (duration === 1) {
-    endDate = endOfDaySP(startDate);
+    endDate = endOfDaySP(toDate(startDate));
   } else if (duration > 1) {
     endDate = endOfDaySP(addDays(startDate, duration - 1));
   } else {
-    endDate = endOfHalfDay(startDate);
+    endDate = endOfHalfDay(toDate(startDate));
   }
 
   return {
@@ -44,7 +44,7 @@ export const updateVacationDates = (
 
 export const validateVacationDuration = (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: Vacation
+  vacation?: VacationDTO
 ) => {
   if (!payload.duration && !payload.period && !payload.type) return payload;
 
@@ -57,14 +57,14 @@ export const validateVacationDuration = (
 
   if (
     ((payload.duration && payload.duration >= 1) ||
-      (!payload.duration && (vacation as Vacation).duration >= 1)) &&
+      (!payload.duration && (vacation as VacationDTO).duration >= 1)) &&
     payload.period === "half"
   )
     throw new Error("Period: 'half' means duration < 1");
 
   if (
     ((payload.duration && payload.duration < 1) ||
-      (!payload.duration && (vacation as Vacation).duration < 1)) &&
+      (!payload.duration && (vacation as VacationDTO).duration < 1)) &&
     payload.period === "full"
   )
     throw new Error("Period: 'full' means duration >= 1");
@@ -91,11 +91,11 @@ export const validateVacationDuration = (
 
 export const validateOverlappingVacations = async (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: Vacation
+  vacation?: VacationDTO
 ) => {
   if ((payload.startDate || payload.duration) && !payload.cancelled) {
     const overlappingVacations = await VacationModel.find({
-      worker: payload.worker ?? vacation?.worker._id,
+      worker: payload.worker ?? (vacation?.worker as WorkerDTO)._id,
       cancelled: { $ne: true },
       startDate: { $lte: payload.endDate },
       endDate: { $gte: payload.startDate },
@@ -113,7 +113,7 @@ export const validateOverlappingVacations = async (
 
 export const validateDayOffsQuantity = async (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: Vacation
+  vacation?: VacationDTO
 ) => {
   if (
     (payload.type && payload.type !== "dayOff") ||
@@ -122,7 +122,8 @@ export const validateDayOffsQuantity = async (
   )
     return payload;
 
-  const startDate = (payload.startDate ?? vacation?.startDate) as Date;
+  const startDate = (payload.startDate ??
+    vacation?.startDate) as unknown as Date;
   const firstDay = startOfYear(startDate);
   const lastDay = endOfYear(startDate);
 
@@ -133,12 +134,15 @@ export const validateDayOffsQuantity = async (
     },
     type: "dayOff",
     $or: [{ cancelled: false }, { cancelled: undefined }],
-    worker: payload.worker ?? vacation?.worker,
+    worker: payload.worker ?? (vacation?.worker as WorkerDTO)._id,
     ...(vacation && { _id: { $ne: vacation._id } }),
   });
 
   const sameMonthDayOffs = sameYearDayOffs.filter(({ startDate }) =>
-    isSameMonth(startDate, (payload.startDate ?? vacation?.startDate) as Date)
+    isSameMonth(
+      startDate,
+      (payload.startDate ?? vacation?.startDate) as unknown as Date
+    )
   );
 
   if (getTotalDuration(sameYearDayOffs) >= 6)
@@ -149,5 +153,5 @@ export const validateDayOffsQuantity = async (
   return payload;
 };
 
-export const getTotalDuration = (vacations: Vacation[]): number =>
+export const getTotalDuration = (vacations: VacationDTO[]): number =>
   sum(pluck("duration", vacations));

@@ -1,13 +1,13 @@
-import type { Department, Worker } from "@/app/types";
 import * as z from "zod";
 import { WorkerValidator } from "./validator";
 import type { ReactNode } from "react";
+import type { DepartmentDTO, WorkerDTO } from "@/dto";
 
 export type WorkerFormData = z.infer<typeof WorkerValidator>;
 
 export interface WorkerProps {
-  defaultValues?: Worker;
-  departments: Department[];
+  defaultValues?: WorkerDTO;
+  departments: DepartmentDTO[];
 }
 
 export type WorkerFormProp =

@@ -1,13 +1,13 @@
 import { NextRequest } from "next/server";
 import dbConnect from "@/lib/database/database";
-import type { Boss } from "@/app/types";
 import {
   optionsResponse,
   PAGINATION_LIMIT,
   responseWithHeaders,
 } from "../utils";
 import { parseBool } from "@/app/(secure)/components/utils";
-import { BossRepository } from "@/lib/repository/boss";
+import { BossRepository } from "@/lib/repository/boss/boss";
+import type { BossDTO } from "@/dto";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
       isActive,
     });
 
-    return responseWithHeaders<Boss>({
+    return responseWithHeaders<BossDTO>({
       data,
       currentPage: page,
       totalItems,
@@ -41,7 +41,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("BOSS GET ~ error:", error);
-    return responseWithHeaders<Boss>({ error: (error as Error).message });
+    return responseWithHeaders<BossDTO>({ error: (error as Error).message });
   }
 }
 

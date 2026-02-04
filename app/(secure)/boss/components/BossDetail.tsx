@@ -11,14 +11,14 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import type { Boss } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
-export function BossDetail({ boss }: { boss: Boss }) {
+export function BossDetail({ boss }: { boss: BossDTO }) {
   const { id } = useParams();
   const router = useRouter();
   const { open } = useModal();
@@ -29,9 +29,9 @@ export function BossDetail({ boss }: { boss: Boss }) {
   const handleDelete = () =>
     open({
       title: "Excluir chefe",
-      description: `Deseja excuir o chefe ${capitalizeName(boss.worker.name)}(${
-        boss.role
-      })?`,
+      description: `Deseja excuir o chefe ${capitalizeName(
+        (boss.worker as WorkerDTO).name
+      )}(${boss.role})?`,
       onConfirm: async () => {
         fetch(`/api/boss/${id}`, {
           method: "delete",
@@ -64,7 +64,9 @@ export function BossDetail({ boss }: { boss: Boss }) {
         <Stack spacing={2}>
           <Box>
             <Typography variant="subtitle2">Nome</Typography>
-            <Typography>{capitalizeName(boss?.worker?.name)}</Typography>
+            <Typography>
+              {capitalizeName((boss?.worker as WorkerDTO)?.name)}
+            </Typography>
           </Box>
 
           <Divider />

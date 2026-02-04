@@ -1,14 +1,13 @@
 import type { SearchParams } from "@/app/(secure)/types";
 import type { FacetResult, AggregatedVacation } from "@/app/api/types";
-import VacationModel from "@/models/Vacation";
+import VacationModel, { type Vacation } from "@/models/Vacation";
 import { addMilliseconds } from "date-fns";
 import { isObjectIdOrHexString, Types } from "mongoose";
 import type {
   VacationFindOneRepositoryParam,
   PaginationRepositoryReturn,
   UpdateRepositoryParam,
-} from "./types";
-import type { Boss, Vacation, Worker } from "@/app/types";
+} from "../types";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
 import {
@@ -16,14 +15,16 @@ import {
   validateDayOffsQuantity,
   validateOverlappingVacations,
   validateVacationDuration,
-} from "./utils";
-import { WorkerRepository } from "./worker";
-import { BossRepository } from "./boss";
+} from "../utils";
+import { WorkerRepository } from "../worker/worker";
+import { BossRepository } from "../boss/boss";
 import {
   VacationCreateSchema,
   VacationUpdateSchema,
-} from "../validators/vacation";
+} from "../../validators/vacation";
 import { endOfDaySP, startOfDaySP } from "@/app/utils";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
+import { parseVacations, toVacationDTO } from "./parse";
 
 export const VacationRepository = {
   async find({
@@ -35,7 +36,7 @@ export const VacationRepository = {
     to,
     cancelled,
     exclude,
-  }: SearchParams): Promise<PaginationRepositoryReturn<Vacation>> {
+  }: SearchParams): Promise<PaginationRepositoryReturn<VacationDTO>> {
     const skip = ((page as number) - 1) * (PAGINATION_LIMIT as number);
     const typeFilter = type === "all" ? undefined : !type ? "normal" : type;
     const period =
@@ -155,19 +156,21 @@ export const VacationRepository = {
     const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
 
     // Ajusta o formato da resposta para corresponder ao seu modelo
-    const finalData = data.data.map((doc: AggregatedVacation) => ({
-      ...doc,
-      worker: doc.workerData,
-      boss: doc.bossData,
-      returnDate: addMilliseconds(doc.endDate, 1),
-      workerData: undefined, // Remove os campos auxiliares
-      bossData: undefined,
-    }));
+    const finalData = data.data.map(
+      (doc: AggregatedVacation): Vacation => ({
+        ...doc,
+        worker: doc.workerData,
+        boss: doc.bossData,
+        returnDate: addMilliseconds(doc.endDate, 1),
+      }),
+    );
 
-    return { totalItems, totalPages, data: finalData };
+    const parsedVacations = parseVacations(finalData) as VacationDTO[];
+
+    return { totalItems, totalPages, data: parsedVacations };
   },
 
-  async create(payload: VacationFormData): Promise<Vacation> {
+  async create(payload: VacationFormData): Promise<VacationDTO> {
     let validPayload: VacationFormData | null = null;
 
     const result = VacationCreateSchema.safeParse(payload);
@@ -191,26 +194,28 @@ export const VacationRepository = {
     if (!boss) throw new Error("Boss not found");
 
     const durationValidatedPayload = validateVacationDuration(
-      validPayload
+      validPayload,
     ) as VacationFormData;
 
     const payloadWithDates = updateVacationDates(durationValidatedPayload);
 
-    const noOverlappingPayload = await validateOverlappingVacations(
-      payloadWithDates
-    );
+    const noOverlappingPayload =
+      await validateOverlappingVacations(payloadWithDates);
 
-    const validDayOffsQuantityPayload = await validateDayOffsQuantity(
-      noOverlappingPayload
-    );
+    const validDayOffsQuantityPayload =
+      await validateDayOffsQuantity(noOverlappingPayload);
 
-    return await VacationModel.create(validDayOffsQuantityPayload);
+    const created = await VacationModel.create(validDayOffsQuantityPayload);
+
+    await created.populate("worker boss");
+
+    return toVacationDTO(created.toObject()) as VacationDTO;
   },
 
   async findOne({
     id,
     cancelled,
-  }: VacationFindOneRepositoryParam): Promise<Vacation | void> {
+  }: VacationFindOneRepositoryParam): Promise<VacationDTO | null> {
     const vacation = await VacationModel.findOne({
       _id: id,
       ...(cancelled !== undefined && cancelled !== null && { cancelled }),
@@ -218,13 +223,15 @@ export const VacationRepository = {
       .populate("worker")
       .populate("boss");
 
-    return vacation;
+    return vacation
+      ? (toVacationDTO(vacation.toObject()) as VacationDTO)
+      : null;
   },
 
   async update({
     id,
     payload,
-  }: UpdateRepositoryParam<VacationFormData>): Promise<Vacation> {
+  }: UpdateRepositoryParam<VacationFormData>): Promise<VacationDTO> {
     let validPayload: VacationFormData | null = null;
 
     const result = VacationUpdateSchema.safeParse(payload);
@@ -237,8 +244,8 @@ export const VacationRepository = {
       validPayload = result.data as VacationFormData;
     }
 
-    let worker: Worker | null = null;
-    let boss: Boss | null = null;
+    let worker: WorkerDTO | null = null;
+    let boss: BossDTO | null = null;
 
     const vacationToUpdate = await VacationRepository.findOne({ id });
     if (!vacationToUpdate) throw new Error("Vacation doesn't exists.");
@@ -259,22 +266,22 @@ export const VacationRepository = {
 
     const validDurationPayload = validateVacationDuration(
       validPayload,
-      vacationToUpdate
+      vacationToUpdate,
     );
 
     const payloadWithDates = updateVacationDates(
       validDurationPayload as VacationFormData,
-      vacationToUpdate
+      vacationToUpdate,
     );
 
     const noOverlappingPayload = await validateOverlappingVacations(
       payloadWithDates,
-      vacationToUpdate
+      vacationToUpdate,
     );
 
     const validDayOffQuantityPayload = await validateDayOffsQuantity(
       noOverlappingPayload,
-      vacationToUpdate
+      vacationToUpdate,
     );
 
     const vacation = await VacationModel.findByIdAndUpdate(
@@ -282,13 +289,15 @@ export const VacationRepository = {
       validDayOffQuantityPayload,
       {
         returnDocument: "after",
-      }
+      },
     );
 
-    return vacation;
+    await vacation.populate("worker boss");
+
+    return toVacationDTO(vacation.toObject()) as VacationDTO;
   },
 
-  async delete(id: string): Promise<Vacation> {
+  async delete(id: string): Promise<VacationDTO> {
     return this.update({ id, payload: { cancelled: true } });
   },
 };

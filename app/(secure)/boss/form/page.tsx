@@ -2,7 +2,7 @@ import { Container } from "@mui/material";
 import { BossForm } from "../components/BossForm";
 import { TitleTypography } from "../../components/TitleTypography";
 import { fetchAllPaginated, fetchOne } from "../../utils";
-import { type Boss, type Worker } from "@/app/types";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 export default async function BossFormPage({
   searchParams,
@@ -10,11 +10,11 @@ export default async function BossFormPage({
   searchParams: Promise<{ id?: string }>;
 }) {
   const { id } = await searchParams;
-  let boss: Boss | undefined;
+  let boss: BossDTO | undefined;
 
-  if (id) boss = await fetchOne<Boss>({ type: "boss", id });
+  if (id) boss = await fetchOne<BossDTO>({ type: "boss", id });
 
-  const workers = await fetchAllPaginated<Worker>({
+  const workers = await fetchAllPaginated<WorkerDTO>({
     type: "worker",
     params: { isActive: true, isExternal: false },
   });
