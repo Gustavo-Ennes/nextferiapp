@@ -6,7 +6,7 @@ import type { DepartmentDTO, WorkerDTO } from "@/dto";
 export type WorkerFormData = z.infer<typeof WorkerValidator>;
 
 export interface WorkerProps {
-  defaultValues?: WorkerDTO;
+  defaultValues: WorkerDTO | null;
   departments: DepartmentDTO[];
 }
 

@@ -52,20 +52,20 @@ const getMultiTextMeasures = ({
       measures.height += lineHeight;
       return measures;
     },
-    { height: 0, width: 0 }
+    { height: 0, width: 0 },
   );
 };
 
 const sumMapUntil = (arr: number[], index: number) =>
   arr.reduce(
     (sum, actual, reduceIndex) => (reduceIndex < index ? sum + actual : sum),
-    0
+    0,
   );
 
 const calculateCellRealWidth = (
   columnsXArray: number[],
   index: number,
-  startX: number
+  startX: number,
 ) =>
   index > 0
     ? columnsXArray[index] - columnsXArray[index - 1]
@@ -73,11 +73,13 @@ const calculateCellRealWidth = (
 
 // type vacation envolves money to the worker, so director sign, others not
 const getBoss = async (vacation?: VacationDTO): Promise<BossDTO | null> => {
-  const Boss = (await import("@/models/Boss")).default;
-  const isDirector = vacation?.type === "normal";
+  const { BossRepository } = await import("@/lib/repository/boss/boss");
 
-  return await Boss.findOne({ isDirector }).exec();
+  return await BossRepository.findOne({
+    id: vacation?.boss as string,
+  });
 };
+
 const getWorker = async (boss?: BossDTO): Promise<WorkerDTO | null> => {
   const { WorkerRepository } = await import("@/lib/repository/worker/worker");
 
@@ -93,7 +95,7 @@ export const formatMatriculation = (matriculation?: string): string => {
   const middleDigits = slice(
     matriculation.length - 4,
     matriculation.length - 1,
-    matriculation
+    matriculation,
   );
   const firstDigits = slice(0, matriculation.length - 4, matriculation);
 

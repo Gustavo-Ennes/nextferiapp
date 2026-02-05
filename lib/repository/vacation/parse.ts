@@ -14,17 +14,36 @@ export const toVacationDTO = (
     return (vacation as Types.ObjectId).toString();
 
   const vacationEntity = vacation as Vacation;
+  const {
+    _id,
+    duration,
+    type,
+    period,
+    startDate,
+    endDate,
+    returnDate,
+    worker,
+    createdAt,
+    updatedAt,
+    boss,
+    observation,
+    cancelled,
+  } = vacationEntity;
 
   return {
-    ...vacationEntity,
-    _id: vacationEntity._id.toString(),
-    startDate: vacationEntity.startDate.toISOString(),
-    endDate: vacationEntity.endDate.toISOString(),
-    createdAt: vacationEntity.createdAt.toISOString(),
-    updatedAt: vacationEntity.updatedAt.toISOString(),
-    returnDate: vacationEntity.returnDate?.toISOString(),
-    boss: toBossDTO(vacationEntity.boss),
-    worker: toWorkerDTO(vacationEntity.worker),
+    _id: _id.toString(),
+    duration,
+    type,
+    period,
+    observation,
+    cancelled,
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+    returnDate: returnDate?.toISOString(),
+    boss: toBossDTO(boss),
+    worker: toWorkerDTO(worker),
   };
 };
 

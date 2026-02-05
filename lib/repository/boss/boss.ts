@@ -1,24 +1,27 @@
 import type { SearchParams } from "@/app/(secure)/types";
-import type { FacetResult } from "@/app/api/types";
+import type { FacetResult, PaginatedResponse } from "@/app/api/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
 import BossModel, { type Boss } from "@/models/Boss";
 import type {
   FindOneRepositoryParam,
-  PaginationRepositoryReturn,
+  Repository,
   UpdateRepositoryParam,
 } from "../types";
 import type { BossFormData } from "@/app/(secure)/boss/types";
 import { WorkerRepository } from "../worker/worker";
 import type { BossDTO, WorkerDTO } from "@/dto";
 import { parseBosses, toBossDTO } from "./parse";
+import dbConnect from "@/lib/database/database";
 
-export const BossRepository = {
+export const BossRepository: Repository<BossDTO, BossFormData> = {
   async find({
     page,
     isExternal,
     contains,
     isActive,
-  }: SearchParams): Promise<PaginationRepositoryReturn<BossDTO>> {
+  }: SearchParams): Promise<PaginatedResponse<BossDTO>> {
+    await dbConnect();
+
     const skip = ((page as number) - 1) * PAGINATION_LIMIT;
 
     const filter = {
@@ -78,11 +81,24 @@ export const BossRepository = {
 
     const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
     const parsedBosses = parseBosses(rawData) as BossDTO[];
+    const currentPage = page as number;
+    const hasNextPage = totalPages > currentPage;
+    const hasPrevPage = currentPage > 1;
 
-    return { data: parsedBosses, totalPages, totalItems };
+    return {
+      data: parsedBosses,
+      totalPages,
+      totalItems,
+      currentPage,
+      hasNextPage,
+      hasPrevPage,
+      limit: PAGINATION_LIMIT,
+    };
   },
 
   async create(payload: BossFormData): Promise<BossDTO> {
+    await dbConnect();
+
     const worker = await WorkerRepository.findOne({
       id: payload.worker,
       isActive: true,
@@ -102,11 +118,15 @@ export const BossRepository = {
     id,
     isActive,
     isExternal,
+    isDirector,
   }: FindOneRepositoryParam): Promise<BossDTO | null> {
+    await dbConnect();
+
     const boss = await BossModel.findOne<Boss>({
       _id: id,
       ...(isActive !== null && isActive !== undefined && { isActive }),
       ...(isExternal !== null && isExternal !== undefined && { isExternal }),
+      ...(isDirector !== null && isDirector !== undefined && { isDirector }),
     }).populate("worker");
 
     return boss ? (toBossDTO(boss.toObject()) as BossDTO) : null;
@@ -116,6 +136,8 @@ export const BossRepository = {
     id,
     payload,
   }: UpdateRepositoryParam<BossFormData>): Promise<BossDTO | null> {
+    await dbConnect();
+
     let worker: WorkerDTO | null = null;
 
     if (payload.worker)
@@ -132,6 +154,8 @@ export const BossRepository = {
   },
 
   async delete(id: string): Promise<BossDTO | null> {
+    await dbConnect();
+
     const boss = await this.update({ id, payload: { isActive: false } });
     return boss;
   },

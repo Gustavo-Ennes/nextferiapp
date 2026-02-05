@@ -1,8 +1,8 @@
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
-import { fetchPaginatedByPage } from "../utils";
 import type { RawSearchParams, SearchParams } from "../types";
 import { parseBool } from "../components/utils";
 import type { VacationDTO } from "@/dto";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 
 const VacationList = async ({
   searchParams,
@@ -20,10 +20,7 @@ const VacationList = async ({
         ? cancelledBool
         : false,
   };
-  const paginatedResponse = await fetchPaginatedByPage<VacationDTO>({
-    type: "vacation",
-    params,
-  });
+  const paginatedResponse = await VacationRepository.find(params)
 
   return (
     <ResponsiveListPage<VacationDTO>

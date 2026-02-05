@@ -9,13 +9,26 @@ export const toBossDTO = (boss: Boss | Types.ObjectId): BossDTO | string => {
   if (isObjectIdOrHexString(boss)) return (boss as Types.ObjectId).toString();
 
   const bossEntity = boss as Boss;
+  const {
+    _id,
+    role,
+    isDirector,
+    worker,
+    createdAt,
+    updatedAt,
+    isActive,
+    isExternal,
+  } = bossEntity;
 
   return {
-    ...bossEntity,
-    _id: bossEntity._id.toString(),
-    createdAt: bossEntity.createdAt.toISOString(),
-    updatedAt: bossEntity.updatedAt.toISOString(),
-    worker: toWorkerDTO(bossEntity.worker),
+    _id: _id.toString(),
+    role,
+    isDirector,
+    worker: toWorkerDTO(worker),
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+    isActive,
+    isExternal,
   };
 };
 

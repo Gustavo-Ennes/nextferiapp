@@ -1,11 +1,11 @@
-import type {
-  FindOneRepositoryParam,
-  PaginationRepositoryReturn,
-  UpdateRepositoryParam,
-} from "../types";
+import type { FindOneRepositoryParam, UpdateRepositoryParam } from "../types";
 import type { SearchParams } from "@/app/(secure)/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
-import type { FacetResult, AggregatedDepartment } from "@/app/api/types";
+import type {
+  FacetResult,
+  AggregatedDepartment,
+  PaginatedResponse,
+} from "@/app/api/types";
 import DepartmentModel from "@/models/Department";
 import type { DepartmentFormData } from "@/app/(secure)/department/types";
 import { BossRepository } from "../boss/boss";
@@ -15,13 +15,20 @@ import type { Worker } from "@/models/Worker";
 import type { Department } from "@/models/Department";
 import type { Boss } from "@/models/Boss";
 import type { BossDTO } from "@/dto";
+import type { Repository } from "../types";
+import dbConnect from "@/lib/database/database";
 
-export const DepartmentRepository = {
+export const DepartmentRepository: Repository<
+  DepartmentDTO,
+  DepartmentFormData
+> = {
   async find({
     page,
     contains,
     isActive,
-  }: SearchParams): Promise<PaginationRepositoryReturn<DepartmentDTO>> {
+  }: SearchParams): Promise<PaginatedResponse<DepartmentDTO>> {
+    await dbConnect();
+
     const skip = ((page as number) - 1) * PAGINATION_LIMIT;
 
     const filter = {
@@ -80,6 +87,9 @@ export const DepartmentRepository = {
     const totalItems = aggregationResult.totalItems[0]?.count || 0;
     const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
     const rawData = aggregationResult.data;
+    const currentPage = page as number;
+    const hasNextPage = totalPages > currentPage;
+    const hasPrevPage = currentPage > 1;
 
     const data: Department[] = rawData.map((doc) => {
       const { workerData, responsibleData, ...rest } = doc;
@@ -93,10 +103,20 @@ export const DepartmentRepository = {
       };
     });
     const parsedDepartments = parseDepartments(data) as DepartmentDTO[];
-    return { data: parsedDepartments, totalItems, totalPages };
+    return {
+      data: parsedDepartments,
+      totalItems,
+      totalPages,
+      currentPage,
+      hasNextPage,
+      hasPrevPage,
+      limit: PAGINATION_LIMIT,
+    };
   },
 
   async create(payload: DepartmentFormData): Promise<DepartmentDTO> {
+    await dbConnect();
+
     const boss = await BossRepository.findOne({
       id: payload.responsible,
       isActive: true,
@@ -113,6 +133,8 @@ export const DepartmentRepository = {
     id,
     isActive,
   }: FindOneRepositoryParam): Promise<DepartmentDTO | null> {
+    await dbConnect();
+
     const department = await DepartmentModel.findOne({
       _id: id,
       ...(isActive !== null && isActive !== undefined && { isActive }),
@@ -131,7 +153,9 @@ export const DepartmentRepository = {
   async update({
     id,
     payload,
-  }: UpdateRepositoryParam<DepartmentFormData>): Promise<DepartmentDTO> {
+  }: UpdateRepositoryParam<DepartmentFormData>): Promise<DepartmentDTO | null> {
+    await dbConnect();
+
     let responsible: BossDTO | null = null;
 
     if (payload.responsible)
@@ -147,7 +171,9 @@ export const DepartmentRepository = {
     return toDepartmentDTO(department.toObject()) as DepartmentDTO;
   },
 
-  async delete(id: string): Promise<DepartmentDTO> {
+  async delete(id: string): Promise<DepartmentDTO | null> {
+    await dbConnect();
+
     const department = await this.update({ id, payload: { isActive: false } });
     return department;
   },

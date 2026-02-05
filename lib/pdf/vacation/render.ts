@@ -10,7 +10,7 @@ import {
   createSign,
   createTitle,
 } from "../factory";
-import { getHeightObject, getBoss, getWorker } from "../utils";
+import { getHeightObject, getBoss } from "../utils";
 import { getParagraph, translateMonth, translateVacation } from "./utils";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
@@ -56,9 +56,9 @@ const drawHalfPage = async ({
   height.stepLines(3, "huge");
 
   const dateString = `Ilha solteira, ${new Date(
-    vacation.updatedAt
+    vacation.updatedAt,
   ).getDate()} de ${translateMonth(
-    new Date(vacation.updatedAt).getMonth()
+    new Date(vacation.updatedAt).getMonth(),
   )} de ${new Date(vacation.updatedAt).getFullYear()}`;
 
   if (isDayOff) height.stepLines(2);
@@ -88,25 +88,18 @@ const drawHalfPage = async ({
   });
 
   height.stepLines(3, "huge");
-  const boss = vacation.boss ?? (await getBoss(vacation)) ?? "Chefe excluído";
+  const boss = await getBoss(vacation);
 
-  if (!boss)
-    throw new Error(
-      `Não há chefe cadastrado para a assinatura de ${translateVacation(
-        vacation.type
-      )}.`
-    );
-
-  const worker = await getWorker(vacation.boss as BossDTO);
+  if (!boss) console.warn("Excluded boss. Nothing to do.");
 
   if (isDayOff) height.stepLines(2);
 
   await createSign({
     document,
     height,
-    name: worker?.name,
-    role: (vacation.boss as BossDTO).role,
-    worker: worker ?? undefined,
+    name: (boss?.worker as WorkerDTO)?.name ?? "Chefe excluído",
+    role: (vacation.boss as BossDTO).role ?? "",
+    worker: (boss?.worker as WorkerDTO) ?? undefined,
   });
 };
 

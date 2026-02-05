@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import dbConnect from "@/lib/database/database";
 import { revalidatePath } from "next/cache";
 import { optionsResponse, responseWithHeaders } from "../../utils";
 import { WorkerRepository } from "@/lib/repository/worker/worker";
@@ -11,7 +10,6 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop();
   const { searchParams } = new URL(url);
@@ -33,7 +31,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const payload = await req.json();
   const id = url?.split("/").pop();
@@ -54,7 +51,6 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop();
 

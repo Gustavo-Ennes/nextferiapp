@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import dbConnect from "@/lib/database/database";
 import { revalidatePath } from "next/cache";
 import { optionsResponse, responseWithHeaders } from "../../utils";
 import { parseBool } from "@/app/(secure)/components/utils";
@@ -11,7 +10,6 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop()?.split("?")[0];
   const searchParams = req.nextUrl.searchParams;
@@ -34,7 +32,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const payload = await req.json();
   const id = url?.split("/").pop();
@@ -57,7 +54,6 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop();
 

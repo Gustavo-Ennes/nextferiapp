@@ -45,14 +45,12 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   });
 
   const onSubmit: SubmitHandler<WorkerFormData> = async (
-    formData: WorkerFormData
+    formData: WorkerFormData,
   ) => {
     const method = defaultValues ? "PUT" : "POST";
     const url = defaultValues
-      ? `${process.env.NEXT_PUBLIC_URL}/api/worker/${
-          defaultValues._id as string
-        }`
-      : `${process.env.NEXT_PUBLIC_URL}/api/worker`;
+      ? `/api/worker/${defaultValues._id as string}`
+      : `/api/worker`;
     const snackbarData: SnackbarData = { message: "" };
 
     const res = await fetch(url, {
@@ -69,7 +67,7 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
       snackbarData.severity = "error";
     } else {
       snackbarData.message = `Servidor ${capitalizeFirstLetter(
-        formData.name.split(" ")[0]
+        formData.name.split(" ")[0],
       )} ${defaultValues ? "editado(a)" : "criado(a)"} com sucesso!`;
       snackbarData.severity = "success";
     }

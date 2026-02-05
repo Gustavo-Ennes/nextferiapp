@@ -1,4 +1,3 @@
-import dbConnect from "@/lib/database/database";
 import type { NextRequest } from "next/server";
 import {
   optionsResponse,
@@ -8,7 +7,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import type { VacationType } from "@/lib/repository/vacation/types";
-import { endOfDay, parse } from "date-fns";
+import { endOfDay } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
 import { parseBool } from "@/app/(secure)/components/utils";
 import type { VacationDTO } from "@/dto";
@@ -18,8 +17,6 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") as VacationType;
@@ -30,12 +27,11 @@ export async function GET(req: NextRequest) {
     const to = searchParams.get("to");
     const cancelled = parseBool(searchParams.get("cancelled"));
     const exclude = searchParams.get("exclude");
-    const fromDate = from
-      ? startOfDaySP(parse(from, "d-M-yy", new Date()))
-      : null;
-    const toDate = to
-      ? endOfDay(startOfDaySP(parse(to, "d-M-yy", new Date())))
-      : null;
+    const fromDate = from ? startOfDaySP(new Date(from)) : null;
+    const toDate = to ? endOfDay(startOfDaySP(new Date(to))) : null;
+
+
+    //TIRAR LOGS, TESTES, BUILD, MERGE
 
     const { data, totalItems, totalPages } = await VacationRepository.find({
       type,
@@ -68,7 +64,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
   const body = await req.json();
 
   try {

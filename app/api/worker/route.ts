@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import dbConnect from "@/lib/database/database";
 import { revalidatePath } from "next/cache";
 import {
   responseWithHeaders,
@@ -15,7 +14,6 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
 
   try {
     const { searchParams } = new URL(req.url);
@@ -47,7 +45,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
   const body = await req.json();
 
   try {

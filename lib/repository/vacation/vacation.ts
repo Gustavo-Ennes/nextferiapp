@@ -1,12 +1,16 @@
 import type { SearchParams } from "@/app/(secure)/types";
-import type { FacetResult, AggregatedVacation } from "@/app/api/types";
+import type {
+  FacetResult,
+  AggregatedVacation,
+  PaginatedResponse,
+} from "@/app/api/types";
 import VacationModel, { type Vacation } from "@/models/Vacation";
 import { addMilliseconds } from "date-fns";
 import { isObjectIdOrHexString, Types } from "mongoose";
 import type {
-  VacationFindOneRepositoryParam,
-  PaginationRepositoryReturn,
+  FindOneRepositoryParam,
   UpdateRepositoryParam,
+  Repository,
 } from "../types";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
@@ -25,8 +29,34 @@ import {
 import { endOfDaySP, startOfDaySP } from "@/app/utils";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 import { parseVacations, toVacationDTO } from "./parse";
+import dbConnect from "@/lib/database/database";
 
-export const VacationRepository = {
+export const VacationRepository: Repository<VacationDTO, VacationFormData> = {
+  async findWithoutPagination(params: SearchParams) {
+    let page = 1;
+    let shouldFetchNextPage = false;
+    let to;
+    let from;
+    const vacations: VacationDTO[] = [];
+    const today = new Date();
+
+    if (params.timePeriod == "past") to = endOfDaySP(today);
+    else if (params.timePeriod === "future") from = startOfDaySP(today);
+
+    do {
+      const { data: vacationPage, hasNextPage } = await this.find({
+        ...params,
+        ...(params.timePeriod && to && { to }),
+        ...(params.timePeriod && from && { from }),
+        page: page++,
+      });
+      vacations.push(...vacationPage);
+      shouldFetchNextPage = hasNextPage;
+    } while (shouldFetchNextPage);
+
+    return vacations;
+  },
+
   async find({
     page,
     type,
@@ -36,7 +66,9 @@ export const VacationRepository = {
     to,
     cancelled,
     exclude,
-  }: SearchParams): Promise<PaginationRepositoryReturn<VacationDTO>> {
+  }: SearchParams): Promise<PaginatedResponse<VacationDTO>> {
+    await dbConnect();
+
     const skip = ((page as number) - 1) * (PAGINATION_LIMIT as number);
     const typeFilter = type === "all" ? undefined : !type ? "normal" : type;
     const period =
@@ -154,6 +186,9 @@ export const VacationRepository = {
 
     const totalItems = data.totalItems[0]?.count || 0;
     const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
+    const currentPage = page as number;
+    const hasNextPage = totalPages > currentPage;
+    const hasPrevPage = currentPage > 1;
 
     // Ajusta o formato da resposta para corresponder ao seu modelo
     const finalData = data.data.map(
@@ -167,10 +202,20 @@ export const VacationRepository = {
 
     const parsedVacations = parseVacations(finalData) as VacationDTO[];
 
-    return { totalItems, totalPages, data: parsedVacations };
+    return {
+      totalItems,
+      totalPages,
+      data: parsedVacations,
+      currentPage,
+      hasNextPage,
+      hasPrevPage,
+      limit: PAGINATION_LIMIT,
+    };
   },
 
   async create(payload: VacationFormData): Promise<VacationDTO> {
+    await dbConnect();
+
     let validPayload: VacationFormData | null = null;
 
     const result = VacationCreateSchema.safeParse(payload);
@@ -215,7 +260,9 @@ export const VacationRepository = {
   async findOne({
     id,
     cancelled,
-  }: VacationFindOneRepositoryParam): Promise<VacationDTO | null> {
+  }: FindOneRepositoryParam): Promise<VacationDTO | null> {
+    await dbConnect();
+
     const vacation = await VacationModel.findOne({
       _id: id,
       ...(cancelled !== undefined && cancelled !== null && { cancelled }),
@@ -232,6 +279,8 @@ export const VacationRepository = {
     id,
     payload,
   }: UpdateRepositoryParam<VacationFormData>): Promise<VacationDTO> {
+    await dbConnect();
+
     let validPayload: VacationFormData | null = null;
 
     const result = VacationUpdateSchema.safeParse(payload);
@@ -297,7 +346,9 @@ export const VacationRepository = {
     return toVacationDTO(vacation.toObject()) as VacationDTO;
   },
 
-  async delete(id: string): Promise<VacationDTO> {
+  async delete(id: string): Promise<VacationDTO | null> {
+    await dbConnect();
+
     return this.update({ id, payload: { cancelled: true } });
   },
 };

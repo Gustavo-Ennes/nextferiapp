@@ -43,10 +43,8 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     const body = JSON.stringify(formData);
     const method = defaultValues ? "PUT" : "POST";
     const url = defaultValues
-      ? `${process.env.NEXT_PUBLIC_URL}/api/department/${
-          defaultValues._id as string
-        }`
-      : `${process.env.NEXT_PUBLIC_URL}/api/department`;
+      ? `/api/department/${defaultValues._id as string}`
+      : `/api/department`;
     const snackbarData: SnackbarData = { message: "" };
 
     try {

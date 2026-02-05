@@ -8,7 +8,7 @@ export type VacationFormData = z.infer<typeof VacationValidator>;
 export interface VacationProps {
   workers: WorkerDTO[];
   bosses: BossDTO[];
-  defaultValues?: VacationDTO;
+  defaultValues: VacationDTO | null;
   id?: string;
   type: VacationType;
   isReschedule?: boolean;

@@ -1,8 +1,11 @@
 import { Container } from "@mui/material";
 import { DepartmentForm } from "../components/DepartmentForm";
 import { TitleTypography } from "../../components/TitleTypography";
-import { fetchAllPaginated, fetchOne } from "../../utils";
-import type { BossDTO, DepartmentDTO } from "@/dto";
+import { fetchAll } from "../../utils";
+import type { BossDTO } from "@/dto";
+import { DepartmentRepository } from "@/lib/repository/department/department";
+import type { BossFormData } from "../../boss/types";
+import { BossRepository } from "@/lib/repository/boss/boss";
 
 export default async function DepartmentFormPage({
   searchParams,
@@ -10,10 +13,12 @@ export default async function DepartmentFormPage({
   searchParams: Promise<{ id: string }>;
 }) {
   const { id } = await searchParams;
-  const department = await fetchOne<DepartmentDTO>({ type: "department", id });
-  const bosses = await fetchAllPaginated<BossDTO>({
-    type: "boss",
-    params: { isExternal: false, isActive: true },
+  const department = await DepartmentRepository.findOne({ id });
+  const bosses = await fetchAll<BossDTO, BossFormData>({
+    isExternal: false,
+    isActive: true,
+    entityType: "boss",
+    repository: BossRepository,
   });
 
   return (

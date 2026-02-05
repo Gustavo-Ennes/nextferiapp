@@ -1,7 +1,7 @@
 import type { SearchParams } from "@/app/(secure)/types";
 import type {
-  PaginationRepositoryReturn,
   FindOneRepositoryParam,
+  Repository,
   UpdateRepositoryParam,
 } from "../types";
 import WorkerModel from "@/models/Worker";
@@ -10,16 +10,19 @@ import type { WorkerFormData } from "@/app/(secure)/worker/types";
 import type { WorkerDTO } from "@/dto";
 import { toWorkerDTO, parseWorkers } from "./parse";
 import type { Worker } from "@/models/Worker";
+import type { PaginatedResponse } from "@/app/api/types";
+import dbConnect from "@/lib/database/database";
 
-export const WorkerRepository = {
+export const WorkerRepository: Repository<WorkerDTO, WorkerFormData> = {
   async find({
     page,
     isActive,
     isExternal,
     contains,
-  }: SearchParams): Promise<PaginationRepositoryReturn<WorkerDTO>> {
-    const skip = ((page as number) - 1) * PAGINATION_LIMIT;
+  }: SearchParams): Promise<PaginatedResponse<WorkerDTO>> {
+    await dbConnect();
 
+    const skip = ((page as number) - 1) * PAGINATION_LIMIT;
     const filter = {
       ...(isActive !== null && isActive !== undefined && { isActive }),
       ...(contains && { name: { $regex: contains, $options: "i" } }),
@@ -37,11 +40,24 @@ export const WorkerRepository = {
     ]);
     const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
     const parsedWorkers = parseWorkers(data) as WorkerDTO[];
+    const currentPage = page as number;
+    const hasNextPage = totalPages > currentPage;
+    const hasPrevPage = currentPage > 1;
 
-    return { data: parsedWorkers, totalItems, totalPages };
+    return {
+      data: parsedWorkers,
+      totalItems,
+      totalPages,
+      currentPage,
+      hasNextPage,
+      hasPrevPage,
+      limit: PAGINATION_LIMIT,
+    };
   },
 
   async create(payload: WorkerFormData): Promise<WorkerDTO> {
+    await dbConnect();
+
     const worker = await WorkerModel.create(payload);
     return toWorkerDTO(worker.toObject()) as WorkerDTO;
   },
@@ -51,6 +67,8 @@ export const WorkerRepository = {
     isActive,
     isExternal,
   }: FindOneRepositoryParam): Promise<WorkerDTO | null> {
+    await dbConnect();
+
     const worker = await WorkerModel.findOne({
       _id: id,
       ...(isActive !== null && isActive !== undefined && { isActive }),
@@ -63,12 +81,16 @@ export const WorkerRepository = {
   async update({
     id,
     payload,
-  }: UpdateRepositoryParam<WorkerFormData>): Promise<WorkerDTO> {
+  }: UpdateRepositoryParam<WorkerFormData>): Promise<WorkerDTO | null> {
+    await dbConnect();
+
     const worker = await WorkerModel.findByIdAndUpdate(id, payload);
     return toWorkerDTO(worker.toObject()) as WorkerDTO;
   },
 
-  async delete(id: string): Promise<WorkerDTO> {
+  async delete(id: string): Promise<WorkerDTO | null> {
+    await dbConnect();
+
     const worker = await this.update({ id, payload: { isActive: false } });
     return worker;
   },

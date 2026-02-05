@@ -1,8 +1,8 @@
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
-import { fetchPaginatedByPage } from "../utils";
 import { parseBool } from "../components/utils";
 import type { RawSearchParams } from "../types";
 import type { DepartmentDTO } from "@/dto";
+import { DepartmentRepository } from "@/lib/repository/department/department";
 
 const DepartmentList = async ({
   searchParams,
@@ -11,13 +11,11 @@ const DepartmentList = async ({
 }) => {
   const { page, contains, isActive } = await searchParams;
   const isActiveBool = parseBool(isActive);
-  const paginatedResponse = await fetchPaginatedByPage<DepartmentDTO>({
-    type: "department",
-    params: {
-      page: page ? parseInt(page) ?? 1 : 1,
-      ...(contains && { contains }),
-      isActive: isActiveBool ?? true,
-    },
+
+  const paginatedResponse = await DepartmentRepository.find({
+    page: page ? (parseInt(page) ?? 1) : 1,
+    ...(contains && { contains }),
+    isActive: isActiveBool ?? true,
   });
 
   return (

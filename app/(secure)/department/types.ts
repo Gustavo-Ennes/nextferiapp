@@ -5,6 +5,6 @@ import type { BossDTO, DepartmentDTO } from "@/dto";
 export type DepartmentFormData = z.infer<typeof DepartmentValidator>;
 
 export type DepartmentProps = {
-  defaultValues?: DepartmentDTO;
+  defaultValues: DepartmentDTO | null;
   bosses?: BossDTO[];
 };

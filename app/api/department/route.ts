@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-import dbConnect from "@/lib/database/database";
 import {
   optionsResponse,
   responseWithHeaders,
@@ -14,8 +13,6 @@ export async function OPTIONS() {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -46,7 +43,6 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
   const body = await req.json();
 
   try {

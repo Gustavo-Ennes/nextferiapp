@@ -43,10 +43,8 @@ export function BossForm({ defaultValues, workers }: BossProps) {
     try {
       const method = defaultValues ? "PUT" : "POST";
       const url = defaultValues
-        ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${
-            defaultValues._id as string
-          }`
-        : `${process.env.NEXT_PUBLIC_URL}/api/boss`;
+        ? `/api/boss/${defaultValues._id as string}`
+        : `/api/boss`;
 
       const res = await fetch(url, {
         method,

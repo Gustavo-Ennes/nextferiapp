@@ -12,16 +12,36 @@ export const toWorkerDTO = (
     return (worker as Types.ObjectId).toString();
 
   const workerEntity = worker as Worker;
+  const {
+    _id,
+    name,
+    role,
+    matriculation,
+    registry,
+    admissionDate,
+    department,
+    justification,
+    isActive,
+    createdAt,
+    updatedAt,
+    isExternal,
+  } = workerEntity;
 
   return {
-    ...workerEntity,
-    _id: workerEntity._id.toString(),
-    admissionDate: workerEntity.admissionDate.toISOString(),
-    createdAt: workerEntity.createdAt.toISOString(),
-    updatedAt: workerEntity.updatedAt.toISOString(),
-    department: workerEntity.department
+    _id: _id.toString(),
+    name,
+    role,
+    registry,
+    matriculation,
+    admissionDate: admissionDate.toISOString(),
+    department: department
       ? toDepartmentDTO(workerEntity.department)
       : undefined,
+    justification,
+    isActive,
+    createdAt: createdAt.toISOString(),
+    updatedAt: updatedAt.toISOString(),
+    isExternal,
   };
 };
 

@@ -5,6 +5,6 @@ import type { BossDTO, WorkerDTO } from "@/dto";
 export type BossFormData = z.infer<typeof BossValidator>;
 
 export interface BossProps {
-  defaultValues?: BossDTO;
+  defaultValues: BossDTO | null;
   workers: WorkerDTO[];
 }

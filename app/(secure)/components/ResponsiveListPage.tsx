@@ -39,9 +39,7 @@ const ResponsiveListPage = <T extends Entity>({
   }).toLowerCase();
 
   const onConfirmDelete = async (entity: Entity) => {
-    const url = `${process.env.NEXT_PUBLIC_URL}/api/${routePrefix}/${
-      entity._id as string
-    }`;
+    const url = `/api/${routePrefix}/${entity._id as string}`;
     const snackbarData: SnackbarData = { message: "" };
 
     const res = await fetch(url, {
@@ -72,7 +70,7 @@ const ResponsiveListPage = <T extends Entity>({
     const isNotDepartmentOrBoss = key !== "departamento" && key !== "chefe";
     const name = capitalizeName(
       (entity as WorkerDTO).name ??
-        ((entity as BossDTO).worker as WorkerDTO).name
+        ((entity as BossDTO).worker as WorkerDTO).name,
     );
     const modalDescription = (entity as VacationDTO).type
       ? `Deseja excluir ${sumarizeVacation(entity as VacationDTO)}?`
@@ -92,7 +90,7 @@ const ResponsiveListPage = <T extends Entity>({
             isExternal !== null || isExternal !== undefined
               ? `&isExternal=${isExternal}`
               : ""
-          }`
+          }`,
         );
       },
     });
@@ -107,7 +105,7 @@ const ResponsiveListPage = <T extends Entity>({
         vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
       }?page=1${term ? `&contains=${encodeURIComponent(term)}` : ""}${
         isExternal !== undefined ? `&isExternal=${isExternalString}` : ""
-      }`
+      }`,
     );
   };
 
@@ -138,7 +136,7 @@ const ResponsiveListPage = <T extends Entity>({
             router.push(
               `/${routePrefix}/form${
                 vacationType ? `?type=${vacationType}` : ""
-              }`
+              }`,
             )
           }
         >

@@ -1,6 +1,8 @@
 import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { EntityType } from "../types";
 import type { VacationTypeParam } from "@/lib/repository/vacation/types";
+import type { Repository } from "@/lib/repository/types";
+import type { PeriodOptionsType } from "../api/types";
 
 export type SearchParam = "type" | "page" | "cancelled" | "isActive";
 
@@ -16,6 +18,14 @@ export type SearchParams = {
   from?: Date | null;
   to?: Date | null;
   exclude?: string | null;
+  timePeriod?: PeriodOptionsType | null;
+};
+
+// E: entity
+// FD: entity Form Data
+export type FetchAllParam<E, FD> = SearchParams & {
+  repository: Repository<E, FD>;
+  entityType: EntityType;
 };
 
 export type RawSearchParams = {
@@ -30,8 +40,6 @@ export type RawSearchParams = {
   from?: string | null;
   to?: string | null;
 };
-
-export type FetchManyParam = { type?: EntityType; params?: SearchParams };
 
 export type FetchOneParam = {
   id: string;
