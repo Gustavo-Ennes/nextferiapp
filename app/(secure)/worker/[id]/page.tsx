@@ -1,6 +1,10 @@
-import type { Vacation, Worker } from "@/app/types";
-import { fetchAllPaginated, fetchOne } from "../../utils";
+import type { VacationDTO } from "@/dto";
 import { WorkerDetail } from "../components/WorkerDetail";
+import { WorkerRepository } from "@/lib/repository/worker/worker";
+import { fetchAll } from "../../utils";
+import type { VacationFormData } from "../../vacation/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
+import { redirect } from "next/navigation";
 
 export default async function WorkerViewPage({
   params,
@@ -8,10 +12,17 @@ export default async function WorkerViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const worker = await fetchOne<Worker>({ type: "worker", id });
-  const workerVacations = await fetchAllPaginated<Vacation>({
-    params: { worker: worker._id as string, type: "all", cancelled: false },
-    type: "vacation",
+
+  const worker = await WorkerRepository.findOne({ id });
+
+  if (!worker) redirect("/notFound");
+
+  const workerVacations = await fetchAll<VacationDTO, VacationFormData>({
+    worker: worker._id,
+    type: "all",
+    cancelled: false,
+    entityType: "worker",
+    repository: VacationRepository,
   });
 
   return <WorkerDetail worker={worker} workerVacations={workerVacations} />;

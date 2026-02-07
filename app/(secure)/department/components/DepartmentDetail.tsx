@@ -11,18 +11,18 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import type { Department } from "@/app/types";
 import { useModal } from "@/context/ModalContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
+import type { BossDTO, DepartmentDTO, WorkerDTO } from "@/dto";
 
 export function DepartmentDetail({
   department,
   workerQuantity = 0,
 }: {
-  department: Department;
+  department: DepartmentDTO;
   workerQuantity: number;
 }) {
   const router = useRouter();
@@ -79,7 +79,10 @@ export function DepartmentDetail({
           <Box>
             <Typography variant="subtitle2">Responsável</Typography>
             <Typography>
-              {capitalizeName(department?.responsible?.worker?.name)}
+              {capitalizeName(
+                ((department?.responsible as BossDTO)?.worker as WorkerDTO)
+                  ?.name
+              )}
             </Typography>
           </Box>
 

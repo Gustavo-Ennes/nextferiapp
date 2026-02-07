@@ -1,11 +1,11 @@
-import { VacationRepository } from "@/lib/repository/vacation";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { createBaseEntities } from "./utils";
-import type { Worker, Boss } from "@/app/types";
 import { Types } from "mongoose";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.delete", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let baseVacation: any;
 
   const createVacation = (override = {}) =>

@@ -7,9 +7,10 @@ import type {
   VacationsQueryOptionsInterface,
   VacationsResolverArgsInterface,
 } from "./types";
-import type { Boss, Entity } from "../types";
+import type { Entity } from "../types";
 import { NextResponse } from "next/server";
 import type { Model } from "mongoose";
+import type { BossDTO } from "@/dto";
 
 export const headers = {
   "Access-Control-Allow-Origin": "*",
@@ -21,13 +22,13 @@ export const headers = {
 export const genericResponseWithHeaders = (data: any) =>
   NextResponse.json(data, {
     headers,
-    status: (data as Response<Boss>).error ? 400 : 200,
+    status: (data as Response<BossDTO>).error ? 400 : 200,
   });
 
 export const responseWithHeaders = <T extends Entity>(data: ResponseType<T>) =>
   NextResponse.json(data, {
     headers,
-    status: (data as Response<Boss>).error ? 400 : 200,
+    status: (data as Response<BossDTO>).error ? 400 : 200,
   });
 
 export const optionsResponse = () =>

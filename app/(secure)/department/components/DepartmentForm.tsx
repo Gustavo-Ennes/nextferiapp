@@ -19,6 +19,7 @@ import { DepartmentValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { capitalizeName } from "@/app/utils";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   const router = useRouter();
@@ -32,7 +33,8 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     mode: "onTouched",
     defaultValues: {
       name: defaultValues?.name ?? "",
-      responsible: (defaultValues?.responsible?._id as string) ?? "_",
+      responsible:
+        ((defaultValues?.responsible as BossDTO)?._id as string) ?? "_",
       isActive: defaultValues?.isActive ?? true,
     },
   });
@@ -41,10 +43,8 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
     const body = JSON.stringify(formData);
     const method = defaultValues ? "PUT" : "POST";
     const url = defaultValues
-      ? `${process.env.NEXT_PUBLIC_URL}/api/department/${
-          defaultValues._id as string
-        }`
-      : `${process.env.NEXT_PUBLIC_URL}/api/department`;
+      ? `/api/department/${defaultValues._id as string}`
+      : `/api/department`;
     const snackbarData: SnackbarData = { message: "" };
 
     try {
@@ -120,7 +120,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
                 </MenuItem>
                 {bosses?.map((boss) => (
                   <MenuItem key={boss._id as string} value={boss._id as string}>
-                    {capitalizeName(boss.worker?.name)}
+                    {capitalizeName((boss.worker as WorkerDTO)?.name)}
                   </MenuItem>
                 ))}
               </Select>

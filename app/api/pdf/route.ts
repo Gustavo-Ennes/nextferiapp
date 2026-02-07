@@ -1,4 +1,3 @@
-import dbConnect from "@/lib/database/database";
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
 import type { PdfOptions, PdfRouteBody } from "../types";
@@ -9,15 +8,15 @@ import {
   vehicleUsageRender,
   cancellationRender,
 } from "@/lib/pdf";
-import Vacation from "@/models/Vacation";
-import { buildOptions, headers, optionsResponse } from "../utils";
+import { headers, optionsResponse } from "../utils";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
+import type { VacationType } from "@/lib/repository/vacation/types";
 
 export async function OPTIONS() {
   return optionsResponse();
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
   const { items }: PdfRouteBody = await req.json();
 
   try {
@@ -83,19 +82,21 @@ const render = async ({
         data,
       });
     case "relation":
-      const options = buildOptions({ period, type: relationType });
-      const instances = await Vacation.find(options).populate("worker boss");
+      const instances = await VacationRepository.findWithoutPagination!({
+        timePeriod: period,
+        type: relationType as VacationType,
+      });
       return relationRender({ document, instances, period, type });
     case "vacation":
-      instance = await Vacation.findOne({
-        _id: id,
-        $or: [{ cancelled: false }, { cancelled: undefined }],
-      }).populate("worker boss");
+      instance = await VacationRepository.findOne({
+        id: id as string,
+        cancelled: false,
+      });
       return vacationRender({ document, instance });
     case "cancellation":
-      instance = await Vacation.findOne({
-        _id: id,
-      }).populate("worker boss");
+      instance = await VacationRepository.findOne({
+        id: id as string,
+      });
       return cancellationRender({ document, instance });
     case "vehicleUsage":
       return vehicleUsageRender({ document });

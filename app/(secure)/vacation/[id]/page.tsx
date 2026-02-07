@@ -1,7 +1,6 @@
 import { VacationDetail } from "../components/VacationDetail";
 import { redirect } from "next/navigation";
-import type { Vacation } from "@/app/types";
-import { fetchOne } from "../../utils";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 
 export default async function VacationViewPage({
   params,
@@ -9,7 +8,9 @@ export default async function VacationViewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const vacation = await fetchOne<Vacation>({ type: "vacation", id });
+  const vacation = await VacationRepository.findOne({
+    id,
+  });
 
   if (vacation) {
     return <VacationDetail vacation={vacation} />;

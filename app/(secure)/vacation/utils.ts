@@ -1,11 +1,13 @@
-import type { Vacation } from "@/app/types";
 import type { VacationFormData } from "./types";
 import { VacationValidator } from "./validator";
 import { addDays, format, isThisYear, isValid, toDate } from "date-fns";
 import type { DataListItem } from "../components/types";
 import { prop, sum, uniqBy } from "ramda";
 import { endOfDaySP, endOfHalfDay, startOfDaySP } from "@/app/utils";
-import { fetchAllPaginated } from "../utils";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
+import { concatSearchParams } from "../utils";
+import type { PaginatedResponse } from "@/app/api/types";
+import type { SearchParams } from "../types";
 
 export const getTypeLabel = (type: string) => {
   switch (type) {
@@ -21,7 +23,7 @@ export const getTypeLabel = (type: string) => {
 };
 
 /** baseline por tipo */
-export function baselineForType(type: Vacation["type"]): VacationFormData {
+export function baselineForType(type: VacationDTO["type"]): VacationFormData {
   const now = startOfDaySP(new Date()).toISOString();
   if (type === "dayOff") {
     return {
@@ -56,7 +58,7 @@ export function baselineForType(type: Vacation["type"]): VacationFormData {
   };
 }
 
-export function normalizeRaw(raw: Vacation): Partial<VacationFormData> {
+export function normalizeRaw(raw: VacationDTO): Partial<VacationFormData> {
   if (!raw) return {};
   const out: VacationFormData = { ...raw } as unknown as VacationFormData;
   if (raw.startDate && typeof raw.startDate === "string" && isValid(raw)) {
@@ -68,13 +70,13 @@ export function normalizeRaw(raw: Vacation): Partial<VacationFormData> {
     if (!Number.isNaN(n)) out.duration = n;
   }
   if (out.worker === "-") out.worker = "";
-  else if (raw.worker) out.worker = raw.worker._id as string;
+  else if (raw.worker) out.worker = (raw.worker as WorkerDTO)._id as string;
   if (out.boss === "-") out.boss = "";
-  else if (raw.boss) out.boss = raw.boss._id as string;
+  else if (raw.boss) out.boss = (raw.boss as BossDTO)._id as string;
   return out;
 }
 
-export function prepareDefaults(raw: Vacation): VacationFormData {
+export function prepareDefaults(raw: VacationDTO): VacationFormData {
   const type = raw.type ?? "normal";
   const baseline = baselineForType(type);
   const normalized = normalizeRaw(raw);
@@ -84,7 +86,7 @@ export function prepareDefaults(raw: Vacation): VacationFormData {
     ...(raw.cancelled && {
       observation: `${raw.observation}\nReagendada: data anterior(${format(
         toDate(raw.startDate),
-        "dd/MM/yy"
+        "dd/MM/yy",
       )})[${raw._id as string}]`,
     }),
   };
@@ -98,7 +100,7 @@ export function prepareDefaults(raw: Vacation): VacationFormData {
 export const isMultipleOf = (value: number, step: number) =>
   Math.abs(value / step - Math.round(value / step)) < Number.EPSILON;
 
-export const parseToDataList = (vacations: Vacation[]): DataListItem[] =>
+export const parseToDataList = (vacations: VacationDTO[]): DataListItem[] =>
   uniqBy(
     prop("id"),
     vacations.map(({ type, startDate, period, duration, _id }) => ({
@@ -110,17 +112,17 @@ export const parseToDataList = (vacations: Vacation[]): DataListItem[] =>
             : "Meio-expediente"
           : `${duration} dias.`,
       id: _id as string,
-    }))
+    })),
   );
 
-export const getWorkerDayOffsLeft = (vacations: Vacation[]): number => {
+export const getWorkerDayOffsLeft = (vacations: VacationDTO[]): number => {
   const DAYOFFS_A_YEAR = 6;
   const dayOffsTakenThisYear = sum(
     vacations
       .filter(
-        ({ type, startDate }) => type === "dayOff" && isThisYear(startDate)
+        ({ type, startDate }) => type === "dayOff" && isThisYear(startDate),
       )
-      .map((vacation) => vacation.duration)
+      .map((vacation) => vacation.duration),
   );
 
   return DAYOFFS_A_YEAR - dayOffsTakenThisYear;
@@ -130,26 +132,23 @@ export const checkDayOffsCount = () => {};
 
 export const checkOverlappingVacations = async (
   watchForm: VacationFormData,
-  id?: string | null
+  id?: string | null,
 ) => {
   const from = startOfDaySP(toDate(watchForm.startDate));
   const to =
     watchForm.duration < 1
       ? endOfHalfDay(from)
       : watchForm.duration === 1
-      ? endOfDaySP(from)
-      : endOfDaySP(addDays(from, watchForm.duration - 1));
+        ? endOfDaySP(from)
+        : endOfDaySP(addDays(from, watchForm.duration - 1));
 
-  const conflicting = await fetchAllPaginated<Vacation>({
-    type: "vacation",
-    params: {
-      worker: watchForm.worker,
-      type: "all",
-      from,
-      to,
-      cancelled: false,
-      ...(id && { exclude: id }),
-    },
+  const { data: conflicting } = await fetchAllAPI({
+    worker: watchForm.worker,
+    type: "all",
+    from,
+    to,
+    cancelled: false,
+    ...(id && { exclude: id }),
   });
 
   if (conflicting.length > 0)
@@ -158,7 +157,7 @@ export const checkOverlappingVacations = async (
         conflicting
           .sort(
             (a, b) =>
-              toDate(a.startDate).getTime() - toDate(b.startDate).getTime()
+              toDate(a.startDate).getTime() - toDate(b.startDate).getTime(),
           )
           .map(({ duration, startDate, _id, endDate }) => ({
             _id,
@@ -167,9 +166,22 @@ export const checkOverlappingVacations = async (
             endDate,
           })),
         null,
-        2
-      )}`
+        2,
+      )}`,
     );
 
   return conflicting;
+};
+
+export const fetchAllAPI = async (
+  params: SearchParams,
+): Promise<PaginatedResponse<VacationDTO>> => {
+  const baseUrl = `/api/vacation`;
+  const url = concatSearchParams({ baseUrl, params });
+
+  const paginatedResponse: PaginatedResponse<VacationDTO> = await (
+    await fetch(url)
+  ).json();
+
+  return paginatedResponse;
 };

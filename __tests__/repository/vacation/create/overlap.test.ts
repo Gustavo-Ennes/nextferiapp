@@ -1,12 +1,12 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { Worker, Boss } from "@/app/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { createBaseEntities } from "../utils";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { addDays, addMilliseconds, subDays } from "date-fns";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.create.overlap", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {

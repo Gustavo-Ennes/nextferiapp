@@ -1,11 +1,11 @@
 /* eslint-disable no-unused-vars */
 import type { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
 
-import type { Vacation, Worker, Department } from "@/app/types";
 import type {
   CarEntry,
   TabData,
 } from "@/lib/repository/weeklyFuellingSummary/types";
+import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 type LineData = (string | undefined)[];
 type TableData = LineData[];
@@ -20,8 +20,8 @@ type Height = {
 
 type RenderParam = {
   document?: PDFDocument;
-  instance?: Vacation | Worker | Department | null;
-  instances?: Vacation[] | Worker[] | Department[] | null;
+  instance?: VacationDTO | WorkerDTO | DepartmentDTO | null;
+  instances?: VacationDTO[] | WorkerDTO[] | DepartmentDTO[] | null;
   reference?: Date;
   type?: string; // print type
   period?: string;
@@ -45,7 +45,7 @@ type CreatePdfParams = {
   name: string;
   // eslint-disable-next-line no-unused-vars
   pdfFn: (pdfFnParam: RenderParam) => Promise<void>;
-  instance: Vacation | Worker;
+  instance: VacationDTO | WorkerDTO;
 };
 
 type CreateTitleParams = {
@@ -73,7 +73,7 @@ type CreateSignParams = {
   height: Height;
   name?: string;
   role: string;
-  worker?: Worker;
+  worker?: WorkerDTO;
   matriculation?: string;
   x?: number;
 };
@@ -81,7 +81,7 @@ type CreateSignParams = {
 type DrawHalfPageParams = {
   height: Height;
   document: PDFDocument;
-  vacation: Vacation;
+  vacation: VacationDTO;
   isDayOff?: boolean;
 };
 

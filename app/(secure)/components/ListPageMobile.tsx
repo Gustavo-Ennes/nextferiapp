@@ -15,9 +15,10 @@ import { useRouter } from "next/navigation";
 import type { ItemListProps } from "./types";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
-import type { Entity, Vacation, Worker } from "@/app/types";
+import type { Entity } from "@/app/types";
 import { PictureAsPdf } from "@mui/icons-material";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
+import type { VacationDTO, WorkerDTO } from "@/dto";
 
 export function ListPageMobile<T extends Entity>({
   pagination: { data: items },
@@ -35,9 +36,9 @@ export function ListPageMobile<T extends Entity>({
     );
 
   const getItemLabel = (item: T) =>
-    (item as Vacation).type
-      ? (item as Vacation)?.worker?.name
-      : (item as Worker)?.name;
+    (item as VacationDTO).type
+      ? ((item as VacationDTO)?.worker as WorkerDTO)?.name
+      : (item as WorkerDTO)?.name;
 
   const handleEdit = (e: MouseEvent, item: Entity) => {
     e.stopPropagation();
@@ -125,7 +126,7 @@ export function ListPageMobile<T extends Entity>({
                     disabled={
                       vacationType !== null &&
                       vacationType !== undefined &&
-                      !(item as Vacation).worker
+                      !(item as VacationDTO).worker
                     }
                   >
                     <EditIcon fontSize="large" />

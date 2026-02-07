@@ -1,6 +1,5 @@
 import { StandardFonts } from "pdf-lib";
 
-import type { Vacation } from "@/app/types";
 import type { DrawHalfPageParams, RenderParam } from "../types";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import {
@@ -13,6 +12,7 @@ import {
 import { getHeightObject, getBoss } from "../utils";
 import { translateMonth, translateVacation } from "../vacation/utils";
 import { cancellationParagraph } from "../cancellation/text";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 const drawHalfPage = async ({
   document,
@@ -65,9 +65,9 @@ const drawHalfPage = async ({
   await createSign({
     document,
     height,
-    matriculation: vacation.worker?.matriculation ?? "",
-    name: capitalizeName(vacation.worker?.name),
-    role: capitalizeFirstLetter(vacation.worker?.role) ?? "",
+    matriculation: (vacation.worker as WorkerDTO)?.matriculation ?? "",
+    name: capitalizeName((vacation.worker as WorkerDTO)?.name),
+    role: capitalizeFirstLetter((vacation.worker as WorkerDTO)?.role) ?? "",
   });
 
   height.stepLines(3, "huge");
@@ -80,14 +80,14 @@ const drawHalfPage = async ({
       )}.`
     );
 
-  const { role: bossRole, worker: bossWorker } =
-    vacation.boss ?? (await getBoss(vacation)) ?? "Chefe excluído";
+  const { role: bossRole, worker: bossWorker } = (vacation.boss ??
+    (await getBoss(vacation))) as BossDTO;
   await createSign({
     document,
     height,
-    name: bossWorker.name,
+    name: (bossWorker as WorkerDTO).name,
     role: bossRole,
-    worker: bossWorker,
+    worker: bossWorker as WorkerDTO,
   });
 };
 
@@ -95,7 +95,7 @@ const render = async ({ document, instance }: RenderParam): Promise<void> => {
   if (document && instance) {
     const page = document.addPage();
     const height = getHeightObject(page);
-    const vacation = instance as Vacation;
+    const vacation = instance as VacationDTO;
 
     await drawHalfPage({
       document,

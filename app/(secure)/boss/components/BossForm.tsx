@@ -18,6 +18,7 @@ import { BossValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { capitalizeName } from "@/app/utils";
+import type { WorkerDTO } from "@/dto";
 
 export function BossForm({ defaultValues, workers }: BossProps) {
   const router = useRouter();
@@ -30,7 +31,7 @@ export function BossForm({ defaultValues, workers }: BossProps) {
     resolver: zodResolver(BossValidator),
     mode: "onTouched",
     defaultValues: {
-      worker: (defaultValues?.worker?._id as string) ?? "_",
+      worker: (defaultValues?.worker as WorkerDTO)?._id ?? "_",
       role: defaultValues?.role ?? "",
       isDirector: defaultValues?.isDirector ?? false,
     },
@@ -42,10 +43,8 @@ export function BossForm({ defaultValues, workers }: BossProps) {
     try {
       const method = defaultValues ? "PUT" : "POST";
       const url = defaultValues
-        ? `${process.env.NEXT_PUBLIC_URL}/api/boss/${
-            defaultValues._id as string
-          }`
-        : `${process.env.NEXT_PUBLIC_URL}/api/boss`;
+        ? `/api/boss/${defaultValues._id as string}`
+        : `/api/boss`;
 
       const res = await fetch(url, {
         method,

@@ -1,14 +1,13 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import VacationModel from "@/models/Vacation";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { addDays, differenceInDays, differenceInHours, toDate } from "date-fns";
 import { endOfDaySP, endOfHalfDay, startOfDaySP } from "@/app/utils";
 import { createBaseEntities } from "../utils";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
-import type { Boss, Vacation, Worker } from "@/app/types";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.create.base", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {
@@ -42,21 +41,23 @@ describe("VacationRepository.create.base", () => {
     expect(createdVacation.type).toBe(basePayload.type);
     expect(createdVacation.duration).toBe(basePayload.duration);
     expect(daysDifference).toBe(basePayload.duration - 1);
-    expect(createdVacation.startDate.getTime()).toBe(
+    expect(toDate(createdVacation.startDate).getTime()).toBe(
       expectedStartDate.getTime()
     );
-    expect(createdVacation.endDate.getTime()).toBe(expectedEndDate.getTime());
+    expect(toDate(createdVacation.endDate).getTime()).toBe(
+      expectedEndDate.getTime()
+    );
     expect(createdVacation.period).toBe(basePayload.period);
     expect(createdVacation.cancelled).toBe(false);
     expect(createdVacation.worker).toHaveProperty("_id");
     expect(createdVacation.boss).toHaveProperty("_id");
 
-    const savedDoc: Vacation | null = await VacationModel.findById(
-      createdVacation._id
-    );
+    const savedDoc: VacationDTO | null = await VacationRepository.findOne({
+      id: createdVacation._id,
+    });
     expect(savedDoc).not.toBeNull();
-    expect(savedDoc?.worker._id).toStrictEqual(worker._id);
-    expect(savedDoc?.boss._id).toStrictEqual(boss._id);
+    expect((savedDoc?.worker as WorkerDTO)._id).toStrictEqual(worker._id);
+    expect((savedDoc?.boss as BossDTO)._id).toStrictEqual(boss._id);
   });
 
   it("should create a half-day day off(duration < 1)", async () => {
@@ -80,21 +81,23 @@ describe("VacationRepository.create.base", () => {
     expect(createdVacation.type).toBe(dayOffPayload.type);
     expect(createdVacation.duration).toBe(dayOffPayload.duration);
     expect(hoursDifference).toBe(11);
-    expect(createdVacation.startDate.getTime()).toBe(
+    expect(toDate(createdVacation.startDate).getTime()).toBe(
       expectedStartDate.getTime()
     );
-    expect(createdVacation.endDate.getTime()).toBe(expectedEndDate.getTime());
+    expect(toDate(createdVacation.endDate).getTime()).toBe(
+      expectedEndDate.getTime()
+    );
     expect(createdVacation.period).toBe(dayOffPayload.period);
     expect(createdVacation.cancelled).toBe(false);
     expect(createdVacation.worker).toHaveProperty("_id");
     expect(createdVacation.boss).toHaveProperty("_id");
 
-    const savedDoc: Vacation | null = await VacationModel.findById(
-      createdVacation._id
-    );
+    const savedDoc: VacationDTO | null = await VacationRepository.findOne({
+      id: createdVacation._id,
+    });
     expect(savedDoc).not.toBeNull();
-    expect(savedDoc?.worker._id).toStrictEqual(worker._id);
-    expect(savedDoc?.boss._id).toStrictEqual(boss._id);
+    expect((savedDoc?.worker as WorkerDTO)?._id).toStrictEqual(worker._id);
+    expect((savedDoc?.boss as BossDTO)?._id).toStrictEqual(boss._id);
   });
 
   // should create a dayOff, a 15 vacation, 15 license, and another dayOff in sequence

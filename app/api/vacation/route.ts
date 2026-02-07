@@ -1,5 +1,3 @@
-import type { Vacation } from "@/app/types";
-import dbConnect from "@/lib/database/database";
 import type { NextRequest } from "next/server";
 import {
   optionsResponse,
@@ -7,19 +5,18 @@ import {
   responseWithHeaders,
 } from "../utils";
 import { revalidatePath } from "next/cache";
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { VacationType } from "@/app/(secure)/vacation/types";
-import { endOfDay, parse } from "date-fns";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
+import type { VacationType } from "@/lib/repository/vacation/types";
+import { endOfDay } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
 import { parseBool } from "@/app/(secure)/components/utils";
+import type { VacationDTO } from "@/dto";
 
 export async function OPTIONS() {
   return optionsResponse();
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type") as VacationType;
@@ -30,12 +27,11 @@ export async function GET(req: NextRequest) {
     const to = searchParams.get("to");
     const cancelled = parseBool(searchParams.get("cancelled"));
     const exclude = searchParams.get("exclude");
-    const fromDate = from
-      ? startOfDaySP(parse(from, "d-M-yy", new Date()))
-      : null;
-    const toDate = to
-      ? endOfDay(startOfDaySP(parse(to, "d-M-yy", new Date())))
-      : null;
+    const fromDate = from ? startOfDaySP(new Date(from)) : null;
+    const toDate = to ? endOfDay(startOfDaySP(new Date(to))) : null;
+
+
+    //TIRAR LOGS, TESTES, BUILD, MERGE
 
     const { data, totalItems, totalPages } = await VacationRepository.find({
       type,
@@ -48,7 +44,7 @@ export async function GET(req: NextRequest) {
       exclude,
     });
 
-    const response = responseWithHeaders<Vacation>({
+    const response = responseWithHeaders<VacationDTO>({
       data,
       currentPage: page,
       totalItems,
@@ -61,12 +57,13 @@ export async function GET(req: NextRequest) {
     return response;
   } catch (error) {
     console.error("VACATION GET ~ error:", error);
-    return responseWithHeaders<Vacation>({ error: (error as Error).message });
+    return responseWithHeaders<VacationDTO>({
+      error: (error as Error).message,
+    });
   }
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
   const body = await req.json();
 
   try {
@@ -74,9 +71,11 @@ export async function POST(req: NextRequest) {
 
     revalidatePath("/vacation");
 
-    return responseWithHeaders<Vacation>({ data: vacation });
+    return responseWithHeaders<VacationDTO>({ data: vacation });
   } catch (error) {
     console.error("VACATION POST ~ error:", error);
-    return responseWithHeaders<Vacation>({ error: (error as Error).message });
+    return responseWithHeaders<VacationDTO>({
+      error: (error as Error).message,
+    });
   }
 }

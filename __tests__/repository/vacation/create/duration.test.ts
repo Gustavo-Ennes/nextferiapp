@@ -1,11 +1,11 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { Worker, Boss } from "@/app/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { createBaseEntities } from "../utils";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.create.duration", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {
@@ -18,8 +18,8 @@ describe("VacationRepository.create.duration", () => {
       type: "normal",
       period: "full",
       startDate: new Date().toISOString(),
-      worker: worker._id.toString(),
-      boss: boss._id.toString(),
+      worker: worker._id,
+      boss: boss._id,
       observation: "Férias normais",
     };
   });

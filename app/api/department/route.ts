@@ -1,21 +1,18 @@
 import { NextRequest } from "next/server";
-import dbConnect from "@/lib/database/database";
-import type { Department } from "@/app/types";
 import {
   optionsResponse,
   responseWithHeaders,
   PAGINATION_LIMIT,
 } from "../utils";
 import { parseBool } from "@/app/(secure)/components/utils";
-import { DepartmentRepository } from "@/lib/repository/department";
+import { DepartmentRepository } from "@/lib/repository/department/department";
+import type { DepartmentDTO } from "@/dto";
 
 export async function OPTIONS() {
   return optionsResponse();
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1", 10);
@@ -28,7 +25,7 @@ export async function GET(req: NextRequest) {
       isActive,
     });
 
-    return responseWithHeaders<Department>({
+    return responseWithHeaders<DepartmentDTO>({
       data,
       currentPage: page,
       totalItems,
@@ -39,20 +36,23 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error("DEPARTMENT GET ~ error:", error);
-    return responseWithHeaders<Department>({ error: (error as Error).message });
+    return responseWithHeaders<DepartmentDTO>({
+      error: (error as Error).message,
+    });
   }
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
   const body = await req.json();
 
   try {
     const department = await DepartmentRepository.create(body);
 
-    return responseWithHeaders<Department>({ data: department });
+    return responseWithHeaders<DepartmentDTO>({ data: department });
   } catch (error) {
     console.error("DEPARTMENT POST ~ error:", error);
-    return responseWithHeaders<Department>({ error: (error as Error).message });
+    return responseWithHeaders<DepartmentDTO>({
+      error: (error as Error).message,
+    });
   }
 }

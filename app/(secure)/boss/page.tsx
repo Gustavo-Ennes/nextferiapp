@@ -1,8 +1,8 @@
-import type { Boss } from "@/app/types";
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
-import { fetchPaginatedByPage } from "../utils";
 import { parseBool } from "../components/utils";
 import type { RawSearchParams } from "../types";
+import type { BossDTO } from "@/dto";
+import { BossRepository } from "@/lib/repository/boss/boss";
 
 const BossList = async ({
   searchParams,
@@ -12,18 +12,17 @@ const BossList = async ({
   const { page, contains, isExternal, isActive } = await searchParams;
   const isExternalBool = parseBool(isExternal);
   const isActiveBool = parseBool(isActive);
-  const paginatedResponse = await fetchPaginatedByPage<Boss>({
-    type: "boss",
-    params: {
-      page: page ? parseInt(page) : 1,
-      ...(contains && { contains }),
-      ...(isExternal !== undefined && { isExternal: isExternalBool }),
-      isActive: isActiveBool ?? true,
-    },
+  
+  const paginatedResponse = await BossRepository.find({
+    page: page ? parseInt(page) : 1,
+    ...(contains && { contains }),
+    ...(isExternal !== undefined &&
+      isExternal !== null && { isExternal: isExternalBool }),
+    isActive: isActiveBool ?? true,
   });
 
   return (
-    <ResponsiveListPage<Boss>
+    <ResponsiveListPage<BossDTO>
       paginatedResponse={paginatedResponse}
       routePrefix="boss"
       contains={contains}

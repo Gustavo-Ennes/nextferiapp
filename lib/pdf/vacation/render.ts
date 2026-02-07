@@ -1,6 +1,5 @@
 import { StandardFonts } from "pdf-lib";
 
-import type { Vacation } from "@/app/types";
 import type { DrawHalfPageParams, RenderParam } from "../types";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import {
@@ -11,8 +10,9 @@ import {
   createSign,
   createTitle,
 } from "../factory";
-import { getHeightObject, getBoss, getWorker } from "../utils";
+import { getHeightObject, getBoss } from "../utils";
 import { getParagraph, translateMonth, translateVacation } from "./utils";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 const drawHalfPage = async ({
   document,
@@ -23,14 +23,13 @@ const drawHalfPage = async ({
   const page = document.getPage(0);
   const paragraph = getParagraph(vacation);
   const font = await document.embedFont(StandardFonts.Helvetica);
-  const vacationsDuration = (vacation.duration ?? vacation.daysQtd) as number;
   const vacationPeriod =
-    vacation.period ?? (vacationsDuration < 1 ? "half" : "full");
+    vacation.period ?? (vacation.duration < 1 ? "half" : "full");
 
   await createHeader(document);
   await createFooter(document);
   await createDuration({
-    duration: vacationsDuration,
+    duration: vacation.duration,
     document,
     height,
     period: vacationPeriod,
@@ -57,9 +56,9 @@ const drawHalfPage = async ({
   height.stepLines(3, "huge");
 
   const dateString = `Ilha solteira, ${new Date(
-    vacation.updatedAt
+    vacation.updatedAt,
   ).getDate()} de ${translateMonth(
-    new Date(vacation.updatedAt).getMonth()
+    new Date(vacation.updatedAt).getMonth(),
   )} de ${new Date(vacation.updatedAt).getFullYear()}`;
 
   if (isDayOff) height.stepLines(2);
@@ -83,31 +82,24 @@ const drawHalfPage = async ({
   await createSign({
     document,
     height,
-    matriculation: vacation.worker?.matriculation ?? "",
-    name: capitalizeName(vacation.worker?.name),
-    role: capitalizeFirstLetter(vacation.worker?.role) ?? "",
+    matriculation: (vacation.worker as WorkerDTO)?.matriculation ?? "",
+    name: capitalizeName((vacation.worker as WorkerDTO)?.name),
+    role: capitalizeFirstLetter((vacation.worker as WorkerDTO)?.role) ?? "",
   });
 
   height.stepLines(3, "huge");
-  const boss = vacation.boss ?? (await getBoss(vacation)) ?? "Chefe excluído";
+  const boss = await getBoss(vacation);
 
-  if (!boss)
-    throw new Error(
-      `Não há chefe cadastrado para a assinatura de ${translateVacation(
-        vacation.type
-      )}.`
-    );
-
-  const worker = await getWorker(vacation.boss);
+  if (!boss) console.warn("Excluded boss. Nothing to do.");
 
   if (isDayOff) height.stepLines(2);
 
   await createSign({
     document,
     height,
-    name: worker?.name,
-    role: vacation.boss.role,
-    worker: worker ?? undefined,
+    name: (boss?.worker as WorkerDTO)?.name ?? "Chefe excluído",
+    role: (vacation.boss as BossDTO).role ?? "",
+    worker: (boss?.worker as WorkerDTO) ?? undefined,
   });
 };
 
@@ -115,7 +107,7 @@ const render = async ({ document, instance }: RenderParam): Promise<void> => {
   if (document && instance) {
     const page = document.addPage();
     const height = getHeightObject(page);
-    const vacation = instance as Vacation;
+    const vacation = instance as VacationDTO;
     const isDayOff = vacation.type === "dayOff";
 
     if (!isDayOff) {

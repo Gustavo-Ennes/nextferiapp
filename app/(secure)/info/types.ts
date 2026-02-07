@@ -1,4 +1,4 @@
-import type { Vacation, Worker } from "@/app/types";
+import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 export type CardParam = {
   label: string;
@@ -12,10 +12,20 @@ export type CardParam = {
 };
 
 export type DashboardData = {
-  
   totalWorkers: number;
   totalDepartments: number;
-  upcomingLeaves: Vacation[];
-  upcomingReturns: Vacation[];
-  onVacationToday: Worker[];
+  upcomingLeaves: VacationDTO[];
+  upcomingReturns: VacationDTO[];
+  onVacationToday: WorkerDTO[];
+};
+
+export type DashboardParam = {
+  vacations: VacationDTO[];
+  departments: DepartmentDTO[];
+  workers: WorkerDTO[];
+  onVacationToday: WorkerDTO[];
+  returningToday: VacationDTO[];
+  upcomingLeaves: VacationDTO[];
+  upcomingReturns: VacationDTO[];
+  workersByRole: Partial<Record<string, WorkerDTO[]>>;
 };

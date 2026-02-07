@@ -1,10 +1,10 @@
 import { format } from "date-fns";
 import { PDFDocument, PDFFont } from "pdf-lib";
 
-import type { Vacation } from "@/app/types";
 import { createParagraph } from "../factory";
 import type { Height } from "../types";
 import { getRelationItemText } from "./data";
+import type { VacationDTO } from "@/dto";
 
 const drawVacationRelationLine = async ({
   document,
@@ -13,7 +13,7 @@ const drawVacationRelationLine = async ({
   index,
   vacation,
 }: {
-  vacation: Vacation;
+  vacation: VacationDTO;
   document: PDFDocument;
   height: Height;
   font: PDFFont;

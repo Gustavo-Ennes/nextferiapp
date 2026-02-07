@@ -1,8 +1,8 @@
-import type { Vacation } from "@/app/types";
 import { ResponsiveListPage } from "../../components/ResponsiveListPage";
-import { fetchPaginatedByPage } from "../../utils";
 import type { RawSearchParams, SearchParams } from "../../types";
 import { parseBool } from "../../components/utils";
+import type { VacationDTO } from "@/dto";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 
 const LicenseList = async ({
   searchParams,
@@ -13,20 +13,18 @@ const LicenseList = async ({
   const cancelledBool = parseBool(cancelled);
   const params: SearchParams = {
     type: "license",
-    page: page ? parseInt(page) ?? 1 : 1,
+    page: page ? (parseInt(page) ?? 1) : 1,
     ...(contains && { contains }),
     cancelled:
       cancelledBool !== null && cancelledBool !== undefined
         ? cancelledBool
         : false,
   };
-  const paginatedResponse = await fetchPaginatedByPage<Vacation>({
-    type: "vacation",
-    params,
-  });
+
+  const paginatedResponse = await VacationRepository.find(params);
 
   return (
-    <ResponsiveListPage<Vacation>
+    <ResponsiveListPage<VacationDTO>
       paginatedResponse={paginatedResponse}
       routePrefix="vacation"
       pageTitle="Licenças-Prêmio"

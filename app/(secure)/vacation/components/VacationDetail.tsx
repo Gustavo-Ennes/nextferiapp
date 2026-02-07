@@ -11,7 +11,6 @@ import {
   Button,
 } from "@mui/material";
 
-import type { Vacation } from "@/app/types";
 import { format } from "date-fns";
 import { useModal } from "@/context/ModalContext";
 import { ButtonMenu } from "../../components/ButtonMenu";
@@ -21,8 +20,9 @@ import { getTypeLabel } from "../utils";
 import { useRouter } from "next/navigation";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
+import type { VacationDTO, WorkerDTO } from "@/dto";
 
-export function VacationDetail({ vacation }: { vacation: Vacation }) {
+export function VacationDetail({ vacation }: { vacation: VacationDTO }) {
   const { open } = useModal();
   const { setPdf } = usePdfPreview();
   const router = useRouter();
@@ -37,7 +37,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
     withPdf?: boolean;
     obs?: string;
   }) => {
-    const body: Partial<Vacation> = { cancelled: true, observation: obs };
+    const body: Partial<VacationDTO> = { cancelled: true, observation: obs };
 
     await fetch(url, {
       method: "put",
@@ -97,7 +97,7 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           input: true,
           onConfirm: async (obs) => submitFn({ option: "reschedule", obs }),
         }),
-      disabled: !vacation.worker.isActive || !vacation.worker,
+      disabled: !(vacation.worker as WorkerDTO).isActive || !vacation.worker,
     },
     {
       label: "Remarcar com requisição",
@@ -110,10 +110,10 @@ export function VacationDetail({ vacation }: { vacation: Vacation }) {
           onConfirm: async (obs) =>
             submitFn({ option: "reschedule", withPdf: true, obs }),
         }),
-      disabled: !vacation.worker.isActive || !vacation.worker,
+      disabled: !(vacation.worker as WorkerDTO).isActive || !vacation.worker,
     },
   ];
-  const workerName = capitalizeName(vacation?.worker?.name);
+  const workerName = capitalizeName((vacation?.worker as WorkerDTO)?.name);
   const vacationType = `${vacation.period === "half" ? "½ " : ""}${getTypeLabel(
     vacation.type
   )}`;

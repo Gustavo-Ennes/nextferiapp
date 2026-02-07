@@ -1,13 +1,12 @@
-import { VacationRepository } from "@/lib/repository/vacation";
-import type { Worker, Boss } from "@/app/types";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import { createBaseEntities } from "../utils";
-import VacationModel from "@/models/Vacation";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
-import { set } from "date-fns";
+import { set, toDate } from "date-fns";
+import type { BossDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.update.limits", () => {
-  let worker: Worker;
-  let boss: Boss;
+  let worker: WorkerDTO;
+  let boss: BossDTO;
   let basePayload: VacationFormData;
 
   beforeEach(async () => {
@@ -26,13 +25,13 @@ describe("VacationRepository.update.limits", () => {
     };
   });
 
-  const createDayOff = (year: number, day: number, cancelled = false) =>
-    VacationModel.create({
+  const createDayOff = (year: number, month: number, cancelled = false) =>
+    VacationRepository.create({
       ...basePayload,
       type: "dayOff",
       duration: 1,
       period: "full",
-      startDate: new Date(year, 0, day),
+      startDate: new Date(year, month, 1).toISOString(),
       worker: worker._id,
       boss: boss._id,
       cancelled,
@@ -47,11 +46,11 @@ describe("VacationRepository.update.limits", () => {
     }
 
     // cria uma vacation normal só para atualizar
-    const normalVac = await VacationModel.create({
+    const normalVac = await VacationRepository.create({
       ...basePayload,
       type: "normal",
       duration: 30,
-      startDate: new Date(year, 6, 10),
+      startDate: new Date(year, 6, 10).toISOString(),
     });
 
     await expect(
@@ -77,11 +76,11 @@ describe("VacationRepository.update.limits", () => {
     // 1 cancelado → total no DB = 6, mas só 5 ativos
     await createDayOff(year, 10, true);
 
-    const normalVac = await VacationModel.create({
+    const normalVac = await VacationRepository.create({
       ...basePayload,
       type: "normal",
       duration: 30,
-      startDate: new Date(year, 6, 20),
+      startDate: new Date(year, 6, 20).toISOString(),
     });
 
     const updated = await VacationRepository.update({
@@ -96,7 +95,7 @@ describe("VacationRepository.update.limits", () => {
     expect(updated.type).toBe("dayOff");
     expect(updated.duration).toBe(0.5);
     expect(updated.cancelled).toBe(false);
-    expect(updated.startDate.getFullYear()).toBe(year);
+    expect(toDate(updated.startDate).getFullYear()).toBe(year);
   });
 
   it("should allow update to dayOff when worker used less than 6 dayOffs", async () => {
@@ -107,11 +106,11 @@ describe("VacationRepository.update.limits", () => {
       await createDayOff(year, i + 1);
     }
 
-    const normalVac = await VacationModel.create({
+    const normalVac = await VacationRepository.create({
       ...basePayload,
       type: "normal",
       duration: 15,
-      startDate: new Date(year, 4, 10),
+      startDate: new Date(year, 4, 10).toISOString(),
     });
 
     const updated = await VacationRepository.update({
@@ -132,15 +131,15 @@ describe("VacationRepository.update.limits", () => {
 
     // 5 this year
     for (let i = 1; i <= 5; i++) {
-      await createDayOff(currentYear, 5);
+      await createDayOff(currentYear, i);
     }
-    await createDayOff(currentYear - 1, 5); // one past year
+    await createDayOff(currentYear + 1, 1); // one next year
 
-    const normalVac = await VacationModel.create({
+    const normalVac = await VacationRepository.create({
       ...basePayload,
       type: "normal",
       duration: 30,
-      startDate: new Date(currentYear, 6, 5),
+      startDate: new Date(currentYear, 6, 5).toISOString(),
     });
 
     const updated = await VacationRepository.update({
@@ -154,7 +153,7 @@ describe("VacationRepository.update.limits", () => {
 
     expect(updated.type).toBe("dayOff");
     expect(updated.duration).toBe(0.5);
-    expect(updated.startDate.getFullYear()).toBe(currentYear);
+    expect(toDate(updated.startDate).getFullYear()).toBe(currentYear);
   });
 
   it("should NOT allow update to dayOff if one was took in this month, but allow in other month", async () => {
@@ -162,11 +161,11 @@ describe("VacationRepository.update.limits", () => {
 
     const dayOff = await createDayOff(currentYear, 5);
 
-    const normalVac = await VacationModel.create({
+    const normalVac = await VacationRepository.create({
       ...basePayload,
       type: "normal",
       duration: 30,
-      startDate: new Date(currentYear, 6, 5),
+      startDate: new Date(currentYear, 6, 5).toISOString(),
     });
 
     await expect(

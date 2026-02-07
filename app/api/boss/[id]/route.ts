@@ -1,16 +1,14 @@
 import { NextRequest } from "next/server";
-import dbConnect from "@/lib/database/database";
 import { optionsResponse, responseWithHeaders } from "../../utils";
-import type { Boss } from "@/app/types";
-import { BossRepository } from "@/lib/repository/boss";
+import { BossRepository } from "@/lib/repository/boss/boss";
 import { parseBool } from "@/app/(secure)/components/utils";
+import type { BossDTO } from "@/dto";
 
 export async function OPTIONS() {
   return optionsResponse();
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop();
   const { searchParams } = new URL(url);
@@ -24,15 +22,14 @@ export async function GET(req: NextRequest) {
 
     if (!boss) throw new Error("Boss not found.");
 
-    return responseWithHeaders<Boss>({ data: boss });
+    return responseWithHeaders<BossDTO>({ data: boss });
   } catch (error) {
     console.error("BOSS GE[id] ~ error:", error);
-    return responseWithHeaders<Boss>({ error: (error as Error).message });
+    return responseWithHeaders<BossDTO>({ error: (error as Error).message });
   }
 }
 
 export async function PUT(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const payload = await req.json();
   const id = url?.split("/").pop();
@@ -44,15 +41,14 @@ export async function PUT(req: NextRequest) {
 
     if (!boss) throw new Error("Boss not found.");
 
-    return responseWithHeaders<Boss>({ data: boss });
+    return responseWithHeaders<BossDTO>({ data: boss });
   } catch (error) {
     console.error("BOSS POST ~ error:", error);
-    return responseWithHeaders<Boss>({ error: (error as Error).message });
+    return responseWithHeaders<BossDTO>({ error: (error as Error).message });
   }
 }
 
 export async function DELETE(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop();
 
@@ -63,9 +59,9 @@ export async function DELETE(req: NextRequest) {
 
     if (!boss) throw new Error("Boss not found.");
 
-    return responseWithHeaders<Boss>({ data: boss });
+    return responseWithHeaders<BossDTO>({ data: boss });
   } catch (error) {
     console.error("BOSS DELETE ~ error:", error);
-    return responseWithHeaders<Boss>({ error: (error as Error).message });
+    return responseWithHeaders<BossDTO>({ error: (error as Error).message });
   }
 }

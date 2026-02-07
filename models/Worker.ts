@@ -1,16 +1,19 @@
-import { Document, Schema, models, model } from "mongoose";
+import { Document, Schema, models, model, Types } from "mongoose";
 import type { Department } from "./Department";
 
 export interface Worker extends Document {
+  _id: Types.ObjectId;
   name: string;
   role: string;
   registry: string;
   matriculation: string;
   admissionDate: Date;
-  department: Department | string;
+  department: Department | Types.ObjectId;
   justification?: string;
   isActive: boolean;
   isExternal?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const WorkerSchema = new Schema<Worker>(
@@ -46,7 +49,7 @@ export const WorkerSchema = new Schema<Worker>(
       ref: "Department",
       required: [true, "Please provide the worker's department."],
     },
-    justification: { type: String },
+    justification: { type: String, required: false },
     isActive: {
       type: Boolean,
       default: true,
@@ -62,7 +65,7 @@ export const WorkerSchema = new Schema<Worker>(
     toJSON: {
       virtuals: true,
     },
-  }
+  },
 );
 
 export default models.Worker || model<Worker>("Worker", WorkerSchema);

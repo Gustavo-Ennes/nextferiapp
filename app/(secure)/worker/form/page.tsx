@@ -1,8 +1,11 @@
-import type { Department, Worker } from "@/app/types";
+import type { DepartmentDTO } from "@/dto";
 import { TitleTypography } from "../../components/TitleTypography";
-import { fetchAllPaginated, fetchOne } from "../../utils";
+import { fetchAll } from "../../utils";
 import { WorkerForm } from "../components/WorkerForm";
 import { Container } from "@mui/material";
+import { WorkerRepository } from "@/lib/repository/worker/worker";
+import type { DepartmentFormData } from "../../department/types";
+import { DepartmentRepository } from "@/lib/repository/department/department";
 
 export default async function WorkerFormPage({
   searchParams,
@@ -11,10 +14,11 @@ export default async function WorkerFormPage({
 }) {
   const { id } = await searchParams;
 
-  const worker = await fetchOne<Worker>({ type: "worker", id });
-  const departments = await fetchAllPaginated<Department>({
-    type: "department",
-    params: { isActive: true },
+  const worker = await WorkerRepository.findOne({ id });
+  const departments = await fetchAll<DepartmentDTO, DepartmentFormData>({
+    entityType: "department",
+    repository: DepartmentRepository,
+    isActive: true,
   });
 
   return (

@@ -1,17 +1,15 @@
 import { isEmpty, prop, uniqBy } from "ramda";
-import type { PaginatedResponse, Response } from "../api/types";
+import type { Response } from "../api/types";
 import type { Entity } from "../types";
 import type {
   CreateOrUpdateWeeklySummaryParam,
-  FetchManyParam,
-  FetchOneParam,
+  FetchAllParam,
   SearchParams,
 } from "./types";
-import { format } from "date-fns";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 export const deleteWeeklySummary = async (id: string) => {
-  const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary/${id}`;
+  const url = `/api/weeklyFuellingSummary/${id}`;
   const res = await fetch(url, {
     method: "delete",
     headers: {
@@ -27,7 +25,7 @@ export const createOrUpdateWeeklySummary = async ({
   id,
   payload,
 }: CreateOrUpdateWeeklySummaryParam) => {
-  const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary`;
+  const url = `/api/weeklyFuellingSummary`;
   const res = await fetch(url, {
     method: "post",
     headers: {
@@ -41,7 +39,7 @@ export const createOrUpdateWeeklySummary = async ({
 };
 
 export const fetchActualWeeklyFuellingSummary = async () => {
-  const url = `${process.env.NEXT_PUBLIC_URL}/api/weeklyFuellingSummary/actual`;
+  const url = `/api/weeklyFuellingSummary/actual`;
 
   const { data }: Response<WeeklyFuellingSummaryDTO | null> = await (
     await fetch(url)
@@ -50,62 +48,36 @@ export const fetchActualWeeklyFuellingSummary = async () => {
   return data;
 };
 
-export const fetchOne = async <T extends Entity>({
-  id,
-  type,
-  params,
-}: FetchOneParam): Promise<T> => {
-  const baseUrl = `${process.env.NEXT_PUBLIC_URL}/api/${type}/${id}`;
-  const url = concatSearchParams({ baseUrl, params });
+// FD: Form Data
+export const fetchAll = async <E extends Entity, FD>(
+  params: FetchAllParam<E, FD>,
+): Promise<E[]> => {
+  const entities: E[] = [];
+  const { repository, entityType, ...otherParams } = params;
 
-  const { data: entity }: Response<T> = await (await fetch(url)).json();
-
-  return entity as T;
-};
-
-export const fetchPaginatedByPage = async <T extends Entity>({
-  type,
-  params,
-}: FetchManyParam): Promise<PaginatedResponse<T>> => {
-  const baseUrl = `${process.env.NEXT_PUBLIC_URL}/api/${type}`;
-  const url = concatSearchParams({ baseUrl, params });
-
-  const paginatedResponse: PaginatedResponse<T> = await (
-    await fetch(url)
-  ).json();
-
-  return paginatedResponse;
-};
-
-export const fetchAllPaginated = async <T extends Entity>({
-  type,
-  params,
-}: FetchManyParam): Promise<T[]> => {
-  const entities: T[] = [];
-  let pageNumber = params?.page ?? 1;
+  let pageNumber = otherParams?.page ?? 1;
   let hasNext = false;
 
   try {
     do {
-      const { data: entityPageResults, hasNextPage } =
-        await fetchPaginatedByPage<T>({
-          type,
-          params: { ...params, page: pageNumber++ },
-        });
+      const { data: entityPageResults, hasNextPage } = await repository.find({
+        ...otherParams,
+        page: pageNumber++,
+      });
 
       entities.push(...entityPageResults);
       hasNext = hasNextPage;
     } while (hasNext);
   } catch (err: unknown) {
     console.error(
-      `Erro at fetching all paginated ${type}: ${(err as Error).message}.`
+      `Erro at fetching all for ${entityType}: ${(err as Error).message}.`,
     );
   }
 
   return uniqBy(prop("_id"), entities);
 };
 
-const concatSearchParams = ({
+export const concatSearchParams = ({
   baseUrl,
   params,
 }: {
@@ -119,11 +91,11 @@ const concatSearchParams = ({
           ([key, value]) =>
             `${key}=${
               key === "to" || key === "from"
-                ? format(value as Date, "d-M-yy")
+                ? (value as Date).toISOString()
                 : value
-            }`
+            }`,
         )
-        .join("&")
+        .join("&"),
     );
 
     return baseUrl.concat(url);

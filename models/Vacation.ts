@@ -1,14 +1,31 @@
-import { Schema, model, models } from "mongoose";
-import type { OldVacation, Vacation } from "@/app/types";
+import { Schema, Types, model, models, Document } from "mongoose";
 import { addMilliseconds, toDate } from "date-fns";
+import type { Worker } from "./Worker";
+import type { Boss } from "./Boss";
+import type {
+  VacationDuration,
+  VacationPeriod,
+  VacationType,
+} from "@/lib/repository/vacation/types";
 
-export type TransitionVacation = Vacation | OldVacation;
+export interface Vacation extends Document {
+  _id: Types.ObjectId;
+  duration: VacationDuration;
+  type: VacationType;
+  period: VacationPeriod;
+  startDate: Date;
+  endDate: Date;
+  returnDate?: Date;
+  worker: Worker | Types.ObjectId;
+  boss: Boss | Types.ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+  observation?: string;
+  cancelled?: boolean;
+}
 
 const VacationSchema = new Schema<Vacation>(
   {
-    daysQtd: {
-      type: Number,
-    },
     duration: {
       type: Number,
       enum: {

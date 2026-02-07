@@ -1,8 +1,11 @@
 import { Container } from "@mui/material";
 import { BossForm } from "../components/BossForm";
 import { TitleTypography } from "../../components/TitleTypography";
-import { fetchAllPaginated, fetchOne } from "../../utils";
-import { type Boss, type Worker } from "@/app/types";
+import { fetchAll } from "../../utils";
+import type { BossDTO, WorkerDTO } from "@/dto";
+import { BossRepository } from "@/lib/repository/boss/boss";
+import type { WorkerFormData } from "../../worker/types";
+import { WorkerRepository } from "@/lib/repository/worker/worker";
 
 export default async function BossFormPage({
   searchParams,
@@ -10,13 +13,15 @@ export default async function BossFormPage({
   searchParams: Promise<{ id?: string }>;
 }) {
   const { id } = await searchParams;
-  let boss: Boss | undefined;
+  let boss: BossDTO | null = null;
 
-  if (id) boss = await fetchOne<Boss>({ type: "boss", id });
+  if (id) boss = await BossRepository.findOne({ id });
 
-  const workers = await fetchAllPaginated<Worker>({
-    type: "worker",
-    params: { isActive: true, isExternal: false },
+  const workers = await fetchAll<WorkerDTO, WorkerFormData>({
+    isActive: true,
+    isExternal: false,
+    entityType: "worker",
+    repository: WorkerRepository,
   });
 
   return (

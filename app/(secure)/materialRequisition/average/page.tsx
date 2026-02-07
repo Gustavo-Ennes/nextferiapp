@@ -1,5 +1,3 @@
-// import { generateWeeklyFuellingSummaryMock } from "./mock";
-
 import { WeeklyFuellingSummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
 import { WeeklySummaryView } from "./WeeklySummaryView";
 

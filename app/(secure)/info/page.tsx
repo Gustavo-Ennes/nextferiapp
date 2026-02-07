@@ -5,16 +5,32 @@ import {
   getWorkersOnVacation,
 } from "@/app/utils";
 import { Dashboard } from "./components/Dashboard";
-import { fetchAllPaginated } from "../utils";
-import type { Department, Vacation, Worker } from "@/app/types";
 import { groupBy, prop } from "ramda";
+import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
+import { fetchAll } from "../utils";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
+import { WorkerRepository } from "@/lib/repository/worker/worker";
+import { DepartmentRepository } from "@/lib/repository/department/department";
+import type { DepartmentFormData } from "../department/types";
+import type { VacationFormData } from "../vacation/types";
+import type { WorkerFormData } from "../worker/types";
 
 export default async function DashboardServer() {
-  const [vacations, workers, departments] = await Promise.all([
-    fetchAllPaginated<Vacation>({ type: "vacation", params: { type: "all" } }),
-    fetchAllPaginated<Worker>({ type: "worker" }),
-    fetchAllPaginated<Department>({ type: "department" }),
-  ]);
+  const vacations = await fetchAll<VacationDTO, VacationFormData>({
+    type: "all",
+    cancelled: false,
+    entityType: "vacation",
+    repository: VacationRepository,
+  });
+  const workers = await fetchAll<WorkerDTO, WorkerFormData>({
+    entityType: "worker",
+    repository: WorkerRepository,
+  });
+  const departments = await fetchAll<DepartmentDTO, DepartmentFormData>({
+    entityType: "department",
+    repository: DepartmentRepository,
+    isActive: true,
+  });
 
   const onVacationToday = getWorkersOnVacation(vacations);
   const returningToday = getTodayReturns(vacations);
@@ -22,7 +38,7 @@ export default async function DashboardServer() {
   const upcomingReturns = getUpcomingReturns(vacations);
   const activeAndInternalWorkers = workers.filter(
     (worker) =>
-      worker.isActive && (worker.isExternal === false || !worker.isExternal)
+      worker.isActive && (worker.isExternal === false || !worker.isExternal),
   );
 
   const workersByRole = groupBy(
@@ -30,7 +46,7 @@ export default async function DashboardServer() {
     activeAndInternalWorkers.map((worker) => ({
       ...worker,
       role: worker.role.toLowerCase(),
-    }))
+    })),
   );
 
   return (

@@ -1,20 +1,15 @@
 import { NextRequest } from "next/server";
-import dbConnect from "@/lib/database/database";
-import type { Vacation } from "@/app/types";
 import { revalidatePath } from "next/cache";
-import {
-  optionsResponse,
-  responseWithHeaders,
-} from "../../utils";
+import { optionsResponse, responseWithHeaders } from "../../utils";
 import { parseBool } from "@/app/(secure)/components/utils";
-import { VacationRepository } from "@/lib/repository/vacation";
+import { VacationRepository } from "@/lib/repository/vacation/vacation";
+import type { VacationDTO } from "@/dto";
 
 export async function OPTIONS() {
   return optionsResponse();
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop()?.split("?")[0];
   const searchParams = req.nextUrl.searchParams;
@@ -27,15 +22,16 @@ export async function GET(req: NextRequest) {
 
     if (!vacation) throw new Error("Vacation not found.");
 
-    return responseWithHeaders<Vacation>({ data: vacation });
+    return responseWithHeaders<VacationDTO>({ data: vacation });
   } catch (error) {
     console.error("VACATION[id] GET ~ error:", error);
-    return responseWithHeaders<Vacation>({ error: (error as Error).message });
+    return responseWithHeaders<VacationDTO>({
+      error: (error as Error).message,
+    });
   }
 }
 
 export async function PUT(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const payload = await req.json();
   const id = url?.split("/").pop();
@@ -48,15 +44,16 @@ export async function PUT(req: NextRequest) {
 
     if (!vacation) throw new Error("Vacation not found.");
 
-    return responseWithHeaders<Vacation>({ data: vacation });
+    return responseWithHeaders<VacationDTO>({ data: vacation });
   } catch (error) {
     console.error("VACATION PUT ~ error:", error);
-    return responseWithHeaders<Vacation>({ error: (error as Error).message });
+    return responseWithHeaders<VacationDTO>({
+      error: (error as Error).message,
+    });
   }
 }
 
 export async function DELETE(req: NextRequest) {
-  await dbConnect();
   const { url } = req;
   const id = url?.split("/").pop();
 
@@ -67,9 +64,11 @@ export async function DELETE(req: NextRequest) {
 
     if (!vacation) throw new Error("Vacation not found.");
 
-    return responseWithHeaders<Vacation>({ data: vacation });
+    return responseWithHeaders<VacationDTO>({ data: vacation });
   } catch (error) {
     console.error("VACATION DELETE ~ error:", error);
-    return responseWithHeaders<Vacation>({ error: (error as Error).message });
+    return responseWithHeaders<VacationDTO>({
+      error: (error as Error).message,
+    });
   }
 }

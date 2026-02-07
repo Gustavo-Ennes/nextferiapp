@@ -1,12 +1,8 @@
 import { PDFPage, TextAlignment, layoutMultilineText } from "pdf-lib";
 import { range, slice, takeLast } from "ramda";
 
-import type {
-  Vacation as VacationInterface,
-  Boss as BossInterface,
-  Worker,
-} from "@/app/types";
 import type { GetMultiTextWidthParam } from "./types";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 const getHeightObject = (page: PDFPage) => ({
   actual: page.getHeight() - 80,
@@ -56,40 +52,40 @@ const getMultiTextMeasures = ({
       measures.height += lineHeight;
       return measures;
     },
-    { height: 0, width: 0 }
+    { height: 0, width: 0 },
   );
 };
 
 const sumMapUntil = (arr: number[], index: number) =>
   arr.reduce(
     (sum, actual, reduceIndex) => (reduceIndex < index ? sum + actual : sum),
-    0
+    0,
   );
 
 const calculateCellRealWidth = (
   columnsXArray: number[],
   index: number,
-  startX: number
+  startX: number,
 ) =>
   index > 0
     ? columnsXArray[index] - columnsXArray[index - 1]
     : columnsXArray[index] - startX;
 
 // type vacation envolves money to the worker, so director sign, others not
-const getBoss = async (
-  vacation?: VacationInterface
-): Promise<BossInterface | null> => {
-  const Boss = (await import("@/models/Boss")).default;
-  const isDirector = vacation?.type === "normal";
+const getBoss = async (vacation?: VacationDTO): Promise<BossDTO | null> => {
+  const { BossRepository } = await import("@/lib/repository/boss/boss");
 
-  return await Boss.findOne({ isDirector }).exec();
+  return await BossRepository.findOne({
+    id: vacation?.boss as string,
+  });
 };
-const getWorker = async (
-  boss?: BossInterface
-): Promise<Worker | null> => {
-  const Worker = (await import("@/models/Worker")).default;
 
-  return await Worker.findOne({ _id: boss?.worker }).exec();
+const getWorker = async (boss?: BossDTO): Promise<WorkerDTO | null> => {
+  const { WorkerRepository } = await import("@/lib/repository/worker/worker");
+
+  return await WorkerRepository.findOne({
+    id: (boss?.worker as WorkerDTO)._id,
+  });
 };
 
 export const formatMatriculation = (matriculation?: string): string => {
@@ -99,7 +95,7 @@ export const formatMatriculation = (matriculation?: string): string => {
   const middleDigits = slice(
     matriculation.length - 4,
     matriculation.length - 1,
-    matriculation
+    matriculation,
   );
   const firstDigits = slice(0, matriculation.length - 4, matriculation);
 
@@ -112,5 +108,5 @@ export {
   getMultiTextMeasures,
   sumMapUntil,
   calculateCellRealWidth,
-  getWorker
+  getWorker,
 };
