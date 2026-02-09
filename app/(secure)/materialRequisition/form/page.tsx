@@ -36,8 +36,10 @@ import {
   fetchActualWeeklyFuellingSummary,
 } from "../../utils";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 
 export default function MaterialRequisitionForm() {
+  const { setSelectedTabData, setSelectedCar } = useMaterialRequisitionForm();
   const [tabsData, setTabsData] = useState<TabData[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [weeklyFuellingSummary, setWeeklyFuellingSummary] =
@@ -56,6 +58,7 @@ export default function MaterialRequisitionForm() {
         if (data.length) {
           setTabsData(data);
           setActiveTab(activeTab);
+          setSelectedTabData(tabsData[activeTab] ?? null);
         }
 
         if (!weeklyFuellingSummary) {
@@ -103,13 +106,17 @@ export default function MaterialRequisitionForm() {
       const newData = { ...oldData, activeTab };
       setLocalStorageData({ data: newData });
     });
+    setSelectedTabData(tabsData[activeTab] ?? null);
+    setSelectedCar(null);
   }, [activeTab]);
 
   const createTab = (name: string) => {
     const existingTab = tabsData.find((tab) => tab.department === name);
 
     if (existingTab) {
-      setActiveTab(tabsData.indexOf(existingTab));
+      const existingIndex = tabsData.indexOf(existingTab);
+      setActiveTab(existingIndex);
+      setSelectedTabData(tabsData[existingIndex] ?? null);
     } else {
       const orders = pluck("order", tabsData);
       const newOrder = Math.max(...orders) + 1;
@@ -120,16 +127,25 @@ export default function MaterialRequisitionForm() {
       };
       setTabsData((prev) => [...prev, newTab]);
       setActiveTab(tabsData.length);
+      setSelectedTabData(tabsData[tabsData.length] ?? null);
       setNewTabDialog(false);
     }
+    setSelectedCar(null);
   };
 
   const onTabsDataChange = (tabData: TabData) => {
     const tabDataId = tabsData.indexOf(tabData);
     const anotherTabs = remove(tabDataId, 1, tabsData);
-    if (tabData.carEntries.length)
+    if (tabData.carEntries.length > 0)
       setTabsData(insert(tabDataId, tabData, anotherTabs));
-    else setTabsData(anotherTabs);
+    else {
+      const firstElement = head(reject(isNil, tabsData));
+      const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
+      setTabsData(anotherTabs);
+      setActiveTab(newActiveTab);
+      setSelectedTabData(tabsData[newActiveTab] ?? null);
+      setSelectedCar(null);
+    }
   };
 
   const onTabClose = (tabData: TabData) => {
@@ -138,7 +154,9 @@ export default function MaterialRequisitionForm() {
     const firstElement = head(reject(isNil, tabsData));
     const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
     setActiveTab(newActiveTab);
+    setSelectedTabData(tabsData[newActiveTab] ?? null);
     onTabsDataChange(tabWithoutCarEntries);
+    setSelectedCar(null);
   };
 
   const handleDeleteWeeklySummary = async () => {
@@ -226,6 +244,8 @@ export default function MaterialRequisitionForm() {
           value={activeTab}
           onChange={(_, v) => {
             setActiveTab(v);
+            setSelectedTabData(tabsData[v] ?? null);
+            setSelectedCar(null);
           }}
           variant="scrollable"
           scrollButtons="auto"

@@ -1,15 +1,15 @@
 import { Grid, Box, Chip, Badge, Typography } from "@mui/material";
-import type { FuelingData } from "../../../../lib/repository/weeklyFuellingSummary/types";
 import { Close, LocalGasStation } from "@mui/icons-material";
 import { getLabel, sortCarFuelings } from "../utils";
+import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 
-export const FuelingFormList = ({
-  fuelings,
-  onRemove,
-}: {
-  fuelings: FuelingData[];
-  onRemove: (id: number) => void;
-}) => {
+export const FuelingFormList = () => {
+  const { fuelings, setFuelings } = useMaterialRequisitionForm();
+
+  const onRemove = (idx: number) => {
+    setFuelings(fuelings.filter((_, i) => i !== idx));
+  };
+
   return (
     <Box sx={{ overflow: "scroll", maxHeight: "100%" }}>
       {fuelings.length ? (

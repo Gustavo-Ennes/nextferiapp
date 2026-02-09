@@ -5,7 +5,7 @@ export type FuelType = "gas" | "s500" | "s10" | "arla";
 export interface FuelingData {
   date: Date;
   quantity: number;
-  kmHr?: number;
+  kmHr: number | null;
 }
 
 export interface CarEntry {

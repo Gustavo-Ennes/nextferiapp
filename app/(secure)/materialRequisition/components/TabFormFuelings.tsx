@@ -1,38 +1,63 @@
 "use client";
 
 import { Grid, TextField, Button } from "@mui/material";
-import { type SetStateAction, useRef } from "react";
 import { FuelingFormList } from "./FuelingFormList";
-import type { FuelingData } from "../../../../lib/repository/weeklyFuellingSummary/types";
 import { DatePicker } from "@mui/x-date-pickers";
 import { startOfDay } from "date-fns";
+import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
+import type { RefObject } from "react";
+import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
+import type { KeyboardEvent } from "react";
 
 export const TabFormFuelings = ({
-  date,
-  quantity,
-  kmHr,
-  setDate,
-  setQuantity,
-  setKmHr,
-  addFueling,
-  removeFueling,
-  fuelings,
+  dateInputRef,
+  onSubmit,
 }: {
-  date: Date;
-  quantity: number;
-  kmHr?: number;
-  setDate: (value: SetStateAction<Date>) => void;
-  setQuantity: (value: SetStateAction<number>) => void;
-  setKmHr: (value: SetStateAction<number | undefined>) => void;
-  removeFueling: (idx: number) => void;
-  addFueling: () => void;
-  fuelings: FuelingData[];
+  dateInputRef: RefObject<HTMLInputElement | null>;
+  onSubmit: (car: CarEntry) => void;
 }) => {
-  const dateInputRef = useRef<HTMLInputElement>(null);
+  const {
+    fuelings,
+    setFuelings,
+    date,
+    quantity,
+    kmHr,
+    setDate,
+    setQuantity,
+    setKmHr,
+    vehicle,
+    prefix,
+    fuel,
+    setSelectedCar,
+  } = useMaterialRequisitionForm();
+
+  const addFueling = () => {
+    if (date && quantity > 0) {
+      setFuelings([...fuelings, { date, quantity, kmHr }]);
+      setDate(new Date());
+      setQuantity(0);
+    }
+  };
 
   const handleAddFueling = () => {
     addFueling();
     dateInputRef?.current?.focus();
+  };
+
+  // ctrl+Enter to submit form in date field
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (
+      e.ctrlKey &&
+      e.key === "Enter" &&
+      vehicle &&
+      prefix &&
+      fuelings.length > 0
+    ) {
+      console.log("🚀 ~ handleKeyDown ~ fuelings:", fuelings);
+      e.preventDefault();
+      onSubmit({ vehicle, prefix, fuel, fuelings });
+      setSelectedCar(null);
+    }
   };
 
   return (
@@ -46,7 +71,7 @@ export const TabFormFuelings = ({
           format="dd/MM/yyyy"
           inputRef={dateInputRef}
           slotProps={{
-            textField: { size: "small" },
+            textField: { size: "small", onKeyDown: handleKeyDown },
           }}
         />
       </Grid>
@@ -68,7 +93,7 @@ export const TabFormFuelings = ({
           label="Km/Hr."
           value={kmHr ?? ""}
           onChange={(e) =>
-            setKmHr(e.target.value ? Number(e.target.value) : undefined)
+            setKmHr(e.target.value ? Number(e.target.value) : null)
           }
         />
       </Grid>
@@ -83,7 +108,7 @@ export const TabFormFuelings = ({
       </Grid>
 
       <Grid size={12}>
-        <FuelingFormList fuelings={fuelings} onRemove={removeFueling} />
+        <FuelingFormList />
       </Grid>
     </Grid>
   );
