@@ -8,7 +8,6 @@ import {
   Grid,
   Tooltip,
   Typography,
-  Chip,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { NewTabDialog } from "../components/TabDialog";
@@ -20,12 +19,11 @@ import type {
 import {
   getLocalStorageData,
   removeAllCarEntries,
-  resumeTabData,
   setLocalStorageData,
 } from "../utils";
 import { Tab as MaterialRequisitionTab } from "../components/Tab";
 import { TabPanel } from "../components/TabPanel";
-import { Close, CorporateFareOutlined } from "@mui/icons-material";
+import { Close } from "@mui/icons-material";
 import { head, insert, isNil, pluck, reject, remove } from "ramda";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
@@ -37,6 +35,7 @@ import {
 } from "../../utils";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
+import { MaterialRequisitionHeader } from "../components/MaterialRequisitionHeader";
 
 export default function MaterialRequisitionForm() {
   const { setSelectedTabData, setSelectedCar } = useMaterialRequisitionForm();
@@ -54,11 +53,16 @@ export default function MaterialRequisitionForm() {
     getLocalStorageData()
       .then((localStorageData: LocalStorageData) => {
         const { activeTab, data } = localStorageData;
+        console.log("🚀 ~ MaterialRequisitionForm ~ activeTab:", activeTab);
+        console.log(
+          "🚀 ~ MaterialRequisitionForm ~ tabsData[activeTab]:",
+          tabsData[activeTab],
+        );
 
         if (data.length) {
           setTabsData(data);
           setActiveTab(activeTab);
-          setSelectedTabData(tabsData[activeTab] ?? null);
+          setSelectedTabData(data[activeTab] ?? null);
         }
 
         if (!weeklyFuellingSummary) {
@@ -125,9 +129,10 @@ export default function MaterialRequisitionForm() {
         department: name,
         carEntries: [],
       };
-      setTabsData((prev) => [...prev, newTab]);
-      setActiveTab(tabsData.length);
-      setSelectedTabData(tabsData[tabsData.length] ?? null);
+      const newTabsData = [...tabsData, newTab];
+      setTabsData(newTabsData);
+      setActiveTab(newTabsData.length);
+      setSelectedTabData(newTabsData[tabsData.length] ?? null);
       setNewTabDialog(false);
     }
     setSelectedCar(null);
@@ -143,7 +148,7 @@ export default function MaterialRequisitionForm() {
       const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
       setTabsData(anotherTabs);
       setActiveTab(newActiveTab);
-      setSelectedTabData(tabsData[newActiveTab] ?? null);
+      setSelectedTabData(anotherTabs[newActiveTab] ?? null);
       setSelectedCar(null);
     }
   };
@@ -212,14 +217,12 @@ export default function MaterialRequisitionForm() {
         <TitleTypography>
           Requisições de materiais - combustível
         </TitleTypography>
-        <Chip
-          color="primary"
-          icon={<CorporateFareOutlined />}
-          size="small"
-          label={resumeTabData(tabsData[activeTab])}
-          sx={{ float: "right", fontSize: 10, px: 2 }}
-        ></Chip>
       </Grid>
+
+      <Grid size={12} container justifyContent="center" alignItems="center">
+        <MaterialRequisitionHeader tabsData={tabsData} />
+      </Grid>
+
       <Grid size={2} justifyContent="center" alignItems="center" px={1}>
         <Button
           variant="outlined"

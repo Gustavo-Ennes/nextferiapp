@@ -56,13 +56,17 @@ export const TabForm = ({
 
   return (
     <Grid container component={Box} spacing={2} alignContent="start">
-      <Grid size={12}>
+      <Grid size={6}>
         <TabFormInfo
           dateInputRef={dateInputRef}
           vechicleEquipInputRef={vechicleEquipInputRef}
           prefixExists={prefixExists}
         />
       </Grid>
+      <Grid size={6} container>
+        colocar abastecimentos
+      </Grid>
+
       <Grid size={12} component={Divider} />
       <Grid component={Box} size={12}>
         <TabFormFuelings dateInputRef={dateInputRef} onSubmit={onSubmit} />
