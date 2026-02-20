@@ -66,7 +66,9 @@ export const MaterialRequisitionHeader = ({
           data={{
             total: countAllLiters(tabsData).toString(),
             ...(selectedTabData && {
-              selected: countAllLiters([selectedTabData]).toString(),
+              selected: parseFloat(
+                countAllLiters([selectedTabData]).toFixed(3),
+              ).toString(),
             }),
           }}
           label={"Litragem"}
@@ -79,7 +81,9 @@ export const MaterialRequisitionHeader = ({
           data={{
             total: countAllKms(tabsData).toString(),
             ...(selectedTabData && {
-              selected: countAllKms([selectedTabData]).toString(),
+              selected: parseFloat(
+                countAllKms([selectedTabData]).toFixed(2),
+              ).toString(),
             }),
           }}
           label={"Km's rodados"}

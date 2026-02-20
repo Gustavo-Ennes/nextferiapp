@@ -1,19 +1,16 @@
 "use client";
 
 import { Grid, TextField, Button } from "@mui/material";
-import { FuelingFormList } from "./FuelingFormList";
 import { DatePicker } from "@mui/x-date-pickers";
-import { startOfDay } from "date-fns";
+import { startOfDay, toDate } from "date-fns";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
-import type { RefObject } from "react";
 import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { KeyboardEvent } from "react";
+import { sortCarFuelings } from "../utils";
 
 export const TabFormFuelings = ({
-  dateInputRef,
   onSubmit,
 }: {
-  dateInputRef: RefObject<HTMLInputElement | null>;
   onSubmit: (car: CarEntry) => void;
 }) => {
   const {
@@ -29,12 +26,13 @@ export const TabFormFuelings = ({
     prefix,
     fuel,
     setSelectedCar,
+    dateInputRef,
   } = useMaterialRequisitionForm();
 
   const addFueling = () => {
     if (date && quantity > 0) {
-      setFuelings([...fuelings, { date, quantity, kmHr }]);
-      setDate(new Date());
+      setFuelings(sortCarFuelings([...fuelings, { date, quantity, kmHr }]));
+      setDate(new Date().toISOString());
       setQuantity(0);
     }
   };
@@ -53,7 +51,6 @@ export const TabFormFuelings = ({
       prefix &&
       fuelings.length > 0
     ) {
-      console.log("🚀 ~ handleKeyDown ~ fuelings:", fuelings);
       e.preventDefault();
       onSubmit({ vehicle, prefix, fuel, fuelings });
       setSelectedCar(null);
@@ -64,8 +61,10 @@ export const TabFormFuelings = ({
     <Grid container spacing={2} sx={{ height: "100%" }}>
       <Grid size={4}>
         <DatePicker
-          value={date}
-          onChange={(e) => (e ? setDate(startOfDay(e)) : undefined)}
+          value={toDate(date)}
+          onChange={(e) =>
+            e ? setDate(startOfDay(e).toISOString()) : undefined
+          }
           sx={{ width: 1 }}
           label="Data"
           format="dd/MM/yyyy"
@@ -105,10 +104,6 @@ export const TabFormFuelings = ({
         >
           +
         </Button>
-      </Grid>
-
-      <Grid size={12}>
-        <FuelingFormList />
       </Grid>
     </Grid>
   );

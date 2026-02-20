@@ -25,9 +25,8 @@ import { format } from "date-fns";
 import { GridCard } from "../styled";
 import { sortCarFuelings } from "../utils";
 import { capitalizeName } from "@/app/utils";
-import { ConfirmationDialog } from "../../components/ConfirmationDialog";
-import { useState, type MouseEvent } from "react";
-import type { DialogData } from "../../../../lib/repository/weeklyFuellingSummary/types";
+import { useDialog } from "@/context/DialogContext";
+import type { MouseEvent } from "react";
 
 export const CardsGrid = ({
   tabData,
@@ -40,26 +39,19 @@ export const CardsGrid = ({
   onEdit: (car: CarEntry) => void;
   selectedCar?: CarEntry;
 }) => {
-  const [dialogData, setDialogData] = useState<DialogData>();
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const { openConfirmationDialog } = useDialog();
   const sortedCarEntries = tabData.carEntries?.sort(
-    (a, b) => a.prefix - b.prefix
+    (a, b) => a.prefix - b.prefix,
   );
 
-  const openDialog = (
-    prefix: number,
-    e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>
-  ) => {
-    e.preventDefault;
+  const openDialog = (car: CarEntry, e: MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-
-    setDialogData({
-      message:
-        "Com isso você irá excluir os abastecimentos desse veículo da relação. Quer prosseguir?",
-      title: "Excluir entrada de veículo?",
-      onConfirm: () => onRemove(prefix),
+    openConfirmationDialog({
+      onConfirm: () => onRemove(car.prefix),
+      title: `Excluir o #${car.prefix}?`,
+      description: `Ao confirmar, você irá excluir ${car.vehicle} permanentemente. Deseja proceder?`,
     });
-    setDialogOpen(true);
   };
 
   return (
@@ -108,7 +100,7 @@ export const CardsGrid = ({
                   <Grid size={2}>
                     <IconButton
                       size="small"
-                      onClick={(e) => openDialog(car.prefix, e)}
+                      onClick={(e) => openDialog(car, e)}
                       sx={{ position: "absolute", top: 8, right: 8 }}
                     >
                       <Close />
@@ -153,18 +145,6 @@ export const CardsGrid = ({
           </Grid>
         ))}
       </Grid>
-      {dialogData && (
-        <ConfirmationDialog
-          message={dialogData.message}
-          onClose={() => setDialogOpen(false)}
-          open={dialogOpen}
-          onConfirm={() => {
-            setDialogOpen(false);
-            dialogData.onConfirm();
-          }}
-          title={dialogData.title}
-        />
-      )}
     </>
   );
 };

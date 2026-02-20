@@ -11,7 +11,7 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import { useModal } from "@/context/ModalContext";
+import { useDialog } from "@/context/DialogContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
@@ -26,17 +26,17 @@ export function DepartmentDetail({
   workerQuantity: number;
 }) {
   const router = useRouter();
-  const { open } = useModal();
+  const { openConfirmationDialog } = useDialog();
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
 
   const handleEdit = () =>
     router.push(`/department/form?id=${department._id as string}`);
   const handleDelete = () =>
-    open({
-      title: "Excluir chefe",
+    openConfirmationDialog({
+      title: "Excluir departamento",
       description: `Deseja excuir o departamento ${capitalizeName(
-        department.name
+        department.name,
       )}?`,
       onConfirm: async () => {
         setLoading(true);
@@ -81,7 +81,7 @@ export function DepartmentDetail({
             <Typography>
               {capitalizeName(
                 ((department?.responsible as BossDTO)?.worker as WorkerDTO)
-                  ?.name
+                  ?.name,
               )}
             </Typography>
           </Box>

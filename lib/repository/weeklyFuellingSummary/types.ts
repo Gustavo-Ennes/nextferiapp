@@ -3,7 +3,7 @@ import type { PdfPreviewItem } from "@/context/types";
 export type FuelType = "gas" | "s500" | "s10" | "arla";
 
 export interface FuelingData {
-  date: Date;
+  date: string;
   quantity: number;
   kmHr: number | null;
 }
@@ -37,10 +37,4 @@ export interface LocalStorageData {
   activeTab: number;
   pdfData: PdfData;
   lastPage?: string;
-}
-
-export interface DialogData {
-  message: string;
-  title: string;
-  onConfirm: () => void;
 }

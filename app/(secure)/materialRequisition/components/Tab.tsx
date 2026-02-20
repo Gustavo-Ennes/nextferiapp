@@ -16,7 +16,8 @@ export const Tab = ({
   data: TabData;
   onDataChange: (updatedTabData: TabData) => void;
 }) => {
-  const { selectedCar, setSelectedCar } = useMaterialRequisitionForm();
+  const { selectedCar, setSelectedCar, vehicleEquipInputRef, dateInputRef } =
+    useMaterialRequisitionForm();
 
   const submitData = (car: CarEntry) => {
     const isEditing = !!selectedCar;
@@ -36,9 +37,10 @@ export const Tab = ({
     } else updatedTabData.carEntries = [...(tabData?.carEntries ?? []), car];
 
     onDataChange(updatedTabData);
+    vehicleEquipInputRef?.current?.focus();
   };
 
-  const removeCar = (prefixToDelete: number) =>
+  const removeCar = (prefixToDelete: number) => {
     onDataChange({
       ...tabData,
       carEntries:
@@ -46,9 +48,12 @@ export const Tab = ({
           ({ prefix }) => prefix !== prefixToDelete,
         ) ?? [],
     });
+    vehicleEquipInputRef?.current?.focus();
+  };
 
   const editCar = (car: CarEntry) => {
     setSelectedCar(selectedCar?.prefix === car.prefix ? null : car);
+    dateInputRef?.current?.focus();
   };
 
   return (

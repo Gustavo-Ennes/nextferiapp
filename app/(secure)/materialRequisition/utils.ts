@@ -66,9 +66,9 @@ export const removeAllCarEntries = (tabData: TabData): TabData => ({
 });
 
 export const sortCarFuelings = (fuelings: FuelingData[]): FuelingData[] =>
-  fuelings.sort((a, b) =>
+  [...fuelings].sort((a, b) =>
     // in case fuelings in the same day
-    isSameDay(a.date, b.date)
+    isSameDay(toDate(a.date), toDate(b.date))
       ? // we consider the kmHr
         (a.kmHr ?? 0) - (b.kmHr ?? 0)
       : // or just the date

@@ -11,7 +11,7 @@ import {
   Paper,
   Stack,
 } from "@mui/material";
-import { useModal } from "@/context/ModalContext";
+import { useDialog } from "@/context/DialogContext";
 import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
@@ -21,16 +21,16 @@ import type { BossDTO, WorkerDTO } from "@/dto";
 export function BossDetail({ boss }: { boss: BossDTO }) {
   const { id } = useParams();
   const router = useRouter();
-  const { open } = useModal();
+  const { openConfirmationDialog } = useDialog();
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
 
   const handleEdit = () => router.push(`/boss/form?id=${id}`);
   const handleDelete = () =>
-    open({
+    openConfirmationDialog({
       title: "Excluir chefe",
       description: `Deseja excuir o chefe ${capitalizeName(
-        (boss.worker as WorkerDTO).name
+        (boss.worker as WorkerDTO).name,
       )}(${boss.role})?`,
       onConfirm: async () => {
         fetch(`/api/boss/${id}`, {

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 
 import { format } from "date-fns";
-import { useModal } from "@/context/ModalContext";
+import { useDialog } from "@/context/DialogContext";
 import { ButtonMenu } from "../../components/ButtonMenu";
 import type { MenuItem } from "../../components/types";
 import { capitalizeName } from "@/app/utils";
@@ -23,7 +23,7 @@ import { usePdfPreview } from "@/context/PdfPreviewContext";
 import type { VacationDTO, WorkerDTO } from "@/dto";
 
 export function VacationDetail({ vacation }: { vacation: VacationDTO }) {
-  const { open } = useModal();
+  const { openInputDialog } = useDialog();
   const { setPdf } = usePdfPreview();
   const router = useRouter();
   const url = `/api/vacation/${vacation._id as string}`;
@@ -67,61 +67,66 @@ export function VacationDetail({ vacation }: { vacation: VacationDTO }) {
     {
       label: "Cancelar",
       action: () =>
-        open({
+        openInputDialog({
           title: "Cancelar folga",
           description: "Deseja cancelar essa folga?",
-          input: true,
           onConfirm: async (obs) => submitFn({ option: "cancel", obs }),
+          confirmLabel: "Cancelar",
+          inputLabel: "Observação",
         }),
       disabled: false,
     },
     {
       label: "Cancelar com requisição",
       action: () =>
-        open({
+        openInputDialog({
           title: "Cancelar e imprimir requisição de cancelamento",
           description: "Deseja cancelar e imprimir a requisição para o RH?",
-          input: true,
           onConfirm: async (obs) =>
             submitFn({ option: "cancel", withPdf: true, obs }),
+          confirmLabel: "Cancelar e imprimir",
+          inputLabel: "Observação",
         }),
+
       disabled: false,
     },
     {
       label: "Remarcar",
       action: () =>
-        open({
+        openInputDialog({
           title: "Remarcar",
           description:
             "Deseja cancelar(sem requerimento RH) e remarcar essa folga?",
-          input: true,
           onConfirm: async (obs) => submitFn({ option: "reschedule", obs }),
+          confirmLabel: "Remarcar",
+          inputLabel: "Observação",
         }),
       disabled: !(vacation.worker as WorkerDTO).isActive || !vacation.worker,
     },
     {
       label: "Remarcar com requisição",
       action: () =>
-        open({
+        openInputDialog({
           title: "Remarcar com requisição",
           description:
             "Deseja cancelar com requirimento para o RH e remarcar essa folga?",
-          input: true,
           onConfirm: async (obs) =>
             submitFn({ option: "reschedule", withPdf: true, obs }),
+          confirmLabel: "Remarcar e imprimir",
+          inputLabel: "Observação",
         }),
       disabled: !(vacation.worker as WorkerDTO).isActive || !vacation.worker,
     },
   ];
   const workerName = capitalizeName((vacation?.worker as WorkerDTO)?.name);
   const vacationType = `${vacation.period === "half" ? "½ " : ""}${getTypeLabel(
-    vacation.type
+    vacation.type,
   )}`;
   const period = `${format(new Date(vacation.startDate), "dd/MM/yyyy")} `;
   period.concat(
     vacation.period === "full"
       ? ` até ${format(new Date(vacation.endDate), "dd/MM/yyyy")}`
-      : "Meio-período"
+      : "Meio-período",
   );
 
   return (

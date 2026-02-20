@@ -1,6 +1,6 @@
 "use client";
 
-import { ModalProvider } from "@/context/ModalContext";
+import { DialogProvider } from "@/context/DialogContext";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import { responsiveTheme } from "@/theme/theme";
@@ -21,11 +21,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <LoadingProvider>
             <SnackbarProvider>
               <PdfPreviewProvider>
-                <ModalProvider>
+                <DialogProvider>
                   <MaterialRequisitionFormProvider>
                     {children}
                   </MaterialRequisitionFormProvider>
-                </ModalProvider>
+                </DialogProvider>
               </PdfPreviewProvider>
             </SnackbarProvider>
           </LoadingProvider>

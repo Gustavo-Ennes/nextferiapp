@@ -10,20 +10,12 @@ import {
   MenuItem,
 } from "@mui/material";
 import { fuelList } from "../utils";
-import { type RefObject, useEffect } from "react";
+import { useEffect } from "react";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { isEmpty } from "ramda";
 import type { KeyboardEvent } from "react";
 
-export const TabFormInfo = ({
-  vechicleEquipInputRef,
-  prefixExists,
-  dateInputRef,
-}: {
-  dateInputRef: RefObject<HTMLInputElement | null>;
-  vechicleEquipInputRef: RefObject<HTMLInputElement | null>;
-  prefixExists: boolean;
-}) => {
+export const TabFormInfo = ({ prefixExists }: { prefixExists: boolean }) => {
   const {
     setSelectedCar,
     selectedTabData,
@@ -33,9 +25,11 @@ export const TabFormInfo = ({
     setVehicle,
     setPrefix,
     setFuel,
+    dateInputRef,
+    vehicleEquipInputRef,
   } = useMaterialRequisitionForm();
   useEffect(() => {
-    vechicleEquipInputRef?.current?.focus();
+    vehicleEquipInputRef?.current?.focus();
   }, []);
 
   // Enter in prefix field if prefix exists to edit existent
@@ -49,7 +43,6 @@ export const TabFormInfo = ({
       const carToSelect = selectedTabData?.carEntries?.find(
         (car) => car.prefix === prefix,
       );
-      console.log("🚀 ~ handleKeyDownInPrefixField ~ carToSelect:", carToSelect)
       setSelectedCar(carToSelect ?? null);
       dateInputRef?.current?.focus();
     }
@@ -63,7 +56,7 @@ export const TabFormInfo = ({
           label="Veículo/Equip."
           value={vehicle}
           onChange={(e) => setVehicle(e.target.value)}
-          inputRef={vechicleEquipInputRef}
+          inputRef={vehicleEquipInputRef}
           autoFocus
           fullWidth
         />

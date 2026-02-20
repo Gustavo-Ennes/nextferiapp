@@ -11,6 +11,9 @@ export const MaterialRequisitionCard = ({
 }: MaterialRequisitionCardParam) => {
   const { selectedTabData } = useMaterialRequisitionForm();
   const selectedDepartmentName = selectedTabData?.department;
+  const isTotalGreaterThan999 = data.total.split(".")[0].length > 3;
+  const isSeletedGreaterThan999 =
+    departmentName || (data.selected && data.selected.split(".")[0].length > 3);
 
   return (
     <Card
@@ -21,7 +24,7 @@ export const MaterialRequisitionCard = ({
         borderColor: "divider",
         transition: "all 0.2s",
         maxWidth: "250px",
-        maxHeight: "100px",
+        maxHeight: "130px",
         "&:hover": {
           boxShadow: 2,
           transform: "translateY(-2px)",
@@ -82,7 +85,7 @@ export const MaterialRequisitionCard = ({
               component="div"
               fontWeight={600}
               sx={{
-                fontSize: 16,
+                fontSize: isTotalGreaterThan999 ? 13 : 16,
                 lineHeight: 1.2,
                 overflow: "hidden",
                 whiteSpace: "nowrap",
@@ -111,10 +114,11 @@ export const MaterialRequisitionCard = ({
                 component="div"
                 fontWeight={600}
                 sx={{
-                  fontSize: 16,
+                  width: "100%",
+                  fontSize: isSeletedGreaterThan999 ? 13 : 16,
                   lineHeight: 1.2,
-                  overflow: "hidden",
-                  whiteSpace: "nowrap",
+                  wordBreak: "break-word",
+                  whiteSpace: "normal",
                   color: (theme) =>
                     departmentName ? theme.palette.primary.main : "black",
                 }}

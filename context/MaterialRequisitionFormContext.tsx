@@ -1,5 +1,6 @@
 "use client";
 
+import { sortCarFuelings } from "@/app/(secure)/materialRequisition/utils";
 import type {
   CarEntry,
   FuelingData,
@@ -11,30 +12,13 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
+import type { MaterialRequisitionFormContextValues } from "./types";
 
-const MaterialRequisitionFormContext = createContext<{
-  selectedTabData: TabData | null;
-  setSelectedTabData: (value: TabData | null) => void;
-  selectedCar: CarEntry | null;
-  setSelectedCar: (value: CarEntry | null) => void;
-  vehicle: string;
-  setVehicle: (value: string) => void;
-  prefix: number;
-  setPrefix: (value: number) => void;
-  fuel: FuelType;
-  setFuel: (value: FuelType) => void;
-  date: Date;
-  setDate: (value: Date) => void;
-  quantity: number;
-  setQuantity: (value: number) => void;
-  kmHr: number | null;
-  setKmHr: (value: number | null) => void;
-  fuelings: FuelingData[];
-  setFuelings: (value: FuelingData[]) => void;
-  hasUnsavedChanges: boolean;
-} | null>(null);
+const MaterialRequisitionFormContext =
+  createContext<MaterialRequisitionFormContextValues | null>(null);
 
 export const useMaterialRequisitionForm = () => {
   const ctx = useContext(MaterialRequisitionFormContext);
@@ -56,7 +40,7 @@ export const MaterialRequisitionFormProvider = ({
   const [prefix, _setPrefix] = useState(selectedCar?.prefix ?? 0);
   const [fuel, _setFuel] = useState<FuelType>(selectedCar?.fuel ?? "gas");
   const [date, _setDate] = useState(
-    selectedCar?.fuelings[0]?.date ?? new Date(),
+    selectedCar?.fuelings[0]?.date ?? new Date().toISOString(),
   );
   const [quantity, _setQuantity] = useState(0);
   const [kmHr, _setKmHr] = useState<number | null>(null);
@@ -65,20 +49,23 @@ export const MaterialRequisitionFormProvider = ({
   );
   const [hasUnsavedChanges, _setHasUnsavedChanges] = useState(false);
 
+  const vehicleEquipInputRef = useRef<HTMLInputElement>(null);
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
   const setSelectedCar = useCallback((car: CarEntry | null) => {
     _setSelectedCar(car);
     _setVehicle(car?.vehicle ?? "");
     _setPrefix(car?.prefix ?? 0);
     _setFuel(car?.fuel ?? "gas");
-    _setDate(new Date());
+    _setDate(new Date().toISOString());
     _setQuantity(0);
     _setKmHr(null);
-    _setFuelings(car?.fuelings ?? []);
+    _setFuelings(sortCarFuelings([...(car?.fuelings ?? [])]));
   }, []);
   const setVehicle = useCallback((vehicle: string) => _setVehicle(vehicle), []);
   const setPrefix = useCallback((prefix: number) => _setPrefix(prefix), []);
   const setFuel = useCallback((fuel: FuelType) => _setFuel(fuel), []);
-  const setDate = useCallback((date: Date) => _setDate(date), []);
+  const setDate = useCallback((isoString: string) => _setDate(isoString), []);
   const setQuantity = useCallback(
     (quantity: number) => _setQuantity(quantity),
     [],
@@ -131,6 +118,8 @@ export const MaterialRequisitionFormProvider = ({
         fuelings,
         setFuelings,
         hasUnsavedChanges,
+        vehicleEquipInputRef,
+        dateInputRef,
       }}
     >
       {children}
