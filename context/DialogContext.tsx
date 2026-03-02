@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useCallback } from "react";
 import { type DialogContextType, type DialogOptions } from "./types";
 import { ConfirmationDialog } from "@/app/(secure)/components/dialogs/ConfirmationDialog";
 import { InputDialog } from "@/app/(secure)/components/dialogs/InputDialog";
+import { CarDetailDialog } from "@/app/(secure)/components/dialogs/CarDetailDialog";
 
 const DialogContext = createContext<DialogContextType | null>(null);
 
@@ -19,6 +20,8 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
   const [inputDialogData, setInputDialogData] = useState<DialogOptions | null>(
     null,
   );
+  const [carDetailDialogData, setCarDetailDialogData] =
+    useState<DialogOptions | null>(null);
 
   const openConfirmationDialog = useCallback((dialogData: DialogOptions) => {
     setConfirmationDialogData({
@@ -44,6 +47,18 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     setInputDialogData(null);
   }, []);
 
+  const openCarDetailDialog = useCallback((dialogData: DialogOptions) => {
+    setCarDetailDialogData({
+      ...dialogData,
+      openState: true,
+      onClose: () => setCarDetailDialogData(null),
+    });
+  }, []);
+
+  const closeCarDetailDialog = useCallback(() => {
+    setCarDetailDialogData(null);
+  }, []);
+
   const handleConfirmationConfirm = () => {
     confirmationDialogData?.onConfirm?.();
     setConfirmationDialogData(null);
@@ -61,8 +76,11 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
         closeConfirmationDialog,
         openInputDialog,
         closeInputDialog,
+        openCarDetailDialog,
+        closeCarDetailDialog,
         confirmationDialogData,
         inputDialogData,
+        carDetailDialogData,
       }}
     >
       {children}
@@ -86,6 +104,13 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
         onConfirm={handleInputConfirm}
         inputLabel={inputDialogData?.inputLabel}
         input={inputDialogData?.input}
+      />
+      <CarDetailDialog
+        car={carDetailDialogData?.car}
+        onClose={() => carDetailDialogData?.onClose?.()}
+        openState={carDetailDialogData?.openState ?? false}
+        title={carDetailDialogData?.car?.prefix.toString() ?? "Detalhes"}
+        onConfirm={() => undefined}
       />
     </DialogContext.Provider>
   );

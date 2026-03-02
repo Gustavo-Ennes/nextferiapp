@@ -5,10 +5,10 @@ import { useEffect } from "react";
 import type {
   CarEntry,
   TabData,
-} from "../../../../lib/repository/weeklyFuellingSummary/types";
+} from "@/lib/repository/weeklyFuellingSummary/types";
 import { TabFormInfo } from "./TabFormInfo";
 import { TabFormFuelings } from "./TabFormFuelings";
-import { prefixExistsInTabData } from "../utils";
+import { prefixExistsInTabData } from "../../utils";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { FuelingFormList } from "./FuelingFormList";
 

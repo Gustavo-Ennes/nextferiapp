@@ -5,7 +5,7 @@ import { CardsGrid } from "./CardGrid";
 import type {
   CarEntry,
   TabData,
-} from "../../../../lib/repository/weeklyFuellingSummary/types";
+} from "@/lib/repository/weeklyFuellingSummary/types";
 import { TabForm } from "./TabForm";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 

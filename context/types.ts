@@ -41,8 +41,11 @@ export type DialogContextType = {
   closeConfirmationDialog: () => void;
   openInputDialog: (data: DialogOptions) => void;
   closeInputDialog: () => void;
+  openCarDetailDialog: (data: DialogOptions) => void;
+  closeCarDetailDialog: () => void;
   confirmationDialogData: DialogOptions | null;
   inputDialogData: DialogOptions | null;
+  carDetailDialogData: DialogOptions | null;
 };
 
 export type DialogOptions = {
@@ -55,6 +58,7 @@ export type DialogOptions = {
   openState?: boolean;
   input?: string;
   inputLabel?: string;
+  car?: CarEntry;
 };
 
 export type OpenConfirmationDialogParam = {

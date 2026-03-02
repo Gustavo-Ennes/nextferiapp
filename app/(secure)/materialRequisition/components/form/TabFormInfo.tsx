@@ -9,7 +9,7 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { fuelList } from "../utils";
+import { fuelList } from "../../utils";
 import { useEffect } from "react";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { isEmpty } from "ramda";

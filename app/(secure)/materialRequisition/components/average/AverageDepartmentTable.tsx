@@ -7,7 +7,7 @@ import {
   TableBody,
 } from "@mui/material";
 import { format, toDate } from "date-fns";
-import type { AverageDepartmentTableParam } from "./types";
+import type { AverageDepartmentTableParam } from "../types";
 
 export const AverageDepartmentTable = ({
   rows,

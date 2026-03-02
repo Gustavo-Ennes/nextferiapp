@@ -6,7 +6,7 @@ import { startOfDay, toDate } from "date-fns";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { KeyboardEvent } from "react";
-import { sortCarFuelings } from "../utils";
+import { sortCarFuelings } from "../../utils";
 
 export const TabFormFuelings = ({
   onSubmit,

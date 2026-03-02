@@ -11,7 +11,7 @@ import {
   countAllFuelings,
   countAllLiters,
   countAllKms,
-} from "../utils";
+} from "../../utils";
 import type { TabData } from "@/lib/repository/weeklyFuellingSummary/types";
 import { MaterialRequisitionCard } from "./MaterialRequisitionCard";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";

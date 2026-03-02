@@ -3,9 +3,9 @@
 import { Container, Grid, Paper, Typography } from "@mui/material";
 import { format } from "date-fns";
 import { useMemo, useState, useEffect } from "react";
-import { AverageHeader } from "../components/AverageHeader";
-import { AverageCharts } from "../components/AverageCharts";
-import { AverageDepartmentTabs } from "../components/AverageDepartmentTabs";
+import { AverageHeader } from "../components/average/AverageHeader";
+import { AverageCharts } from "../components/average/AverageCharts";
+import { AverageDepartmentTabs } from "../components/average/AverageDepartmentTabs";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 const ALL = "__ALL__";

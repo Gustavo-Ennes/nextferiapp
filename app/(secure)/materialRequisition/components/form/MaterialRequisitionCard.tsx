@@ -1,6 +1,6 @@
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { CardContent, Typography, Card, alpha, Box, Grid } from "@mui/material";
-import type { MaterialRequisitionCardParam } from "./types";
+import type { MaterialRequisitionCardParam } from "../types";
 
 export const MaterialRequisitionCard = ({
   data,

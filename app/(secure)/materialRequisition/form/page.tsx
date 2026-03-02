@@ -19,8 +19,8 @@ import {
   removeAllCarEntries,
   setLocalStorageData,
 } from "../utils";
-import { Tab as MaterialRequisitionTab } from "../components/Tab";
-import { TabPanel } from "../components/TabPanel";
+import { Tab as MaterialRequisitionTab } from "../components/form/Tab";
+import { TabPanel } from "../components/form/TabPanel";
 import { Close } from "@mui/icons-material";
 import { head, insert, isNil, pluck, reject, remove } from "ramda";
 import { TitleTypography } from "../../components/TitleTypography";
@@ -32,7 +32,7 @@ import {
 } from "../../utils";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
-import { MaterialRequisitionHeader } from "../components/MaterialRequisitionHeader";
+import { MaterialRequisitionHeader } from "../components/form/MaterialRequisitionHeader";
 import { useDialog } from "@/context/DialogContext";
 
 export default function MaterialRequisitionForm() {
