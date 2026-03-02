@@ -30,7 +30,7 @@ const DataList = ({
     >
       {title && (
         <Typography variant="subtitle1" component="div" sx={{ p: 1, pb: 0 }}>
-          {data.length ? title : `Não há ${title.toLowerCase()}.`}
+          {data.length > 0 ? title : `Não há ${title.toLowerCase()}.`}
         </Typography>
       )}
 

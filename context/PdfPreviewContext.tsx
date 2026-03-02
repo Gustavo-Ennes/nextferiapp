@@ -98,7 +98,7 @@ export const PdfPreviewProvider = ({
   }, [open]);
 
   const shouldShowPdfPreview =
-    items.length && !forbidenRoutes.includes(pathName.split("/")[1]);
+    items.length > 0 && !forbidenRoutes.includes(pathName.split("/")[1]);
 
   return (
     <PfdPreviewContext.Provider value={{ setPdf }}>

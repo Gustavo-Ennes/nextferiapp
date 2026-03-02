@@ -96,7 +96,7 @@ export function ListPageMobile<T extends Entity>({
 
                 <Divider />
 
-                {subtitles.length && (
+                {subtitles.length > 0 && (
                   <Grid
                     container
                     gap={1}
