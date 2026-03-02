@@ -6,7 +6,7 @@ export type FuellingSummaryVehicle = {
   prefix: number;
   fuelType: FuelType;
   totalLiters: number;
-  lastKm?: number;
+  lastKm: number | null;
 };
 
 export type FuellingSummaryDepartment = {

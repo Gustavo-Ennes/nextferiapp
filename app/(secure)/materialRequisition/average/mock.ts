@@ -29,7 +29,7 @@ function randomFrom<T>(arr: T[]): T {
 }
 
 export function generateWeeklyFuellingSummaryMock(
-  params: WeeklySummaryMockParam
+  params: WeeklySummaryMockParam,
 ): WeeklyFuellingSummaryDTO[] {
   const {
     weeks,
@@ -43,10 +43,10 @@ export function generateWeeklyFuellingSummaryMock(
   for (let weekId = 0; weekId < weeks; weekId++) {
     const departmentQuantity = randomInt(
       departmentsPerWeek.min,
-      departmentsPerWeek.max
+      departmentsPerWeek.max,
     );
     const weekStart = startOfWeek(
-      addWeeks(startOfDaySP(new Date()), weekId)
+      addWeeks(startOfDaySP(new Date()), weekId),
     ).toISOString();
     const weeklySummary: WeeklyFuellingSummaryDTO = {
       _id: new Types.ObjectId().toString(),
@@ -58,7 +58,7 @@ export function generateWeeklyFuellingSummaryMock(
     for (let deptId = 0; deptId < departmentQuantity; deptId++) {
       const vehiclesQuantity = randomInt(
         vehiclesPerDepartment.min,
-        vehiclesPerDepartment.max
+        vehiclesPerDepartment.max,
       );
       const departmentSummary: FuellingSummaryDepartment = {
         name: `Departamento ${deptId + 1}`,
@@ -74,19 +74,20 @@ export function generateWeeklyFuellingSummaryMock(
       for (let vehicleId = 0; vehicleId < vehiclesQuantity; vehicleId++) {
         const fuellingQuantity = randomInt(
           fuellingsPerVehicle.min,
-          fuellingsPerVehicle.max
+          fuellingsPerVehicle.max,
         );
         const vehicleSummary: FuellingSummaryVehicle = {
           vehicle: `Vehicle ${vehicleId + 1}`,
           fuelType: randomFrom(["gas", "arla", "s10", "s500"]),
           prefix: vehicleId,
           totalLiters: 0,
+          lastKm: null,
         };
 
         for (let fuellingId = 0; fuellingId < fuellingQuantity; fuellingId++) {
           const litersQuantity = randomInt(
             litersPerFuelling.min,
-            litersPerFuelling.max
+            litersPerFuelling.max,
           );
           vehicleSummary.totalLiters += litersQuantity;
         }

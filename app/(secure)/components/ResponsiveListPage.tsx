@@ -7,7 +7,7 @@ import { ListPageDesktop } from "./ListPageDesktop";
 import { ListPageMobile } from "./ListPageMobile";
 import { capitalizeName, sumarizeVacation } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
-import { useModal } from "@/context/ModalContext";
+import { useDialog } from "@/context/DialogContext";
 import type { Entity } from "@/app/types";
 import { useRouter } from "next/navigation";
 import type { ResponsiveListPageParam } from "./types";
@@ -28,7 +28,7 @@ const ResponsiveListPage = <T extends Entity>({
   const theme = useTheme();
   const { addSnack } = useSnackbar();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { open, close } = useModal();
+  const { openConfirmationDialog, closeConfirmationDialog } = useDialog();
   const router = useRouter();
   const [search, setSearch] = useState(contains);
   const useExternalFilter = routePrefix === "boss" || routePrefix === "worker";
@@ -58,7 +58,7 @@ const ResponsiveListPage = <T extends Entity>({
       snackbarData.severity = "success";
     }
 
-    close();
+    closeConfirmationDialog();
     addSnack(snackbarData);
   };
 
@@ -78,7 +78,7 @@ const ResponsiveListPage = <T extends Entity>({
           isNotDepartmentOrBoss ? "(a)" : ""
         } ${name}( #${entity._id as string} )?`;
 
-    open({
+    openConfirmationDialog({
       title: "Confirme a exclusão",
       description: modalDescription,
       onConfirm: async () => {

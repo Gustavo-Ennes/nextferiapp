@@ -120,7 +120,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
                 </MenuItem>
                 {bosses?.map((boss) => (
                   <MenuItem key={boss._id as string} value={boss._id as string}>
-                    {capitalizeName((boss.worker as WorkerDTO)?.name)}
+                    {capitalizeName((boss.worker as WorkerDTO)?.name) ?? ""}
                   </MenuItem>
                 ))}
               </Select>

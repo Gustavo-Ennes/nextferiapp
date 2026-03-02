@@ -5,7 +5,7 @@ import type {
   LocalStorageData,
   TabData,
 } from "../../../lib/repository/weeklyFuellingSummary/types";
-import { flatten, pluck } from "ramda";
+import { flatten, pluck, sum } from "ramda";
 import type { AverageDepartmentTableParam } from "./components/types";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 // import { mockedTabsData } from "./mock";
@@ -66,13 +66,13 @@ export const removeAllCarEntries = (tabData: TabData): TabData => ({
 });
 
 export const sortCarFuelings = (fuelings: FuelingData[]): FuelingData[] =>
-  fuelings.sort((a, b) =>
+  [...fuelings].sort((a, b) =>
     // in case fuelings in the same day
-    isSameDay(a.date, b.date)
+    isSameDay(toDate(a.date), toDate(b.date))
       ? // we consider the kmHr
         (a.kmHr ?? 0) - (b.kmHr ?? 0)
       : // or just the date
-        toDate(a.date).getTime() - toDate(b.date).getTime()
+        toDate(a.date).getTime() - toDate(b.date).getTime(),
   );
 
 export const prefixExistsInTabData = ({
@@ -91,14 +91,14 @@ export const resumeTabData = (tabData?: TabData): string => {
   if (!tabData) return "";
 
   const totalFuelings = flatten(
-    tabData.carEntries.map((carEntry) => carEntry.fuelings)
+    tabData.carEntries.map((carEntry) => carEntry.fuelings),
   ).length;
-  return `${tabData.department} - ${tabData.carEntries.length} veículos - ${totalFuelings} abastecimentos`;
+  return `${tabData.department.toUpperCase()} - ${tabData.carEntries.length} veículos - ${totalFuelings} abastecimentos`;
 };
 
 export const getDepartmentWeeklyRows = (
   summaries: WeeklyFuellingSummaryDTO[],
-  department: string
+  department: string,
 ): AverageDepartmentTableParam[] => {
   return (
     summaries
@@ -112,7 +112,42 @@ export const getDepartmentWeeklyRows = (
       })
       .filter(Boolean)
       .sort(
-        (a, b) => toDate(a.weekStart).getTime() - toDate(b.weekStart).getTime()
+        (a, b) => toDate(a.weekStart).getTime() - toDate(b.weekStart).getTime(),
       ) ?? []
   );
+};
+
+export const countAllCars = (tabsData: TabData[]): number =>
+  sum(tabsData.map((tabData) => tabData.carEntries.length));
+
+export const countAllFuelings = (tabsData: TabData[]): number =>
+  sum(
+    tabsData.map((tabData) =>
+      sum(tabData.carEntries.map((car) => car.fuelings.length)),
+    ),
+  );
+
+export const countAllLiters = (tabsData: TabData[]): number =>
+  sum(
+    tabsData.map((tabData) =>
+      sum(
+        tabData.carEntries.map((car) =>
+          sum(car.fuelings.map((fueling) => fueling.quantity)),
+        ),
+      ),
+    ),
+  );
+
+export const countAllKms = (tabsData: TabData[]): number => {
+  let sum = 0;
+  tabsData.forEach((tabData) =>
+    tabData.carEntries.forEach((car) => {
+      const firstFuelingKm = car.fuelings[0].kmHr;
+      const lastFuelingKm = car.fuelings[car.fuelings.length - 1].kmHr;
+
+      if (firstFuelingKm && lastFuelingKm && firstFuelingKm !== lastFuelingKm)
+        sum += lastFuelingKm - firstFuelingKm;
+    }),
+  );
+  return sum;
 };

@@ -9,32 +9,44 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { fuelList } from "../utils";
-import type { FuelType } from "../../../../lib/repository/weeklyFuellingSummary/types";
-import { type SetStateAction, type RefObject, useEffect } from "react";
+import { fuelList } from "../../utils";
+import { useEffect } from "react";
+import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
+import { isEmpty } from "ramda";
+import type { KeyboardEvent } from "react";
 
-export const TabFormInfo = ({
-  vehicle,
-  prefix,
-  fuel,
-  setVehicle,
-  setPrefix,
-  setFuel,
-  vechicleEquipInputRef,
-  prefixExists,
-}: {
-  vehicle: string;
-  prefix: number;
-  fuel: FuelType;
-  setVehicle: (value: SetStateAction<string>) => void;
-  setPrefix: (value: SetStateAction<number>) => void;
-  setFuel: (value: SetStateAction<FuelType>) => void;
-  vechicleEquipInputRef: RefObject<HTMLInputElement | null>;
-  prefixExists: boolean;
-}) => {
+export const TabFormInfo = ({ prefixExists }: { prefixExists: boolean }) => {
+  const {
+    setSelectedCar,
+    selectedTabData,
+    vehicle,
+    prefix,
+    fuel,
+    setVehicle,
+    setPrefix,
+    setFuel,
+    dateInputRef,
+    vehicleEquipInputRef,
+  } = useMaterialRequisitionForm();
   useEffect(() => {
-    vechicleEquipInputRef?.current?.focus();
+    vehicleEquipInputRef?.current?.focus();
   }, []);
+
+  // Enter in prefix field if prefix exists to edit existent
+  const handleKeyDownInPrefixField = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (
+      e.key === "Enter" &&
+      prefixExists &&
+      !isEmpty(selectedTabData?.carEntries)
+    ) {
+      e.preventDefault();
+      const carToSelect = selectedTabData?.carEntries?.find(
+        (car) => car.prefix === prefix,
+      );
+      setSelectedCar(carToSelect ?? null);
+      dateInputRef?.current?.focus();
+    }
+  };
 
   return (
     <Grid container spacing={2}>
@@ -44,7 +56,7 @@ export const TabFormInfo = ({
           label="Veículo/Equip."
           value={vehicle}
           onChange={(e) => setVehicle(e.target.value)}
-          inputRef={vechicleEquipInputRef}
+          inputRef={vehicleEquipInputRef}
           autoFocus
           fullWidth
         />
@@ -57,6 +69,7 @@ export const TabFormInfo = ({
           value={prefix}
           type="number"
           onChange={(e) => setPrefix(parseInt(e.target.value))}
+          onKeyDown={handleKeyDownInPrefixField}
           fullWidth
           helperText={prefixExists ? `Prefixo ${prefix} já foi criado.` : ""}
           error={prefixExists}

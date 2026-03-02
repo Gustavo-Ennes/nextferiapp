@@ -1,6 +1,6 @@
 "use client";
 
-import { ModalProvider } from "@/context/ModalContext";
+import { DialogProvider } from "@/context/DialogContext";
 import { ThemeProvider } from "@emotion/react";
 import { CssBaseline } from "@mui/material";
 import { responsiveTheme } from "@/theme/theme";
@@ -10,6 +10,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PdfPreviewProvider } from "@/context/PdfPreviewContext";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { LoadingProvider } from "@/context/LoadingContext";
+import { MaterialRequisitionFormProvider } from "@/context/MaterialRequisitionFormContext";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -20,7 +21,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           <LoadingProvider>
             <SnackbarProvider>
               <PdfPreviewProvider>
-                <ModalProvider>{children}</ModalProvider>
+                <DialogProvider>
+                  <MaterialRequisitionFormProvider>
+                    {children}
+                  </MaterialRequisitionFormProvider>
+                </DialogProvider>
               </PdfPreviewProvider>
             </SnackbarProvider>
           </LoadingProvider>

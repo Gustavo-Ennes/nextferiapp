@@ -10,7 +10,7 @@ import {
   Grid,
   Paper,
 } from "@mui/material";
-import { useModal } from "@/context/ModalContext";
+import { useDialog } from "@/context/DialogContext";
 import { capitalizeFirstLetter, capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
@@ -33,7 +33,7 @@ export function WorkerDetail({
   const router = useRouter();
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
-  const { open } = useModal();
+  const { openConfirmationDialog } = useDialog();
 
   const workerUnusedDayOffs = getWorkerDayOffsLeft(workerVacations);
   const dayOffText =
@@ -51,7 +51,7 @@ export function WorkerDetail({
   const handleEdit = () =>
     router.push(`/worker/form?id=${worker._id as string}`);
   const handleDelete = () =>
-    open({
+    openConfirmationDialog({
       title: "Excluir servidor",
       description: `Deseja excluir o servidor ${capitalizeName(worker.name)}?`,
       onConfirm: async () => {
@@ -80,10 +80,10 @@ export function WorkerDetail({
       isExternal: !worker.isExternal,
       id: undefined,
     });
-    open({
+    openConfirmationDialog({
       title: "Modificar externalidade",
       description: `Deseja atualizar o servidor ${capitalizeName(
-        worker.name
+        worker.name,
       )} como ${worker.isExternal ? "interno" : "externo"}?`,
       onConfirm: async () => {
         setLoading(true);
@@ -147,7 +147,7 @@ export function WorkerDetail({
               <Typography variant="subtitle1">Departamento</Typography>
               <Typography variant="button">
                 {capitalizeFirstLetter(
-                  (worker?.department as DepartmentDTO)?.name
+                  (worker?.department as DepartmentDTO)?.name,
                 )}
               </Typography>
             </Box>

@@ -15,7 +15,7 @@ export interface WeeklyFuellingSummaryDTO {
       prefix: number;
       fuelType: string;
       totalLiters: number;
-      lastKm?: number;
+      lastKm: number | null;
     }[];
   }[];
 }

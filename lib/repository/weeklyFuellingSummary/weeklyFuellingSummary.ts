@@ -45,7 +45,7 @@ export const WeeklyFuellingSummaryRepository = {
   },
 
   async createOrUpdate(
-    payload: LocalStorageData
+    payload: LocalStorageData,
   ): Promise<WeeklyFuellingSummaryDTO | null> {
     await dbConnect();
 
@@ -74,7 +74,7 @@ export const WeeklyFuellingSummaryRepository = {
 
       for (const car of dept.carEntries) {
         let totalLiters = 0;
-        let lastKm: number | undefined;
+        let lastKm: number | null = null;
 
         for (const f of car.fuelings) {
           totalLiters += f.quantity;
@@ -113,7 +113,7 @@ export const WeeklyFuellingSummaryRepository = {
       {
         upsert: true,
         new: true,
-      }
+      },
     );
 
     const parsedSummary = toWeeklySummaryDTO(summary);

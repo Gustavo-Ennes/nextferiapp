@@ -1,5 +1,5 @@
 import { Paper, Tabs, Tab, Divider } from "@mui/material";
-import { getDepartmentWeeklyRows } from "../utils";
+import { getDepartmentWeeklyRows } from "../../utils";
 import { AverageDepartmentTable } from "./AverageDepartmentTable";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 

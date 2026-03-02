@@ -8,43 +8,40 @@ import {
   Grid,
   Tooltip,
   Typography,
-  Chip,
 } from "@mui/material";
 import { useState, useEffect } from "react";
-import { NewTabDialog } from "../components/TabDialog";
 import type {
-  DialogData,
   LocalStorageData,
   TabData,
 } from "../../../../lib/repository/weeklyFuellingSummary/types";
 import {
   getLocalStorageData,
   removeAllCarEntries,
-  resumeTabData,
   setLocalStorageData,
 } from "../utils";
-import { Tab as MaterialRequisitionTab } from "../components/Tab";
-import { TabPanel } from "../components/TabPanel";
-import { Close, CorporateFareOutlined } from "@mui/icons-material";
+import { Tab as MaterialRequisitionTab } from "../components/form/Tab";
+import { TabPanel } from "../components/form/TabPanel";
+import { Close } from "@mui/icons-material";
 import { head, insert, isNil, pluck, reject, remove } from "ramda";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
-import { ConfirmationDialog } from "../../components/ConfirmationDialog";
 import {
   createOrUpdateWeeklySummary,
   deleteWeeklySummary,
   fetchActualWeeklyFuellingSummary,
 } from "../../utils";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
+import { MaterialRequisitionHeader } from "../components/form/MaterialRequisitionHeader";
+import { useDialog } from "@/context/DialogContext";
 
 export default function MaterialRequisitionForm() {
+  const { setSelectedTabData, setSelectedCar } = useMaterialRequisitionForm();
+  const { openConfirmationDialog, openInputDialog } = useDialog();
   const [tabsData, setTabsData] = useState<TabData[]>([]);
   const [activeTab, setActiveTab] = useState<number>(0);
   const [weeklyFuellingSummary, setWeeklyFuellingSummary] =
     useState<WeeklyFuellingSummaryDTO | null>();
-  const [newTabDialog, setNewTabDialog] = useState(false);
-  const [confirmationDialog, setConfirmationDialog] = useState(false);
-  const [dialogData, setDialogData] = useState<DialogData>();
   const { setPdf } = usePdfPreview();
 
   // Load
@@ -56,6 +53,7 @@ export default function MaterialRequisitionForm() {
         if (data.length) {
           setTabsData(data);
           setActiveTab(activeTab);
+          setSelectedTabData(data[activeTab] ?? null);
         }
 
         if (!weeklyFuellingSummary) {
@@ -103,33 +101,59 @@ export default function MaterialRequisitionForm() {
       const newData = { ...oldData, activeTab };
       setLocalStorageData({ data: newData });
     });
+    setSelectedTabData(tabsData[activeTab] ?? null);
+    setSelectedCar(null);
   }, [activeTab]);
 
   const createTab = (name: string) => {
     const existingTab = tabsData.find((tab) => tab.department === name);
 
     if (existingTab) {
-      setActiveTab(tabsData.indexOf(existingTab));
+      const existingIndex = tabsData.indexOf(existingTab);
+      setActiveTab(existingIndex);
+      setSelectedTabData(tabsData[existingIndex] ?? null);
     } else {
       const orders = pluck("order", tabsData);
-      const newOrder = Math.max(...orders) + 1;
+      const newOrder = orders.length > 0 ? Math.max(...orders) + 1 : 1;
       const newTab: TabData = {
-        order: newOrder ?? 1,
+        order: newOrder,
         department: name,
         carEntries: [],
       };
-      setTabsData((prev) => [...prev, newTab]);
-      setActiveTab(tabsData.length);
-      setNewTabDialog(false);
+
+      const newTabsData = [...tabsData, newTab];
+
+      setTabsData(newTabsData);
+      setActiveTab(newTabsData.length - 1);
+      setSelectedTabData(newTabsData[tabsData.length - 1] ?? null);
     }
+    setSelectedCar(null);
   };
 
-  const onTabsDataChange = (tabData: TabData) => {
-    const tabDataId = tabsData.indexOf(tabData);
+  const onTabsDataChange = (newTabData: TabData) => {
+    const updatedTabData = tabsData.find(
+      (tabData) => tabData.department === newTabData.department,
+    );
+
+    if (!updatedTabData) {
+      console.warn("Provide a tabData to update.");
+      return;
+    }
+
+    const tabDataId = tabsData.indexOf(updatedTabData);
     const anotherTabs = remove(tabDataId, 1, tabsData);
-    if (tabData.carEntries.length)
-      setTabsData(insert(tabDataId, tabData, anotherTabs));
-    else setTabsData(anotherTabs);
+
+    if (newTabData.carEntries.length > 0) {
+      setTabsData(insert(tabDataId, newTabData, anotherTabs));
+    } else {
+      const firstElement = head(reject(isNil, tabsData));
+      const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
+
+      setTabsData(anotherTabs);
+      setActiveTab(newActiveTab);
+      setSelectedTabData(anotherTabs[newActiveTab] ?? null);
+      setSelectedCar(null);
+    }
   };
 
   const onTabClose = (tabData: TabData) => {
@@ -138,7 +162,9 @@ export default function MaterialRequisitionForm() {
     const firstElement = head(reject(isNil, tabsData));
     const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
     setActiveTab(newActiveTab);
+    setSelectedTabData(tabsData[newActiveTab] ?? null);
     onTabsDataChange(tabWithoutCarEntries);
+    setSelectedCar(null);
   };
 
   const handleDeleteWeeklySummary = async () => {
@@ -150,25 +176,33 @@ export default function MaterialRequisitionForm() {
   };
 
   const openResetDialog = () => {
-    setDialogData({
+    openConfirmationDialog({
       title: "Começar tudo novamente?",
-      message:
+      description:
         "Ao confirmar, você apagará todas as abas e seu conteúdo. Quer prosseguir?",
       onConfirm: () => {
         setTabsData([]);
       },
     });
-    setConfirmationDialog(true);
   };
 
   const openCloseTabDialog = (tabData: TabData) => {
-    setDialogData({
+    openConfirmationDialog({
       title: "Excluir aba?",
-      message:
+      description:
         "Ao confirmar, todas os carros e abastecimentos dessa aba serão perdidos. Quer prosseguir?",
       onConfirm: () => onTabClose(tabData),
     });
-    setConfirmationDialog(true);
+  };
+
+  const openNewTabDialog = () => {
+    openInputDialog({
+      onConfirm: (input?: string) => createTab(input ?? ""),
+      title: "Nova departamento",
+      description:
+        "Criar nova aba para abastecimentos de um novo departamento?",
+      inputLabel: "Nome do departamento",
+    });
   };
 
   const TabCloseIcon = ({ tabData }: { tabData: TabData }) => (
@@ -194,19 +228,17 @@ export default function MaterialRequisitionForm() {
         <TitleTypography>
           Requisições de materiais - combustível
         </TitleTypography>
-        <Chip
-          color="primary"
-          icon={<CorporateFareOutlined />}
-          size="small"
-          label={resumeTabData(tabsData[activeTab])}
-          sx={{ float: "right", fontSize: 10, px: 2 }}
-        ></Chip>
       </Grid>
+
+      <Grid size={12} container justifyContent="center" alignItems="center">
+        <MaterialRequisitionHeader tabsData={tabsData} />
+      </Grid>
+
       <Grid size={2} justifyContent="center" alignItems="center" px={1}>
         <Button
           variant="outlined"
           size="small"
-          onClick={() => setNewTabDialog(true)}
+          onClick={openNewTabDialog}
           sx={{ width: 1, padding: 1, m: 1 }}
         >
           Adicionar
@@ -226,6 +258,8 @@ export default function MaterialRequisitionForm() {
           value={activeTab}
           onChange={(_, v) => {
             setActiveTab(v);
+            setSelectedTabData(tabsData[v] ?? null);
+            setSelectedCar(null);
           }}
           variant="scrollable"
           scrollButtons="auto"
@@ -269,25 +303,6 @@ export default function MaterialRequisitionForm() {
           </Typography>
         )}
       </Grid>
-
-      <NewTabDialog
-        open={newTabDialog}
-        onClose={() => setNewTabDialog(false)}
-        onCreate={createTab}
-      />
-
-      {dialogData && (
-        <ConfirmationDialog
-          message={dialogData.message}
-          onClose={() => setConfirmationDialog(false)}
-          open={confirmationDialog}
-          onConfirm={() => {
-            setConfirmationDialog(false);
-            dialogData.onConfirm();
-          }}
-          title={dialogData.title}
-        />
-      )}
     </Grid>
   );
 }

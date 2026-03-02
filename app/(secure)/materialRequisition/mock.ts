@@ -19,7 +19,7 @@ const getRamdomBool = () => Math.random() * 4 > 1;
 
 function randomDateInJuly(): Date {
   const date = Math.floor(
-    1 + Math.random() * getDaysInMonth(new Date().toISOString())
+    1 + Math.random() * getDaysInMonth(new Date().toISOString()),
   );
   return set(new Date(), { date });
 }
@@ -27,24 +27,22 @@ function randomDateInJuly(): Date {
 function generateFuelingData(count: number): FuelingData[] {
   return Array.from({ length: count }, (_, i) => ({
     id: i,
-    date: randomDateInJuly(),
+    date: randomDateInJuly().toISOString(),
     quantity: MIN_FUELINGS + Math.random() * MAX_PER_FUELING,
-    ...(getRamdomBool() && {
-      kmHr: Math.round(MIN_KM + Math.random() * MAX_KM),
-    }),
+    kmHr: getRamdomBool() ? Math.round(MIN_KM + Math.random() * MAX_KM) : null,
   }));
 }
 
 function generateCarEntries(
   count: number,
-  seed: number
+  seed: number,
 ): TabData["carEntries"] {
   return Array.from({ length: count }, (_, i) => ({
     vehicle: `Veículo #${seed++}`,
     prefix: 100 + seed * 10 + i,
     fuel: fuelList[Math.floor(Math.random() * fuelList.length)],
     fuelings: generateFuelingData(
-      MIN_FUELINGS + Math.round(Math.random() * MAX_FUELINGS)
+      MIN_FUELINGS + Math.round(Math.random() * MAX_FUELINGS),
     ),
   }));
 }
