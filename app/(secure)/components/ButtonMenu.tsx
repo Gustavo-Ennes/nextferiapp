@@ -1,72 +1,92 @@
 "use client";
 
 import { ArrowDropUp, ArrowDropDown } from "@mui/icons-material";
-import { Button, Menu, MenuItem as MuiMenuItem, Tooltip } from "@mui/material";
-import { useState } from "react";
+import {
+  Menu,
+  MenuItem as MuiMenuItem,
+  Tooltip,
+  type ButtonProps,
+} from "@mui/material";
+import React, { useState, cloneElement, type ReactElement } from "react";
 import type { MenuItem } from "./types";
 import type { VacationDTO, WorkerDTO } from "@/dto";
 
-export const ButtonMenu = ({
-  items,
-  vacation,
-}: {
+interface ButtonMenuProps {
   items: MenuItem[];
   vacation: VacationDTO;
-}) => {
+  trigger: ReactElement<ButtonProps>;
+}
+
+export const ButtonMenu = ({ items, vacation, trigger }: ButtonMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isMenuOpen = Boolean(anchorEl);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+
+  const handleClick = (
+    event: React.MouseEvent<HTMLLIElement, globalThis.MouseEvent>,
+  ) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const dropdownIcon = isMenuOpen ? <ArrowDropUp /> : <ArrowDropDown />;
-  const handleAction = (action: () => void) => {
-    action();
-    setAnchorEl(null);
-  };
 
-  const button = (
-    <Button
-      id="vacation-cancel-menu"
-      aria-controls={isMenuOpen ? "vacation-cancel-menu" : undefined}
-      aria-haspopup="true"
-      aria-expanded={isMenuOpen ? "true" : undefined}
-      onClick={handleClick}
-      endIcon={dropdownIcon}
-    >
-      Cancelar
-    </Button>
-  );
+  const handleAction = (
+    action: () => void,
+    e: React.MouseEvent<HTMLLIElement, globalThis.MouseEvent>,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    action();
+    handleClose();
+  };
 
   const isWorkerInactive =
     (vacation.worker as WorkerDTO)?.isActive === false || !vacation.worker;
 
+  const triggerWithProps = cloneElement(trigger as ReactElement<any>, {
+    endIcon: isMenuOpen ? (
+      <ArrowDropUp />
+    ) : (
+      <ArrowDropDown sx={{ color: "#000" }} />
+    ),
+    onClick: (e: React.MouseEvent<HTMLLIElement, globalThis.MouseEvent>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleClick(e);
+    },
+    "aria-controls": isMenuOpen ? "customized-menu" : undefined,
+    "aria-haspopup": "true",
+    "aria-expanded": isMenuOpen ? "true" : undefined,
+  });
+
   return (
     <>
       {isWorkerInactive ? (
-        <Tooltip title="Não será possivel remarcar: trabalhador inativo">
-          {button}
+        <Tooltip title="Não será possível remarcar: trabalhador inativo">
+          <span style={{ display: "inline-block" }}>{triggerWithProps}</span>
         </Tooltip>
       ) : (
-        button
+        triggerWithProps
       )}
+
       <Menu
-        id="vacation-cancel-menu"
         anchorEl={anchorEl}
         open={isMenuOpen}
         onClose={handleClose}
         slotProps={{
-          list: {
-            "aria-labelledby": "vacation-cancel-menu",
+          backdrop: {
+            onClick: (e) => {
+              e.stopPropagation();
+              handleClose();
+            },
           },
         }}
       >
         {items.map(({ label, action, disabled }) => (
           <MuiMenuItem
             key={`button-menu-${label}`}
-            onClick={() => handleAction(action)}
+            onClick={(e) => handleAction(action, e)}
             disabled={disabled}
           >
             {label}

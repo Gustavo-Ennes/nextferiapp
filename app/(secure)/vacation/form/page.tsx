@@ -10,6 +10,7 @@ import type { BossFormData } from "../../boss/types";
 import { BossRepository } from "@/lib/repository/boss/boss";
 import type { WorkerFormData } from "../../worker/types";
 import { WorkerRepository } from "@/lib/repository/worker/worker";
+import { parseBool } from "../../components/utils";
 
 export default async function VacationFormPage({
   searchParams,
@@ -17,10 +18,11 @@ export default async function VacationFormPage({
   searchParams: Promise<{
     id: string;
     type: VacationType;
-    isReschedule?: boolean;
+    isReschedule?: string;
+    cancellationPdf?: string;
   }>;
 }) {
-  const { id, type, isReschedule } = await searchParams;
+  const { id, type, isReschedule, cancellationPdf } = await searchParams;
   let vacation: VacationDTO | null = null;
 
   // quering for a cancelled vacation in case of reschedule
@@ -49,6 +51,9 @@ export default async function VacationFormPage({
     isReschedule ? "Reagendar" : id ? "Editar" : "Criar"
   } ${translateEntityKey({ entity: "vacation", key: type }).toLowerCase()}`;
 
+  const parsedIsReschedule = parseBool(isReschedule);
+  const parsedCancellationPdf = parseBool(cancellationPdf);
+
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>
       {(!id || (id && vacation)) && (
@@ -60,7 +65,8 @@ export default async function VacationFormPage({
             bosses={bosses}
             workers={workers}
             id={id}
-            isReschedule={isReschedule}
+            isReschedule={parsedIsReschedule}
+            cancellationPdf={parsedCancellationPdf}
           />
         </>
       )}

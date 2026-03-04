@@ -54,6 +54,7 @@ export function VacationForm({
   bosses,
   type = "normal",
   isReschedule = false,
+  cancellationPdf = false,
 }: VacationProps) {
   const router = useRouter();
   const [blockedByYearlyDayOffsCount, setBlockedByYearlyDayOffsCount] =
@@ -75,7 +76,7 @@ export function VacationForm({
     resolver: zodResolver(VacationValidator),
     mode: "onTouched",
     defaultValues: defaultValues
-      ? prepareDefaults(defaultValues)
+      ? prepareDefaults({ ...defaultValues, cancelled: false })
       : baselineForType(type),
   });
 
@@ -114,7 +115,11 @@ export function VacationForm({
 
       setPdf({
         items: [{ type: "vacation", id: data._id as string }],
-        add: isReschedule,
+        add:
+          isReschedule !== null &&
+          cancellationPdf !== null &&
+          isReschedule &&
+          cancellationPdf,
       });
     }
 
@@ -366,7 +371,7 @@ export function VacationForm({
                   labelId="period-label"
                   value={field.value}
                   label="Período"
-                  disabled={isReschedule}
+                  disabled={isReschedule !== null && isReschedule}
                 >
                   <MenuItem value={"-"}>
                     <em>Selecione o período</em>
@@ -439,7 +444,7 @@ export function VacationForm({
                 labelId="boss-label"
                 value={field.value}
                 label="Aprovante"
-                disabled={isReschedule}
+                disabled={isReschedule !== null && isReschedule}
               >
                 <MenuItem value={"-"}>
                   <em>Selecione quem aprova</em>

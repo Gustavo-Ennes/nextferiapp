@@ -268,7 +268,12 @@ export const VacationRepository: Repository<VacationDTO, VacationFormData> = {
       ...(cancelled !== undefined && cancelled !== null && { cancelled }),
     })
       .populate("worker")
-      .populate("boss");
+      .populate({
+        path: "boss",
+        populate: {
+          path: "worker",
+        },
+      });
 
     return vacation
       ? (toVacationDTO(vacation.toObject()) as VacationDTO)
