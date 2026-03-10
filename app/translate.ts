@@ -76,12 +76,16 @@ export const translateEntityKey = ({
     weeklyFuellingSummary: {
       translated: "Resumo semanal de abastecimentos",
     },
+    purchaseOrder: {
+      translated: "Pedido",
+      translatedPlural: "Pedidos",
+    },
   };
   return entity
     ? capitalizeFirstLetter(
         dictionary[entity][
           key as keyof (typeof dictionary)[EntityType | "fuel"]
-        ]
+        ],
       )
     : "Informações";
 };

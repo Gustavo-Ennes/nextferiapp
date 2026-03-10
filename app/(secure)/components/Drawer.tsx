@@ -9,7 +9,7 @@ import {
 import { navList } from "../navList";
 import { DrawerContent } from "../styled";
 import { ListItemMenu } from "./ListItemMenu";
-import { Logout, PictureAsPdf } from "@mui/icons-material";
+import { Logout, PictureAsPdf, PriceCheck } from "@mui/icons-material";
 import { useRouter } from "@/context/RouterContext";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { BlueItemIcon } from "./styled";
@@ -40,12 +40,14 @@ export const Drawer = () => {
             <ListItemMenu props={getVacationProps()} key={href} />
           ),
         )}
+
         <Divider />
 
         <ListItemMenu
           props={getWeeklyFuellingSummaryProps()}
           key="/weeklyFuellingSummary"
         />
+
         <Divider />
 
         <ListItemButton
@@ -57,6 +59,19 @@ export const Drawer = () => {
             <PictureAsPdf />
           </BlueItemIcon>
           <ListItemText primary={"Rel. uso veículo"} />
+        </ListItemButton>
+
+        <Divider />
+
+        <ListItemButton
+          key={"purchaseOrder"}
+          sx={{ my: 1 }}
+          onClick={() => router.redirectWithLoading("/purchaseOrder")}
+        >
+          <BlueItemIcon>
+            <PriceCheck />
+          </BlueItemIcon>
+          <ListItemText primary={"Pedidos"} />
         </ListItemButton>
 
         <Divider />

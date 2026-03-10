@@ -38,8 +38,8 @@ export const formatCellContent = <T extends Entity>({
       return limitText(
         capitalizeName(
           (value as WorkerDTO).name ??
-            ((value as BossDTO).worker as WorkerDTO)?.name
-        )
+            ((value as BossDTO).worker as WorkerDTO)?.name,
+        ),
       );
     if (isName && value) return capitalizeName(value as string);
     if (capitalize && value) return capitalizeFirstLetter(value as string);
@@ -53,23 +53,23 @@ export const formatCellContent = <T extends Entity>({
 
 export const getUpcomingReturns = (
   vacations: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): VacationDTO[] =>
   vacations
     ? vacations.filter(
         ({ endDate }) =>
-          toDate(endDate) >= today && toDate(endDate) <= addDays(today, 10)
+          toDate(endDate) >= today && toDate(endDate) <= addDays(today, 10),
       )
     : [];
 
 export const getUpcomingLeaves = (
   vacations: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): VacationDTO[] =>
   vacations
     ? vacations.filter(
         ({ startDate }) =>
-          toDate(startDate) >= today && toDate(startDate) <= addDays(today, 10)
+          toDate(startDate) >= today && toDate(startDate) <= addDays(today, 10),
       )
     : [];
 
@@ -80,14 +80,14 @@ export const getTodayReturns = (vacations: VacationDTO[]): VacationDTO[] =>
 
 export const getWorkerStatus = (
   worker: WorkerDTO,
-  vacations?: VacationDTO[]
+  vacations?: VacationDTO[],
 ): WorkerStatus => {
   const vacation = vacations
     ? vacations.find(
         ({ startDate, endDate, worker: vacWorker }) =>
           toDate(startDate) <= startOfDaySP(new Date()) &&
           toDate(endDate) > startOfDaySP(new Date()) &&
-          ((vacWorker as WorkerDTO)._id as string) === (worker._id as string)
+          ((vacWorker as WorkerDTO)._id as string) === (worker._id as string),
       )
     : undefined;
 
@@ -107,7 +107,7 @@ export const getWorkerStatus = (
 
 export const getWorkersOnVacation = (
   vacations?: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): WorkerDTO[] =>
   vacations
     ? uniqBy(
@@ -116,9 +116,9 @@ export const getWorkersOnVacation = (
           .filter(
             ({ startDate, endDate }) =>
               toDate(startDate) <= startOfDaySP(today) &&
-              toDate(endDate) > startOfDaySP(today)
+              toDate(endDate) > startOfDaySP(today),
           )
-          .map((vacation) => vacation.worker as WorkerDTO)
+          .map((vacation) => vacation.worker as WorkerDTO),
       )
     : [];
 
@@ -127,7 +127,7 @@ export const getWorkersOnVacation = (
 export const getDaysUntilWorkerReturns = (
   worker: WorkerDTO,
   vacations?: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): number => {
   const getReturningDate = (endDate: Date) =>
     addMilliseconds(toDate(endDate), 1);
@@ -136,19 +136,19 @@ export const getDaysUntilWorkerReturns = (
     ?.filter(
       (vac) =>
         ((vac.worker as WorkerDTO)?._id as string) === (worker._id as string) &&
-        getReturningDate(toDate(vac.endDate)) > startOfDaySP(today)
+        getReturningDate(toDate(vac.endDate)) > startOfDaySP(today),
     )
     .sort(
       (a, b) =>
         getReturningDate(toDate(a.endDate)).getTime() -
-        getReturningDate(toDate(b.endDate)).getTime()
+        getReturningDate(toDate(b.endDate)).getTime(),
     )?.[0];
   if (!vacation) return -1;
 
   const daysUntilReturn =
     differenceInDays(
       getReturningDate(toDate(vacation.endDate)),
-      startOfDaySP(today)
+      startOfDaySP(today),
     ) + 1;
 
   return daysUntilReturn >= 0 ? daysUntilReturn : -1;
@@ -159,16 +159,16 @@ export const getDaysUntilWorkerReturns = (
 export const getDaysUntilWorkerLeave = (
   worker: WorkerDTO,
   vacations?: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): number => {
   const vacation = vacations
     ?.filter(
       (vac) =>
         ((vac.worker as WorkerDTO)?._id as string) === (worker._id as string) &&
-        toDate(vac.startDate) > startOfDaySP(today)
+        toDate(vac.startDate) > startOfDaySP(today),
     )
     .sort(
-      (a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime()
+      (a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime(),
     )?.[0];
 
   if (!vacation) return -1;
@@ -214,6 +214,7 @@ export const defaultEntityTableFields = {
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
   weeklyFuellingSummary: [],
+  purchaseOrder: ["reference", "items"],
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>
@@ -226,7 +227,7 @@ export const capitalizeName = (name?: string): string => {
     .map((name) =>
       !notCapitalizable.includes(name)
         ? `${name[0]?.toUpperCase()}${name?.substring(1)}`
-        : name
+        : name,
     )
     .join(" ");
 };
