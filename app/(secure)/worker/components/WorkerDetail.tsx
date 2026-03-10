@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import {
   Container,
   Typography,
@@ -49,16 +49,16 @@ export function WorkerDetail({
   });
 
   const handleEdit = () =>
-    router.push(`/worker/form?id=${worker._id as string}`);
+    router.redirectWithLoading(`/worker/form?id=${worker._id as string}`);
   const handleDelete = () =>
     openConfirmationDialog({
       title: "Excluir servidor",
       description: `Deseja excluir o servidor ${capitalizeName(worker.name)}?`,
       onConfirm: async () => {
         setLoading(true);
+
         fetch(`/api/worker/${worker._id as string}`, { method: "delete" })
           .then(() => {
-            setLoading(false);
             addSnack({
               message: "Você deletou um servidor",
               severity: "success",
@@ -70,7 +70,7 @@ export function WorkerDetail({
               message: "Eita, houve um problema deletando um servidor.",
             });
           })
-          .finally(() => router.push("/worker"));
+          .finally(() => router.redirectWithLoading("/worker"));
       },
     });
   const handleChangeExternality = () => {
@@ -87,12 +87,12 @@ export function WorkerDetail({
       )} como ${worker.isExternal ? "interno" : "externo"}?`,
       onConfirm: async () => {
         setLoading(true);
+
         fetch(`/api/worker/${worker._id as string}`, {
           method: "put",
           body,
         })
           .then(() => {
-            setLoading(false);
             addSnack({
               message: "Você modificou a externalidade de um servidor.",
               severity: "success",
@@ -104,7 +104,7 @@ export function WorkerDetail({
               message: "Eita, houve um problema modificando um servidor.",
             });
           })
-          .finally(() => router.push("/worker"));
+          .finally(() => router.redirectWithLoading("/worker"));
       },
     });
   };

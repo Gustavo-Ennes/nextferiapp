@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import type { DepartmentFormData, DepartmentProps } from "../types";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { DepartmentValidator } from "../validator";
@@ -20,10 +20,12 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { capitalizeName } from "@/app/utils";
 import type { BossDTO, WorkerDTO } from "@/dto";
+import { useLoading } from "@/context/LoadingContext";
 
 export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   const router = useRouter();
   const { addSnack } = useSnackbar();
+  const { setLoading } = useLoading();
   const {
     control,
     handleSubmit,
@@ -40,6 +42,8 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
   });
 
   const onSubmit: SubmitHandler<DepartmentFormData> = async (formData) => {
+    setLoading(true);
+
     const body = JSON.stringify(formData);
     const method = defaultValues ? "PUT" : "POST";
     const url = defaultValues
@@ -72,8 +76,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
       } do departamento.`;
       snackbarData.severity = "error";
     } finally {
-      router.push("/department/");
-
+      router.redirectWithLoading("/department/");
       addSnack(snackbarData);
     }
   };

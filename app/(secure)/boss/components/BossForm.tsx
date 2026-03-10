@@ -12,17 +12,19 @@ import {
 } from "@mui/material";
 import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import type { BossFormData, BossProps } from "../types";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BossValidator } from "../validator";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { capitalizeName } from "@/app/utils";
 import type { WorkerDTO } from "@/dto";
+import { useLoading } from "@/context/LoadingContext";
 
 export function BossForm({ defaultValues, workers }: BossProps) {
   const router = useRouter();
   const { addSnack } = useSnackbar();
+  const { setLoading } = useLoading();
   const {
     control,
     handleSubmit,
@@ -38,6 +40,8 @@ export function BossForm({ defaultValues, workers }: BossProps) {
   });
 
   const onSubmit: SubmitHandler<BossFormData> = async (formData) => {
+    setLoading(true);
+
     const snackbarData: SnackbarData = { message: "" };
 
     try {
@@ -68,8 +72,7 @@ export function BossForm({ defaultValues, workers }: BossProps) {
         defaultValues ? "edição" : "criação"
       } do chefe.`;
     } finally {
-      router.push("/boss");
-
+      router.redirectWithLoading("/boss");
       addSnack(snackbarData);
     }
   };

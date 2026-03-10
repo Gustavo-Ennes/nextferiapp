@@ -27,7 +27,7 @@ export const PdfFloatingButtonBox = styled(Box, {
   position: "fixed",
   top: "50%",
   right: open ? `calc(100% - 260px)` : 5,
-  zIndex: 1300,
+  zIndex: 3,
   transform: "translateY(-50%)",
 }));
 
@@ -38,7 +38,7 @@ export const PdfPreviewBox = styled(Box, {
   top: 0,
   height: "100vh",
   right: 0,
-  zIndex: 1200,
+  zIndex: 2,
   width: open ? `calc(100% - 240px)` : 0,
   oveflow: "hidden",
   boxShadow: "3",

@@ -3,11 +3,12 @@
 import { useDialog } from "@/context/DialogContext";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import type { VacationDTO, WorkerDTO } from "@/dto";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import type { MenuItem } from "../../components/types";
 import { ButtonMenu } from "../../components/ButtonMenu";
 import { Button } from "@mui/material"; // Importe o Button para o trigger
 import type { ReactElement } from "react";
+import { useLoading } from "@/context/LoadingContext";
 
 export const CancelListButton = ({
   vacation,
@@ -18,10 +19,10 @@ export const CancelListButton = ({
 }) => {
   const { openInputDialog } = useDialog();
   const { setPdf } = usePdfPreview();
+  const { setLoading } = useLoading();
   const router = useRouter();
   const url = `/api/vacation/${vacation._id as string}`;
 
-  // Lógica para verificar se o worker está ativo (evita repetição)
   const isWorkerInactive =
     !(vacation.worker as WorkerDTO)?.isActive || !vacation.worker;
 
@@ -34,6 +35,8 @@ export const CancelListButton = ({
     withPdf?: boolean;
     obs?: string;
   }) => {
+    setLoading(true);
+
     const body: Partial<VacationDTO> = { cancelled: true, observation: obs };
 
     await fetch(url, {
@@ -51,7 +54,9 @@ export const CancelListButton = ({
       vacation.type
     }&isReschedule=true&id=${vacation._id}&cancellationPdf=${withPdf}`;
 
-    router.push(option === "reschedule" ? createVacationUrl : vacationsUrl);
+    router.redirectWithLoading(
+      option === "reschedule" ? createVacationUrl : vacationsUrl,
+    );
 
     if (withPdf) {
       setPdf({

@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import type { VacationFormData, VacationProps } from "../types";
 import {
   capitalizeFirstLetter,
@@ -46,6 +46,7 @@ import {
 } from "@/lib/pdf/vacation/utils";
 import { pluck, sum } from "ramda";
 import type { VacationDTO, WorkerDTO } from "@/dto";
+import { useLoading } from "@/context/LoadingContext";
 
 export function VacationForm({
   defaultValues,
@@ -66,6 +67,7 @@ export function VacationForm({
   >([]);
   const { addSnack } = useSnackbar();
   const { setPdf } = usePdfPreview();
+  const { setLoading } = useLoading();
   const {
     control,
     handleSubmit,
@@ -81,6 +83,8 @@ export function VacationForm({
   });
 
   const onSubmit: SubmitHandler<VacationFormData> = async (formData) => {
+    setLoading(true);
+
     const method = !id || isReschedule ? "post" : "put";
     const url = !id || isReschedule ? `/api/vacation` : `/api/vacation/${id}`;
 
@@ -123,7 +127,9 @@ export function VacationForm({
       });
     }
 
-    router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
+    router.redirectWithLoading(
+      `/vacation${type !== "normal" ? `/${type}` : ""}`,
+    );
     addSnack(snackbarData);
   };
 
@@ -193,7 +199,9 @@ export function VacationForm({
         "Não é possível reagendar uma folga para um trabalhador inativo.",
       severity: "warning",
     });
-    router.push(`/vacation${type !== "normal" ? `/${type}` : ""}`);
+    router.redirectWithLoading(
+      `/vacation${type !== "normal" ? `/${type}` : ""}`,
+    );
   }
 
   const getPeriodConflictMessage = () => {

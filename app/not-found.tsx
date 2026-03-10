@@ -1,8 +1,8 @@
 "use client";
 
 import { Box, Typography, Button } from "@mui/material";
-import { useRouter } from "next/navigation";
 import { TitleTypography } from "./(secure)/components/TitleTypography";
+import { useRouter } from "@/context/RouterContext";
 
 export default function NotFound() {
   const router = useRouter();
@@ -27,7 +27,7 @@ export default function NotFound() {
       <Button
         variant="contained"
         sx={{ mt: 2 }}
-        onClick={() => router.push("/")}
+        onClick={() => router.redirectWithLoading("/")}
       >
         Voltar ao Dashboard
       </Button>

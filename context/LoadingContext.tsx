@@ -1,7 +1,15 @@
 "use client";
 
 import { Loader } from "@/app/(secure)/components/Loader";
-import { createContext, useCallback, useContext, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  Suspense,
+} from "react";
 
 const LoadingContext = createContext<{
   setLoading: (isLoading: boolean) => void;
@@ -14,20 +22,39 @@ export const useLoading = () => {
   return ctx;
 };
 
+const NavigationWatcher = ({ onNavigate }: { onNavigate: () => void }) => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    onNavigate();
+  }, [pathname, searchParams, onNavigate]);
+
+  return null;
+};
+
 export const LoadingProvider = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const setLoading = useCallback(
-    (isLoading: boolean) => setIsLoading(isLoading),
-    []
+    (loading: boolean) => setIsLoading(loading),
+    [],
   );
+
+  const handleNavigate = useCallback(() => {
+    setIsLoading(false);
+  }, []);
 
   return (
     <LoadingContext.Provider value={{ setLoading, isLoading }}>
+      <Suspense fallback={null}>
+        <NavigationWatcher onNavigate={handleNavigate} />
+      </Suspense>
+
       {children}
       <Loader isLoading={isLoading} />
     </LoadingContext.Provider>

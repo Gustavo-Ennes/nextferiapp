@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   Container,
   Typography,
@@ -17,22 +17,26 @@ import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { BossDTO, WorkerDTO } from "@/dto";
+import { useRouter } from "@/context/RouterContext";
 
 export function BossDetail({ boss }: { boss: BossDTO }) {
   const { id } = useParams();
-  const router = useRouter();
   const { openConfirmationDialog } = useDialog();
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
+  const { redirectWithLoading } = useRouter();
 
-  const handleEdit = () => router.push(`/boss/form?id=${id}`);
+  const handleEdit = () => redirectWithLoading(`/boss/form?id=${id}`);
   const handleDelete = () =>
     openConfirmationDialog({
       title: "Excluir chefe",
+
       description: `Deseja excuir o chefe ${capitalizeName(
         (boss.worker as WorkerDTO).name,
       )}(${boss.role})?`,
+
       onConfirm: async () => {
+        setLoading(true);
         fetch(`/api/boss/${id}`, {
           method: "delete",
           headers: {
@@ -40,7 +44,6 @@ export function BossDetail({ boss }: { boss: BossDTO }) {
           },
         })
           .then(() => {
-            setLoading(false);
             addSnack({
               message: "Você deletou um chefe",
               severity: "success",
@@ -52,7 +55,7 @@ export function BossDetail({ boss }: { boss: BossDTO }) {
               message: "Eita, houve um problema deletando um chefe.",
             });
           })
-          .finally(() => router.push("/boss"));
+          .finally(() => redirectWithLoading("/boss"));
       },
     });
 

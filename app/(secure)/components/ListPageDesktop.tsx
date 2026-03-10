@@ -16,7 +16,7 @@ import {
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { PictureAsPdf } from "@mui/icons-material";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { StyledRow } from "./styled";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
@@ -26,6 +26,7 @@ import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { parseBool } from "./utils";
 import type { VacationDTO } from "@/dto";
 import { CancelListButton } from "../vacation/components/CancelListButton";
+import { useRouter } from "@/context/RouterContext";
 
 export const ListPageDesktop = <T extends Entity>({
   pagination: { data: items, currentPage, totalPages },
@@ -44,12 +45,12 @@ export const ListPageDesktop = <T extends Entity>({
     defaultEntityTableFields[routePrefix].forEach((key) => headers.push(key));
 
   const handleView = (_id: string) => {
-    router.push(`/${routePrefix}/${_id}`);
+    router.redirectWithLoading(`/${routePrefix}/${_id}`);
   };
 
   const handleEdit = (e: React.MouseEvent, _id: string) => {
     e.stopPropagation();
-    router.push(
+    router.redirectWithLoading(
       `/${routePrefix}/form?id=${_id}${
         vacationType !== "normal" ? `&type=${vacationType}` : ""
       }`,
@@ -74,7 +75,7 @@ export const ListPageDesktop = <T extends Entity>({
 
     const url = `${baseUrl}${urlType}?${urlPage}${urlContains}${urlIsExternal}`;
 
-    return router.push(url);
+    return router.redirectWithLoading(url);
   };
 
   const isDate = (key: string): boolean => {
@@ -139,7 +140,7 @@ export const ListPageDesktop = <T extends Entity>({
                   >
                     <EditIcon />
                   </IconButton>
-                  {vacationType === "dayOff" ? (
+                  {vacationType === "dayOff" || !vacationType ? (
                     <IconButton
                       onClick={(e) => handleDelete(e, item)}
                       sx={{ color: "#915252ff" }}

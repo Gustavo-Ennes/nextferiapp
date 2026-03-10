@@ -4,7 +4,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { ListItemButton, ListItemText, Collapse, List } from "@mui/material";
 import { useState } from "react";
 import type { ListItemMenuItem, SubMenuItem } from "./types";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { BlueItemIcon } from "./styled";
 
@@ -17,7 +17,7 @@ export const ListItemMenu = ({ props }: { props: ListItemMenuItem }) => {
 
   const handleItemClick = ({ pdfType, href }: SubMenuItem) => {
     if (pdfType) setPdf({ items: [{ type: pdfType }] });
-    else if (href) router.push(href);
+    else if (href) router.redirectWithLoading(href);
   };
 
   return (
