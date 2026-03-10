@@ -9,6 +9,7 @@ import { capitalizeName, sumarizeVacation } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
 import { useDialog } from "@/context/DialogContext";
 import type { Entity } from "@/app/types";
+import { useRouter as useInternalRouter } from "@/context/RouterContext";
 import { useRouter } from "next/navigation";
 import type { ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
@@ -16,6 +17,7 @@ import type { SnackbarData } from "@/context/types";
 import { useState } from "react";
 import { Search } from "./Search";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
+import { useLoading } from "@/context/LoadingContext";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
@@ -29,9 +31,11 @@ const ResponsiveListPage = <T extends Entity>({
   const { addSnack } = useSnackbar();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { openConfirmationDialog, closeConfirmationDialog } = useDialog();
+  const internalRouter = useInternalRouter();
   const router = useRouter();
   const [search, setSearch] = useState(contains);
   const useExternalFilter = routePrefix === "boss" || routePrefix === "worker";
+  const { setLoading } = useLoading();
 
   const traslatedEntityName = translateEntityKey({
     entity: routePrefix,
@@ -82,8 +86,9 @@ const ResponsiveListPage = <T extends Entity>({
       title: "Confirme a exclusão",
       description: modalDescription,
       onConfirm: async () => {
+        setLoading(true);
         await onConfirmDelete(entity);
-        router.push(
+        internalRouter.redirectWithLoading(
           `/${routePrefix}${
             vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
           }?page=${paginatedResponse.currentPage || "1"}${
@@ -133,7 +138,7 @@ const ResponsiveListPage = <T extends Entity>({
           variant="contained"
           sx={{ float: "right", mt: "3px" }}
           onClick={() =>
-            router.push(
+            internalRouter.redirectWithLoading(
               `/${routePrefix}/form${
                 vacationType ? `?type=${vacationType}` : ""
               }`,

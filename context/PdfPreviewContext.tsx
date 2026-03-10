@@ -41,7 +41,7 @@ export const PdfPreviewProvider = ({
   const [shouldOpenAfterLoad, setShouldOpenAfterLoad] = useState(true);
   const { addSnack } = useSnackbar();
   const pathName = usePathname();
-  const forbidenRoutes = ["not-found", "login"];
+  const forbidenRoutes = ["notFound", "login"];
 
   const setPdf = useCallback(
     async ({ items: newItems, add, open = true }: SetPdfCallbackParam) => {
@@ -98,7 +98,7 @@ export const PdfPreviewProvider = ({
   }, [open]);
 
   const shouldShowPdfPreview =
-    items.length && !forbidenRoutes.includes(pathName.split("/")[1]);
+    items.length > 0 && !forbidenRoutes.includes(pathName.split("/")[1]);
 
   return (
     <PfdPreviewContext.Provider value={{ setPdf }}>

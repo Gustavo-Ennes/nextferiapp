@@ -11,5 +11,6 @@ export interface VacationProps {
   defaultValues: VacationDTO | null;
   id?: string;
   type: VacationType;
-  isReschedule?: boolean;
+  isReschedule?: boolean | null;
+  cancellationPdf?: boolean | null;
 }

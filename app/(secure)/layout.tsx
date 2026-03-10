@@ -5,13 +5,14 @@ import { Box } from "@mui/material";
 import { Drawer as MuiDrawer, Main } from "./styled";
 import { type ReactNode, useEffect, useState } from "react";
 import { Drawer } from "./components/Drawer";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import ResponsiveAppBar from "./components/Appbar";
 import {
   getLocalStorageData,
   setLocalStorageData,
 } from "./materialRequisition/utils";
+import { useRouter } from "@/context/RouterContext";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { setLoading } = useLoading();
@@ -21,7 +22,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { data, status } = useSession();
 
   useEffect(() => {
-    if (status === "unauthenticated") router.push("/login");
+    if (status === "unauthenticated") router.redirectWithLoading("/login");
     if (status !== "loading") setLoading(false);
   }, [status]);
 
@@ -30,7 +31,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       if (data.lastPage !== pathname)
         setLocalStorageData({ data: { ...data, lastPage: pathname } });
     });
-  });
+  }, []);
 
   const toggleDrawer = () => setMobileOpen(!mobileOpen);
 
@@ -54,7 +55,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <MuiDrawer
           variant="permanent"
           open
-          sx={{ display: { xs: "none", sm: "block" } }}
+          sx={{ display: { xs: "none", sm: "block" }, zIndex: 2 }}
         >
           <Drawer />
         </MuiDrawer>

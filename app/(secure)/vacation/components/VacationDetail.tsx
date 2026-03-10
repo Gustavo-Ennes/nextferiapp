@@ -12,112 +12,16 @@ import {
 } from "@mui/material";
 
 import { format } from "date-fns";
-import { useDialog } from "@/context/DialogContext";
-import { ButtonMenu } from "../../components/ButtonMenu";
-import type { MenuItem } from "../../components/types";
 import { capitalizeName } from "@/app/utils";
 import { getTypeLabel } from "../utils";
-import { useRouter } from "next/navigation";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import type { VacationDTO, WorkerDTO } from "@/dto";
+import { CancelListButton } from "./CancelListButton";
 
 export function VacationDetail({ vacation }: { vacation: VacationDTO }) {
-  const { openInputDialog } = useDialog();
   const { setPdf } = usePdfPreview();
-  const router = useRouter();
-  const url = `/api/vacation/${vacation._id as string}`;
 
-  const submitFn = async ({
-    option,
-    withPdf,
-    obs,
-  }: {
-    option: "cancel" | "reschedule";
-    withPdf?: boolean;
-    obs?: string;
-  }) => {
-    const body: Partial<VacationDTO> = { cancelled: true, observation: obs };
-
-    await fetch(url, {
-      method: "put",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const vacationsUrl = `/vacation${
-      vacation.type !== "normal" ? `/${vacation.type}` : ""
-    }`;
-    const createVacationUrl = `/vacation/form?type=${
-      vacation.type
-    }&isReschedule={true}&id=${vacation._id as string}`;
-    router.push(option === "reschedule" ? createVacationUrl : vacationsUrl);
-
-    if (withPdf) {
-      setPdf({
-        items: [{ type: "cancellation", id: vacation._id as string }],
-        open: false,
-      });
-    }
-  };
-
-  const cancelMenuItems: MenuItem[] = [
-    {
-      label: "Cancelar",
-      action: () =>
-        openInputDialog({
-          title: "Cancelar folga",
-          description: "Deseja cancelar essa folga?",
-          onConfirm: async (obs) => submitFn({ option: "cancel", obs }),
-          confirmLabel: "Cancelar",
-          inputLabel: "Observação",
-        }),
-      disabled: false,
-    },
-    {
-      label: "Cancelar com requisição",
-      action: () =>
-        openInputDialog({
-          title: "Cancelar e imprimir requisição de cancelamento",
-          description: "Deseja cancelar e imprimir a requisição para o RH?",
-          onConfirm: async (obs) =>
-            submitFn({ option: "cancel", withPdf: true, obs }),
-          confirmLabel: "Cancelar e imprimir",
-          inputLabel: "Observação",
-        }),
-
-      disabled: false,
-    },
-    {
-      label: "Remarcar",
-      action: () =>
-        openInputDialog({
-          title: "Remarcar",
-          description:
-            "Deseja cancelar(sem requerimento RH) e remarcar essa folga?",
-          onConfirm: async (obs) => submitFn({ option: "reschedule", obs }),
-          confirmLabel: "Remarcar",
-          inputLabel: "Observação",
-        }),
-      disabled: !(vacation.worker as WorkerDTO).isActive || !vacation.worker,
-    },
-    {
-      label: "Remarcar com requisição",
-      action: () =>
-        openInputDialog({
-          title: "Remarcar com requisição",
-          description:
-            "Deseja cancelar com requirimento para o RH e remarcar essa folga?",
-          onConfirm: async (obs) =>
-            submitFn({ option: "reschedule", withPdf: true, obs }),
-          confirmLabel: "Remarcar e imprimir",
-          inputLabel: "Observação",
-        }),
-      disabled: !(vacation.worker as WorkerDTO).isActive || !vacation.worker,
-    },
-  ];
   const workerName = capitalizeName((vacation?.worker as WorkerDTO)?.name);
   const vacationType = `${vacation.period === "half" ? "½ " : ""}${getTypeLabel(
     vacation.type,
@@ -176,7 +80,8 @@ export function VacationDetail({ vacation }: { vacation: VacationDTO }) {
         alignContent="center"
         justifyContent="space-between"
       >
-        <ButtonMenu items={cancelMenuItems} vacation={vacation} />
+        <CancelListButton vacation={vacation} />
+
         <Button
           variant="contained"
           onClick={() =>

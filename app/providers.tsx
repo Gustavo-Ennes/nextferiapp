@@ -11,6 +11,7 @@ import { PdfPreviewProvider } from "@/context/PdfPreviewContext";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { LoadingProvider } from "@/context/LoadingContext";
 import { MaterialRequisitionFormProvider } from "@/context/MaterialRequisitionFormContext";
+import { RouterProvider } from "@/context/RouterContext";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -19,15 +20,17 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         <CssBaseline />
         <SessionProvider>
           <LoadingProvider>
-            <SnackbarProvider>
-              <PdfPreviewProvider>
-                <DialogProvider>
-                  <MaterialRequisitionFormProvider>
-                    {children}
-                  </MaterialRequisitionFormProvider>
-                </DialogProvider>
-              </PdfPreviewProvider>
-            </SnackbarProvider>
+            <RouterProvider>
+              <SnackbarProvider>
+                <PdfPreviewProvider>
+                  <DialogProvider>
+                    <MaterialRequisitionFormProvider>
+                      {children}
+                    </MaterialRequisitionFormProvider>
+                  </DialogProvider>
+                </PdfPreviewProvider>
+              </SnackbarProvider>
+            </RouterProvider>
           </LoadingProvider>
         </SessionProvider>
       </ThemeProvider>

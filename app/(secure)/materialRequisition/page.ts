@@ -1,12 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import { useEffect } from "react";
 
 export default function materialRequisitionPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.push("materialRequisition/form");
+    router.redirectWithLoading("materialRequisition/form");
   }, []);
 }

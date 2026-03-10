@@ -14,7 +14,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import type { WorkerFormData, WorkerProps } from "../types";
 import { DatePicker } from "@mui/x-date-pickers";
 import { WorkerValidator } from "../validator";
@@ -26,10 +26,12 @@ import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { capitalizeFirstLetter } from "@/app/utils";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
+import { useLoading } from "@/context/LoadingContext";
 
 export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   const router = useRouter();
   const { addSnack } = useSnackbar();
+  const { setLoading } = useLoading();
   const {
     control,
     handleSubmit,
@@ -47,6 +49,8 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   const onSubmit: SubmitHandler<WorkerFormData> = async (
     formData: WorkerFormData,
   ) => {
+    setLoading(true);
+
     const method = defaultValues ? "PUT" : "POST";
     const url = defaultValues
       ? `/api/worker/${defaultValues._id as string}`
@@ -72,7 +76,7 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
       snackbarData.severity = "success";
     }
 
-    router.push("/worker");
+    router.redirectWithLoading("/worker");
     addSnack(snackbarData);
   };
 

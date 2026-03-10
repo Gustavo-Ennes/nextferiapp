@@ -3,6 +3,7 @@ import type { CardParam } from "../types";
 import { useState } from "react";
 import { capitalizeFirstLetter } from "@/app/utils";
 import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
+import { isEmpty } from "ramda";
 
 const NumberCard = ({ label, quantity = 0, icon, details }: CardParam) => {
   const [open, setOpen] = useState(false);
@@ -11,7 +12,9 @@ const NumberCard = ({ label, quantity = 0, icon, details }: CardParam) => {
 
   return (
     <Paper elevation={3} sx={{ p: 2 }}>
-      {details?.length && <Icon sx={{ float: "right" }}>{openCloseIcon}</Icon>}
+      {!isEmpty(details) && (
+        <Icon sx={{ float: "right" }}>{openCloseIcon}</Icon>
+      )}
 
       <Box onClick={onClick} sx={{ cursor: details ? "pointer" : "default" }}>
         <Typography variant="h6">
@@ -21,7 +24,7 @@ const NumberCard = ({ label, quantity = 0, icon, details }: CardParam) => {
         <Typography variant="h4">{quantity}</Typography>
       </Box>
 
-      {details?.length && (
+      {!isEmpty(details) && (
         <Collapse in={open}>
           {details?.map((detail, idx) => (
             <Typography key={idx} variant="body2" sx={{ mt: 1 }}>

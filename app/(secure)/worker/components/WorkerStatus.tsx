@@ -1,5 +1,6 @@
 import { Stack, Badge, Typography, Tooltip } from "@mui/material";
 import type { WorkerStatusInfo } from "../types";
+import { isEmpty } from "ramda";
 
 export const WorkerStatusIcons = ({
   workerIcons,
@@ -7,7 +8,7 @@ export const WorkerStatusIcons = ({
   workerIcons: WorkerStatusInfo[];
 }) => {
   return (
-    workerIcons.length && (
+    !isEmpty(workerIcons) && (
       <Stack
         direction="row"
         alignItems="center"

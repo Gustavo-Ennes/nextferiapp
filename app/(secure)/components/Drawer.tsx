@@ -10,7 +10,7 @@ import { navList } from "../navList";
 import { DrawerContent } from "../styled";
 import { ListItemMenu } from "./ListItemMenu";
 import { Logout, PictureAsPdf } from "@mui/icons-material";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { BlueItemIcon } from "./styled";
 import { getVacationProps, getWeeklyFuellingSummaryProps } from "./utils";
@@ -20,7 +20,7 @@ export const Drawer = () => {
   const { setPdf } = usePdfPreview();
 
   const listClickAction = (href: string) => {
-    router.push(href);
+    router.redirectWithLoading(href);
   };
 
   return (
@@ -38,7 +38,7 @@ export const Drawer = () => {
             </ListItemButton>
           ) : (
             <ListItemMenu props={getVacationProps()} key={href} />
-          )
+          ),
         )}
         <Divider />
 

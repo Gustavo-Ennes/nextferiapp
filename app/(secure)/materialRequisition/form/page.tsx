@@ -22,7 +22,7 @@ import {
 import { Tab as MaterialRequisitionTab } from "../components/form/Tab";
 import { TabPanel } from "../components/form/TabPanel";
 import { Close } from "@mui/icons-material";
-import { head, insert, isNil, pluck, reject, remove } from "ramda";
+import { head, insert, isEmpty, isNil, pluck, reject, remove } from "ramda";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import {
@@ -282,7 +282,7 @@ export default function MaterialRequisitionForm() {
       </Grid>
 
       <Grid size={10}>
-        {tabsData.length ? (
+        {!isEmpty(tabsData) ? (
           tabsData
             .sort((a, b) => a.order - b.order)
             .map((tabData, idx) => (

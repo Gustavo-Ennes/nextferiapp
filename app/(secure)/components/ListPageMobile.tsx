@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import type { ItemListProps } from "./types";
 import { defaultEntityTableFields, formatCellContent } from "@/app/utils";
 import { translateEntityKey } from "../../translate";
@@ -32,7 +32,7 @@ export function ListPageMobile<T extends Entity>({
     Object.entries(obj).filter(
       ([k]) =>
         defaultEntityTableFields[routePrefix].includes(k as never) &&
-        !["name", "type"].includes(k)
+        !["name", "type"].includes(k),
     );
 
   const getItemLabel = (item: T) =>
@@ -42,10 +42,10 @@ export function ListPageMobile<T extends Entity>({
 
   const handleEdit = (e: MouseEvent, item: Entity) => {
     e.stopPropagation();
-    router.push(
+    router.redirectWithLoading(
       `/${routePrefix}/form?id=${item._id as string}${
         vacationType !== "normal" ? `&type=${vacationType}` : ""
-      }`
+      }`,
     );
   };
 
@@ -55,7 +55,7 @@ export function ListPageMobile<T extends Entity>({
       setPdf({ items: [{ type: "vacation", id: item._id as string }] });
     else
       console.warn(
-        "Only vacation, material requisitions and vehicle usage have pdf templates to render."
+        "Only vacation, material requisitions and vehicle usage have pdf templates to render.",
       );
   };
 
@@ -74,13 +74,17 @@ export function ListPageMobile<T extends Entity>({
                 entity: routePrefix,
                 key: k,
               })}: ${formatCellContent<T>({ value: v, isName: k === "name" })}`
-            : ""
+            : "",
         );
 
         return (
           <ListItem
             key={item._id as string}
-            onClick={() => router.push(`/${routePrefix}/${item._id as string}`)}
+            onClick={() =>
+              router.redirectWithLoading(
+                `/${routePrefix}/${item._id as string}`,
+              )
+            }
             sx={{
               display: "flex",
               flexDirection: "column",
@@ -96,7 +100,7 @@ export function ListPageMobile<T extends Entity>({
 
                 <Divider />
 
-                {subtitles.length && (
+                {subtitles.length > 0 && (
                   <Grid
                     container
                     gap={1}

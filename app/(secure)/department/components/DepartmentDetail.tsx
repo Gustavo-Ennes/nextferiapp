@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/context/RouterContext";
 import {
   Container,
   Typography,
@@ -31,7 +31,9 @@ export function DepartmentDetail({
   const { addSnack } = useSnackbar();
 
   const handleEdit = () =>
-    router.push(`/department/form?id=${department._id as string}`);
+    router.redirectWithLoading(
+      `/department/form?id=${department._id as string}`,
+    );
   const handleDelete = () =>
     openConfirmationDialog({
       title: "Excluir departamento",
@@ -47,7 +49,6 @@ export function DepartmentDetail({
           },
         })
           .then(() => {
-            setLoading(false);
             addSnack({
               message: "Você deletou um departamento",
               severity: "success",
@@ -59,7 +60,7 @@ export function DepartmentDetail({
               message: "Eita, houve um problema deletando um departamento.",
             });
           })
-          .finally(() => router.push("/department"));
+          .finally(() => router.redirectWithLoading("/department"));
       },
     });
 
