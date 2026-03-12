@@ -125,6 +125,8 @@ export const ListPageDesktop = <T extends Entity>({
                           isName: key === "name",
                           isDate: isDate(key),
                           capitalize: key === "role",
+                          isCurrency: key === "pricePerUnit",
+                          isArray: Array.isArray(item[key as keyof T]),
                         })}
                   </TableCell>
                 ))}

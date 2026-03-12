@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
 import { PurchaseOrderDetail } from "../components/PurchaseOrderDetail";
 
-export default async function WorkerViewPage({
+export default async function PurchaseOrderViewPage({
   params,
 }: {
   params: Promise<{ id: string }>;

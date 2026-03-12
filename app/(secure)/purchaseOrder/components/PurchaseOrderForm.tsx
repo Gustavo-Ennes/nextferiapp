@@ -18,19 +18,21 @@ import {
   useWatch,
   type SubmitHandler,
 } from "react-hook-form";
-import { fuelTypes } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { PurchaseFormProps, PurchaseOrderFormData } from "../types";
 import { PurchaseOrderValidator } from "../validator";
-import { purchaseOrderBaseline } from "../utils";
-import type { SnackbarData } from "@/context/types";
+import { prepareDefaults, purchaseOrderBaseline } from "../utils";
 import { useLoading } from "@/context/LoadingContext";
-import { useRouter } from "@/context/RouterContext";
+import { useRouter as useInternalRouter } from "@/context/RouterContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 
-export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
+export function PurchaseOrderForm({
+  defaultValues,
+  departments,
+  fuels,
+}: PurchaseFormProps) {
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
-  const router = useRouter();
+  const { redirectWithLoading, nextRouter } = useInternalRouter();
 
   const {
     control,
@@ -40,7 +42,9 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
   } = useForm<PurchaseOrderFormData>({
     resolver: zodResolver(PurchaseOrderValidator),
     mode: "onTouched",
-    defaultValues: defaultValues ?? purchaseOrderBaseline,
+    defaultValues: defaultValues
+      ? prepareDefaults(defaultValues)
+      : purchaseOrderBaseline,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -48,19 +52,15 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
     name: "items",
   });
 
-  const watchedItems = useWatch({
-    control,
-    name: "items",
-  });
+  const watchedItems = useWatch({ control, name: "items" });
 
   const handleAppendFuel = () => {
-    const currentItems = getValues("items");
-    const selectedFuels = currentItems.map((i) => i.fuel);
+    const currentItems = getValues("items") || [];
+    const selectedFuelIds = currentItems.map((i) => i.fuel);
+    const nextAvailable = fuels.find((f) => !selectedFuelIds.includes(f._id));
 
-    const nextAvailableFuel = fuelTypes.find((f) => !selectedFuels.includes(f));
-
-    if (nextAvailableFuel && fields.length < 4) {
-      append({ fuel: nextAvailableFuel, quantity: 0, price: 0 });
+    if (nextAvailable && fields.length < fuels.length) {
+      append({ fuel: nextAvailable._id, quantity: 0 });
     }
   };
 
@@ -71,8 +71,6 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
       ? `/api/purchaseOrder/${defaultValues._id}`
       : `/api/purchaseOrder`;
 
-    const snackbarData: SnackbarData = { message: "" };
-
     try {
       const res = await fetch(url, {
         method,
@@ -82,15 +80,16 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
 
       if (!res.ok) throw new Error();
 
-      snackbarData.message = `Pedido ${formData.reference} ${defaultValues ? "editado" : "criado"} com sucesso!`;
-      snackbarData.severity = "success";
+      addSnack({
+        message: `Pedido ${formData.reference} salvo com sucesso!`,
+        severity: "success",
+      });
+
+      redirectWithLoading("/purchaseOrder");
     } catch (error) {
-      snackbarData.message = "Erro ao salvar o pedido.";
-      snackbarData.severity = "error";
+      addSnack({ message: "Erro ao salvar o pedido.", severity: "error" });
     } finally {
       setLoading(false);
-      router.redirectWithLoading("/purchaseOrder");
-      addSnack(snackbarData);
     }
   };
 
@@ -101,7 +100,30 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
       component="form"
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Grid size={{ xs: 12 }}>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Controller
+          name="department"
+          control={control}
+          render={({ field }) => (
+            <TextField
+              {...field}
+              select
+              fullWidth
+              label="Departamento"
+              error={!!errors.department}
+              helperText={errors.department?.message}
+            >
+              {departments.map((dept) => (
+                <MenuItem key={dept._id} value={dept._id}>
+                  {dept.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+        />
+      </Grid>
+
+      <Grid size={{ xs: 12, md: 6 }}>
         <Controller
           name="reference"
           control={control}
@@ -118,18 +140,16 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
       </Grid>
 
       <Grid size={{ xs: 12 }}>
-        <Typography variant="h6">Combustíveis</Typography>
+        <Typography variant="h6">Itens do Pedido</Typography>
         <Divider sx={{ my: 1 }} />
       </Grid>
 
       {fields.map((item, index) => {
-        // Lógica de filtro: Mantém o combustível atual do select + os que não foram escolhidos em outros campos
-        const otherSelectedFuels = watchedItems
-          .filter((_, i) => i !== index)
-          .map((i) => i.fuel);
+        const otherSelectedIds =
+          watchedItems?.filter((_, i) => i !== index).map((i) => i.fuel) || [];
 
-        const availableOptions = fuelTypes.filter(
-          (f) => !otherSelectedFuels.includes(f),
+        const availableOptions = fuels.filter(
+          (f) => !otherSelectedIds.includes(f._id),
         );
 
         return (
@@ -140,7 +160,7 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
             alignItems="center"
             sx={{ mb: 1 }}
           >
-            <Grid size={{ xs: 4 }}>
+            <Grid size={{ xs: 6 }}>
               <Controller
                 name={`items.${index}.fuel`}
                 control={control}
@@ -152,9 +172,9 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
                     label="Combustível"
                     size="small"
                   >
-                    {availableOptions.map((type) => (
-                      <MenuItem key={type} value={type}>
-                        {type}
+                    {availableOptions.map((f) => (
+                      <MenuItem key={f._id} value={f._id}>
+                        {f.name} ({f.unit})
                       </MenuItem>
                     ))}
                   </TextField>
@@ -162,7 +182,7 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
               />
             </Grid>
 
-            <Grid size={{ xs: 3 }}>
+            <Grid size={{ xs: 4 }}>
               <Controller
                 name={`items.${index}.quantity`}
                 control={control}
@@ -171,24 +191,7 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
                     {...field}
                     type="number"
                     fullWidth
-                    label="Qtd (L)"
-                    size="small"
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 3 }}>
-              <Controller
-                name={`items.${index}.price`}
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    type="number"
-                    fullWidth
-                    label="Preço (R$)"
+                    label="Quantidade"
                     size="small"
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
@@ -213,22 +216,25 @@ export function PurchaseOrderForm({ defaultValues }: PurchaseFormProps) {
         <Button
           startIcon={<AddIcon />}
           onClick={handleAppendFuel}
-          disabled={fields.length >= 4 || fields.length >= fuelTypes.length}
+          disabled={fields.length >= fuels.length}
         >
-          Adicionar Combustível
+          Adicionar Item
         </Button>
       </Grid>
 
       <Grid
         size={{ xs: 12 }}
-        sx={{ display: "flex", justifyContent: "flex-end" }}
+        sx={{ display: "flex", justifyContent: "flex-end", gap: 2 }}
       >
+        <Button variant="outlined" onClick={() => nextRouter.back()}>
+          Cancelar
+        </Button>
         <Button
           type="submit"
           variant="contained"
           disabled={!isValid || isSubmitting}
         >
-          {isSubmitting ? "Salvando..." : "Salvar Pedido"}
+          {isSubmitting ? "Salvando..." : "Confirmar Pedido"}
         </Button>
       </Grid>
     </Grid>

@@ -1,3 +1,6 @@
+import type { DepartmentDTO } from "@/dto";
+import type { FuelDTO } from "@/dto/FuelDTO";
+import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import type { FuelType } from "@/lib/repository/weeklyFuellingSummary/types";
 
 export const translateFuelType = (fuelType: FuelType): string => {
@@ -15,5 +18,15 @@ export const translateFuelType = (fuelType: FuelType): string => {
 
 export const purchaseOrderBaseline = {
   reference: "",
-  items: []
-}
+  department: "",
+  items: [],
+};
+
+export const prepareDefaults = (purchaseOrder: PurchaseOrderDTO) => ({
+  ...purchaseOrder,
+  department: (purchaseOrder.department as DepartmentDTO)._id,
+  items: purchaseOrder.items.map((item) => ({
+    ...item,
+    fuel: (item.fuel as FuelDTO)._id,
+  })),
+});

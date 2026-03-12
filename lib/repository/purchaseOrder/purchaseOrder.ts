@@ -1,18 +1,19 @@
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
+import type { SearchParams } from "@/app/(secure)/types";
+import type { PaginatedResponse } from "@/app/api/types";
+import { PAGINATION_LIMIT } from "@/app/api/utils";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import dbConnect from "@/lib/database/database";
 import PurchaseOrderModel, {
   type IPurchaseOrder,
 } from "@/models/PurchaseOrder";
-import type {
-  FindOneRepositoryParam,
-  Repository,
-  UpdateRepositoryParam,
-} from "../types";
+import type { FindOneRepositoryParam, UpdateRepositoryParam } from "../types";
 import { parsePurchaseOrders, toPurchaseOrderDTO } from "./parse";
-import type { PaginatedResponse } from "@/app/api/types";
-import { PAGINATION_LIMIT } from "@/app/api/utils";
-import type { SearchParams } from "@/app/(secure)/types";
+import { FuelRepository } from "../fuel/fuel";
+import type { Repository } from "../types";
+import { PurchaseOrderValidator } from "@/app/(secure)/purchaseOrder/validator";
+import { isObjectIdOrHexString } from "mongoose";
+import { calculatePurchaseOrderPrices } from "../utils";
 
 export const PurchaseOrderRepository: Repository<
   PurchaseOrderDTO,
@@ -22,31 +23,27 @@ export const PurchaseOrderRepository: Repository<
     params: SearchParams,
   ): Promise<PaginatedResponse<PurchaseOrderDTO>> {
     await dbConnect();
-
-    const { page } = params;
-    const skip = ((page as number) - 1) * PAGINATION_LIMIT;
+    const { page = 1 } = params;
+    const skip = (Number(page) - 1) * PAGINATION_LIMIT;
 
     const [data, totalItems] = await Promise.all([
       PurchaseOrderModel.find()
-        .sort({ name: 1 })
+        .populate("department")
+        .populate("items.fuel") // Popula o combustível dentro de cada item do array
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(PAGINATION_LIMIT)
         .lean<IPurchaseOrder[]>(),
       PurchaseOrderModel.countDocuments(),
     ]);
-    const totalPages = Math.ceil(totalItems / PAGINATION_LIMIT);
-    const parsedOrders = parsePurchaseOrders(data);
-    const currentPage = page as number;
-    const hasNextPage = totalPages > currentPage;
-    const hasPrevPage = currentPage > 1;
 
     return {
-      data: parsedOrders,
+      data: parsePurchaseOrders(data) as PurchaseOrderDTO[],
       totalItems,
-      totalPages,
-      currentPage,
-      hasNextPage,
-      hasPrevPage,
+      totalPages: Math.ceil(totalItems / PAGINATION_LIMIT),
+      currentPage: Number(page),
+      hasNextPage: Math.ceil(totalItems / PAGINATION_LIMIT) > Number(page),
+      hasPrevPage: Number(page) > 1,
       limit: PAGINATION_LIMIT,
     };
   },
@@ -55,45 +52,97 @@ export const PurchaseOrderRepository: Repository<
     id,
   }: FindOneRepositoryParam): Promise<PurchaseOrderDTO | null> {
     await dbConnect();
+    const order = await PurchaseOrderModel.findById(id)
+      .populate("department")
+      .populate("items.fuel")
+      .lean<IPurchaseOrder>();
 
-    const rawOrder = await PurchaseOrderModel.findById<IPurchaseOrder>(id);
-
-    return rawOrder ? toPurchaseOrderDTO(rawOrder) : null;
+    return order ? (toPurchaseOrderDTO(order) as PurchaseOrderDTO) : null;
   },
 
-  async create(data: PurchaseOrderFormData): Promise<PurchaseOrderDTO> {
+  async findByReference(reference: string) {
     await dbConnect();
+    const order = await PurchaseOrderModel.findOne({ reference });
 
-    const newOrder = new PurchaseOrderModel(data);
-    const newRawOrder = await newOrder.save();
-    const order = toPurchaseOrderDTO(newRawOrder);
-
-    return order;
+    return order ? (toPurchaseOrderDTO(order) as PurchaseOrderDTO) : null;
   },
 
-  async findByReference(reference: string): Promise<PurchaseOrderDTO | null> {
+  async create(payload: PurchaseOrderFormData): Promise<PurchaseOrderDTO> {
     await dbConnect();
-    return await PurchaseOrderModel.findOne({ reference });
+
+    let validPayload: PurchaseOrderFormData | null = null;
+
+    const result = PurchaseOrderValidator.safeParse(payload);
+
+    if (!result.success) {
+      throw new Error(JSON.parse(result.error.message)[0].message);
+    } else {
+      validPayload = result.data as PurchaseOrderFormData;
+    }
+
+    const { data: fuels } = await FuelRepository.find({});
+
+    const calculatedPayload = calculatePurchaseOrderPrices({
+      order: validPayload,
+      fuels,
+    });
+
+    const newOrder = await PurchaseOrderModel.create(calculatedPayload);
+
+    await newOrder.populate("department");
+    await newOrder.populate("items.fuel");
+
+    return toPurchaseOrderDTO(newOrder as IPurchaseOrder) as PurchaseOrderDTO;
   },
 
   async update({
     id,
     payload,
-  }: UpdateRepositoryParam<PurchaseOrderFormData>): Promise<PurchaseOrderDTO | null> {
+  }: UpdateRepositoryParam<PurchaseOrderFormData>): Promise<PurchaseOrderDTO> {
     await dbConnect();
 
-    return await PurchaseOrderModel.findByIdAndUpdate(
+    let validPayload: PurchaseOrderFormData | null = null;
+
+    const result = PurchaseOrderValidator.safeParse(payload);
+
+    if (!result.success) {
+      throw new Error(JSON.parse(result.error.message)[0].message);
+    } else if (!isObjectIdOrHexString(id)) {
+      throw new Error("Id prop needs to be a valid ObjectId.");
+    } else {
+      validPayload = result.data as PurchaseOrderFormData;
+    }
+
+    const { data: fuels } = await FuelRepository.find({});
+    const calculatedPayload = calculatePurchaseOrderPrices({
+      order: validPayload,
+      fuels,
+    });
+
+    const purchaseOrder = await PurchaseOrderModel.findByIdAndUpdate(
       id,
-      { $set: payload },
-      { new: true, runValidators: true },
+      calculatedPayload,
+      {
+        returnDocument: "after",
+      },
     );
+
+    if (!purchaseOrder)
+      throw new Error("No purchase order found with provided id.");
+
+    await purchaseOrder.populate("department");
+    await purchaseOrder.populate("items.fuel");
+
+    return toPurchaseOrderDTO(purchaseOrder) as PurchaseOrderDTO;
   },
 
   async delete(id: string): Promise<PurchaseOrderDTO | null> {
     await dbConnect();
 
-    const rawDeleted = await PurchaseOrderModel.findByIdAndDelete(id);
-    const deleted = toPurchaseOrderDTO(rawDeleted);
-    return deleted;
+    const deleted = await PurchaseOrderModel.findOneAndDelete(
+      { _id: id },
+      { returnOriginal: true },
+    );
+    return deleted ? (toPurchaseOrderDTO(deleted) as PurchaseOrderDTO) : null;
   },
 };

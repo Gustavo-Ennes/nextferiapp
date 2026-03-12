@@ -1,6 +1,6 @@
+import { FuelValidator } from "@/app/(secure)/fuel/validator";
+import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import { NextRequest, NextResponse } from "next/server";
-import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
-import { PurchaseOrderValidator } from "@/app/(secure)/purchaseOrder/validator";
 import { optionsResponse } from "../../utils";
 
 export async function OPTIONS() {
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
     if (!id) throw new Error("No id provided.");
 
-    const order = await PurchaseOrderRepository.findOne({ id });
+    const order = await FuelRepository.findOne({ id });
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
@@ -37,18 +37,18 @@ export async function PUT(req: NextRequest) {
 
     if (!id) throw new Error("No id provided.");
 
-    const validatedData = PurchaseOrderValidator.partial().parse(payload);
+    const validatedData = FuelValidator.partial().parse(payload);
 
-    const updatedOrder = await PurchaseOrderRepository.update({
+    const updatedFuel = await FuelRepository.update({
       id,
       payload: validatedData,
     });
 
-    if (!updatedOrder) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    if (!updatedFuel) {
+      return NextResponse.json({ error: "Fuel not found" }, { status: 404 });
     }
 
-    return NextResponse.json(updatedOrder);
+    return NextResponse.json(updatedFuel);
   } catch (error: any) {
     if (error.name === "ZodError") {
       return NextResponse.json({ errors: error.errors }, { status: 400 });
@@ -67,7 +67,7 @@ export async function DELETE(req: NextRequest) {
 
     if (!id) throw new Error("No id provided.");
 
-    const success = await PurchaseOrderRepository.delete(id);
+    const success = await FuelRepository.delete(id);
 
     if (!success) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });

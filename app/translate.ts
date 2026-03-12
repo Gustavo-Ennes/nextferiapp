@@ -68,6 +68,12 @@ export const translateEntityKey = ({
       worker: "Servidor",
     },
     fuel: {
+      fuel: "Combustível",
+      name: "Nome",
+      translated: "Combustível",
+      translatedPlural: "Combustíveis",
+      unit: "Un. Medida",
+      pricePerUnit: "R$/un.",
       gas: "Gasolina",
       s10: "Diesel S-10",
       s500: "Diesel S-500",
@@ -79,6 +85,9 @@ export const translateEntityKey = ({
     purchaseOrder: {
       translated: "Pedido",
       translatedPlural: "Pedidos",
+      department: "Departamento",
+      reference: "Referência",
+      items: "itens",
     },
   };
   return entity

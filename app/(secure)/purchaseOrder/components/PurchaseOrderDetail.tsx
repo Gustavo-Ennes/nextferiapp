@@ -9,14 +9,15 @@ import {
   Divider,
   Grid,
   Paper,
+  Stack,
 } from "@mui/material";
 import { useDialog } from "@/context/DialogContext";
-import { capitalizeName } from "@/app/utils";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import { translateFuelType } from "../utils";
+import type { DepartmentDTO } from "@/dto";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export function PurchaseOrderDetail({
   purchaseOrder,
@@ -30,78 +31,125 @@ export function PurchaseOrderDetail({
 
   const handleEdit = () =>
     router.redirectWithLoading(`/purchaseOrder/form?id=${purchaseOrder._id}`);
+
   const handleDelete = () =>
     openConfirmationDialog({
       title: "Excluir saldo de pedido?",
-      description: `Deseja excluir o pedido ${capitalizeName(purchaseOrder.reference)}?`,
+      description: `Deseja excluir o pedido ${purchaseOrder.reference}?`,
       onConfirm: async () => {
         setLoading(true);
+        try {
+          const res = await fetch(`/api/purchaseOrder/${purchaseOrder._id}`, {
+            method: "DELETE",
+          });
+          if (!res.ok) throw new Error();
 
-        fetch(`/api/purchaseOrder/${purchaseOrder._id}`, {
-          method: "delete",
-        })
-          .then(() => {
-            addSnack({
-              message: "Você deletou um pedido",
-              severity: "success",
-            });
-          })
-          .catch((err) => {
-            console.error(err);
-            addSnack({
-              message: "Eita, houve um problema deletando um pedido.",
-            });
-          })
-          .finally(() => router.redirectWithLoading("/purchaseOrder"));
+          addSnack({
+            message: "Pedido excluído com sucesso",
+            severity: "success",
+          });
+        } catch (err) {
+          console.error(err);
+          addSnack({
+            message: "Houve um problema ao excluir o pedido.",
+            severity: "error",
+          });
+        } finally {
+          router.redirectWithLoading("/purchaseOrder");
+        }
       },
     });
 
+  // Cálculo do total geral do pedido baseado nos itens processados pelo DTO
+  const orderTotal = purchaseOrder.items.reduce(
+    (acc, item) => acc + item.price,
+    0,
+  );
+
   return (
     <Container maxWidth="sm" sx={{ mt: 1 }}>
-      <TitleTypography>Visualização de pedido</TitleTypography>
+      <TitleTypography>Visualização de Pedido</TitleTypography>
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Grid container spacing={2}>
           <Grid size={12}>
-            <Typography variant="h5" textAlign={"center"}>
-              {capitalizeName(purchaseOrder?.reference)}
+            <Typography variant="h5" textAlign="center" gutterBottom>
+              Ref: {purchaseOrder.reference}
+            </Typography>
+            <Typography
+              variant="subtitle2"
+              color="text.secondary"
+              textAlign="center"
+            >
+              Departamento: {(purchaseOrder.department as DepartmentDTO).name}
             </Typography>
           </Grid>
 
           <Grid size={12}>
-            <Divider />
+            <Divider sx={{ my: 1 }} />
           </Grid>
 
-          <Grid size={{ xs: 12, sm: 6 }} spacing={2}>
-            {purchaseOrder.items.map((item, i) => (
-              <Box p={1} key={`purchaseOrder${i}`}>
-                <Typography variant="subtitle1">
-                  {translateFuelType(item.fuel)}
-                </Typography>
-                <Typography variant="body1">
-                  {item.quantity.toFixed(2)}
-                </Typography>
-                <Typography variant="body2">
-                  {`R$${item.price.toFixed(2)}`}
-                </Typography>
-              </Box>
-            ))}
+          <Grid size={12}>
+            <Stack spacing={2}>
+              {purchaseOrder.items.map((item, i) => (
+                <Box
+                  key={`item-${i}`}
+                  sx={{
+                    p: 2,
+                    bgcolor: "action.hover",
+                    borderRadius: 1,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {(item.fuel as FuelDTO).name}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {item.quantity.toFixed(2)} {(item.fuel as FuelDTO).unit} x
+                      R$ {(item.fuel as FuelDTO).pricePerUnit.toFixed(2)}
+                    </Typography>
+                  </Box>
+                  <Typography variant="subtitle1" fontWeight="medium">
+                    R$ {item.price.toFixed(2)}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
+          </Grid>
+
+          <Grid size={12}>
+            <Divider sx={{ my: 1 }} />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                mt: 1,
+                px: 1,
+              }}
+            >
+              <Typography variant="h6">Total do Pedido</Typography>
+              <Typography variant="h6" color="primary.main">
+                R$ {orderTotal.toFixed(2)}
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
       </Paper>
-      <Grid
-        container
-        spacing={2}
-        my={3}
-        alignContent="center"
-        justifyContent="space-between"
-      >
-        <Button variant="contained" onClick={handleDelete}>
-          Excluir
-        </Button>
-        <Button variant="contained" onClick={handleEdit}>
-          Editar
-        </Button>
+
+      <Grid container spacing={2} my={3} justifyContent="space-between">
+        <Grid>
+          <Button variant="outlined" color="error" onClick={handleDelete}>
+            Excluir
+          </Button>
+        </Grid>
+        <Grid>
+          <Button variant="contained" onClick={handleEdit}>
+            Editar
+          </Button>
+        </Grid>
       </Grid>
     </Container>
   );

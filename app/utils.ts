@@ -17,19 +17,33 @@ import { translateEntityKey } from "./translate";
 import { limitText } from "./(secure)/utils";
 import { prop, uniqBy } from "ramda";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
+import type { PurchaseOrderItemDTO } from "@/dto/PurchaseOrderDTO";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export const formatCellContent = <T extends Entity>({
   value,
   isName,
   isDate,
+  isCurrency,
+  isArray,
   capitalize,
 }: {
   value: T[keyof T];
   // when value isn't a obj
   isName?: boolean;
   isDate?: boolean;
+  isCurrency?: boolean;
+  isArray?: boolean;
   capitalize?: boolean;
 }) => {
+  const transcribeArray = (arr: PurchaseOrderItemDTO[]): string => {
+    const names = arr.map(({ fuel }) =>
+      capitalizeFirstLetter((fuel as FuelDTO).name),
+    );
+
+    return names.join(", ");
+  };
+
   try {
     if (value === true) return "Sim";
     if (value === false) return "Não";
@@ -44,6 +58,9 @@ export const formatCellContent = <T extends Entity>({
     if (isName && value) return capitalizeName(value as string);
     if (capitalize && value) return capitalizeFirstLetter(value as string);
     if (isDate) return format(toDate(value as string), "dd/MM/yyyy");
+    if (isCurrency)
+      return `R$ ${(value as number).toFixed(2).replace(".", ",")}`;
+    if (isArray) return transcribeArray(value as PurchaseOrderItemDTO[]);
     if (value === undefined || value === null) return "Excluído(a)";
     return String(value);
   } catch {
@@ -214,7 +231,8 @@ export const defaultEntityTableFields = {
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
   weeklyFuellingSummary: [],
-  purchaseOrder: ["reference", "items"],
+  purchaseOrder: ["reference", "items", "department"],
+  fuel: ["name", "unit", "pricePerUnit"],
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>

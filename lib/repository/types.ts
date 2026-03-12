@@ -28,6 +28,9 @@ export type BossFindOneRepositoryParam = {
 export type Repository<Entity, FormData> = {
   find: (params: SearchParams) => Promise<PaginatedResponse<Entity>>;
   findByReference?: (ref: string) => Promise<Entity | null>;
+  findByFilter?: (
+    filter: FormData | Partial<FormData>,
+  ) => Promise<Entity | null>;
   create: (payload: FormData) => Promise<Entity>;
   findOne: (param: FindOneRepositoryParam) => Promise<Entity | null>;
   update: (param: UpdateRepositoryParam<FormData>) => Promise<Entity | null>;

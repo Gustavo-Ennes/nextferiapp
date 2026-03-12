@@ -1,13 +1,17 @@
-import type { FuelType } from "@/lib/repository/weeklyFuellingSummary/types";
+import type { DepartmentDTO } from "./DepartmentDTO";
+import type { FuelDTO } from "./FuelDTO";
+
+export interface PurchaseOrderItemDTO {
+  fuel: FuelDTO | string;
+  quantity: number;
+  price: number;
+}
 
 export interface PurchaseOrderDTO {
   _id: string;
   reference: string;
-  items: Array<{
-    fuel: FuelType;
-    quantity: number;
-    price: number;
-    totalItem: number;
-  }>;
-  createdAt: Date;
+  department: DepartmentDTO | string;
+  items: PurchaseOrderItemDTO[];
+  createdAt: string;
+  updatedAt: string;
 }

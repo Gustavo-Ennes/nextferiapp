@@ -1,6 +1,6 @@
+import { FuelValidator } from "@/app/(secure)/fuel/validator";
+import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import { NextRequest, NextResponse } from "next/server";
-import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
-import { PurchaseOrderValidator } from "@/app/(secure)/purchaseOrder/validator";
 import { optionsResponse } from "../utils";
 
 export async function OPTIONS() {
@@ -9,11 +9,11 @@ export async function OPTIONS() {
 
 export async function GET() {
   try {
-    const orders = await PurchaseOrderRepository.find({});
-    return NextResponse.json(orders);
+    const fuels = await FuelRepository.find({});
+    return NextResponse.json(fuels);
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch orders" },
+      { error: "Failed to fetch fuels" },
       { status: 500 },
     );
   }
@@ -22,20 +22,20 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validatedData = PurchaseOrderValidator.parse(body);
+    const validatedData = FuelValidator.parse(body);
 
-    const existing = await PurchaseOrderRepository.findByReference!(
-      validatedData.reference,
-    );
+    const existing = await FuelRepository.findByFilter!({
+      name: validatedData.name,
+    });
     if (existing) {
       return NextResponse.json(
-        { error: "Reference already exists" },
+        { error: "Fuel already exists" },
         { status: 400 },
       );
     }
 
-    const order = await PurchaseOrderRepository.create(validatedData);
-    return NextResponse.json(order);
+    const fuel = await FuelRepository.create(validatedData);
+    return NextResponse.json(fuel);
   } catch (error: any) {
     if (error.name === "ZodError") {
       return NextResponse.json({ errors: error.errors }, { status: 400 });
