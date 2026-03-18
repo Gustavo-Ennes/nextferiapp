@@ -20,11 +20,11 @@ export const FuelRepository: Repository<FuelDTO, FuelFormData> = {
     const skip = (Number(page) - 1) * PAGINATION_LIMIT;
 
     const [data, totalItems] = await Promise.all([
-      FuelModel.find()
+      FuelModel.find<IFuel>()
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(PAGINATION_LIMIT)
-        .lean<IFuel[]>(),
+        .populate("priceVersions currentPriceVersion"),
       FuelModel.countDocuments(),
     ]);
 
@@ -57,6 +57,7 @@ export const FuelRepository: Repository<FuelDTO, FuelFormData> = {
         ...(params.timePeriod && from && { from }),
         page: page++,
       });
+
       fuels.push(...fuelPage);
       shouldFetchNextPage = hasNextPage;
     } while (shouldFetchNextPage);
@@ -68,13 +69,17 @@ export const FuelRepository: Repository<FuelDTO, FuelFormData> = {
     filter: FuelFormData | Partial<FuelFormData>,
   ): Promise<FuelDTO | null> {
     await dbConnect();
-    const fuel = await FuelModel.findOne(filter);
+    const fuel = await FuelModel.findOne(filter).populate(
+      "priceVersions currentPriceVersion",
+    );
     return fuel ? (toFuelDTO(fuel) as FuelDTO) : null;
   },
 
   async findOne({ id }: FindOneRepositoryParam): Promise<FuelDTO | null> {
     await dbConnect();
-    const fuel = await FuelModel.findById(id).lean<IFuel>();
+    const fuel = await FuelModel.findById<IFuel>(id).populate(
+      "priceVersions currentPriceVersion",
+    );
     return fuel ? (toFuelDTO(fuel) as FuelDTO) : null;
   },
 
@@ -90,8 +95,8 @@ export const FuelRepository: Repository<FuelDTO, FuelFormData> = {
     } else {
       validPayload = result.data as FuelFormData;
     }
-
     const created = await FuelModel.create(validPayload);
+    await created.populate("priceVersions currentPriceVersion");
 
     return toFuelDTO(created.toObject()) as FuelDTO;
   },
@@ -114,9 +119,10 @@ export const FuelRepository: Repository<FuelDTO, FuelFormData> = {
       validPayload = result.data as FuelFormData;
     }
 
-    const updated = await FuelModel.findByIdAndUpdate(id, validPayload, {
+    const updated = await FuelModel.findByIdAndUpdate<IFuel>(id, validPayload, {
       returnDocumentAfter: true,
-    }).lean<IFuel>();
+    });
+    await updated?.populate("priceVersions ");
 
     if (!updated) throw new Error("No fuel found with provided id.");
 

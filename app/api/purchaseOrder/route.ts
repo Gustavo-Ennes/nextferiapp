@@ -37,9 +37,6 @@ export async function POST(request: NextRequest) {
     const order = await PurchaseOrderRepository.create(validatedData);
     return NextResponse.json(order);
   } catch (error: any) {
-    if (error.name === "ZodError") {
-      return NextResponse.json({ errors: error.errors }, { status: 400 });
-    }
     return NextResponse.json(
       { error: `Internal Server Error: ${error}` },
       { status: 500 },

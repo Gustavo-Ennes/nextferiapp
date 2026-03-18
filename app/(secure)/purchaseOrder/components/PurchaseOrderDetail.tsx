@@ -18,6 +18,7 @@ import { useSnackbar } from "@/context/SnackbarContext";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import type { DepartmentDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 
 export function PurchaseOrderDetail({
   purchaseOrder,
@@ -59,12 +60,6 @@ export function PurchaseOrderDetail({
         }
       },
     });
-
-  // Cálculo do total geral do pedido baseado nos itens processados pelo DTO
-  const orderTotal = purchaseOrder.items.reduce(
-    (acc, item) => acc + item.price,
-    0,
-  );
 
   return (
     <Container maxWidth="sm" sx={{ mt: 1 }}>
@@ -109,7 +104,10 @@ export function PurchaseOrderDetail({
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {item.quantity.toFixed(2)} {(item.fuel as FuelDTO).unit} x
-                      R$ {(item.fuel as FuelDTO).pricePerUnit.toFixed(2)}
+                      R$
+                      {(
+                        item.fuelPriceVersion as FuelPriceVersionDTO
+                      ).price.toFixed(2)}
                     </Typography>
                   </Box>
                   <Typography variant="subtitle1" fontWeight="medium">
@@ -132,7 +130,7 @@ export function PurchaseOrderDetail({
             >
               <Typography variant="h6">Total do Pedido</Typography>
               <Typography variant="h6" color="primary.main">
-                R$ {orderTotal.toFixed(2)}
+                R$ {purchaseOrder.total.toFixed(2)}
               </Typography>
             </Box>
           </Grid>

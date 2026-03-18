@@ -37,9 +37,6 @@ export async function POST(request: NextRequest) {
     const fuel = await FuelRepository.create(validatedData);
     return NextResponse.json(fuel);
   } catch (error: any) {
-    if (error.name === "ZodError") {
-      return NextResponse.json({ errors: error.errors }, { status: 400 });
-    }
     return NextResponse.json(
       { error: `Internal Server Error: ${error}` },
       { status: 500 },

@@ -10,8 +10,10 @@ export default async function FuelViewPage({
   const { id } = await params;
 
   const fuel = await FuelRepository.findOne({ id });
-
-  if (!fuel) redirect("/notFound");
+  if (!fuel) {
+    console.warn("No fuel found");
+    return redirect("notFound");
+  }
 
   return <FuelDetail fuel={fuel} />;
 }

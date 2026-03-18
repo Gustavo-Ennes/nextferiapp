@@ -7,8 +7,9 @@ const ObjectIdString = z
 
 export const OrderItemSchema = z.object({
   fuel: ObjectIdString,
+  fuelPriceVersion: ObjectIdString,
   quantity: z.number().min(0, "Quantity cannot be negative"),
-  price: z.optional(z.number().min(0, "Price cannot be negative")),
+  price: z.number().min(0, "Price cannot be negative"),
 });
 
 export const PurchaseOrderValidator = z.object({
@@ -17,4 +18,5 @@ export const PurchaseOrderValidator = z.object({
   }),
   department: ObjectIdString,
   items: z.array(OrderItemSchema).min(1, "Order must have at least one item"),
+  total: z.optional(z.number().gt(0, "Order total must be greater than zero.")),
 });

@@ -1,5 +1,6 @@
 import type { DepartmentDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import type { FuelType } from "@/lib/repository/weeklyFuellingSummary/types";
 
@@ -28,5 +29,6 @@ export const prepareDefaults = (purchaseOrder: PurchaseOrderDTO) => ({
   items: purchaseOrder.items.map((item) => ({
     ...item,
     fuel: (item.fuel as FuelDTO)._id,
+    fuelPriceVersion: (item.fuelPriceVersion as FuelPriceVersionDTO)._id,
   })),
 });

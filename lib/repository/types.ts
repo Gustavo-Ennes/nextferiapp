@@ -1,5 +1,6 @@
 import type { SearchParams } from "@/app/(secure)/types";
 import type { PaginatedResponse } from "@/app/api/types";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 
 export type VacationFindOneRepositoryParam = {
   id: string;
@@ -31,6 +32,7 @@ export type Repository<Entity, FormData> = {
   findByFilter?: (
     filter: FormData | Partial<FormData>,
   ) => Promise<Entity | null>;
+  findByFuel?: (fuel: string) => Promise<FuelPriceVersionDTO[]>;
   create: (payload: FormData) => Promise<Entity>;
   findOne: (param: FindOneRepositoryParam) => Promise<Entity | null>;
   update: (param: UpdateRepositoryParam<FormData>) => Promise<Entity | null>;

@@ -11,6 +11,7 @@ export default async function FuelFormPage({
   const { id } = await searchParams;
 
   const fuel = await FuelRepository.findOne({ id });
+  const fuels = await FuelRepository.findWithoutPagination!({});
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>
@@ -20,7 +21,7 @@ export default async function FuelFormPage({
             {id ? "Editar Combustível" : "Criar Combustível"}
           </TitleTypography>
 
-          <FuelForm defaultValues={fuel} />
+          <FuelForm defaultValues={fuel} fuels={fuels} />
         </>
       )}
     </Container>

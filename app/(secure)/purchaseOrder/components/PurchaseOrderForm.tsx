@@ -5,11 +5,10 @@ import {
   TextField,
   Grid,
   MenuItem,
-  IconButton,
   Typography,
   Divider,
 } from "@mui/material";
-import { Delete as DeleteIcon, Add as AddIcon } from "@mui/icons-material";
+import { Add as AddIcon } from "@mui/icons-material";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Controller,
@@ -24,6 +23,8 @@ import { prepareDefaults, purchaseOrderBaseline } from "../utils";
 import { useLoading } from "@/context/LoadingContext";
 import { useRouter as useInternalRouter } from "@/context/RouterContext";
 import { useSnackbar } from "@/context/SnackbarContext";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import { PurchaseOrderFormFuelFields } from "./PurchaseOrderFormFuelFields";
 
 export function PurchaseOrderForm({
   defaultValues,
@@ -39,6 +40,7 @@ export function PurchaseOrderForm({
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
     getValues,
+    setValue,
   } = useForm<PurchaseOrderFormData>({
     resolver: zodResolver(PurchaseOrderValidator),
     mode: "onTouched",
@@ -60,7 +62,13 @@ export function PurchaseOrderForm({
     const nextAvailable = fuels.find((f) => !selectedFuelIds.includes(f._id));
 
     if (nextAvailable && fields.length < fuels.length) {
-      append({ fuel: nextAvailable._id, quantity: 0 });
+      append({
+        fuel: nextAvailable._id,
+        quantity: 0,
+        price: 0,
+        fuelPriceVersion:
+          (nextAvailable.currentPriceVersion as FuelPriceVersionDTO)?._id ?? "",
+      });
     }
   };
 
@@ -144,73 +152,19 @@ export function PurchaseOrderForm({
         <Divider sx={{ my: 1 }} />
       </Grid>
 
-      {fields.map((item, index) => {
-        const otherSelectedIds =
-          watchedItems?.filter((_, i) => i !== index).map((i) => i.fuel) || [];
-
-        const availableOptions = fuels.filter(
-          (f) => !otherSelectedIds.includes(f._id),
-        );
-
-        return (
-          <Grid
-            container
-            spacing={2}
-            key={item.id}
-            alignItems="center"
-            sx={{ mb: 1 }}
-          >
-            <Grid size={{ xs: 6 }}>
-              <Controller
-                name={`items.${index}.fuel`}
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    select
-                    fullWidth
-                    label="Combustível"
-                    size="small"
-                  >
-                    {availableOptions.map((f) => (
-                      <MenuItem key={f._id} value={f._id}>
-                        {f.name} ({f.unit})
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                )}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 4 }}>
-              <Controller
-                name={`items.${index}.quantity`}
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    type="number"
-                    fullWidth
-                    label="Quantidade"
-                    size="small"
-                    onChange={(e) => field.onChange(Number(e.target.value))}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid size={{ xs: 2 }}>
-              <IconButton
-                onClick={() => remove(index)}
-                disabled={fields.length === 1}
-                color="error"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
-        );
-      })}
+      {fields.map((item, index) => (
+        <PurchaseOrderFormFuelFields
+          key={`purchaseOrderFields${index}`}
+          control={control}
+          fields={fields}
+          fuels={fuels}
+          index={index}
+          purchaseOrder={item}
+          setValue={setValue}
+          watchedItems={watchedItems}
+          remove={remove}
+        />
+      ))}
 
       <Grid size={{ xs: 12 }}>
         <Button

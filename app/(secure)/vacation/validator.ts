@@ -1,6 +1,6 @@
 import * as z from "zod";
-import { isValid } from "date-fns";
 import { isMultipleOf } from "./utils";
+import { IsoDateString, ObjectIdString } from "./validatorUtils";
 
 /* ----- Constantes ----- */
 export const DURATION_VALUES = [0.5, 1, 15, 30, 45, 60, 75, 90] as const;
@@ -9,17 +9,6 @@ export type DurationValue = (typeof DURATION_VALUES)[number];
 export const LICENSE_MIN = 15;
 export const LICENSE_MAX = 90;
 export const LICENSE_STEP = 15;
-
-const IsoDateString = z.preprocess((val: string, ctx) => {
-  if (typeof val !== "string" || isValid(val))
-    ctx.addIssue({ message: "Data inválida", code: "custom" });
-  return val;
-}, z.string());
-
-const ObjectIdString = z
-  .string()
-  .min(1, "Campo obrigatório")
-  .regex(/^[0-9a-fA-F]{24}$/, "ID inválido");
 
 export const VacationValidator = z
   .object({

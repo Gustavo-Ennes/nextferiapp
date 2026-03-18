@@ -27,16 +27,16 @@ export const PurchaseOrderRepository: Repository<
     const skip = (Number(page) - 1) * PAGINATION_LIMIT;
 
     const [data, totalItems] = await Promise.all([
-      PurchaseOrderModel.find()
+      PurchaseOrderModel.find<IPurchaseOrder>()
         .populate("department")
-        .populate("items.fuel") // Popula o combustível dentro de cada item do array
+        .populate("items.fuel")
+        .populate("items.fuelPriceVersion")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(PAGINATION_LIMIT)
-        .lean<IPurchaseOrder[]>(),
+        .limit(PAGINATION_LIMIT),
       PurchaseOrderModel.countDocuments(),
     ]);
-
+    
     return {
       data: parsePurchaseOrders(data) as PurchaseOrderDTO[],
       totalItems,
@@ -52,17 +52,22 @@ export const PurchaseOrderRepository: Repository<
     id,
   }: FindOneRepositoryParam): Promise<PurchaseOrderDTO | null> {
     await dbConnect();
-    const order = await PurchaseOrderModel.findById(id)
+    const order = await PurchaseOrderModel.findById<IPurchaseOrder>(id)
       .populate("department")
       .populate("items.fuel")
-      .lean<IPurchaseOrder>();
+      .populate("items.fuelPriceVersion");
 
     return order ? (toPurchaseOrderDTO(order) as PurchaseOrderDTO) : null;
   },
 
   async findByReference(reference: string) {
     await dbConnect();
-    const order = await PurchaseOrderModel.findOne({ reference });
+    const order = await PurchaseOrderModel.findOne<IPurchaseOrder>({
+      reference,
+    })
+      .populate("department")
+      .populate("items.fuel")
+      .populate("items.fuelPriceVersion");
 
     return order ? (toPurchaseOrderDTO(order) as PurchaseOrderDTO) : null;
   },
@@ -91,6 +96,7 @@ export const PurchaseOrderRepository: Repository<
 
     await newOrder.populate("department");
     await newOrder.populate("items.fuel");
+    await newOrder.populate("items.fuelPriceVersion");
 
     return toPurchaseOrderDTO(newOrder as IPurchaseOrder) as PurchaseOrderDTO;
   },
@@ -132,6 +138,7 @@ export const PurchaseOrderRepository: Repository<
 
     await purchaseOrder.populate("department");
     await purchaseOrder.populate("items.fuel");
+    await purchaseOrder.populate("items.fuelPriceVersion");
 
     return toPurchaseOrderDTO(purchaseOrder) as PurchaseOrderDTO;
   },

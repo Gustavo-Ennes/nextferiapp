@@ -19,6 +19,7 @@ import { prop, uniqBy } from "ramda";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 import type { PurchaseOrderItemDTO } from "@/dto/PurchaseOrderDTO";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 
 export const formatCellContent = <T extends Entity>({
   value,
@@ -27,6 +28,7 @@ export const formatCellContent = <T extends Entity>({
   isCurrency,
   isArray,
   capitalize,
+  isPriceVersion,
 }: {
   value: T[keyof T];
   // when value isn't a obj
@@ -35,13 +37,14 @@ export const formatCellContent = <T extends Entity>({
   isCurrency?: boolean;
   isArray?: boolean;
   capitalize?: boolean;
+  isPriceVersion?: boolean;
 }) => {
   const transcribeArray = (arr: PurchaseOrderItemDTO[]): string => {
     const names = arr.map(({ fuel }) =>
       capitalizeFirstLetter((fuel as FuelDTO).name),
     );
 
-    return names.join(", ");
+    return names?.[0] !== "" ? names.join(", ") : arr.length.toString();
   };
 
   try {
@@ -49,12 +52,14 @@ export const formatCellContent = <T extends Entity>({
     if (value === false) return "Não";
     // when value is a obj I want to show the entity name(except vacation)
     if ((value as Entity)?._id as string)
-      return limitText(
-        capitalizeName(
-          (value as WorkerDTO).name ??
-            ((value as BossDTO).worker as WorkerDTO)?.name,
-        ),
-      );
+      return isPriceVersion
+        ? ` ${(value as FuelPriceVersionDTO).price.toFixed(2).replace(".", ",")}`
+        : limitText(
+            capitalizeName(
+              (value as WorkerDTO).name ??
+                ((value as BossDTO).worker as WorkerDTO)?.name,
+            ),
+          );
     if (isName && value) return capitalizeName(value as string);
     if (capitalize && value) return capitalizeFirstLetter(value as string);
     if (isDate) return format(toDate(value as string), "dd/MM/yyyy");
@@ -231,8 +236,8 @@ export const defaultEntityTableFields = {
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
   weeklyFuellingSummary: [],
-  purchaseOrder: ["reference", "items", "department"],
-  fuel: ["name", "unit", "pricePerUnit"],
+  purchaseOrder: ["reference", "items", "department", "total"],
+  fuel: ["name", "unit", "priceVersions", "currentPriceVersion"],
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>

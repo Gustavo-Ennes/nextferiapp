@@ -9,18 +9,28 @@ import {
   Divider,
   Grid,
   Paper,
+  Stack,
+  Chip,
 } from "@mui/material";
 import { useDialog } from "@/context/DialogContext";
 import { TitleTypography } from "../../components/TitleTypography";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
-import type { FuelDTO } from "@/dto/FuelDTO";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import type { FuelDetailParam } from "../types";
 
-export function FuelDetail({ fuel }: { fuel: FuelDTO }) {
+export function FuelDetail({ fuel }: FuelDetailParam) {
   const router = useRouter();
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
   const { openConfirmationDialog } = useDialog();
+  const priceVersions = (fuel.priceVersions ?? []) as FuelPriceVersionDTO[];
+
+  // Ordena as versões da mais recente para a mais antiga para exibição
+  const sortedVersions = [...priceVersions].sort(
+    (a, b) => b.version - a.version,
+  );
+  const currentPriceVersion = fuel.currentPriceVersion as FuelPriceVersionDTO;
 
   const handleEdit = () =>
     router.redirectWithLoading(`/fuel/form?id=${fuel._id}`);
@@ -57,7 +67,7 @@ export function FuelDetail({ fuel }: { fuel: FuelDTO }) {
     <Container maxWidth="sm" sx={{ mt: 1 }}>
       <TitleTypography>Detalhes do Combustível</TitleTypography>
 
-      <Paper variant="outlined" sx={{ p: 3 }}>
+      <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
         <Grid container spacing={3}>
           <Grid size={12}>
             <Typography variant="h5" textAlign="center" fontWeight="bold">
@@ -68,58 +78,63 @@ export function FuelDetail({ fuel }: { fuel: FuelDTO }) {
               color="text.secondary"
               textAlign="center"
             >
-              ID: {fuel._id}
+              Unidade: {fuel.unit}
             </Typography>
           </Grid>
 
           <Grid size={12}>
-            <Divider />
+            <Divider>
+              <Chip label="Preço Atual" size="small" color="primary" />
+            </Divider>
           </Grid>
 
-          <Grid size={6}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-            >
-              Unidade de Medida
+          <Grid size={12} textAlign="center">
+            <Typography variant="h4" color="primary.main" fontWeight="medium">
+              R$ {currentPriceVersion.price.toFixed(2)}
             </Typography>
-            <Typography variant="h6">{fuel.unit}</Typography>
-          </Grid>
-
-          <Grid size={6}>
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              display="block"
-            >
-              Preço por Unidade
+            <Typography variant="caption" color="text.secondary">
+              Versão atual: {currentPriceVersion.version}
             </Typography>
-            <Typography variant="h6" color="primary.main">
-              R$ {fuel.pricePerUnit.toFixed(2)}
-            </Typography>
-          </Grid>
-
-          <Grid size={12}>
-            <Box
-              sx={{
-                p: 2,
-                bgcolor: "info.soft",
-                borderRadius: 1,
-                borderLeft: "4px solid",
-                borderColor: "info.main",
-              }}
-            >
-              <Typography variant="body2">
-                Este valor é utilizado como base para o cálculo automático de
-                novos pedidos de compra.
-              </Typography>
-            </Box>
           </Grid>
         </Grid>
       </Paper>
 
-      <Grid container spacing={2} my={3} justifyContent="space-between">
+      {/* Seção de Histórico de Versões */}
+      <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+        Histórico de Versões
+      </Typography>
+      <Paper variant="outlined" sx={{ p: 2 }}>
+        <Stack spacing={1} divider={<Divider flexItem />}>
+          {sortedVersions.map((v) => (
+            <Box
+              key={v._id}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                p: 1,
+                bgcolor:
+                  v.version === currentPriceVersion.version
+                    ? "action.selected"
+                    : "transparent",
+                borderRadius: 1,
+              }}
+            >
+              <Box>
+                <Typography variant="subtitle2">Versão {v.version}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {new Date(v.createdAt!).toLocaleDateString("pt-BR")}
+                </Typography>
+              </Box>
+              <Typography variant="subtitle1" fontWeight="bold">
+                R$ {v.price.toFixed(2)}
+              </Typography>
+            </Box>
+          ))}
+        </Stack>
+      </Paper>
+
+      <Grid container spacing={2} my={4} justifyContent="space-between">
         <Grid>
           <Button variant="outlined" color="error" onClick={handleDelete}>
             Excluir
@@ -127,7 +142,7 @@ export function FuelDetail({ fuel }: { fuel: FuelDTO }) {
         </Grid>
         <Grid>
           <Button variant="contained" onClick={handleEdit}>
-            Editar Preço/Cadastro
+            Nova Versão / Editar
           </Button>
         </Grid>
       </Grid>

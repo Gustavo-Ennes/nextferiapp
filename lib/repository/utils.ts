@@ -6,6 +6,7 @@ import { pluck, sum } from "ramda";
 import type { VacationDTO, WorkerDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 
 export const updateVacationDates = (
   payload: VacationFormData | Partial<VacationFormData>,
@@ -166,15 +167,26 @@ export const calculatePurchaseOrderPrices = ({
   fuels: FuelDTO[];
 }): PurchaseOrderFormData | Partial<PurchaseOrderFormData> => {
   if (order.items && order.items.length > 0) {
+    let total = 0;
     for (let i = 0; i < order.items.length; i++) {
       const item = order.items[i];
       const itemFuel = fuels.find((fuel) => fuel._id === item.fuel);
 
-      if (!itemFuel || !itemFuel)
-        throw new Error(`Fuel or item doesn't exists.`);
+      if (!itemFuel) throw new Error(`Fuel doesn't exists: ${item.fuel}.`);
 
-      item.price = itemFuel.pricePerUnit * item.quantity;
+      const itemFuelPriceVersion = (
+        itemFuel.priceVersions as FuelPriceVersionDTO[]
+      )?.find((priceVersion) => priceVersion?._id === item.fuelPriceVersion);
+
+      if (!itemFuelPriceVersion)
+        throw new Error(
+          `Fuel price version doesn't exists: ${item.fuelPriceVersion}`,
+        );
+
+      item.price = itemFuelPriceVersion.price * item.quantity;
+      total += item.price;
     }
+    order.total = total;
   }
 
   return order;

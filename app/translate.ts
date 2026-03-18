@@ -73,7 +73,8 @@ export const translateEntityKey = ({
       translated: "Combustível",
       translatedPlural: "Combustíveis",
       unit: "Un. Medida",
-      pricePerUnit: "R$/un.",
+      priceVersions: "Versões de preço",
+      currentPriceVersion: "Preço atual",
       gas: "Gasolina",
       s10: "Diesel S-10",
       s500: "Diesel S-500",
@@ -85,6 +86,7 @@ export const translateEntityKey = ({
     purchaseOrder: {
       translated: "Pedido",
       translatedPlural: "Pedidos",
+      total: "Total",
       department: "Departamento",
       reference: "Referência",
       items: "itens",
