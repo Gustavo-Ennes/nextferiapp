@@ -6,11 +6,15 @@ import {
   Today,
   DateRange,
   CalendarMonth,
+  PriceCheck,
+  List,
+  CurrencyExchange,
+  WaterDrop,
 } from "@mui/icons-material";
 import type { ListItemMenuItem, SearchProps } from "./types";
 
 export const defineSearchPropsDefault = (
-  isExternal?: boolean | null
+  isExternal?: boolean | null,
 ): SearchProps => {
   const searchProps: SearchProps = {
     external: false,
@@ -59,6 +63,28 @@ export const getWeeklyFuellingSummaryProps = (): ListItemMenuItem => ({
       itemLabel: "Média",
       itemIcon: <AreaChart />,
       href: "/materialRequisition/average",
+    },
+  ],
+});
+
+export const getPurchaseOrderProps = (): ListItemMenuItem => ({
+  label: "Pedidos",
+  icon: <PriceCheck />,
+  items: [
+    {
+      itemLabel: "Ver pedidos",
+      itemIcon: <List />,
+      href: "/purchaseOrder",
+    },
+    {
+      itemLabel: "Atualizar pedidos",
+      itemIcon: <CurrencyExchange />,
+      href: "/purchaseOrder/update",
+    },
+    {
+      itemLabel: "Combustíveis",
+      itemIcon: <WaterDrop />,
+      href: "/fuel",
     },
   ],
 });

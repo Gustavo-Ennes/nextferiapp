@@ -3,9 +3,11 @@
 import { createContext, useCallback, useContext } from "react";
 import { useRouter as useNextRouter } from "next/navigation";
 import { useLoading } from "./LoadingContext";
+import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 const RouterContext = createContext<{
   redirectWithLoading: (url: string) => void;
+  nextRouter: AppRouterInstance;
 } | null>(null);
 
 export const useRouter = () => {
@@ -24,7 +26,7 @@ export const RouterProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <RouterContext.Provider value={{ redirectWithLoading }}>
+    <RouterContext.Provider value={{ redirectWithLoading, nextRouter: router }}>
       {children}
     </RouterContext.Provider>
   );

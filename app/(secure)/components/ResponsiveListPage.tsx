@@ -18,6 +18,7 @@ import { useState } from "react";
 import { Search } from "./Search";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 import { useLoading } from "@/context/LoadingContext";
+import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
@@ -73,8 +74,9 @@ const ResponsiveListPage = <T extends Entity>({
     }).toLowerCase();
     const isNotDepartmentOrBoss = key !== "departamento" && key !== "chefe";
     const name = capitalizeName(
-      (entity as WorkerDTO).name ??
-        ((entity as BossDTO).worker as WorkerDTO).name,
+      (entity as WorkerDTO)?.name ??
+        ((entity as BossDTO)?.worker as WorkerDTO)?.name ??
+        (entity as PurchaseOrderDTO)?.reference,
     );
     const modalDescription = (entity as VacationDTO).type
       ? `Deseja excluir ${sumarizeVacation(entity as VacationDTO)}?`

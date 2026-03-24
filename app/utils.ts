@@ -17,33 +17,55 @@ import { translateEntityKey } from "./translate";
 import { limitText } from "./(secure)/utils";
 import { prop, uniqBy } from "ramda";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
+import type { PurchaseOrderItemDTO } from "@/dto/PurchaseOrderDTO";
+import type { FuelDTO } from "@/dto/FuelDTO";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 
 export const formatCellContent = <T extends Entity>({
   value,
   isName,
   isDate,
+  isCurrency,
+  isArray,
   capitalize,
+  isPriceVersion,
 }: {
   value: T[keyof T];
   // when value isn't a obj
   isName?: boolean;
   isDate?: boolean;
+  isCurrency?: boolean;
+  isArray?: boolean;
   capitalize?: boolean;
+  isPriceVersion?: boolean;
 }) => {
+  const transcribeArray = (arr: PurchaseOrderItemDTO[]): string => {
+    const names = arr.map(({ fuel }) =>
+      capitalizeFirstLetter((fuel as FuelDTO).name),
+    );
+
+    return names?.[0] !== "" ? names.join(", ") : arr.length.toString();
+  };
+
   try {
     if (value === true) return "Sim";
     if (value === false) return "Não";
     // when value is a obj I want to show the entity name(except vacation)
     if ((value as Entity)?._id as string)
-      return limitText(
-        capitalizeName(
-          (value as WorkerDTO).name ??
-            ((value as BossDTO).worker as WorkerDTO)?.name
-        )
-      );
+      return isPriceVersion
+        ? ` ${(value as FuelPriceVersionDTO).price.toFixed(2).replace(".", ",")}`
+        : limitText(
+            capitalizeName(
+              (value as WorkerDTO).name ??
+                ((value as BossDTO).worker as WorkerDTO)?.name,
+            ),
+          );
     if (isName && value) return capitalizeName(value as string);
     if (capitalize && value) return capitalizeFirstLetter(value as string);
     if (isDate) return format(toDate(value as string), "dd/MM/yyyy");
+    if (isCurrency)
+      return `R$ ${(value as number).toFixed(2).replace(".", ",")}`;
+    if (isArray) return transcribeArray(value as PurchaseOrderItemDTO[]);
     if (value === undefined || value === null) return "Excluído(a)";
     return String(value);
   } catch {
@@ -53,23 +75,23 @@ export const formatCellContent = <T extends Entity>({
 
 export const getUpcomingReturns = (
   vacations: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): VacationDTO[] =>
   vacations
     ? vacations.filter(
         ({ endDate }) =>
-          toDate(endDate) >= today && toDate(endDate) <= addDays(today, 10)
+          toDate(endDate) >= today && toDate(endDate) <= addDays(today, 10),
       )
     : [];
 
 export const getUpcomingLeaves = (
   vacations: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): VacationDTO[] =>
   vacations
     ? vacations.filter(
         ({ startDate }) =>
-          toDate(startDate) >= today && toDate(startDate) <= addDays(today, 10)
+          toDate(startDate) >= today && toDate(startDate) <= addDays(today, 10),
       )
     : [];
 
@@ -80,14 +102,14 @@ export const getTodayReturns = (vacations: VacationDTO[]): VacationDTO[] =>
 
 export const getWorkerStatus = (
   worker: WorkerDTO,
-  vacations?: VacationDTO[]
+  vacations?: VacationDTO[],
 ): WorkerStatus => {
   const vacation = vacations
     ? vacations.find(
         ({ startDate, endDate, worker: vacWorker }) =>
           toDate(startDate) <= startOfDaySP(new Date()) &&
           toDate(endDate) > startOfDaySP(new Date()) &&
-          ((vacWorker as WorkerDTO)._id as string) === (worker._id as string)
+          ((vacWorker as WorkerDTO)._id as string) === (worker._id as string),
       )
     : undefined;
 
@@ -107,7 +129,7 @@ export const getWorkerStatus = (
 
 export const getWorkersOnVacation = (
   vacations?: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): WorkerDTO[] =>
   vacations
     ? uniqBy(
@@ -116,9 +138,9 @@ export const getWorkersOnVacation = (
           .filter(
             ({ startDate, endDate }) =>
               toDate(startDate) <= startOfDaySP(today) &&
-              toDate(endDate) > startOfDaySP(today)
+              toDate(endDate) > startOfDaySP(today),
           )
-          .map((vacation) => vacation.worker as WorkerDTO)
+          .map((vacation) => vacation.worker as WorkerDTO),
       )
     : [];
 
@@ -127,7 +149,7 @@ export const getWorkersOnVacation = (
 export const getDaysUntilWorkerReturns = (
   worker: WorkerDTO,
   vacations?: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): number => {
   const getReturningDate = (endDate: Date) =>
     addMilliseconds(toDate(endDate), 1);
@@ -136,19 +158,19 @@ export const getDaysUntilWorkerReturns = (
     ?.filter(
       (vac) =>
         ((vac.worker as WorkerDTO)?._id as string) === (worker._id as string) &&
-        getReturningDate(toDate(vac.endDate)) > startOfDaySP(today)
+        getReturningDate(toDate(vac.endDate)) > startOfDaySP(today),
     )
     .sort(
       (a, b) =>
         getReturningDate(toDate(a.endDate)).getTime() -
-        getReturningDate(toDate(b.endDate)).getTime()
+        getReturningDate(toDate(b.endDate)).getTime(),
     )?.[0];
   if (!vacation) return -1;
 
   const daysUntilReturn =
     differenceInDays(
       getReturningDate(toDate(vacation.endDate)),
-      startOfDaySP(today)
+      startOfDaySP(today),
     ) + 1;
 
   return daysUntilReturn >= 0 ? daysUntilReturn : -1;
@@ -159,16 +181,16 @@ export const getDaysUntilWorkerReturns = (
 export const getDaysUntilWorkerLeave = (
   worker: WorkerDTO,
   vacations?: VacationDTO[],
-  today: Date = new Date()
+  today: Date = new Date(),
 ): number => {
   const vacation = vacations
     ?.filter(
       (vac) =>
         ((vac.worker as WorkerDTO)?._id as string) === (worker._id as string) &&
-        toDate(vac.startDate) > startOfDaySP(today)
+        toDate(vac.startDate) > startOfDaySP(today),
     )
     .sort(
-      (a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime()
+      (a, b) => toDate(a.startDate).getTime() - toDate(b.startDate).getTime(),
     )?.[0];
 
   if (!vacation) return -1;
@@ -214,6 +236,8 @@ export const defaultEntityTableFields = {
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
   weeklyFuellingSummary: [],
+  purchaseOrder: ["reference", "items", "department", "total"],
+  fuel: ["name", "unit", "priceVersions", "currentPriceVersion"],
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>
@@ -226,7 +250,7 @@ export const capitalizeName = (name?: string): string => {
     .map((name) =>
       !notCapitalizable.includes(name)
         ? `${name[0]?.toUpperCase()}${name?.substring(1)}`
-        : name
+        : name,
     )
     .join(" ");
 };

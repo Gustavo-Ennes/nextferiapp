@@ -88,6 +88,11 @@ export const ListPageDesktop = <T extends Entity>({
       "updatedAt",
     ].includes(key);
   };
+  const isName = (key: any) => key === "name";
+  const isCapitalized = (key: any) => key === "role";
+  const isCurrency = (key: any) => key === "total";
+  const isArray = (key: any, item: T) => Array.isArray(item[key as keyof T]);
+  const isPriceVersion = (key: any) => key === "currentPriceVersion";
 
   return (
     <Box>
@@ -122,9 +127,12 @@ export const ListPageDesktop = <T extends Entity>({
                         })
                       : formatCellContent({
                           value: item[key as keyof T],
-                          isName: key === "name",
+                          isName: isName(key),
                           isDate: isDate(key),
-                          capitalize: key === "role",
+                          capitalize: isCapitalized(key),
+                          isCurrency: isCurrency(key),
+                          isArray: isArray(key, item),
+                          isPriceVersion: isPriceVersion(key),
                         })}
                   </TableCell>
                 ))}

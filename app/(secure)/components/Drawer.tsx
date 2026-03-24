@@ -13,7 +13,11 @@ import { Logout, PictureAsPdf } from "@mui/icons-material";
 import { useRouter } from "@/context/RouterContext";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { BlueItemIcon } from "./styled";
-import { getVacationProps, getWeeklyFuellingSummaryProps } from "./utils";
+import {
+  getPurchaseOrderProps,
+  getVacationProps,
+  getWeeklyFuellingSummaryProps,
+} from "./utils";
 
 export const Drawer = () => {
   const router = useRouter();
@@ -40,12 +44,18 @@ export const Drawer = () => {
             <ListItemMenu props={getVacationProps()} key={href} />
           ),
         )}
+
+        <Divider />
+
+        <ListItemMenu props={getPurchaseOrderProps()} key="/purchaseOrder" />
+
         <Divider />
 
         <ListItemMenu
           props={getWeeklyFuellingSummaryProps()}
           key="/weeklyFuellingSummary"
         />
+
         <Divider />
 
         <ListItemButton

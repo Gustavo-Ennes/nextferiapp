@@ -1,0 +1,56 @@
+import mongoose, { Schema, Document, Types } from "mongoose";
+import type { IFuel } from "./Fuel";
+import type { Department } from "./Department";
+import type { IFuelPriceVersion } from "./FuelPriceVersion";
+
+export interface IOrderItem {
+  fuel: Types.ObjectId | IFuel;
+  fuelPriceVersion: Types.ObjectId | IFuelPriceVersion;
+  quantity: number;
+  price: number;
+}
+
+export interface IPurchaseOrder extends Document {
+  _id: Types.ObjectId;
+  department: Types.ObjectId | Department;
+  reference: string;
+  items: IOrderItem[];
+  total: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const OrderItemSchema = new Schema<IOrderItem>(
+  {
+    fuel: {
+      type: Schema.Types.ObjectId,
+      ref: "Fuel",
+      required: [true, "A fuel type is required."],
+    },
+    fuelPriceVersion: {
+      type: Schema.Types.ObjectId,
+      ref: "FuelPriceVersion",
+      required: [true, "A fuel price version is required."],
+    },
+    quantity: { type: Number, required: true, default: 0 },
+    price: { type: Number, required: true, default: 0 },
+  },
+  { _id: false },
+);
+
+const PurchaseOrderSchema = new Schema<IPurchaseOrder>(
+  {
+    reference: { type: String, required: true, unique: true },
+    items: [OrderItemSchema],
+    department: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+      required: [true, "A department is required."],
+    },
+    total: { type: Number, required: true },
+  },
+  { timestamps: true },
+);
+
+export default mongoose.models.PurchaseOrder ||
+  mongoose.model<IPurchaseOrder>("PurchaseOrder", PurchaseOrderSchema);

@@ -4,10 +4,13 @@ import { addDays, endOfYear, isSameMonth, startOfYear, toDate } from "date-fns";
 import VacationModel from "@/models/Vacation";
 import { pluck, sum } from "ramda";
 import type { VacationDTO, WorkerDTO } from "@/dto";
+import type { FuelDTO } from "@/dto/FuelDTO";
+import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
+import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 
 export const updateVacationDates = (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: VacationDTO
+  vacation?: VacationDTO,
 ): VacationFormData | Partial<VacationFormData> => {
   if (!payload.startDate && !payload.duration) return payload;
 
@@ -21,7 +24,7 @@ export const updateVacationDates = (
     throw new Error(
       `${isUpdate ? "Update" : "Create"} needs a startDate in payload${
         isUpdate ? " or in vacation to update" : ""
-      }.`
+      }.`,
     );
   }
 
@@ -44,7 +47,7 @@ export const updateVacationDates = (
 
 export const validateVacationDuration = (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: VacationDTO
+  vacation?: VacationDTO,
 ) => {
   if (!payload.duration && !payload.period && !payload.type) return payload;
 
@@ -75,7 +78,7 @@ export const validateVacationDuration = (
     ![15, 30].includes(payload.duration as number)
   )
     throw new Error(
-      "Duration: normal vacations must have duration of [15, 30]"
+      "Duration: normal vacations must have duration of [15, 30]",
     );
 
   if (
@@ -84,14 +87,14 @@ export const validateVacationDuration = (
     ![15, 30, 45, 60, 75, 90].includes(payload.duration as number)
   )
     throw new Error(
-      "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]"
+      "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]",
     );
   return payload;
 };
 
 export const validateOverlappingVacations = async (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: VacationDTO
+  vacation?: VacationDTO,
 ) => {
   if ((payload.startDate || payload.duration) && !payload.cancelled) {
     const overlappingVacations = await VacationModel.find({
@@ -113,7 +116,7 @@ export const validateOverlappingVacations = async (
 
 export const validateDayOffsQuantity = async (
   payload: VacationFormData | Partial<VacationFormData>,
-  vacation?: VacationDTO
+  vacation?: VacationDTO,
 ) => {
   if (
     (payload.type && payload.type !== "dayOff") ||
@@ -141,8 +144,8 @@ export const validateDayOffsQuantity = async (
   const sameMonthDayOffs = sameYearDayOffs.filter(({ startDate }) =>
     isSameMonth(
       startDate,
-      (payload.startDate ?? vacation?.startDate) as unknown as Date
-    )
+      (payload.startDate ?? vacation?.startDate) as unknown as Date,
+    ),
   );
 
   if (getTotalDuration(sameYearDayOffs) >= 6)
@@ -155,3 +158,36 @@ export const validateDayOffsQuantity = async (
 
 export const getTotalDuration = (vacations: VacationDTO[]): number =>
   sum(pluck("duration", vacations));
+
+export const calculatePurchaseOrderPrices = ({
+  order,
+  fuels,
+}: {
+  order: PurchaseOrderFormData | Partial<PurchaseOrderFormData>;
+  fuels: FuelDTO[];
+}): PurchaseOrderFormData | Partial<PurchaseOrderFormData> => {
+  if (order.items && order.items.length > 0) {
+    let total = 0;
+    for (let i = 0; i < order.items.length; i++) {
+      const item = order.items[i];
+      const itemFuel = fuels.find((fuel) => fuel._id === item.fuel);
+
+      if (!itemFuel) throw new Error(`Fuel doesn't exists: ${item.fuel}.`);
+
+      const itemFuelPriceVersion = (
+        itemFuel.priceVersions as FuelPriceVersionDTO[]
+      )?.find((priceVersion) => priceVersion?._id === item.fuelPriceVersion);
+
+      if (!itemFuelPriceVersion)
+        throw new Error(
+          `Fuel price version doesn't exists: ${item.fuelPriceVersion}`,
+        );
+
+      item.price = itemFuelPriceVersion.price * item.quantity;
+      total += item.price;
+    }
+    order.total = total;
+  }
+
+  return order;
+};

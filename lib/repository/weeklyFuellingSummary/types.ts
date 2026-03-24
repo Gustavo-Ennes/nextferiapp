@@ -1,6 +1,7 @@
 import type { PdfPreviewItem } from "@/context/types";
 
 export type FuelType = "gas" | "s500" | "s10" | "arla";
+export const fuelTypes = ["gas", "s500", "s10", "arla"] as const;
 
 export interface FuelingData {
   date: string;

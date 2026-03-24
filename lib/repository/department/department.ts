@@ -17,6 +17,7 @@ import type { Boss } from "@/models/Boss";
 import type { BossDTO } from "@/dto";
 import type { Repository } from "../types";
 import dbConnect from "@/lib/database/database";
+import { endOfDaySP, startOfDaySP } from "@/app/utils";
 
 export const DepartmentRepository: Repository<
   DepartmentDTO,
@@ -112,6 +113,31 @@ export const DepartmentRepository: Repository<
       hasPrevPage,
       limit: PAGINATION_LIMIT,
     };
+  },
+
+  async findWithoutPagination(params: SearchParams) {
+    let page = 1;
+    let shouldFetchNextPage = false;
+    let to;
+    let from;
+    const departments: DepartmentDTO[] = [];
+    const today = new Date();
+
+    if (params.timePeriod == "past") to = endOfDaySP(today);
+    else if (params.timePeriod === "future") from = startOfDaySP(today);
+
+    do {
+      const { data: departmentPage, hasNextPage } = await this.find({
+        ...params,
+        ...(params.timePeriod && to && { to }),
+        ...(params.timePeriod && from && { from }),
+        page: page++,
+      });
+      departments.push(...departmentPage);
+      shouldFetchNextPage = hasNextPage;
+    } while (shouldFetchNextPage);
+
+    return departments;
   },
 
   async create(payload: DepartmentFormData): Promise<DepartmentDTO> {

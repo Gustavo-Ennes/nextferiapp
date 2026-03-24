@@ -68,6 +68,13 @@ export const translateEntityKey = ({
       worker: "Servidor",
     },
     fuel: {
+      fuel: "Combustível",
+      name: "Nome",
+      translated: "Combustível",
+      translatedPlural: "Combustíveis",
+      unit: "Un. Medida",
+      priceVersions: "Versões de preço",
+      currentPriceVersion: "Preço atual",
       gas: "Gasolina",
       s10: "Diesel S-10",
       s500: "Diesel S-500",
@@ -76,12 +83,20 @@ export const translateEntityKey = ({
     weeklyFuellingSummary: {
       translated: "Resumo semanal de abastecimentos",
     },
+    purchaseOrder: {
+      translated: "Pedido",
+      translatedPlural: "Pedidos",
+      total: "Total",
+      department: "Departamento",
+      reference: "Referência",
+      items: "itens",
+    },
   };
   return entity
     ? capitalizeFirstLetter(
         dictionary[entity][
           key as keyof (typeof dictionary)[EntityType | "fuel"]
-        ]
+        ],
       )
     : "Informações";
 };
