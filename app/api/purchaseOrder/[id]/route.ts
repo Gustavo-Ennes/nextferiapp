@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
-import { PurchaseOrderValidator } from "@/app/(secure)/purchaseOrder/validator";
 import { optionsResponse } from "../../utils";
 
 export async function OPTIONS() {
@@ -37,11 +36,9 @@ export async function PUT(req: NextRequest) {
 
     if (!id) throw new Error("No id provided.");
 
-    const validatedData = PurchaseOrderValidator.partial().parse(payload);
-
     const updatedOrder = await PurchaseOrderRepository.update({
       id,
-      payload: validatedData,
+      payload,
     });
 
     if (!updatedOrder) {

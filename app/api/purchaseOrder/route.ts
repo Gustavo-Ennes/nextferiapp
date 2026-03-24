@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
-import { PurchaseOrderValidator } from "@/app/(secure)/purchaseOrder/validator";
 import { optionsResponse } from "../utils";
 
 export async function OPTIONS() {
@@ -22,10 +21,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validatedData = PurchaseOrderValidator.parse(body);
 
     const existing = await PurchaseOrderRepository.findByReference!(
-      validatedData.reference,
+      body!.reference,
     );
     if (existing) {
       return NextResponse.json(
@@ -34,7 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const order = await PurchaseOrderRepository.create(validatedData);
+    const order = await PurchaseOrderRepository.create(body);
     return NextResponse.json(order);
   } catch (error: any) {
     return NextResponse.json(

@@ -14,6 +14,7 @@ import type { Repository } from "../types";
 import { PurchaseOrderValidator } from "@/app/(secure)/purchaseOrder/validator";
 import { isObjectIdOrHexString } from "mongoose";
 import { calculatePurchaseOrderPrices } from "../utils";
+import { endOfDaySP, startOfDaySP } from "@/app/utils";
 
 export const PurchaseOrderRepository: Repository<
   PurchaseOrderDTO,
@@ -36,7 +37,7 @@ export const PurchaseOrderRepository: Repository<
         .limit(PAGINATION_LIMIT),
       PurchaseOrderModel.countDocuments(),
     ]);
-    
+
     return {
       data: parsePurchaseOrders(data) as PurchaseOrderDTO[],
       totalItems,
@@ -46,6 +47,32 @@ export const PurchaseOrderRepository: Repository<
       hasPrevPage: Number(page) > 1,
       limit: PAGINATION_LIMIT,
     };
+  },
+
+  async findWithoutPagination(params: SearchParams) {
+    let page = 1;
+    let shouldFetchNextPage = false;
+    let to;
+    let from;
+    const orders: PurchaseOrderDTO[] = [];
+    const today = new Date();
+
+    if (params.timePeriod == "past") to = endOfDaySP(today);
+    else if (params.timePeriod === "future") from = startOfDaySP(today);
+
+    do {
+      const { data: orderPage, hasNextPage } = await this.find({
+        ...params,
+        ...(params.timePeriod && to && { to }),
+        ...(params.timePeriod && from && { from }),
+        page: page++,
+      });
+
+      orders.push(...orderPage);
+      shouldFetchNextPage = hasNextPage;
+    } while (shouldFetchNextPage);
+
+    return orders;
   },
 
   async findOne({
@@ -109,7 +136,7 @@ export const PurchaseOrderRepository: Repository<
 
     let validPayload: PurchaseOrderFormData | null = null;
 
-    const result = PurchaseOrderValidator.safeParse(payload);
+    const result = PurchaseOrderValidator.partial().safeParse(payload);
 
     if (!result.success) {
       throw new Error(JSON.parse(result.error.message)[0].message);

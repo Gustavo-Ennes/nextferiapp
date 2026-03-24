@@ -9,11 +9,15 @@ import {
 import { navList } from "../navList";
 import { DrawerContent } from "../styled";
 import { ListItemMenu } from "./ListItemMenu";
-import { Logout, PictureAsPdf, PriceCheck } from "@mui/icons-material";
+import { Logout, PictureAsPdf } from "@mui/icons-material";
 import { useRouter } from "@/context/RouterContext";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { BlueItemIcon } from "./styled";
-import { getVacationProps, getWeeklyFuellingSummaryProps } from "./utils";
+import {
+  getPurchaseOrderProps,
+  getVacationProps,
+  getWeeklyFuellingSummaryProps,
+} from "./utils";
 
 export const Drawer = () => {
   const router = useRouter();
@@ -43,6 +47,10 @@ export const Drawer = () => {
 
         <Divider />
 
+        <ListItemMenu props={getPurchaseOrderProps()} key="/purchaseOrder" />
+
+        <Divider />
+
         <ListItemMenu
           props={getWeeklyFuellingSummaryProps()}
           key="/weeklyFuellingSummary"
@@ -59,19 +67,6 @@ export const Drawer = () => {
             <PictureAsPdf />
           </BlueItemIcon>
           <ListItemText primary={"Rel. uso veículo"} />
-        </ListItemButton>
-
-        <Divider />
-
-        <ListItemButton
-          key={"purchaseOrder"}
-          sx={{ my: 1 }}
-          onClick={() => router.redirectWithLoading("/purchaseOrder")}
-        >
-          <BlueItemIcon>
-            <PriceCheck />
-          </BlueItemIcon>
-          <ListItemText primary={"Pedidos"} />
         </ListItemButton>
 
         <Divider />
