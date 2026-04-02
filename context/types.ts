@@ -1,7 +1,6 @@
 import type {
   CarEntry,
   FuelingData,
-  FuelType,
   TabData,
 } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { MouseEvent, RefObject, SetStateAction } from "react";
@@ -43,9 +42,12 @@ export type DialogContextType = {
   closeInputDialog: () => void;
   openCarDetailDialog: (data: DialogOptions) => void;
   closeCarDetailDialog: () => void;
+  openSelectDialog: (data: DialogOptions) => void;
+  closeSelectDialog: () => void;
   confirmationDialogData: DialogOptions | null;
   inputDialogData: DialogOptions | null;
   carDetailDialogData: DialogOptions | null;
+  selectDialogData: DialogOptions | null;
 };
 
 export type DialogOptions = {
@@ -59,6 +61,8 @@ export type DialogOptions = {
   input?: string;
   inputLabel?: string;
   car?: CarEntry;
+  options?: { label: string; value: string }[];
+  selectedOption?: string;
 };
 
 export type OpenConfirmationDialogParam = {
@@ -82,8 +86,8 @@ export type MaterialRequisitionFormContextValues = {
   setVehicle: (value: string) => void;
   prefix: number;
   setPrefix: (value: number) => void;
-  fuel: FuelType;
-  setFuel: (value: FuelType) => void;
+  fuel: string;
+  setFuel: (value: string) => void;
   date: string;
   setDate: (value: string) => void;
   quantity: number;

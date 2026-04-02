@@ -3,7 +3,10 @@
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
+  FormGroup,
   FormHelperText,
   Grid,
   InputLabel,
@@ -38,6 +41,7 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
       responsible:
         ((defaultValues?.responsible as BossDTO)?._id as string) ?? "_",
       isActive: defaultValues?.isActive ?? true,
+      hasWorkers: defaultValues?.hasWorkers ?? true,
     },
   });
 
@@ -131,6 +135,27 @@ export function DepartmentForm({ defaultValues, bosses }: DepartmentProps) {
                 <FormHelperText>{errors.responsible.message}</FormHelperText>
               )}
             </FormControl>
+          )}
+        />
+      </Grid>
+
+      <Grid size={12}>
+        <Controller
+          name="hasWorkers"
+          control={control}
+          render={({ field }) => (
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    {...field}
+                    checked={field.value}
+                    onChange={(event) => field.onChange(event.target.checked)}
+                  />
+                }
+                label="Tem trabalhadores"
+              />
+            </FormGroup>
           )}
         />
       </Grid>

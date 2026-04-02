@@ -27,6 +27,7 @@ export const DepartmentRepository: Repository<
     page,
     contains,
     isActive,
+    hasWorkers,
   }: SearchParams): Promise<PaginatedResponse<DepartmentDTO>> {
     await dbConnect();
 
@@ -34,6 +35,7 @@ export const DepartmentRepository: Repository<
 
     const filter = {
       ...(isActive !== null && isActive !== undefined && { isActive }),
+      ...(hasWorkers !== null && hasWorkers !== undefined && { hasWorkers }),
     };
     const pipeline = [];
 

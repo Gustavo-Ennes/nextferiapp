@@ -4,7 +4,6 @@ import { sortCarFuelings } from "@/app/(secure)/materialRequisition/utils";
 import type {
   CarEntry,
   FuelingData,
-  FuelType,
   TabData,
 } from "@/lib/repository/weeklyFuellingSummary/types";
 import {
@@ -38,7 +37,9 @@ export const MaterialRequisitionFormProvider = ({
   const [selectedCar, _setSelectedCar] = useState<CarEntry | null>(null);
   const [vehicle, _setVehicle] = useState(selectedCar?.vehicle ?? "");
   const [prefix, _setPrefix] = useState(selectedCar?.prefix ?? 0);
-  const [fuel, _setFuel] = useState<FuelType>(selectedCar?.fuel ?? "gas");
+  const [fuel, _setFuel] = useState<string>(
+    (selectedCar?.fuel as string) ?? "",
+  );
   const [date, _setDate] = useState(
     selectedCar?.fuelings[0]?.date ?? new Date().toISOString(),
   );
@@ -56,7 +57,7 @@ export const MaterialRequisitionFormProvider = ({
     _setSelectedCar(car);
     _setVehicle(car?.vehicle ?? "");
     _setPrefix(car?.prefix ?? 0);
-    _setFuel(car?.fuel ?? "gas");
+    _setFuel((car?.fuel as string) ?? "");
     _setDate(new Date().toISOString());
     _setQuantity(0);
     _setKmHr(null);
@@ -64,7 +65,7 @@ export const MaterialRequisitionFormProvider = ({
   }, []);
   const setVehicle = useCallback((vehicle: string) => _setVehicle(vehicle), []);
   const setPrefix = useCallback((prefix: number) => _setPrefix(prefix), []);
-  const setFuel = useCallback((fuel: FuelType) => _setFuel(fuel), []);
+  const setFuel = useCallback((fuel: string) => _setFuel(fuel), []);
   const setDate = useCallback((isoString: string) => _setDate(isoString), []);
   const setQuantity = useCallback(
     (quantity: number) => _setQuantity(quantity),

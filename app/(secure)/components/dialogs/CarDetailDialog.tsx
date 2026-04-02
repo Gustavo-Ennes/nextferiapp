@@ -27,6 +27,7 @@ import { sortCarFuelings } from "../../materialRequisition/utils";
 import type { TransitionProps } from "@mui/material/transitions";
 import { forwardRef } from "react";
 import type { DialogOptions } from "@/context/types";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 const FadeTransition = forwardRef(function FadeTransition(
   props: TransitionProps & { children: React.ReactElement },
@@ -215,7 +216,7 @@ export const CarDetailDialog = ({
                 sx={{ fontSize: 14, color: "white !important" }}
               />
             }
-            label={capitalizeName(car.fuel)}
+            label={capitalizeName((car.fuel as FuelDTO)?.name)}
             size="small"
             sx={{
               bgcolor: "rgba(255,255,255,0.18)",

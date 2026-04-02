@@ -1,7 +1,6 @@
 "use client";
 
 import { Button, Box, Grid, Divider, Paper } from "@mui/material";
-import { useEffect } from "react";
 import type {
   CarEntry,
   TabData,
@@ -11,13 +10,16 @@ import { TabFormFuelings } from "./TabFormFuelings";
 import { prefixExistsInTabData } from "../../utils";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { FuelingFormList } from "./FuelingFormList";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export const TabForm = ({
   onSubmit,
   tabData,
+  fuels,
 }: {
   onSubmit: (car: CarEntry) => void;
   tabData: TabData;
+  fuels: FuelDTO[];
 }) => {
   const {
     selectedCar,
@@ -29,12 +31,8 @@ export const TabForm = ({
     vehicleEquipInputRef,
   } = useMaterialRequisitionForm();
 
-  useEffect(() => {
-    setSelectedCar(selectedCar);
-  }, [selectedCar]);
-
   const handleSubmit = () => {
-    if (vehicle && prefix) {
+    if (vehicle && prefix && fuel && fuelings.length > 0) {
       onSubmit({ vehicle, prefix, fuelings, fuel });
       setSelectedCar(null);
       vehicleEquipInputRef?.current?.focus();
@@ -69,7 +67,7 @@ export const TabForm = ({
     <Grid container component={Box} spacing={2} alignContent="start">
       <Grid size={7}>
         <Paper elevation={1} sx={{ padding: 2 }}>
-          <TabFormInfo prefixExists={prefixExists} />
+          <TabFormInfo prefixExists={prefixExists} fuels={fuels} />
 
           <Divider sx={{ my: 4 }} />
 

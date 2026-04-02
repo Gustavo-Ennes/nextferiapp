@@ -19,6 +19,7 @@ export default async function WorkerFormPage({
     entityType: "department",
     repository: DepartmentRepository,
     isActive: true,
+    hasWorkers: true,
   });
 
   return (

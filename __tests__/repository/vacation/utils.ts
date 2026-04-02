@@ -39,6 +39,11 @@ export const createBaseEntities = async (): Promise<BaseEntities> => {
   };
   const baseBoss: Boss = await BossModel.create(bossPayload);
 
+  await DepartmentModel.updateOne(
+    { _id: baseDepartment._id },
+    { responsible: baseBoss._id }
+  );
+
   return {
     baseDepartment: toDepartmentDTO(baseDepartment) as DepartmentDTO,
     baseWorker: toWorkerDTO(baseWorker) as WorkerDTO,

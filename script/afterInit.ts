@@ -1,3 +1,9 @@
+import { migrateDepartmentsAndWeeklySummaries } from "@/script/migrations/fixDepartmentsAndWeeklySummaries";
+
 export const afterInit = async () => {
-  return Promise.resolve(undefined);
+  try {
+    await migrateDepartmentsAndWeeklySummaries();
+  } catch (error) {
+    console.error("afterInit migration failed:", error);
+  }
 };

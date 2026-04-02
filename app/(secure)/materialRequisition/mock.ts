@@ -1,4 +1,3 @@
-import { fuelList } from "./utils";
 import type {
   FuelingData,
   TabData,
@@ -40,7 +39,14 @@ function generateCarEntries(
   return Array.from({ length: count }, (_, i) => ({
     vehicle: `Veículo #${seed++}`,
     prefix: 100 + seed * 10 + i,
-    fuel: fuelList[Math.floor(Math.random() * fuelList.length)],
+    fuel: {
+      _id: "fuelId" + seed,
+      name: `Combustível ${seed}`,
+      unit: "L",
+      price: 5 + Math.random() * 5,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    },
     fuelings: generateFuelingData(
       MIN_FUELINGS + Math.round(Math.random() * MAX_FUELINGS),
     ),

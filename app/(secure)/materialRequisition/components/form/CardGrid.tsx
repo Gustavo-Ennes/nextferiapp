@@ -16,6 +16,7 @@ import {
   InfoOutlined,
   Delete,
   CheckBox,
+  Paid,
 } from "@mui/icons-material";
 import type {
   CarEntry,
@@ -23,17 +24,22 @@ import type {
 } from "../../../../../lib/repository/weeklyFuellingSummary/types";
 import { capitalizeName } from "@/app/utils";
 import { useDialog } from "@/context/DialogContext";
-import type { MouseEvent } from "react";
+import { type MouseEvent } from "react";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
+import type { FuelDTO } from "@/dto/FuelDTO";
+import type { DepartmentDTO, WeeklyFuellingSummaryDTO } from "@/dto";
+import { getCarTotalValue } from "../../utils";
 
 export const CardsGrid = ({
   tabData,
   onRemove,
   onEdit,
+  weeklyFuelingSummary,
 }: {
   tabData: TabData;
   onRemove: (prefix: number) => void;
   onEdit: (car: CarEntry) => void;
+  weeklyFuelingSummary: WeeklyFuellingSummaryDTO | null;
 }) => {
   const { selectedCar } = useMaterialRequisitionForm();
   const { openConfirmationDialog, openCarDetailDialog } = useDialog();
@@ -145,7 +151,22 @@ export const CardsGrid = ({
                 <LocalGasStation
                   sx={{ fontSize: 15, color: "secondary.main" }}
                 />
-                {capitalizeName(car.fuel)}
+                {capitalizeName((car.fuel as FuelDTO)?.name)}
+              </Typography>
+
+              {/* R$ Total */}
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+              >
+                <Paid sx={{ fontSize: 15, color: "secondary.main" }} />
+                R${" "}
+                {getCarTotalValue(
+                  car,
+                  weeklyFuelingSummary,
+                  (tabData.department as DepartmentDTO)._id,
+                ).toFixed(2)}
               </Typography>
 
               {/* Fuelings count */}

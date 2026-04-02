@@ -5,29 +5,33 @@ const VehicleSummarySchema = new Schema(
   {
     vehicle: { type: String, required: true },
     prefix: { type: Number, required: true },
+    fuel: {
+      type: Schema.Types.ObjectId,
+      ref: "Fuel",
+      required: true,
+    },
     totalLiters: { type: Number, required: true },
+    totalValue: { type: Number, required: true, default: 0 },
     lastKm: { type: Number, required: false },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const DepartmentSummarySchema = new Schema(
   {
-    name: { type: String, required: true },
-
-    fuelTotals: {
-      gas: { type: Number, default: 0 },
-      s10: { type: Number, default: 0 },
-      s500: { type: Number, default: 0 },
-      arla: { type: Number, default: 0 },
+    department: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+      required: true,
     },
-
+    name: { type: String, required: true },
     vehicles: {
       type: [VehicleSummarySchema],
       default: [],
     },
+    totalValue: { type: Number, required: true, default: 0 },
   },
-  { _id: false }
+  { _id: false },
 );
 
 export interface WeeklyFuellingSummary extends Document {
@@ -46,12 +50,12 @@ const WeeklyFuellingSummarySchema = new Schema(
   {
     collection: "weeklySummaries",
     capped: { size: 1024 * 1024, max: 60 },
-  }
+  },
 );
 
 export const WeeklyFuellingSummaryModel =
   mongoose.models.WeeklyFuellingSummary ||
   model<WeeklyFuellingSummary>(
     "WeeklyFuellingSummary",
-    WeeklyFuellingSummarySchema
+    WeeklyFuellingSummarySchema,
   );

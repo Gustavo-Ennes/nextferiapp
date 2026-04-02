@@ -14,13 +14,14 @@ export const toDepartmentDTO = (
     return (department as Types.ObjectId).toString();
 
   const departmentEntity = department as Department;
-  const { _id, name, createdAt, updatedAt, isActive, responsible } =
+  const { _id, name, createdAt, updatedAt, isActive, hasWorkers, responsible } =
     departmentEntity;
 
   return {
     _id: _id.toString(),
     name,
     isActive,
+    hasWorkers,
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
     responsible: responsible ? toBossDTO(responsible as Boss) : undefined,

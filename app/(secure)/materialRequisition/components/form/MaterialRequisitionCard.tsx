@@ -1,6 +1,7 @@
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { CardContent, Typography, Card, alpha, Box, Grid } from "@mui/material";
 import type { MaterialRequisitionCardParam } from "../types";
+import type { DepartmentDTO } from "@/dto/DepartmentDTO";
 
 export const MaterialRequisitionCard = ({
   data,
@@ -10,7 +11,8 @@ export const MaterialRequisitionCard = ({
   departmentName,
 }: MaterialRequisitionCardParam) => {
   const { selectedTabData } = useMaterialRequisitionForm();
-  const selectedDepartmentName = selectedTabData?.department;
+  const selectedDepartmentName = (selectedTabData?.department as DepartmentDTO)
+    ?.name;
   const isTotalGreaterThan999 = data.total.split(".")[0].length > 3;
   const isSeletedGreaterThan999 =
     departmentName || (data.selected && data.selected.split(".")[0].length > 3);

@@ -5,6 +5,7 @@ import { type DialogContextType, type DialogOptions } from "./types";
 import { ConfirmationDialog } from "@/app/(secure)/components/dialogs/ConfirmationDialog";
 import { InputDialog } from "@/app/(secure)/components/dialogs/InputDialog";
 import { CarDetailDialog } from "@/app/(secure)/components/dialogs/CarDetailDialog";
+import { SelectDialog } from "@/app/(secure)/components/dialogs/SelectDialog";
 
 const DialogContext = createContext<DialogContextType | null>(null);
 
@@ -21,6 +22,9 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     null,
   );
   const [carDetailDialogData, setCarDetailDialogData] =
+    useState<DialogOptions | null>(null);
+
+  const [selectDialogData, setSelectDialogData] =
     useState<DialogOptions | null>(null);
 
   const openConfirmationDialog = useCallback((dialogData: DialogOptions) => {
@@ -59,6 +63,18 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     setCarDetailDialogData(null);
   }, []);
 
+  const openSelectDialog = useCallback((dialogData: DialogOptions) => {
+    setSelectDialogData({
+      ...dialogData,
+      openState: true,
+      onClose: () => setSelectDialogData(null),
+    });
+  }, []);
+
+  const closeSelectDialog = useCallback(() => {
+    setSelectDialogData(null);
+  }, []);
+
   const handleConfirmationConfirm = () => {
     confirmationDialogData?.onConfirm?.();
     setConfirmationDialogData(null);
@@ -67,6 +83,11 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
   const handleInputConfirm = (externalInput?: string) => {
     inputDialogData?.onConfirm?.(externalInput ?? inputDialogData?.input);
     setInputDialogData(null);
+  };
+
+  const handleSelectConfirm = (selectedValue?: string) => {
+    selectDialogData?.onConfirm?.(selectedValue);
+    setSelectDialogData(null);
   };
 
   return (
@@ -78,9 +99,12 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
         closeInputDialog,
         openCarDetailDialog,
         closeCarDetailDialog,
+        openSelectDialog,
+        closeSelectDialog,
         confirmationDialogData,
         inputDialogData,
         carDetailDialogData,
+        selectDialogData,
       }}
     >
       {children}
@@ -111,6 +135,13 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
         openState={carDetailDialogData?.openState ?? false}
         title={carDetailDialogData?.car?.prefix.toString() ?? "Detalhes"}
         onConfirm={() => undefined}
+      />
+      <SelectDialog
+        options={selectDialogData?.options ?? []}
+        onConfirm={handleSelectConfirm}
+        onClose={() => selectDialogData?.onClose?.()}
+        openState={selectDialogData?.openState ?? false}
+        title={selectDialogData?.title ?? "Selecione uma opção"}
       />
     </DialogContext.Provider>
   );
