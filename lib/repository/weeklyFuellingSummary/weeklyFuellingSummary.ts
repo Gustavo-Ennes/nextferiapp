@@ -12,6 +12,7 @@ import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import dbConnect from "@/lib/database/database";
 import { FuelRepository } from "../fuel/fuel";
 import { DepartmentRepository } from "../department/department";
+import { max, min, pluck } from "ramda";
 
 export const WeeklyFuellingSummaryRepository = {
   async findByWeekStart(): Promise<WeeklyFuellingSummaryDTO | null> {
@@ -127,6 +128,11 @@ export const WeeklyFuellingSummaryRepository = {
           );
         }
         const totalValue = Number((pricePerLiter * totalLiters).toFixed(2));
+        const getKmHrs = pluck("kmHr");
+        const kmHrs = getKmHrs(car.fuelings) as number[];
+        const maxKm = Math.max(...kmHrs);
+        const minKm = Math.min(...kmHrs);
+        const totalKmHr = maxKm && minKm ? maxKm - minKm : 0;
 
         vehiclesTotals.push({
           vehicle: car.vehicle,
@@ -134,6 +140,7 @@ export const WeeklyFuellingSummaryRepository = {
           fuel: new Types.ObjectId(fuelRecord._id),
           totalLiters,
           totalValue,
+          totalKmHr,
           lastKm,
         });
 

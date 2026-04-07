@@ -19,6 +19,7 @@ export const toWeeklySummaryDTO = (
       fuel: v.fuel ? toFuelDTO(v.fuel) : undefined,
       totalLiters: v.totalLiters,
       totalValue: v.totalValue ?? 0,
+      totalKmHr: v.totalKmHr ?? 0,
       lastKm: v.lastKm ?? undefined,
     })),
   })),

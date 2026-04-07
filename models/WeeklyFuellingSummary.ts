@@ -12,6 +12,7 @@ const VehicleSummarySchema = new Schema(
     },
     totalLiters: { type: Number, required: true },
     totalValue: { type: Number, required: true, default: 0 },
+    totalKmHr: { type: Number, required: false, default: 0 },
     lastKm: { type: Number, required: false },
   },
   { _id: false },

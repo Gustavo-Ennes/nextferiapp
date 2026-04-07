@@ -1,125 +1,123 @@
 "use client";
 
 import { Container, Grid, Paper, Typography } from "@mui/material";
-import { format } from "date-fns";
 import { useMemo, useState, useEffect } from "react";
 import { AverageHeader } from "../components/average/AverageHeader";
 import { AverageCharts } from "../components/average/AverageCharts";
 import { AverageDepartmentTabs } from "../components/average/AverageDepartmentTabs";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
-import { pluck, sum } from "ramda";
-import { getWeeklyFuelsTotals } from "../utils";
-import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import { flatten, uniq } from "ramda";
+import {
+  getEfficiencyScatter,
+  getFuelMix,
+  getLitersTrend,
+  getPieData,
+  getTopVehiclesByConsumption,
+  getVehicleCostVsLitersScatter,
+} from "../utils";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { DepartmentDTO } from "@/dto";
+import type { FuelMixItem } from "../types";
+import { toDate } from "date-fns";
+import { startOfDaySP } from "@/app/utils";
 
 const ALL = "__ALL__";
 
 export function WeeklySummaryView({
   summaries = [],
-  fuels,
 }: {
   summaries: WeeklyFuellingSummaryDTO[];
   fuels: FuelDTO[];
 }) {
+  const [selectedDept, setSelectedDept] = useState<string>(ALL);
+  const [selectedWeek, setSelectedWeek] = useState<string>(ALL);
+  const [tabIndex, setTabIndex] = useState(0);
+
   const departments = useMemo(() => {
-    const set = new Set<string>();
-    summaries.forEach((s) => s.departments.forEach((d) => set.add(d.name)));
-    return Array.from(set);
+    const departments = summaries.map((s) =>
+      s.departments.map((d) => d.department as DepartmentDTO),
+    );
+    return uniq(flatten(departments)).sort();
   }, [summaries]);
 
-  const [selectedDept, setSelectedDept] = useState<string>(ALL);
-  const [tabIndex, setTabIndex] = useState(0);
+  const weeks = useMemo(() => {
+    return summaries.map((s) => startOfDaySP(toDate(s.weekStart)));
+  }, [summaries]);
+
+  const allDepartmentsInfo = useMemo(() => {
+    return summaries.map((s) => s.departments).flat();
+  }, [summaries]);
 
   /** 🔁 sincroniza aba com select */
   useEffect(() => {
-    if (selectedDept === ALL) return;
-    const idx = departments.indexOf(selectedDept);
+    const allIsSelected = selectedDept === ALL;
+    const idx = allIsSelected
+      ? 0
+      : departments.findIndex((d) => d._id === selectedDept) + 1;
+
     if (idx >= 0) setTabIndex(idx);
   }, [selectedDept, departments]);
 
   /** 🔹 Última semana */
   const current = summaries.at(-1);
 
-  /** 🔹 Pizza principal */
-  const pieData = useMemo(() => {
-    if (!current) return [];
+  const fuelMix: FuelMixItem[] = useMemo(() => {
+    return getFuelMix({
+      summaries,
+      selectedDepartment: selectedDept,
+      selectedWeek,
+    });
+  }, [summaries, selectedDept, selectedWeek]);
 
-    if (selectedDept === ALL) {
-      return current.departments.map((d) => ({
-        id: d.name,
-        label: d.name,
-        value: sum(pluck("totalLiters", d.vehicles)),
-      }));
-    }
+  const vehicleScatterData = useMemo(() => {
+    return getVehicleCostVsLitersScatter({
+      summaries,
+      selectedDepartment: selectedDept,
+      selectedWeek,
+    });
+  }, [summaries, selectedDept, selectedWeek]); // TODO verificar erro ao selecionar data e departamento
 
-    const dept = current.departments.find((d) => d.name === selectedDept);
-    if (!dept) return [];
-    const fuelTotals = getWeeklyFuelsTotals(current);
+  const efficiencyScatter = useMemo(() => {
+    return getEfficiencyScatter(summaries, selectedDept);
+  }, [summaries, selectedDept]);
 
-    return fuelTotals.map(({ _id, name, currentPriceVersion }) => ({
-      id: _id,
-      label: name.toUpperCase(),
-      value: currentPriceVersion
-        ? (currentPriceVersion as FuelPriceVersionDTO).price
-        : -1,
-    }));
-  }, [current, selectedDept]);
+  const topConsumptionVehicles = useMemo(() => {
+    return getTopVehiclesByConsumption({
+      summaries,
+      selectedDepartment: selectedDept,
+      selectedWeek,
+    });
+  }, [summaries, selectedDept, selectedWeek]);
 
-  /** 🔹 Valor total da semana, por filtros */
-  const totalValue = useMemo(() => {
-    if (!current) return 0;
-
-    const filterDepartments = current.departments.filter(
-      (d) => selectedDept === ALL || d.name === selectedDept,
-    );
-
-    return filterDepartments.reduce((deptSum, d) => {
-      return (
-        deptSum +
-        d.vehicles.reduce(
-          (vehicleSum, v) => vehicleSum + (v.totalValue ?? 0),
-          0,
-        )
-      );
-    }, 0);
-  }, [current, selectedDept]);
-
-  /** 🔹 Evolução semanal total */
-  const barWeekly = useMemo(() => {
-    return summaries.map((s) => {
-      let total = 0;
-      let totalValueWeek = 0;
-
-      s.departments.forEach((d) => {
-        if (selectedDept === ALL || d.name === selectedDept) {
-          total += sum(pluck("totalLiters", d.vehicles));
-          totalValueWeek += sum(pluck("totalValue", d.vehicles)) ?? 0;
-        }
-      });
-
-      return {
-        week: format(new Date(s.weekStart), "dd/MM/yy"),
-        total,
-        totalValue: totalValueWeek,
-      };
+  const litersTrend = useMemo(() => {
+    return getLitersTrend({
+      summaries,
+      selectedDepartment: selectedDept,
+      selectedWeek,
     });
   }, [summaries, selectedDept]);
 
-  /** 🔹 Evolução por combustível */
-  const fuelEvolution = useMemo(() => {
-    return fuels.map((fuel) => ({
-      fuel: fuel.name,
-      data: summaries.map((s) => {
-        let total = 0;
-        s.departments.forEach((d) => {
-          if (selectedDept === ALL || d.name === selectedDept) {
-            total += sum(pluck("totalLiters", d.vehicles));
-          }
-        });
-        return total;
-      }),
-    }));
-  }, [summaries, selectedDept]);
+  /** 🔹 Pizza principal */
+  const pieData = useMemo(() => {
+    return getPieData({
+      summaries,
+      selectedDepartment: selectedDept,
+      selectedWeek,
+    });
+  }, [current, selectedDept, selectedWeek]);
+
+  /** 🔹 Valor total da semana, por filtros */
+  const totalValue = useMemo(() => {
+    const filterDepartments = allDepartmentsInfo.filter(
+      (d) =>
+        selectedDept === ALL ||
+        (d.department as DepartmentDTO)._id === selectedDept,
+    );
+
+    return filterDepartments.reduce((deptSum, d) => {
+      return deptSum + d.totalValue;
+    }, 0);
+  }, [current, selectedDept]);
 
   return (
     <Container>
@@ -127,10 +125,13 @@ export function WeeklySummaryView({
         <Grid container spacing={2}>
           <Grid size={12}>
             <AverageHeader
+              weeks={weeks}
+              selectedWeek={selectedWeek}
               departments={departments}
               selectedDept={selectedDept}
-              onChange={(department: string) => {
+              onChange={(department: string, week: string) => {
                 setSelectedDept(department);
+                setSelectedWeek(week);
               }}
             />
           </Grid>
@@ -147,9 +148,14 @@ export function WeeklySummaryView({
             </Paper>
 
             <AverageCharts
-              barWeekly={barWeekly}
-              fuelEvolution={fuelEvolution}
               pieData={pieData}
+              fuelMix={fuelMix}
+              selectedDepartment={selectedDept}
+              vehicleScatterSeries={vehicleScatterData}
+              efficiencyScatter={efficiencyScatter}
+              topConsumptionVehicles={topConsumptionVehicles}
+              litersTrend={litersTrend}
+              weeks={weeks.map((w) => w.toISOString())}
             />
           </Grid>
           {/* LISTAGEM */}
