@@ -82,7 +82,7 @@ async function applyDefaultField<T>(model: Model<T>) {
 
     console.log(`Migração concluída!`);
     console.log(
-      `Documentos encontrados para atualização: ${result.matchedCount}`
+      `Documentos encontrados para atualização: ${result.matchedCount}`,
     );
     console.log(`Documentos modificados: ${result.modifiedCount}`);
   } catch (error) {

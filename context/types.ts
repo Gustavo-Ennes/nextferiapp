@@ -10,7 +10,8 @@ export type PdfPreviewTypeProp =
   | "materialRequisition"
   | "vehicleUsage"
   | "cancellation"
-  | "materialRequisition";
+  | "materialRequisition"
+  | "purchaseOrder";
 
 export type PdfPreviewItem = {
   data?: TabData[];

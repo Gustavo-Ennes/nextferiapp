@@ -18,10 +18,11 @@ export const VacationCreateSchema = z.object({
   period: z.enum(["half", "full"], "Invalid period"),
   duration: z.number().positive("Duration should be a positive number"),
   startDate: IsoDateString,
+  endDate: z.optional(IsoDateString),
   worker: getObjectIdString("worker"),
   boss: getObjectIdString("boss"),
   observation: z.string().optional(),
-  cancelled: z.boolean().optional()
+  cancelled: z.boolean().optional(),
 });
 
 export const VacationUpdateSchema = z.object({
@@ -32,8 +33,9 @@ export const VacationUpdateSchema = z.object({
     .positive("Duration should be a positive number")
     .optional(),
   startDate: IsoDateString.optional(),
+  endDate: z.optional(IsoDateString),
   worker: getObjectIdString("worker").optional(),
   boss: getObjectIdString("boss").optional(),
   observation: z.string().optional(),
-  cancelled: z.boolean().optional()
+  cancelled: z.boolean().optional(),
 });

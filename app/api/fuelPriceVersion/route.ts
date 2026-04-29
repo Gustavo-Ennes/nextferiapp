@@ -1,4 +1,4 @@
-import { FuelPriceVersionValidator } from "@/app/(secure)/fuel/validator";
+import { FuelPriceVersionValidator } from "@/lib/validators/fuel";
 import { FuelPriceVersionRepository } from "@/lib/repository/fuelPriceVersion/fuelPriceVersion";
 import { NextResponse, NextRequest } from "next/server";
 import { optionsResponse } from "../utils";
@@ -28,9 +28,11 @@ export async function POST(request: NextRequest) {
       fuel: body.fuel,
       price: body.price,
     });
-    if (existing) {
+    if (existing?.version === validatedData.version - 1) {
       return NextResponse.json(
-        { error: "Fuel version already exists with the same price" },
+        {
+          error: "Current fuel version already has this price. Nothing to do.",
+        },
         { status: 400 },
       );
     }
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ errors: error.errors }, { status: 400 });
     }
     return NextResponse.json(
-      { error: `Internal Server Error: ${error}` },
+      { error: `Internal Server Error: ${(error as Error).message}` },
       { status: 500 },
     );
   }

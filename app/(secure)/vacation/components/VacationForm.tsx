@@ -19,7 +19,7 @@ import {
   capitalizeName,
   startOfDaySP,
 } from "@/app/utils";
-import { VacationValidator } from "../validator";
+import { VacationCreateSchema } from "@/lib/validators/vacation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { translateEntityKey } from "@/app/translate";
@@ -75,7 +75,7 @@ export function VacationForm({
     watch,
     setValue,
   } = useForm<VacationFormData>({
-    resolver: zodResolver(VacationValidator),
+    resolver: zodResolver(VacationCreateSchema),
     mode: "onTouched",
     defaultValues: defaultValues
       ? prepareDefaults({ ...defaultValues, cancelled: false })

@@ -18,7 +18,7 @@ import type { DepartmentFormData, DepartmentProps } from "../types";
 import { useRouter } from "@/context/RouterContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
-import { DepartmentValidator } from "../validator";
+import { DepartmentValidator } from "@/lib/validators/department";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { capitalizeName } from "@/app/utils";

@@ -5,7 +5,6 @@ import { startOfWeek, toDate } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
 import { clone, pluck, sum } from "ramda";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
-import { FuelPriceVersionRepository } from "@/lib/repository/fuelPriceVersion/fuelPriceVersion";
 import { createBaseEntities } from "../vacation/utils";
 import { Types } from "mongoose";
 import DepartmentModel from "@/models/Department";
@@ -20,15 +19,11 @@ describe("WeeklyFuellingSummaryRepository", () => {
     const fueling = await FuelRepository.create({
       name: "Gasolina",
       unit: "L",
-    });
-
-    boss = baseBoss;
-
-    await FuelPriceVersionRepository.create({
-      fuel: fueling._id,
       price: 5,
       version: 1,
     });
+
+    boss = baseBoss;
 
     basePayload = {
       pdfData: { items: [], opened: false },

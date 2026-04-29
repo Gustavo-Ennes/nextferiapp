@@ -1,5 +1,8 @@
 import type { FuelPriceVersionFormData } from "@/app/(secure)/fuel/types";
-import { FuelPriceVersionValidator } from "@/app/(secure)/fuel/validator";
+import {
+  FuelPriceVersionValidator,
+  FuelPriceVersionValidatorUpdate,
+} from "@/lib/validators/fuel";
 import type { SearchParams } from "@/app/(secure)/types";
 import type { PaginatedResponse } from "@/app/api/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
@@ -15,6 +18,8 @@ import type {
 } from "../types";
 import { parseFuelPriceVersions, toFuelPriceVersionDTO } from "./parse";
 import FuelPriceVersionModel from "@/models/FuelPriceVersion";
+import { FuelRepository } from "../fuel/fuel";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export const FuelPriceVersionRepository: Repository<
   FuelPriceVersionDTO,
@@ -103,12 +108,22 @@ export const FuelPriceVersionRepository: Repository<
 
     let validPayload: FuelPriceVersionFormData | null = null;
 
-    const result = FuelPriceVersionValidator.safeParse(payload);
+    const result = FuelPriceVersionValidatorUpdate.safeParse(payload);
 
     if (!result.success) {
       throw new Error(JSON.parse(result.error.message)[0].message);
     } else {
       validPayload = result.data as FuelPriceVersionFormData;
+    }
+
+    if (!payload.fuel) {
+      throw new Error("Fuel field is required to create a price version.");
+    }
+
+    const fuel = await FuelRepository.findOne({ id: payload.fuel });
+
+    if (!fuel) {
+      throw new Error("No fuel found with provided id.");
     }
 
     const priceVersionsSameFuel =
@@ -124,7 +139,7 @@ export const FuelPriceVersionRepository: Repository<
       version,
     });
 
-    return toFuelPriceVersionDTO(created.toObject()) as FuelPriceVersionDTO;
+    return toFuelPriceVersionDTO(created) as FuelPriceVersionDTO;
   },
 
   async update({
@@ -134,6 +149,7 @@ export const FuelPriceVersionRepository: Repository<
     await dbConnect();
 
     let validPayload: FuelPriceVersionFormData | null = null;
+    let fuel: FuelDTO | null = null;
 
     const result = FuelPriceVersionValidator.safeParse(payload);
 
@@ -143,6 +159,13 @@ export const FuelPriceVersionRepository: Repository<
       throw new Error("Id prop needs to be a valid ObjectId.");
     } else {
       validPayload = result.data as FuelPriceVersionFormData;
+    }
+
+    if (payload.fuel) {
+      fuel = await FuelRepository.findOne({ id: payload.fuel });
+    }
+    if (!fuel && payload.fuel) {
+      throw new Error("Fuel not found with provided id.");
     }
 
     const updated = await FuelPriceVersionModel.findByIdAndUpdate(

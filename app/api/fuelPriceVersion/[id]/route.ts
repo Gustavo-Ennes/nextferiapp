@@ -1,4 +1,4 @@
-import { FuelPriceVersionValidator } from "@/app/(secure)/fuel/validator";
+import { FuelPriceVersionValidator } from "@/lib/validators/fuel";
 import { FuelPriceVersionRepository } from "@/lib/repository/fuelPriceVersion/fuelPriceVersion";
 import { NextRequest, NextResponse } from "next/server";
 import { optionsResponse } from "../../utils";

@@ -6,4 +6,5 @@ export const prepareDefaults = (fuel: FuelDTO): CombinedFuelFormData => ({
   ...fuel,
   price: 0,
   version: (fuel?.currentPriceVersion as FuelPriceVersionDTO).version + 1,
+  currentPriceVersion: (fuel.currentPriceVersion as FuelPriceVersionDTO)._id,
 });

@@ -12,7 +12,7 @@ import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import dbConnect from "@/lib/database/database";
 import { FuelRepository } from "../fuel/fuel";
 import { DepartmentRepository } from "../department/department";
-import { max, min, pluck } from "ramda";
+import { pluck } from "ramda";
 
 export const WeeklyFuellingSummaryRepository = {
   async findByWeekStart(): Promise<WeeklyFuellingSummaryDTO | null> {

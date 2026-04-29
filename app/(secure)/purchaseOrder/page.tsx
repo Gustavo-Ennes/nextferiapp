@@ -2,6 +2,7 @@ import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchase
 import { ResponsiveListPage } from "../components/ResponsiveListPage";
 import type { RawSearchParams } from "../types";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
+import { PurchaseOrderAdditionalButton } from "./components/PurchaseOrderAdditionalButton";
 
 const PurchaseOrderList = async ({
   searchParams,
@@ -15,11 +16,16 @@ const PurchaseOrderList = async ({
     ...(contains && { contains }),
   });
 
+  const additionalButtons = [
+    <PurchaseOrderAdditionalButton key="pdf-preview-btn" />,
+  ];
+
   return (
     <ResponsiveListPage<PurchaseOrderDTO>
       paginatedResponse={paginatedResponse}
       routePrefix="purchaseOrder"
       contains={contains}
+      additionalButtons={additionalButtons}
     />
   );
 };

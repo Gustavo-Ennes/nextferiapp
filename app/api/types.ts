@@ -29,7 +29,8 @@ export type PdfRouteType =
   | "relation"
   | "materialRequisition"
   | "vehicleUsage"
-  | "cancellation";
+  | "cancellation"
+  | "purchaseOrder";
 export type PdfOptions = {
   type: PdfRouteType;
   relationType?: string;

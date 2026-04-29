@@ -18,7 +18,7 @@ import {
   type SubmitHandler,
 } from "react-hook-form";
 import type { PurchaseFormProps, PurchaseOrderFormData } from "../types";
-import { PurchaseOrderValidator } from "../validator";
+import { PurchaseOrderValidator } from "@/lib/validators/purchaseOrder";
 import { prepareDefaults, purchaseOrderBaseline } from "../utils";
 import { useLoading } from "@/context/LoadingContext";
 import { useRouter as useInternalRouter } from "@/context/RouterContext";

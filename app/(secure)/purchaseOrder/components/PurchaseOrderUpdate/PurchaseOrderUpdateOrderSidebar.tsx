@@ -16,6 +16,7 @@ export const PurchaseOrderUpdateOrderSidebar = ({
       display: "flex",
       flexDirection: "column",
       height: "100%",
+      maxHeight: "60vh",
     }}
   >
     <Typography variant="subtitle2" color="text.secondary" gutterBottom>

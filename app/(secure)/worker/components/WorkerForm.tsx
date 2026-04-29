@@ -17,7 +17,7 @@ import {
 import { useRouter } from "@/context/RouterContext";
 import type { WorkerFormData, WorkerProps } from "../types";
 import { DatePicker } from "@mui/x-date-pickers";
-import { WorkerValidator } from "../validator";
+import { WorkerValidator } from "@/lib/validators/worker";
 import { prepareDefaults, workerBaseline } from "../utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";

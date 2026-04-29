@@ -15,7 +15,6 @@ import {
   getTopVehiclesByConsumption,
   getVehicleCostVsLitersScatter,
 } from "../utils";
-import type { FuelDTO } from "@/dto/FuelDTO";
 import type { DepartmentDTO } from "@/dto";
 import type { FuelMixItem } from "../types";
 import { toDate } from "date-fns";
@@ -27,7 +26,6 @@ export function WeeklySummaryView({
   summaries = [],
 }: {
   summaries: WeeklyFuellingSummaryDTO[];
-  fuels: FuelDTO[];
 }) {
   const [selectedDept, setSelectedDept] = useState<string>(ALL);
   const [selectedWeek, setSelectedWeek] = useState<string>(ALL);

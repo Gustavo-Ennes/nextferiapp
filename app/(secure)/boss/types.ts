@@ -1,4 +1,4 @@
-import { BossValidator } from "./validator";
+import { BossValidator } from "@/lib/validators/boss";
 import * as z from "zod";
 import type { BossDTO, WorkerDTO } from "@/dto";
 
