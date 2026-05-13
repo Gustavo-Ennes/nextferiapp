@@ -108,7 +108,7 @@ export const FuelPriceVersionRepository: Repository<
 
     let validPayload: FuelPriceVersionFormData | null = null;
 
-    const result = FuelPriceVersionValidatorUpdate.safeParse(payload);
+    const result = FuelPriceVersionValidator.safeParse(payload);
 
     if (!result.success) {
       throw new Error(JSON.parse(result.error.message)[0].message);
@@ -151,7 +151,7 @@ export const FuelPriceVersionRepository: Repository<
     let validPayload: FuelPriceVersionFormData | null = null;
     let fuel: FuelDTO | null = null;
 
-    const result = FuelPriceVersionValidator.safeParse(payload);
+    const result = FuelPriceVersionValidatorUpdate.safeParse(payload);
 
     if (!result.success) {
       throw new Error(JSON.parse(result.error.message)[0].message);
@@ -172,7 +172,7 @@ export const FuelPriceVersionRepository: Repository<
       id,
       validPayload,
       {
-        returnDocumentAfter: true,
+        new: true,
       },
     ).lean<IFuelPriceVersion>();
 

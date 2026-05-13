@@ -6,6 +6,7 @@ import { parseFuels, toFuelDTO } from "./parse";
 import type {
   CombinedFuelFormData,
   FuelFormData,
+  FuelFormDataUpdate,
 } from "@/app/(secure)/fuel/types";
 import type { FindOneRepositoryParam, UpdateRepositoryParam } from "../types";
 import type { PaginatedResponse } from "@/app/api/types";
@@ -124,10 +125,10 @@ export const FuelRepository: Repository<
   async update({
     id,
     payload,
-  }: UpdateRepositoryParam<FuelFormData>): Promise<FuelDTO> {
+  }: UpdateRepositoryParam<FuelFormDataUpdate>): Promise<FuelDTO> {
     await dbConnect();
 
-    let validPayload: FuelFormData | null = null;
+    let validPayload: FuelFormDataUpdate | null = null;
 
     const result = FuelValidatorUpdate.safeParse(payload);
 
@@ -136,17 +137,22 @@ export const FuelRepository: Repository<
     } else if (!isObjectIdOrHexString(id)) {
       throw new Error("Id prop needs to be a valid ObjectId.");
     } else {
-      validPayload = result.data as FuelFormData;
+      validPayload = result.data as FuelFormDataUpdate;
     }
 
-    const updated = await FuelModel.findByIdAndUpdate<IFuel>(id, validPayload, {
-      returnDocumentAfter: true,
-    });
-    await updated?.populate("priceVersions");
+    const updated = await FuelModel.findByIdAndUpdate(
+      id,
+      validPayload,
+      {
+        new: true,
+      },
+    );
 
     if (!updated) throw new Error("No fuel found with provided id.");
 
-    return toFuelDTO(updated) as FuelDTO;
+    await updated.populate("priceVersions currentPriceVersion");
+
+    return toFuelDTO(updated.toObject()) as FuelDTO;
   },
 
   async delete(id: string): Promise<FuelDTO | null> {

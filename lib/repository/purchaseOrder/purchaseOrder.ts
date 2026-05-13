@@ -159,7 +159,7 @@ export const PurchaseOrderRepository: Repository<
       id,
       calculatedPayload,
       {
-        returnDocument: "after",
+        new: true,
       },
     );
 

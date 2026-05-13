@@ -8,8 +8,8 @@ const ObjectIdString = z
 export const OrderItemSchema = z.object({
   fuel: ObjectIdString,
   fuelPriceVersion: ObjectIdString,
-  quantity: z.number().min(0, "Quantity cannot be negative"),
-  price: z.number().min(0, "Price cannot be negative"),
+  quantity: z.number().gt(0, "Quantity cannot be negative or zero"),
+  price: z.number().min(0, "Price cannot be negative or zero"),
 });
 
 export const PurchaseOrderValidator = z.object({
