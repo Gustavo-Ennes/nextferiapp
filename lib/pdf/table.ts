@@ -28,9 +28,23 @@ const calculateColumnsXArray = (textParams: GetMultiTextWidthParam) => {
         collumnMaxWidth < defaultCollumnMaxWidth
           ? collumnMaxWidth
           : defaultCollumnMaxWidth;
+
+      // Adjust column width based on header name
+      let adjustedCollumnWidth = collumnWidth;
+      if (data[0] && data[0][i]) {
+        const header = data[0][i]!.toLowerCase();
+        if (header === "material") {
+          adjustedCollumnWidth *= 1.2; // Increase size for 'material'
+        } else if (header === "un.") {
+          adjustedCollumnWidth *= 0.8; // Decrease size for 'un.'
+        }
+      }
+
       const lastCellEndX = collsWidth[collsWidth.length - 1] ?? startX;
-      collumnsWidthDifference.push(defaultCollumnMaxWidth - collumnWidth);
-      collsWidth.push(lastCellEndX + collumnWidth);
+      collumnsWidthDifference.push(
+        defaultCollumnMaxWidth - adjustedCollumnWidth,
+      );
+      collsWidth.push(lastCellEndX + adjustedCollumnWidth);
     }
 
     const totalCollumnsWidthDifference = sum(collumnsWidthDifference);

@@ -1,6 +1,5 @@
 "use client";
 
-import { translateEntityKey } from "@/app/translate";
 import {
   Grid,
   TextField,
@@ -9,13 +8,21 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { fuelList } from "../../utils";
 import { useEffect } from "react";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { isEmpty } from "ramda";
 import type { KeyboardEvent } from "react";
+import type { FuelDTO } from "@/dto/FuelDTO";
+import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
+import { capitalizeFirstLetter } from "@/app/utils";
 
-export const TabFormInfo = ({ prefixExists }: { prefixExists: boolean }) => {
+export const TabFormInfo = ({
+  prefixExists,
+  fuels,
+}: {
+  prefixExists: boolean;
+  fuels: FuelDTO[];
+}) => {
   const {
     setSelectedCar,
     selectedTabData,
@@ -43,7 +50,11 @@ export const TabFormInfo = ({ prefixExists }: { prefixExists: boolean }) => {
       const carToSelect = selectedTabData?.carEntries?.find(
         (car) => car.prefix === prefix,
       );
-      setSelectedCar(carToSelect ?? null);
+      const unpopulatedCarToSelect = {
+        ...carToSelect,
+        fuel: (carToSelect?.fuel as FuelDTO)?._id ?? carToSelect?.fuel,
+      };
+      setSelectedCar((unpopulatedCarToSelect as CarEntry) ?? null);
       dateInputRef?.current?.focus();
     }
   };
@@ -86,9 +97,9 @@ export const TabFormInfo = ({ prefixExists }: { prefixExists: boolean }) => {
             label="Combustível"
             onChange={(e) => setFuel(e.target.value)}
           >
-            {fuelList.map((fuel) => (
-              <MenuItem value={fuel} key={fuel}>
-                {translateEntityKey({ entity: "fuel", key: fuel })}
+            {fuels.map(({ name, _id }) => (
+              <MenuItem value={_id} key={_id}>
+                {capitalizeFirstLetter(name)}
               </MenuItem>
             ))}
           </Select>

@@ -6,9 +6,15 @@ import type {
   TabData,
 } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
+import type {
+  PurchaseOrderDTO,
+  PurchaseOrderItemDTO,
+} from "@/dto/PurchaseOrderDTO";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 type LineData = (string | undefined)[];
 type TableData = LineData[];
+type Color = { r: number; g: number; b: number };
 
 type Height = {
   actual: number;
@@ -20,12 +26,18 @@ type Height = {
 
 type RenderParam = {
   document?: PDFDocument;
-  instance?: VacationDTO | WorkerDTO | DepartmentDTO | null;
-  instances?: VacationDTO[] | WorkerDTO[] | DepartmentDTO[] | null;
+  instance?: VacationDTO | WorkerDTO | DepartmentDTO | PurchaseOrderDTO | null;
+  instances?:
+    | VacationDTO[]
+    | WorkerDTO[]
+    | DepartmentDTO[]
+    | PurchaseOrderDTO[]
+    | null;
   reference?: Date;
   type?: string; // print type
   period?: string;
   data?: TabData[];
+  fuels?: FuelDTO[];
 };
 
 type DrawCellFnParams = {
@@ -66,6 +78,7 @@ type CreateParagraphParams = {
   y?: number;
   lineHeight?: number;
   maxWidth?: number;
+  color?: Color;
 };
 
 type CreateSignParams = {
@@ -129,6 +142,31 @@ type MaterialRequisitionDrawBlockParam = {
   tabData: TabData;
 };
 
+type DrawLineParam = {
+  y: number;
+  x1: number;
+  x2: number;
+  document: PDFDocument;
+};
+
+type DrawPurchaseOrderSectionHeaderParam = {
+  label: string;
+  document: PDFDocument;
+  height: Height;
+  color?: Color;
+};
+
+
+type OrderEntry = {
+  items: PurchaseOrderItemDTO[];
+  reference: string;
+  note?: string;
+};
+
+type GroupedByFuel = Record<string, OrderEntry[]>;
+
+type GroupedByDept = Record<string, GroupedByFuel>;
+
 export type {
   CreateParagraphParams,
   CreatePdfParams,
@@ -144,4 +182,8 @@ export type {
   RenderParam,
   TableData,
   TableParams,
+  DrawLineParam,
+  DrawPurchaseOrderSectionHeaderParam,
+  Color,
+  GroupedByDept,
 };

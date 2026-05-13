@@ -1,5 +1,6 @@
-export { render as materialRequisitionRender } from './materialRequisition/render'
+export { render as materialRequisitionRender } from "./materialRequisition/render";
 export { render as relationRender } from "./relation/render";
 export { render as vacationRender } from "./vacation/render";
 export { render as vehicleUsageRender } from "./vehicleUsageReport/render";
 export { render as cancellationRender } from "./cancellation/render";
+export { render as purchaseOrderRender } from "./purchaseOrder/render";

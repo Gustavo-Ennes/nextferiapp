@@ -7,10 +7,13 @@ import {
   relationRender,
   vehicleUsageRender,
   cancellationRender,
+  purchaseOrderRender,
 } from "@/lib/pdf";
 import { headers, optionsResponse } from "../utils";
 import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import type { VacationType } from "@/lib/repository/vacation/types";
+import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
+import { FuelRepository } from "@/lib/repository/fuel/fuel";
 
 export async function OPTIONS() {
   return optionsResponse();
@@ -39,7 +42,10 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json({ error });
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 400 },
+    );
   }
 }
 
@@ -61,6 +67,8 @@ const checkPdfBodyProps = (body: PdfOptions) => {
     case "cancellation":
       if (!id) throw new Error("Id is needed to print a vacation cancellation");
       break;
+    case "purchaseOrder":
+      break;
     default:
       throw new Error("Property type is invalid.");
   }
@@ -81,25 +89,40 @@ const render = async ({
         document,
         data,
       });
+
     case "relation":
       const instances = await VacationRepository.findWithoutPagination!({
         timePeriod: period,
         type: relationType as VacationType,
       });
       return relationRender({ document, instances, period, type });
+
     case "vacation":
       instance = await VacationRepository.findOne({
         id: id as string,
         cancelled: false,
       });
       return vacationRender({ document, instance });
+
     case "cancellation":
       instance = await VacationRepository.findOne({
         id: id as string,
       });
       return cancellationRender({ document, instance });
+
     case "vehicleUsage":
       return vehicleUsageRender({ document });
+
+    case "purchaseOrder":
+      const { data: orders } = await PurchaseOrderRepository.find({});
+      const { data: fuels } = await FuelRepository.find({});
+
+      return purchaseOrderRender({
+        document,
+        instances: orders,
+        fuels,
+      });
+
     default:
       throw new Error("Invalid render type.");
   }

@@ -90,8 +90,10 @@ export function DepartmentDetail({
           <Box>
             <Typography variant="subtitle2">Servidores</Typography>
             <Typography>
-              O departamento possui {workerQuantity} servidor
-              {workerQuantity !== 1 ? "es" : ""}.
+              O departamento{" "}
+              {workerQuantity > 0
+                ? `possui ${workerQuantity} servidor${workerQuantity !== 1 ? "es." : "."}`
+                : `não possui trabalhadores.`}
             </Typography>
           </Box>
         </Stack>

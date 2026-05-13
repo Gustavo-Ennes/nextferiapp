@@ -4,9 +4,11 @@ import type {
   FuelValidator,
   FuelPriceVersionValidator,
   CombinedFuelValidator,
-} from "./validator";
+  FuelValidatorUpdate,
+} from "@/lib/validators/fuel";
 
 export type FuelFormData = z.infer<typeof FuelValidator>;
+export type FuelFormDataUpdate = z.infer<typeof FuelValidatorUpdate>;
 export type FuelPriceVersionFormData = z.infer<
   typeof FuelPriceVersionValidator
 >;

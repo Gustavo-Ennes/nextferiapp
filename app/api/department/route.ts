@@ -18,11 +18,13 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const contains = searchParams.get("contains");
     const isActive = parseBool(searchParams.get("isActive"));
+    const hasWorkers = parseBool(searchParams.get("hasWorkers"));
 
     const { data, totalItems, totalPages } = await DepartmentRepository.find({
       page,
       contains,
       isActive,
+      hasWorkers,
     });
 
     return responseWithHeaders<DepartmentDTO>({

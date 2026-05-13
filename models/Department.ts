@@ -6,6 +6,7 @@ export interface Department extends Document {
   name: string;
   responsible?: Types.ObjectId | Boss;
   isActive: boolean;
+  hasWorkers?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -25,11 +26,15 @@ export const DepartmentSchema = new Schema<Department>(
       type: Boolean,
       default: true,
     },
+    hasWorkers: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     collection: "departments",
     timestamps: true,
-  }
+  },
 );
 
 export default models.Department ||

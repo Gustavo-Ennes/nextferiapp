@@ -5,7 +5,7 @@ import type {
   WorkerStatus,
   WorkerStatusInfo,
 } from "./types";
-import { WorkerValidator } from "./validator";
+import { WorkerValidator } from "@/lib/validators/worker";
 import {
   getDaysUntilWorkerLeave,
   getDaysUntilWorkerReturns,
@@ -62,7 +62,7 @@ export const isMultipleOf = (value: number, step: number) =>
   Math.abs(value / step - Math.round(value / step)) < Number.EPSILON;
 
 export const translateWorkerStatus = (
-  status: WorkerStatus
+  status: WorkerStatus,
 ): TranslatedWorkerStatus => {
   switch (status) {
     case "active":
@@ -87,7 +87,7 @@ export const getWorkerStatusIcons = ({
 }): WorkerStatusInfo[] => {
   const DAY_LIMIT = 10;
   const workerStatus = translateWorkerStatus(
-    getWorkerStatus(worker, vacations)
+    getWorkerStatus(worker, vacations),
   );
   const workerExternality = worker.isExternal ? "externo" : "interno";
   const info: WorkerStatusInfo[] = [
@@ -119,14 +119,14 @@ export const getWorkerStatusIcons = ({
     daysUntilLeave === -1
       ? undefined
       : daysUntilLeave === 0
-      ? "hoje"
-      : daysUntilLeave;
+        ? "hoje"
+        : daysUntilLeave;
   const untilReturnBadgeContent =
     daysUntilReturn === -1
       ? undefined
       : daysUntilReturn === 0
-      ? "hoje"
-      : daysUntilReturn;
+        ? "hoje"
+        : daysUntilReturn;
 
   if (daysUntilLeave <= DAY_LIMIT && daysUntilLeave !== -1)
     info.push({

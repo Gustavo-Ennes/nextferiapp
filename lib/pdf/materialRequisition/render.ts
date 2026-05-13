@@ -12,6 +12,8 @@ import { getHeightObject } from "../utils";
 import { parseMaterialRequisitionData } from "./utils";
 import { splitEvery } from "ramda";
 import { sortCarFuelings } from "@/app/(secure)/materialRequisition/utils";
+import type { DepartmentDTO } from "@/dto/DepartmentDTO";
+import { capitalizeName } from "@/app/utils";
 
 const BLOCK_MAX_LINES = 10;
 
@@ -25,7 +27,7 @@ const drawBlock = async ({
   data,
   tabData,
 }: MaterialRequisitionDrawBlockParam) => {
-  const departmentText = `SETOR REQUISITANTE:  - ${tabData.department} - `;
+  const departmentText = `SETOR REQUISITANTE:  - ${capitalizeName((tabData.department as DepartmentDTO).name)} - `;
   const applicationText = `VEÍCULO/EQUIP.:  - ${data.vehicle} - `;
   const prefixText = `PREFIX/B.P.: - #${data.prefix}`;
   const MARGIN_SIZE = 33;
@@ -170,7 +172,7 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
           // spliting the fuelings by chuncks of 10(max lines in block, start new at 11)
           const carFuelingsInChunksOfTen = splitEvery(
             BLOCK_MAX_LINES,
-            sortCarFuelings(carEntry.fuelings)
+            sortCarFuelings(carEntry.fuelings),
           );
           for (const tenFuelingBlock of carFuelingsInChunksOfTen) {
             if (blockCounter > 0 && blockCounter % 2 === 0) {

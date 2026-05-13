@@ -20,13 +20,20 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const payload = body.payload;
+  try {
+    const body = await req.json();
+    const payload = body.payload;
 
-  const createdOrUpdateWeeklySummary =
-    await WeeklyFuellingSummaryRepository.createOrUpdate(payload);
+    const createdOrUpdateWeeklySummary =
+      await WeeklyFuellingSummaryRepository.createOrUpdate(payload);
 
-  return genericResponseWithHeaders({
-    data: createdOrUpdateWeeklySummary,
-  });
+    return genericResponseWithHeaders({
+      data: createdOrUpdateWeeklySummary,
+    });
+  } catch (error) {
+    console.error("FUELLING SUMMARY POST ~ error:", error);
+    return genericResponseWithHeaders({
+      error: (error as Error).message,
+    });
+  }
 }

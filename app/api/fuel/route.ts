@@ -1,4 +1,3 @@
-import { FuelValidator } from "@/app/(secure)/fuel/validator";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import { NextRequest, NextResponse } from "next/server";
 import { optionsResponse } from "../utils";
@@ -22,10 +21,9 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const validatedData = FuelValidator.parse(body);
 
     const existing = await FuelRepository.findByFilter!({
-      name: validatedData.name,
+      name: body.name,
     });
     if (existing) {
       return NextResponse.json(
@@ -34,11 +32,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const fuel = await FuelRepository.create(validatedData);
+    const fuel = await FuelRepository.create(body);
     return NextResponse.json(fuel);
   } catch (error: any) {
     return NextResponse.json(
-      { error: `Internal Server Error: ${error}` },
+      { error: `Internal Server Error: ${(error as Error).message}` },
       { status: 500 },
     );
   }

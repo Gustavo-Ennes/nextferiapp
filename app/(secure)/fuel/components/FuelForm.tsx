@@ -25,10 +25,11 @@ import { useLoading } from "@/context/LoadingContext";
 import { useRouter } from "@/context/RouterContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { useDialog } from "@/context/DialogContext";
-import { CombinedFuelValidator } from "../validator";
+import { CombinedFuelValidator } from "@/lib/validators/fuel";
 import type { CombinedFuelFormData, FuelFormProps } from "../types";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { prepareDefaults } from "../utils";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
   const { setLoading } = useLoading();
@@ -40,17 +41,18 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
     control,
     handleSubmit,
     setValue,
-    watch,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isSubmitting },
   } = useForm<CombinedFuelFormData>({
     resolver: zodResolver(CombinedFuelValidator),
     mode: "onTouched",
-    defaultValues: defaultValues ? prepareDefaults(defaultValues) : {
-      name: "",
-      unit: "L",
-      price: 0,
-      version: 1,
-    },
+    defaultValues: defaultValues
+      ? prepareDefaults(defaultValues)
+      : {
+          name: "",
+          unit: "L",
+          price: 0,
+          version: 1,
+        },
   });
 
   const watchedName = useWatch({ control, name: "name" });
@@ -105,7 +107,6 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
 
           if (!res.ok) {
             throw new Error("Erro ao renomear combustível");
-            return;
           }
 
           addSnack({
@@ -132,32 +133,38 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
     setLoading(true);
     try {
       let fuelId = selectedFuel?._id;
+      let response: Response | null = null;
+      let type: "create" | "update" | null = null;
 
       if (!fuelId) {
-        const fuelRes = await fetch("/api/fuel", {
+        type = "create";
+        response = await fetch("/api/fuel", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: formData.name, unit: formData.unit }),
+          body: JSON.stringify(formData),
         });
-        if (!fuelRes.ok) throw new Error("Erro ao criar base do combustível");
-        const newFuel = await fuelRes.json();
+
+        if (!response.ok) throw new Error("Erro ao criar base do combustível");
+
+        const newFuel = (await response.json()) as FuelDTO;
         fuelId = newFuel._id;
+      } else {
+        type = "update";
+        response = await fetch("/api/fuelPriceVersion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fuel: fuelId,
+            price: formData.price,
+            version: formData.version,
+          }),
+        });
+
+        if (!response.ok) throw new Error("Erro ao criar versão de preço");
       }
 
-      const versionRes = await fetch("/api/fuelPriceVersion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fuel: fuelId,
-          price: formData.price,
-          version: formData.version,
-        }),
-      });
-
-      if (!versionRes.ok) throw new Error("Erro ao criar versão de preço");
-
       addSnack({
-        message: `${formData.name} atualizado com sucesso!`,
+        message: `${formData.name} ${type === "create" ? "criado" : "atualizado"} com sucesso!`,
         severity: "success",
       });
       redirectWithLoading("/fuel");
@@ -284,13 +291,11 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
               type="number"
               label="Preço (R$)"
               onChange={(e) => field.onChange(Number(e.target.value))}
-              error={!!errors.price || !!duplicateVersion}
+              error={!!errors.price}
               helperText={
-                duplicateVersion
-                  ? `Este preço já existe na v${duplicateVersion.version}. Insira um valor diferente para criar uma nova versão.`
-                  : selectedFuel && !duplicateVersion && watchedPrice > 0
-                    ? `Será criada a versão v${nextVersion} para ${selectedFuel.name}.`
-                    : errors.price?.message
+                selectedFuel && watchedPrice > 0
+                  ? `Será criada a versão v${nextVersion} para ${selectedFuel.name}.`
+                  : errors.price?.message
               }
               slotProps={{ htmlInput: { step: "0.01" } }}
             />
@@ -330,10 +335,13 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
                   );
                 })}
             </Box>
-            {!duplicateVersion && watchedPrice > 0 && (
+            {watchedPrice > 0 && (
               <Alert severity="info" sx={{ mt: 2 }} icon={false}>
-                O preço R$ {Number(watchedPrice).toFixed(2)} é novo —{" "}
-                <strong>v{nextVersion}</strong> será criada para{" "}
+                O preço R$ {Number(watchedPrice).toFixed(2)}{" "}
+                {duplicateVersion
+                  ? `já foi usado na versão ${duplicateVersion.version}`
+                  : "é novo"}{" "}
+                — <strong>v{nextVersion}</strong> será criada para{" "}
                 {selectedFuel.name}.
               </Alert>
             )}
@@ -352,12 +360,6 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
           {isSubmitting ? "Processando..." : "Salvar Alterações"}
         </Button>
       </Grid>
-
-      {process.env.NODE_ENV === "development" && (
-        <pre style={{ fontSize: 11 }}>
-          {JSON.stringify({ values: watch(), errors, isValid }, null, 2)}
-        </pre>
-      )}
     </Grid>
   );
 }

@@ -1,10 +1,10 @@
 import { VacationRepository } from "@/lib/repository/vacation/vacation";
-import VacationModel from "@/models/Vacation";
+import VacationModel, { type Vacation } from "@/models/Vacation";
 import { addDays, toDate, differenceInDays, differenceInHours } from "date-fns";
 import { startOfDaySP, endOfDaySP, endOfHalfDay } from "@/app/utils";
 import { createBaseEntities } from "../utils";
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
-import type { BossDTO, WorkerDTO } from "@/dto";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.update.base", () => {
   let worker: WorkerDTO;
@@ -35,30 +35,30 @@ describe("VacationRepository.update.base", () => {
   it("should update only observation", async () => {
     const created = await create(basePayload);
 
-    const updated = await update(created._id as string, {
+    const updated = (await update(created._id as string, {
       observation: "Updated observation",
-    });
+    })) as VacationDTO;
 
     expect(updated.observation).toBe("Updated observation");
     expect(updated).toHaveProperty("_id", created._id);
     expect(updated.type).toBe(created.type);
     expect(updated.duration).toBe(created.duration);
     expect(toDate(updated.startDate).getTime()).toBe(
-      toDate(created.startDate).getTime()
+      toDate(created.startDate).getTime(),
     );
     expect(toDate(updated.endDate).getTime()).toBe(
-      toDate(created.endDate).getTime()
+      toDate(created.endDate).getTime(),
     );
     expect(updated.period).toBe(created.period);
     expect(updated.cancelled).toBe(created.cancelled);
     expect(updated.worker).toHaveProperty(
       "_id",
-      (created.worker as WorkerDTO)._id
+      (created.worker as WorkerDTO)._id,
     );
     expect(updated.boss).toHaveProperty("_id", (created.boss as BossDTO)._id);
     expect(updated.observation).not.toBe(created.observation);
 
-    const doc = await VacationModel.findById(created._id);
+    const doc = (await VacationModel.findById(created._id)) as Vacation;
     expect(doc?.observation).toBe("Updated observation");
   });
 
@@ -67,12 +67,12 @@ describe("VacationRepository.update.base", () => {
     const newStart = addDays(new Date(), 10);
     const expectedStart = startOfDaySP(newStart);
     const expectedEnd = endOfDaySP(
-      addDays(expectedStart, basePayload.duration - 1)
+      addDays(expectedStart, basePayload.duration - 1),
     );
 
-    const updated = await update(created._id, {
+    const updated = (await update(created._id, {
       startDate: newStart.toISOString(),
-    });
+    })) as VacationDTO;
 
     expect(toDate(updated.startDate).getTime()).toBe(expectedStart.getTime());
     expect(toDate(updated.endDate).getTime()).toBe(expectedEnd.getTime());
@@ -90,9 +90,9 @@ describe("VacationRepository.update.base", () => {
     const expectedStart = startOfDaySP(toDate(basePayload.startDate));
     const expectedEnd = endOfDaySP(addDays(expectedStart, newDuration - 1));
 
-    const updated = await update(created._id as string, {
+    const updated = (await update(created._id as string, {
       duration: newDuration,
-    });
+    })) as VacationDTO;
 
     const daysDiff = differenceInDays(updated.endDate, updated.startDate);
 
@@ -111,10 +111,10 @@ describe("VacationRepository.update.base", () => {
       period: "full",
     });
 
-    const updated = await update(created._id as string, {
+    const updated = (await update(created._id as string, {
       duration: 0.5,
       period: "half",
-    });
+    })) as VacationDTO;
 
     const expectedStart = startOfDaySP(toDate(created.startDate));
     const expectedEnd = endOfHalfDay(expectedStart);
@@ -124,7 +124,7 @@ describe("VacationRepository.update.base", () => {
     expect(hoursDiff).toBe(11);
     expect(toDate(updated.endDate).getTime()).toBe(expectedEnd.getTime());
 
-    const doc = await VacationModel.findById(created._id);
+    const doc = (await VacationModel.findById(created._id)) as Vacation;
     expect(doc?.period).toBe("half");
     expect(doc?.duration).toBe(0.5);
   });
@@ -142,10 +142,10 @@ describe("VacationRepository.update.base", () => {
     const expectedStart = startOfDaySP(newStart);
     const expectedEnd = endOfDaySP(addDays(expectedStart, newDuration - 1));
 
-    const updated = await update(created._id as string, {
+    const updated = (await update(created._id as string, {
       startDate: newStart.toISOString(),
       duration: newDuration,
-    });
+    })) as VacationDTO;
 
     expect(toDate(updated.startDate).getTime()).toBe(expectedStart.getTime());
     expect(toDate(updated.endDate).getTime()).toBe(expectedEnd.getTime());

@@ -3,6 +3,7 @@ import {
   StandardFonts,
   TextAlignment,
   layoutMultilineText,
+  rgb,
 } from "pdf-lib";
 
 import type {
@@ -10,22 +11,41 @@ import type {
   CreateSignParams,
   CreateTitleParams,
   DrawCellFnParams,
-  Height,
+  DrawLineParam,
+  DrawPurchaseOrderSectionHeaderParam,
   TableParams,
 } from "./types";
 
 import { getTableInfo } from "./table";
 import {
+  addPage,
   calculateCellRealWidth,
+  formatBRL,
   formatMatriculation,
+  formatQuantity,
   getMultiTextMeasures,
 } from "./utils";
 import { translateVacationPeriod } from "./vacation/utils";
 import { capitalizeName } from "@/app/utils";
+import {
+  LINE_HEIGHT,
+  SECTION_GAP,
+  MARGIN_X,
+  PAGE_WIDTH,
+  ITEM_INDENT,
+  SAFE_BOTTOM,
+  SAFE_TOP,
+} from "./purchaseOrder/constants";
+import type { Height } from "./types";
+
+const getFont = async (document: PDFDocument) =>
+  document.embedFont(StandardFonts.Helvetica);
+const getBoldFont = async (document: PDFDocument) =>
+  document.embedFont(StandardFonts.HelveticaBold);
 
 const createHeader = async (
   document: PDFDocument,
-  y?: number
+  y?: number,
 ): Promise<void> => {
   const header =
     "https://storage.googleapis.com/feriappjs/novo-header-pref.png";
@@ -44,7 +64,7 @@ const createHeader = async (
 };
 
 const createPageHeaderHorizontal = async (
-  document: PDFDocument
+  document: PDFDocument,
 ): Promise<void> => {
   const header =
     "https://storage.googleapis.com/feriappjs/novo-header-pref.png";
@@ -86,7 +106,7 @@ const createTitle = async ({
   size = 24,
   title,
 }: CreateTitleParams): Promise<void> => {
-  const font = await document.embedFont(StandardFonts.HelveticaBold);
+  const font = await getFont(document);
   const textWidth = font.widthOfTextAtSize(title.toUpperCase(), size);
   const page = document.getPage(document.getPageCount() - 1);
   const { width } = page.getSize();
@@ -110,6 +130,7 @@ const createParagraph = async ({
   text,
   x = 50,
   y = height.actual,
+  color = { r: 0.25, g: 0.25, b: 0.25 },
 }: CreateParagraphParams): Promise<void> => {
   const page = document.getPage(document.getPageCount() - 1);
   const multiText = layoutMultilineText(text, {
@@ -123,6 +144,9 @@ const createParagraph = async ({
     font,
     fontSize,
   });
+
+  const { r, g, b } = color;
+  const rgbColor = rgb(r, g, b);
   multiText.lines.forEach((line) => {
     page.drawText(line.text, {
       font,
@@ -131,6 +155,7 @@ const createParagraph = async ({
       size: fontSize,
       x,
       y,
+      color: rgbColor,
     });
     y -= lineHeight;
   });
@@ -147,8 +172,8 @@ const createSign = async ({
 }: CreateSignParams): Promise<void> => {
   const page = document.getPage(document.getPageCount() - 1);
   const matriculationText = `Matr.: ${formatMatriculation(matriculation)}`;
-  const regularFont = await document.embedFont(StandardFonts.Helvetica);
-  const boldFont = await document.embedFont(StandardFonts.HelveticaBold);
+  const regularFont = await getFont(document);
+  const boldFont = await getBoldFont(document);
   const regularFontSize = 12;
   const boldFontSize = regularFontSize * 1.1;
   const textLines = [
@@ -234,7 +259,7 @@ const drawTableLine = async ({
   const getCellCenterX = (
     textWidth: number,
     cellEndX: number,
-    cellWidth?: number
+    cellWidth?: number,
   ) => cellEndX - (cellWidth ?? defaultCellWidth) / 2 - textWidth / 2;
   const startHeight = height.actual;
   const fontSize = 11;
@@ -254,7 +279,7 @@ const drawTableLine = async ({
       const cellRealWidth = calculateCellRealWidth(
         columnsXArray,
         index,
-        startLineX
+        startLineX,
       );
       const { height: paragraphHeight, width: paragraphWidth } =
         getMultiTextMeasures({
@@ -270,7 +295,7 @@ const drawTableLine = async ({
       const newX = getCellCenterX(
         paragraphWidth,
         columnsXArray[index],
-        cellRealWidth
+        cellRealWidth,
       );
 
       if (paragraphHeight > highestCellSize) highestCellSize = paragraphHeight;
@@ -353,6 +378,141 @@ const createTable = async ({
   });
 };
 
+const drawLine = ({ y, x1, x2, document }: DrawLineParam): void => {
+  const page = document.getPage(document.getPageCount() - 1);
+  page.drawLine({
+    start: { x: x1, y },
+    end: { x: x2, y },
+    thickness: 0.5,
+    color: { type: "RGB", red: 0.7, green: 0.7, blue: 0.7 } as any,
+  });
+};
+
+const drawPurchaseOrderSectionHeader = async ({
+  label,
+  document,
+  height,
+}: DrawPurchaseOrderSectionHeaderParam): Promise<void> => {
+  await ensureSpace({
+    neededHeight: LINE_HEIGHT * 2 + SECTION_GAP,
+    document,
+    height,
+  });
+  height.actual -= SECTION_GAP;
+
+  const page = document.getPage(document.getPageCount() - 1);
+  const rectHeight = LINE_HEIGHT + 6;
+
+  // fundo azul-escuro (cor do PDF de referência)
+  page.drawRectangle({
+    x: MARGIN_X,
+    y: height.actual,
+    width: PAGE_WIDTH - MARGIN_X * 2,
+    height: rectHeight,
+    color: { type: "RGB", red: 0.18, green: 0.35, blue: 0.52 } as any,
+  });
+
+  createParagraph({
+    document,
+    text: label.toUpperCase(),
+    x: MARGIN_X + 6,
+    y: height.actual + 5,
+    height,
+    font: await getFont(document),
+    color: { r: 1, g: 1, b: 1 },
+  });
+};
+
+const drawPurchaseOrderItem = async ({
+  sequence,
+  reference,
+  quantity,
+  price,
+  height,
+  document,
+  note,
+}: {
+  sequence: number;
+  reference: string;
+  quantity: number;
+  price: number;
+  document: PDFDocument;
+  height: Height;
+  note?: string;
+}): Promise<void> => {
+  await ensureSpace({
+    neededHeight: note ? LINE_HEIGHT * 2 : LINE_HEIGHT + 2,
+    document,
+    height,
+  });
+
+  const itemText = `${sequence}. Pedido ${reference}  -  ${formatQuantity(quantity)}  -  ${formatBRL(price)}`;
+
+  createParagraph({
+    document,
+    text: itemText,
+    x: MARGIN_X + ITEM_INDENT,
+    y: height.actual,
+    height,
+    font: await getFont(document),
+    fontSize: 11,
+  });
+
+  if (note) {
+    height.stepSmallLine();
+    createParagraph({
+      document,
+      text: note,
+      x: MARGIN_X + ITEM_INDENT + 10,
+      y: height.actual,
+      height,
+      font: await getFont(document),
+      fontSize: 9,
+    });
+  }
+};
+
+const drawPurchaseOrderFuelSubtitle = async ({
+  fuelName,
+  document,
+  height,
+}: {
+  fuelName: string;
+  document: PDFDocument;
+  height: Height;
+}): Promise<void> => {
+  await ensureSpace({ neededHeight: LINE_HEIGHT + 4, document, height });
+
+  const fuelNameText = `- ${fuelName}`;
+
+  createParagraph({
+    document,
+    x: MARGIN_X + 6,
+    y: height.actual,
+    height,
+    font: await getFont(document),
+    fontSize: 12,
+    text: fuelNameText,
+  });
+};
+
+const ensureSpace = async ({
+  neededHeight,
+  height,
+  document,
+}: {
+  neededHeight: number;
+  height: Height;
+  document: PDFDocument;
+}): Promise<void> => {
+  if (height.actual - neededHeight < SAFE_BOTTOM) {
+    await addPage(document!);
+    await createHeader(document!);
+    await createFooter(document!);
+    height.actual = SAFE_TOP;
+  }
+};
+
 export {
   createHeader,
   createFooter,
@@ -363,4 +523,10 @@ export {
   createTable,
   drawTopRightText,
   createPageHeaderHorizontal,
+  drawPurchaseOrderItem,
+  ensureSpace,
+  drawLine,
+  drawPurchaseOrderSectionHeader,
+  drawPurchaseOrderFuelSubtitle,
+  getFont,
 };

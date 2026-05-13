@@ -1,7 +1,6 @@
 import type { PdfPreviewItem } from "@/context/types";
-
-export type FuelType = "gas" | "s500" | "s10" | "arla";
-export const fuelTypes = ["gas", "s500", "s10", "arla"] as const;
+import type { DepartmentDTO } from "@/dto";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export interface FuelingData {
   date: string;
@@ -12,12 +11,12 @@ export interface FuelingData {
 export interface CarEntry {
   vehicle: string;
   prefix: number;
-  fuel: FuelType;
+  fuel: string | FuelDTO;
   fuelings: FuelingData[];
 }
 
 export interface TabData {
-  department: string;
+  department: string | DepartmentDTO;
   carEntries: CarEntry[];
   order: number;
 }

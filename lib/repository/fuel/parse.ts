@@ -12,7 +12,7 @@ export const toFuelDTO = (fuel: IFuel | Types.ObjectId): FuelDTO | string => {
   if (isObjectIdOrHexString(fuel)) return (fuel as Types.ObjectId).toString();
 
   const fuelEntity = fuel as IFuel;
-
+  
   return {
     _id: fuelEntity._id.toString(),
     name: fuelEntity.name,

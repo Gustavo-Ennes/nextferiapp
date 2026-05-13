@@ -15,6 +15,7 @@ export type SearchParams = {
   worker?: string | null;
   contains?: string | null;
   isExternal?: boolean | null;
+  hasWorkers?: boolean | null;
   from?: Date | null;
   to?: Date | null;
   exclude?: string | null;

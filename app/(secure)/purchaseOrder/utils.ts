@@ -2,22 +2,23 @@ import type { DepartmentDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import type { FuelType } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { SidebarStatus } from "./types";
 import { capitalizeName } from "@/app/utils";
 
-export const translateFuelType = (fuelType: FuelType): string => {
-  switch (fuelType) {
-    case "arla":
-      return "Arla";
-    case "gas":
-      return "Gasolina";
-    case "s10":
-      return "Diesel S10";
-    case "s500":
-      return "Diesel S500";
-  }
-};
+export const translateFuelType = (fuelName: string): string => {
+  const names = fuelName.split(" ");
+  let returnName = "";
+
+  if (names.length === 1) return `${capitalizeName(fuelName.substring(0, 6))}.`;
+
+  names.forEach((name, index) => {
+    if (index === 0) returnName += `${name.substring(0, 6).toUpperCase()}.`;
+    else if (index === 1)
+      returnName += ` ${name.substring(0, 3).toUpperCase()}.`;
+    else returnName += ` ${name.substring(0, 1).toUpperCase()}.`;
+  });
+  return returnName;
+};  
 
 export const purchaseOrderBaseline = {
   reference: "",

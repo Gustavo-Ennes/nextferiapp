@@ -1,5 +1,5 @@
 import type { VacationFormData } from "./types";
-import { VacationValidator } from "./validator";
+import { VacationCreateSchema } from "@/lib/validators/vacation";
 import { addDays, format, isThisYear, isValid, toDate } from "date-fns";
 import type { DataListItem } from "../components/types";
 import { prop, sum, uniqBy } from "ramda";
@@ -90,7 +90,7 @@ export function prepareDefaults(raw: VacationDTO): VacationFormData {
       )})[${raw._id as string}]`,
     }),
   };
-  const parsed = VacationValidator.safeParse(candidate);
+  const parsed = VacationCreateSchema.safeParse(candidate);
   if (parsed.success) return parsed.data;
   console.warn("prepareDefaults: schema failed", parsed.error.issues);
   // fallback coerced (aceite ou lance)

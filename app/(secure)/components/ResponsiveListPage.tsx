@@ -27,6 +27,7 @@ const ResponsiveListPage = <T extends Entity>({
   vacationType,
   contains,
   isExternal,
+  additionalButtons,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const { addSnack } = useSnackbar();
@@ -121,9 +122,14 @@ const ResponsiveListPage = <T extends Entity>({
     key: "translatedPlural",
   });
 
+  const pageTitleGridSize = additionalButtons
+    ? 10 - additionalButtons.length * 2
+    : 10;
+  const buttonGridSize = 2;
+
   return (
     <Grid container maxWidth={"md"} m="auto" p={2}>
-      <Grid size={10}>
+      <Grid size={pageTitleGridSize}>
         <Typography
           variant="h4"
           gutterBottom
@@ -135,7 +141,21 @@ const ResponsiveListPage = <T extends Entity>({
         </Typography>
       </Grid>
 
-      <Grid size={2} alignItems={"stretch"} justifyContent={"end"}>
+      {additionalButtons?.map((btn) => (
+        <Grid
+          size={buttonGridSize}
+          alignItems={"stretch"}
+          justifyContent={"center"}
+        >
+          {btn}
+        </Grid>
+      ))}
+
+      <Grid
+        size={buttonGridSize}
+        alignItems={"stretch"}
+        justifyContent={"center"}
+      >
         <Button
           variant="contained"
           sx={{ float: "right", mt: "3px" }}

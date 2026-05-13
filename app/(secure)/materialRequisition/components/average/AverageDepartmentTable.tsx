@@ -8,22 +8,27 @@ import {
 } from "@mui/material";
 import { format, toDate } from "date-fns";
 import type { AverageDepartmentTableParam } from "../types";
+import { getSummariesFuels } from "../../utils";
+import type { WeeklyFuellingSummaryDTO } from "@/dto";
 
 export const AverageDepartmentTable = ({
   rows,
+  summaries,
 }: {
   rows: AverageDepartmentTableParam[];
+  summaries: WeeklyFuellingSummaryDTO[];
 }) => {
+  const fuels = getSummariesFuels(summaries);
+
   return (
     <TableContainer sx={{ maxHeight: 420 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
             <TableCell>Semana</TableCell>
-            <TableCell>Gasolina</TableCell>
-            <TableCell>S-10</TableCell>
-            <TableCell>S-500</TableCell>
-            <TableCell>Arla</TableCell>
+            {fuels.map((fuel) => (
+              <TableCell key={fuel._id}>{fuel.name}</TableCell>
+            ))}
           </TableRow>
         </TableHead>
 
@@ -31,10 +36,11 @@ export const AverageDepartmentTable = ({
           {rows.map((r, i) => (
             <TableRow key={`${toDate(r.weekStart).toISOString()}-${i}`}>
               <TableCell>{format(toDate(r.weekStart), "dd/MM/yy")}</TableCell>
-              <TableCell>{r.gas ?? 0}</TableCell>
-              <TableCell>{r.s10 ?? 0}</TableCell>
-              <TableCell>{r.s500 ?? 0}</TableCell>
-              <TableCell>{r.arla ?? 0}</TableCell>
+              {fuels.map((fuel) => (
+                <TableCell key={`${r.weekStart}-${fuel._id}`}>
+                  {r[fuel.name] ?? 0}
+                </TableCell>
+              ))}
             </TableRow>
           ))}
         </TableBody>

@@ -1,26 +1,13 @@
 import * as z from "zod";
-import { WorkerValidator } from "./validator";
+import { WorkerValidator } from "@/lib/validators/worker";
 import type { ReactNode } from "react";
 import type { DepartmentDTO, WorkerDTO } from "@/dto";
 
 export type WorkerFormData = z.infer<typeof WorkerValidator>;
-
 export interface WorkerProps {
   defaultValues: WorkerDTO | null;
   departments: DepartmentDTO[];
 }
-
-export type WorkerFormProp =
-  | "name"
-  | "role"
-  | "registry"
-  | "matriculation"
-  | "justification";
-
-export type MinMaxStringMessageParam = {
-  prop: WorkerFormProp;
-  condition: "min" | "max";
-};
 
 export type WorkerStatus =
   | "active"

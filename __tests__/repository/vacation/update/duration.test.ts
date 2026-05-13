@@ -3,7 +3,7 @@ import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { createBaseEntities } from "../utils";
 import { addDays, toDate } from "date-fns";
 import { endOfDaySP, endOfHalfDay } from "@/app/utils";
-import type { BossDTO, WorkerDTO } from "@/dto";
+import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 
 describe("VacationRepository.update.duration", () => {
   let worker: WorkerDTO;
@@ -42,11 +42,11 @@ describe("VacationRepository.update.duration", () => {
 
       const newStartDate = addDays(created.startDate, 2);
       const newEndDate = endOfDaySP(newStartDate);
-      const updated = await update(created._id as string, {
+      const updated = (await update(created._id as string, {
         duration: 1,
         period: "full",
         startDate: newStartDate.toISOString(),
-      });
+      })) as VacationDTO;
 
       expect(updated.duration).toBe(1);
       expect(updated.period).toBe("full");
@@ -64,11 +64,11 @@ describe("VacationRepository.update.duration", () => {
 
       const newStartDate = addDays(created.startDate, 2);
       const newEndDate = endOfHalfDay(newStartDate);
-      const updated = await update(created._id as string, {
+      const updated = (await update(created._id as string, {
         duration: 0.5,
         period: "half",
         startDate: newStartDate.toISOString(),
-      });
+      })) as VacationDTO;
 
       expect(updated.duration).toBe(0.5);
       expect(updated.period).toBe("half");
@@ -89,7 +89,7 @@ describe("VacationRepository.update.duration", () => {
           duration: 1,
           period: "half",
           startDate: addDays(created.startDate, 2).toISOString(),
-        })
+        }),
       ).rejects.toThrow("Period: 'half' means duration < 1");
     });
 
@@ -106,7 +106,7 @@ describe("VacationRepository.update.duration", () => {
           duration: 0.5,
           period: "full",
           startDate: addDays(created.startDate, 2).toISOString(),
-        })
+        }),
       ).rejects.toThrow("Period: 'full' means duration >= 1");
     });
 
@@ -122,7 +122,7 @@ describe("VacationRepository.update.duration", () => {
         update(created._id as string, {
           duration: 2,
           startDate: addDays(created.startDate, 2).toISOString(),
-        })
+        }),
       ).rejects.toThrow("Duration: daysOff must have duration of [0.5, 1]");
     });
   });
@@ -131,10 +131,14 @@ describe("VacationRepository.update.duration", () => {
     it("should allow durations 15 and 30", async () => {
       const created = await create(basePayload);
 
-      let updated = await update(created._id as string, { duration: 15 });
+      let updated = (await update(created._id as string, {
+        duration: 15,
+      })) as VacationDTO;
       expect(updated.duration).toBe(15);
 
-      updated = await update(created._id as string, { duration: 30 });
+      updated = (await update(created._id as string, {
+        duration: 30,
+      })) as VacationDTO;
       expect(updated.duration).toBe(30);
     });
 
@@ -142,9 +146,9 @@ describe("VacationRepository.update.duration", () => {
       const created = await create(basePayload);
 
       await expect(
-        update(created._id as string, { duration: 45 })
+        update(created._id as string, { duration: 45 }),
       ).rejects.toThrow(
-        "Duration: normal vacations must have duration of [15, 30]"
+        "Duration: normal vacations must have duration of [15, 30]",
       );
     });
 
@@ -152,7 +156,7 @@ describe("VacationRepository.update.duration", () => {
       const created = await create(basePayload);
 
       await expect(
-        update(created._id as string, { period: "half" })
+        update(created._id as string, { period: "half" }),
       ).rejects.toThrow("Period: 'half' means duration < 1");
     });
   });
@@ -166,7 +170,9 @@ describe("VacationRepository.update.duration", () => {
       });
 
       for (const d of [15, 30, 45, 60, 75, 90]) {
-        const updated = await update(created._id as string, { duration: d });
+        const updated = (await update(created._id as string, {
+          duration: d,
+        })) as VacationDTO;
         expect(updated.duration).toBe(d);
       }
     });
@@ -179,15 +185,15 @@ describe("VacationRepository.update.duration", () => {
       });
 
       await expect(
-        update(created._id as string, { duration: 120 })
+        update(created._id as string, { duration: 120 }),
       ).rejects.toThrow(
-        "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]"
+        "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]",
       );
 
       await expect(
-        update(created._id as string, { duration: 5 })
+        update(created._id as string, { duration: 5 }),
       ).rejects.toThrow(
-        "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]"
+        "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]",
       );
     });
 
@@ -199,9 +205,9 @@ describe("VacationRepository.update.duration", () => {
       });
 
       await expect(
-        update(created._id as string, { duration: 17 })
+        update(created._id as string, { duration: 17 }),
       ).rejects.toThrow(
-        "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]"
+        "Duration: licenses must have duration of [15, 30, 45, 60, 75, 90]",
       );
     });
 
@@ -213,7 +219,7 @@ describe("VacationRepository.update.duration", () => {
       });
 
       await expect(
-        update(created._id as string, { period: "half" })
+        update(created._id as string, { period: "half" }),
       ).rejects.toThrow("Period: 'half' means duration < 1");
     });
   });

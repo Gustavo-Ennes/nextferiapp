@@ -1,9 +1,8 @@
-import type {
-  CarEntry,
-  FuelType,
-} from "@/lib/repository/weeklyFuellingSummary/types";
+import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { LineData, TableData } from "../types";
 import { format } from "date-fns";
+import { translateFuelType } from "@/app/(secure)/purchaseOrder/utils";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export const parseMaterialRequisitionData = ({
   fuelings,
@@ -19,7 +18,9 @@ export const parseMaterialRequisitionData = ({
     line.push(format(date, "dd/MM/yy"));
     line.push(quantity.toFixed(3));
     line.push(fuelingIndex === 0 ? "L" : undefined);
-    line.push(fuelingIndex === 0 ? defineFuelString(fuel) : undefined);
+    line.push(
+      fuelingIndex === 0 ? defineFuelString((fuel as FuelDTO).name) : undefined,
+    );
     line.push(kmHr ? String(kmHr) : undefined);
     line.push(undefined);
     table.push(line);
@@ -39,17 +40,6 @@ export const parseMaterialRequisitionData = ({
   return table;
 };
 
-const defineFuelString = (fuel: FuelType): string | undefined => {
-  switch (fuel) {
-    case "gas":
-      return "( X ) Gasol.";
-    case "s10":
-      return "( X ) S-10";
-    case "s500":
-      return "( X ) S-500";
-    case "arla":
-      return "( X ) Arla";
-    default:
-      return undefined;
-  }
+const defineFuelString = (fuel: string): string | undefined => {
+  return translateFuelType(fuel).toUpperCase();
 };

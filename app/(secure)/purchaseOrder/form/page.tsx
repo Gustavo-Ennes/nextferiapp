@@ -14,7 +14,6 @@ export default async function PurchaseOrderFormPage({
 
   const purchaseOrder = await PurchaseOrderRepository.findOne({ id });
   const departments = await DepartmentRepository.findWithoutPagination!({
-    page: 1,
     isActive: true,
   });
   const fuels = await FuelRepository.findWithoutPagination!({});

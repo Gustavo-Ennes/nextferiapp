@@ -39,6 +39,7 @@ export type ResponsiveListPageParam<T> = {
   vacationType?: VacationType | null;
   contains?: string | null;
   isExternal?: boolean | null;
+  additionalButtons?: ReactNode[];
 };
 
 export type DataListItem = {

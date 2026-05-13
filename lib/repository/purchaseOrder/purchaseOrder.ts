@@ -11,7 +11,10 @@ import type { FindOneRepositoryParam, UpdateRepositoryParam } from "../types";
 import { parsePurchaseOrders, toPurchaseOrderDTO } from "./parse";
 import { FuelRepository } from "../fuel/fuel";
 import type { Repository } from "../types";
-import { PurchaseOrderValidator } from "@/app/(secure)/purchaseOrder/validator";
+import {
+  PurchaseOrderValidator,
+  PurchaseOrderValidatorUpdate,
+} from "@/lib/validators/purchaseOrder";
 import { isObjectIdOrHexString } from "mongoose";
 import { calculatePurchaseOrderPrices } from "../utils";
 import { endOfDaySP, startOfDaySP } from "@/app/utils";
@@ -136,7 +139,7 @@ export const PurchaseOrderRepository: Repository<
 
     let validPayload: PurchaseOrderFormData | null = null;
 
-    const result = PurchaseOrderValidator.partial().safeParse(payload);
+    const result = PurchaseOrderValidatorUpdate.safeParse(payload);
 
     if (!result.success) {
       throw new Error(JSON.parse(result.error.message)[0].message);
@@ -156,7 +159,7 @@ export const PurchaseOrderRepository: Repository<
       id,
       calculatedPayload,
       {
-        returnDocument: "after",
+        new: true,
       },
     );
 

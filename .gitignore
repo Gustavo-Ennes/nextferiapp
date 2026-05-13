@@ -44,4 +44,5 @@ next-env.d.ts
 #to-do's
 TODO
 
-*.agent.md
+.github/agents
+.github/instructions

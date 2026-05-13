@@ -18,6 +18,8 @@ import type {
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import { usePdfPreview } from "@/context/PdfPreviewContext";
+import { useRouter } from "@/context/RouterContext";
 
 export const PurchaseOrderUpdatePage = ({
   orders,
@@ -26,6 +28,8 @@ export const PurchaseOrderUpdatePage = ({
 
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
+  const { setPdf } = usePdfPreview();
+  const { redirectWithLoading } = useRouter();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentOrder, setCurrentOrder] = useState<PurchaseOrderDTO>(sorted[0]);
@@ -149,12 +153,21 @@ export const PurchaseOrderUpdatePage = ({
     setIsSubmitting(false);
     setLoading(false);
 
+    if (errors) {
+      const warning = errors.join(", ");
+      console.warn(warning);
+    }
+
+    setPdf({ items: [{ type: "purchaseOrder" }] });
+
     addSnack({
       severity: errors.length > 0 ? "error" : "success",
       message:
         `${successCount} pedido(s) atualizado(s) com sucesso.` +
         (errors.length > 0 ? ` ${errors.length} erro(s).` : ""),
     });
+
+    redirectWithLoading("/purchaseOrder");
   };
 
   return (
@@ -183,16 +196,14 @@ export const PurchaseOrderUpdatePage = ({
           onAdd={handleAdd}
         />
 
-        {allDecided && (
+        {allDecided ? (
           <PurchaseOrderUpdateBatchAction
             queueCount={queue.length}
             keptCount={sidebar.filter((e) => e.status === "kept").length}
             isSubmitting={isSubmitting}
             onSubmit={handleBatchUpdate}
           />
-        )}
-
-        {!allDecided && (
+        ) : (
           <Typography
             variant="caption"
             color="text.secondary"

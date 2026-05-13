@@ -11,4 +11,5 @@ export const DepartmentValidator = z.object({
     .min(1, "Campo obrigatório")
     .regex(/^[0-9a-fA-F]{24}$/, responsibleMissingStr),
   isActive: z.optional(z.boolean().default(true)),
+  hasWorkers: z.optional(z.boolean().default(true)),
 });

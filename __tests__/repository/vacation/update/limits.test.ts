@@ -61,7 +61,7 @@ describe("VacationRepository.update.limits", () => {
           duration: 0.5,
           period: "half",
         },
-      })
+      }),
     ).rejects.toThrow("Worker exceeds his annual dayOff limits (6).");
   });
 
@@ -92,10 +92,10 @@ describe("VacationRepository.update.limits", () => {
       },
     });
 
-    expect(updated.type).toBe("dayOff");
-    expect(updated.duration).toBe(0.5);
-    expect(updated.cancelled).toBe(false);
-    expect(toDate(updated.startDate).getFullYear()).toBe(year);
+    expect(updated?.type).toBe("dayOff");
+    expect(updated?.duration).toBe(0.5);
+    expect(updated?.cancelled).toBe(false);
+    expect(toDate(updated!.startDate).getFullYear()).toBe(year);
   });
 
   it("should allow update to dayOff when worker used less than 6 dayOffs", async () => {
@@ -122,8 +122,8 @@ describe("VacationRepository.update.limits", () => {
       },
     });
 
-    expect(updated.type).toBe("dayOff");
-    expect(updated.duration).toBe(0.5);
+    expect(updated?.type).toBe("dayOff");
+    expect(updated?.duration).toBe(0.5);
   });
 
   it("should allow update to dayOff if 6 dayOffs exist but one in next year", async () => {
@@ -151,9 +151,9 @@ describe("VacationRepository.update.limits", () => {
       },
     });
 
-    expect(updated.type).toBe("dayOff");
-    expect(updated.duration).toBe(0.5);
-    expect(toDate(updated.startDate).getFullYear()).toBe(currentYear);
+    expect(updated?.type).toBe("dayOff");
+    expect(updated?.duration).toBe(0.5);
+    expect(toDate(updated!.startDate).getFullYear()).toBe(currentYear);
   });
 
   it("should NOT allow update to dayOff if one was took in this month, but allow in other month", async () => {
@@ -177,7 +177,7 @@ describe("VacationRepository.update.limits", () => {
           period: "half",
           startDate: set(dayOff.startDate, { date: 15 }).toISOString(),
         },
-      })
+      }),
     ).rejects.toThrow("Worker exceeds his monthly dayOff limits (1).");
 
     await expect(
@@ -192,7 +192,7 @@ describe("VacationRepository.update.limits", () => {
             month: 2,
           }).toISOString(),
         },
-      })
+      }),
     ).resolves.toBeDefined();
   });
 });
