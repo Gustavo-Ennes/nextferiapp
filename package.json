@@ -5,7 +5,9 @@
     "build": "next build",
     "start": "next start",
     "test": "NODE_ENV=test jest --runInBand",
-    "test:watch": "NODE_ENV=test jest --watch"
+    "test:watch": "NODE_ENV=test jest --watch",
+    "migrate:summaries": "tsx script/migrations/migrateSummaries.ts",
+    "migrate:summaries:dry": "tsx script/migrations/migrateSummaries.ts --dry-run"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -44,6 +46,7 @@
     "mongodb-memory-server": "^10.4.1",
     "mongoose": "^8.19.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.22.0",
     "typescript": "latest"
   },
   "engines": {
