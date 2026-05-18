@@ -15,7 +15,6 @@ export default async function DepartmentFormPage({
   const { id } = await searchParams;
   const department = await DepartmentRepository.findOne({ id });
   const bosses = await fetchAll<BossDTO, BossFormData>({
-    isExternal: false,
     isActive: true,
     entityType: "boss",
     repository: BossRepository,

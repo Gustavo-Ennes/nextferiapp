@@ -1,8 +1,7 @@
 "use client";
 
 import { Box, Grid, Typography, Chip, Badge } from "@mui/material";
-import { capitalizeFirstLetter, getDaysUntilWorkerReturns } from "@/app/utils";
-import { format, toDate } from "date-fns";
+import { capitalizeFirstLetter } from "@/app/utils";
 import NumberCard from "./NumberCard";
 import TextCard from "./TextCard";
 import {
@@ -11,12 +10,24 @@ import {
   DirectionsBus,
   HourglassBottom,
   HourglassTop,
+  Inventory,
+  LocalGasStation,
   Person,
+  PriorityHigh,
+  Receipt,
 } from "@mui/icons-material";
 import { TitleTypography } from "../../components/TitleTypography";
 import { RoleIcon } from "./RoleIcons";
 import type { DashboardParam } from "../types";
-import type { WorkerDTO } from "@/dto";
+import {
+  getDepartmentDetails,
+  getFuelLines,
+  getPurchaseOrderLines,
+  getVacationDetails,
+  getWeeklyFuellingSummaryLines,
+  getWorkerDetails,
+  getWorkersByStatus,
+} from "../utils";
 
 function Dashboard({ data }: { data: DashboardParam }) {
   const today = new Date().toLocaleDateString("pt-BR");
@@ -29,56 +40,45 @@ function Dashboard({ data }: { data: DashboardParam }) {
     upcomingLeaves,
     upcomingReturns,
     workersByRole,
+    purchaseOrders,
+    fuels,
+    weeklyFuellingSummaries,
   } = data;
 
-  const activeWorkers = workers.filter(
-    (worker) => worker.isActive === true
-  ).length;
-  const inactiveWorkers = workers.filter(
-    (worker) => worker.isActive === false
-  ).length;
-  const externalWorkers = workers.filter(
-    (worker) => worker.isExternal == true
-  ).length;
-  const internalWorkers = workers.filter(
-    (worker) => worker.isExternal === false
-  ).length;
+  const { activeWorkers } = getWorkersByStatus(workers);
+  const {
+    onVacationDetails,
+    returningDetails,
+    upcomingLeavesLines,
+    upcomingReturnsLines,
+  } = getVacationDetails({
+    onVacationToday,
+    returningToday,
+    vacations,
+    upcomingLeaves,
+    upcomingReturns,
+  });
 
-  const onVacationTodayDetails = onVacationToday
-    ? onVacationToday.map((worker) =>
-        worker
-          ? `${worker?.name} - retorna em ${getDaysUntilWorkerReturns(
-              worker,
-              vacations
-            )} dias\n`
-          : ""
-      )
-    : ["Ninguém folgando hoje."];
+  const workerDetails = getWorkerDetails(workers);
+  const departmentDetails = getDepartmentDetails(departments);
 
-  const returningTodayDetails = returningToday.length
-    ? returningToday.map(({ worker }) => (worker as WorkerDTO)?.name)
-    : ["Ninguém retornando hoje."];
-
-  const workerDetails = [
-    `${inactiveWorkers} servidores inativos ou desligados.`,
-    `${internalWorkers} servidores internos.`,
-    `${externalWorkers} servidores externos.`,
-  ];
-
-  const upcomingLeavesLines = upcomingLeaves?.map(({ worker, startDate }) => ({
-    primary: (worker as WorkerDTO)?.name,
-    secondary: `Saindo dia ${format(startDate, "dd/MM/yyyy")}`,
-  }));
-
-  const upcomingReturnsLines = upcomingReturns?.map(
-    ({ worker, returnDate }) => ({
-      primary: (worker as WorkerDTO)?.name,
-      secondary: `Retornando dia ${format(
-        toDate(returnDate ?? ""),
-        "dd/MM/yyyy"
-      )}`,
-    })
+  const purchaseOrderLines = getPurchaseOrderLines(purchaseOrders);
+  const fuelLines = getFuelLines(fuels);
+  const weeklyFuellingSummaryLines = getWeeklyFuellingSummaryLines(
+    weeklyFuellingSummaries,
   );
+
+  const purchaseOrderSectionIcon =
+    purchaseOrders.invalid.length > 0 ? (
+      <>
+        <Inventory color="error" />
+        <PriorityHigh color="error" />
+      </>
+    ) : purchaseOrders.partialInvalid.length > 0 ? (
+      <Inventory color="warning" />
+    ) : (
+      <Inventory color="success" />
+    );
 
   return (
     <Box>
@@ -130,6 +130,7 @@ function Dashboard({ data }: { data: DashboardParam }) {
             label="Departamentos"
             quantity={departments.length}
             icon={<Business color="primary" />}
+            details={departmentDetails}
           />
         </Grid>
 
@@ -138,7 +139,7 @@ function Dashboard({ data }: { data: DashboardParam }) {
             label="Folgando hoje"
             quantity={onVacationToday.length}
             icon={<BusAlert color="primary" />}
-            details={onVacationTodayDetails}
+            details={onVacationDetails}
           />
         </Grid>
 
@@ -147,7 +148,7 @@ function Dashboard({ data }: { data: DashboardParam }) {
             label="Retornando hoje"
             quantity={returningToday.length}
             icon={<DirectionsBus color="primary" />}
-            details={returningTodayDetails}
+            details={returningDetails}
           />
         </Grid>
       </Grid>
@@ -160,7 +161,7 @@ function Dashboard({ data }: { data: DashboardParam }) {
       >
         {/* Saídas próximas */}
         <Grid
-          size={{ xs: 12, md: upcomingReturnsLines.length ? 6 : 12 }}
+          size={{ xs: 12, md: upcomingReturnsLines.length > 0 ? 6 : 12 }}
           hidden={!upcomingLeavesLines}
         >
           <TextCard
@@ -172,13 +173,37 @@ function Dashboard({ data }: { data: DashboardParam }) {
 
         {/* Retornos próximos */}
         <Grid
-          size={{ xs: 12, md: upcomingLeavesLines.length ? 6 : 12 }}
+          size={{ xs: 12, md: upcomingLeavesLines.length > 0 ? 6 : 12 }}
           hidden={!upcomingReturnsLines}
         >
           <TextCard
             label="Próximos Retornos"
             icon={<HourglassBottom color="success" />}
             lines={upcomingReturnsLines}
+          />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={3} sx={{ mt: 4 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TextCard
+            label="Pedidos de combustíveis"
+            icon={purchaseOrderSectionIcon}
+            lines={purchaseOrderLines}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TextCard
+            label="Combustíveis"
+            icon={<LocalGasStation color="primary" />}
+            lines={fuelLines}
+          />
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <TextCard
+            label="Ciclos de notas"
+            icon={<Receipt color="primary" />}
+            lines={weeklyFuellingSummaryLines}
           />
         </Grid>
       </Grid>

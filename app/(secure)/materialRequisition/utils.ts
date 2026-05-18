@@ -339,7 +339,7 @@ export function getDepartmentConsumption(
     let totalLiters = 0;
     let totalKmHr = 0;
 
-    for (const summary of sortedSummaries) {
+    for (const summary of summaries) {
       const department = summary.departments.find(
         (d) => (d.department as DepartmentDTO)._id === departmentId,
       );
@@ -354,7 +354,7 @@ export function getDepartmentConsumption(
       const previousWeekStart = addDays(new Date(summary.weekStart), -7)
         .toISOString()
         .slice(0, 10);
-      const previousSummary = sortedSummaries.find(
+      const previousSummary = summaries.find(
         (s) => s.weekStart.slice(0, 10) === previousWeekStart,
       );
       if (!previousSummary) continue;
@@ -392,16 +392,11 @@ export function getDepartmentConsumption(
 export function getFuelMix({
   summaries,
   selectedDepartment,
-  selectedWeek,
 }: GraphUtilFnParam): FuelMixItem[] {
   const map = new Map<string, number>();
-  const filteredSummaries =
-    selectedWeek !== "__ALL__"
-      ? summaries.filter((s) => s.weekStart === selectedWeek)
-      : summaries;
 
-  for (const summary of filteredSummaries) {
-    for (const dep of filterDepartments(summary, selectedDepartment)) {
+  for (const summary of summaries) {
+    for (const dep of filterDepartments(summary, selectedDepartment!)) {
       for (const vehicle of dep.vehicles) {
         const fuelName = (vehicle.fuel as FuelDTO).name;
         map.set(fuelName, (map.get(fuelName) ?? 0) + vehicle.totalLiters);
@@ -419,17 +414,12 @@ export function getFuelMix({
 export function getTopVehiclesByConsumption({
   summaries,
   selectedDepartment,
-  selectedWeek,
 }: GraphUtilFnParam): VehicleConsumptionRow[] {
   const LIMIT = 10;
   const map = new Map<string, VehicleConsumptionRow>();
-  const filteredSummaries =
-    selectedWeek !== "__ALL__"
-      ? summaries.filter((s) => s.weekStart === selectedWeek)
-      : summaries;
 
-  for (const summary of filteredSummaries) {
-    for (const dep of filterDepartments(summary, selectedDepartment)) {
+  for (const summary of summaries) {
+    for (const dep of filterDepartments(summary, selectedDepartment!)) {
       for (const vehicle of dep.vehicles) {
         const vehicleKey = `#${vehicle.prefix} - ${vehicle.vehicle}`;
         const existing = map.get(vehicleKey) ?? {
@@ -495,7 +485,7 @@ export function getVehicleScatterSeriesByDepartment(
         y: parseFloat(value.toFixed(2)),
       }),
     ),
-  }));
+  })).filter(v => v.data?.length > 0);
 }
 
 export function getVehicleScatterSeriesByVehicle(
@@ -511,46 +501,39 @@ export function getVehicleScatterSeriesByVehicle(
       const department = summary.departments.find(
         (d) => (d.department as DepartmentDTO)._id === selectedDepartment,
       );
-      if (!department) return null;
+      const label = formatWeek(summary.weekStart);
+      if (!department) return { label, data: [] };
 
       return {
-        label: formatWeek(summary.weekStart),
-        data: department.vehicles.map((vehicle) => ({
-          fuel: (vehicle.fuel as FuelDTO).name,
-          id: `#${vehicle.prefix} - ${vehicle.vehicle}`,
-          x: parseFloat(vehicle.totalLiters.toFixed(2)),
-          y: parseFloat((vehicle.totalKmHr ?? 0).toFixed(2)),
-        })),
+        label,
+        data:
+          department.vehicles?.map((vehicle) => ({
+            fuel: (vehicle.fuel as FuelDTO).name,
+            id: `#${vehicle.prefix} - ${vehicle.vehicle}`,
+            x: parseFloat(vehicle.totalLiters.toFixed(2)),
+            y: parseFloat((vehicle.totalKmHr ?? 0).toFixed(2)),
+          })) ?? [],
       };
     })
-    .filter(Boolean) as VehicleScatterSeries[];
+    .filter(v => v.data?.length > 0) as VehicleScatterSeries[];
 }
 
 export function getVehicleCostVsLitersScatter({
   summaries,
   selectedDepartment,
-  selectedWeek,
 }: GraphUtilFnParam): VehicleScatterSeries[] {
-  const filteredSummaries =
-    selectedWeek !== "__ALL__"
-      ? summaries.filter((summary) => summary.weekStart === selectedWeek)
-      : summaries;
-
   if (selectedDepartment === "__ALL__") {
-    return getVehicleScatterSeriesByDepartment(filteredSummaries);
+    return getVehicleScatterSeriesByDepartment(summaries);
   }
 
-  return getVehicleScatterSeriesByVehicle(
-    filteredSummaries,
-    selectedDepartment,
-  );
+  return getVehicleScatterSeriesByVehicle(summaries, selectedDepartment!);
 }
 
 export function getDepartmentScatter(
   summaries: WeeklyFuellingSummaryDTO[],
   selectedDepartment: string,
 ): DepartmentScatterSeries[] {
-  const rows = getDepartmentConsumption(summaries, selectedDepartment);
+  const rows = getDepartmentConsumption(summaries, selectedDepartment) ?? [];
   return [
     {
       label: selectedDepartment ? "Km's x Litros" : "Departamentos",
@@ -693,20 +676,11 @@ function getEfficiencyScatterByVehicle(
 export function getLitersTrend({
   summaries,
   selectedDepartment,
-  selectedWeek,
 }: GraphUtilFnParam): LitersTrendSeries[] {
-  const filteredSummaries =
-    selectedWeek !== "__ALL__"
-      ? summaries.filter((s) => s.weekStart === selectedWeek)
-      : summaries;
-  const sorted = [...filteredSummaries].sort(
-    (a, b) => new Date(a.weekStart).getTime() - new Date(b.weekStart).getTime(),
-  );
-
   if (selectedDepartment === "__ALL__") {
-    return getLitersTrendByDepartment(sorted);
+    return getLitersTrendByDepartment(summaries);
   }
-  return getLitersTrendByFuel(sorted, selectedDepartment);
+  return getLitersTrendByFuel(summaries, selectedDepartment!);
 }
 
 function getLitersTrendByDepartment(
@@ -776,13 +750,8 @@ function getLitersTrendByFuel(
 export const getPieData = ({
   summaries,
   selectedDepartment,
-  selectedWeek,
 }: GraphUtilFnParam): PieData[] => {
-  const filteredSummaries =
-    selectedWeek !== "__ALL__"
-      ? summaries.filter((summary) => summary.weekStart === selectedWeek)
-      : summaries;
-  const departmentsInfo = flatten(filteredSummaries.map((s) => s.departments));
+  const departmentsInfo = flatten(summaries.map((s) => s.departments));
 
   if (selectedDepartment === "__ALL__") {
     const uniqueDepartmentsInfo: FuellingSummaryDepartment[] = [];
@@ -828,3 +797,11 @@ export const getPieData = ({
     value: totalLiters,
   }));
 };
+
+const monetaryFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+export const toMonetary = (n: number): string => monetaryFormatter.format(n);
+
+export const ALL = "__ALL__";

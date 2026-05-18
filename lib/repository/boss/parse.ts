@@ -24,7 +24,7 @@ export const toBossDTO = (boss: Boss | Types.ObjectId): BossDTO | string => {
     _id: _id.toString(),
     role,
     isDirector,
-    worker: toWorkerDTO(worker),
+    worker: bossEntity.worker ? toWorkerDTO(worker) : undefined,
     createdAt: createdAt.toISOString(),
     updatedAt: updatedAt.toISOString(),
     isActive,

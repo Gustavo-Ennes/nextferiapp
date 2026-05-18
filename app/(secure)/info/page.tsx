@@ -14,6 +14,14 @@ import { DepartmentRepository } from "@/lib/repository/department/department";
 import type { DepartmentFormData } from "../department/types";
 import type { VacationFormData } from "../vacation/types";
 import type { WorkerFormData } from "../worker/types";
+import type { PurchaseOrderFormData } from "../purchaseOrder/types";
+import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
+import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
+import { WeeklyFuellingSummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
+import { splitPurchaseOrderByValidFuelVersion } from "./utils";
+import type { CombinedFuelFormData } from "../fuel/types";
+import { FuelRepository } from "@/lib/repository/fuel/fuel";
+import type { FuelDTO } from "@/dto/FuelDTO";
 
 export default async function DashboardServer() {
   const vacations = await fetchAll<VacationDTO, VacationFormData>({
@@ -32,6 +40,20 @@ export default async function DashboardServer() {
     isActive: true,
   });
 
+  const fuels = await fetchAll<FuelDTO, CombinedFuelFormData>({
+    entityType: "fuel",
+    repository: FuelRepository,
+  });
+  const purchaseOrders = await fetchAll<
+    PurchaseOrderDTO,
+    PurchaseOrderFormData
+  >({
+    entityType: "purchaseOrder",
+    repository: PurchaseOrderRepository,
+  });
+
+  const weeklyFuellingSummaries = await WeeklyFuellingSummaryRepository.find();
+
   const onVacationToday = getWorkersOnVacation(vacations);
   const returningToday = getTodayReturns(vacations);
   const upcomingLeaves = getUpcomingLeaves(vacations);
@@ -40,6 +62,9 @@ export default async function DashboardServer() {
     (worker) =>
       worker.isActive && (worker.isExternal === false || !worker.isExternal),
   );
+
+  const sortedByFuelVersionsPurchaseOrders =
+    splitPurchaseOrderByValidFuelVersion({ purchaseOrders, fuels });
 
   const workersByRole = groupBy(
     prop("role"),
@@ -60,6 +85,9 @@ export default async function DashboardServer() {
         upcomingLeaves,
         upcomingReturns,
         workersByRole,
+        purchaseOrders: sortedByFuelVersionsPurchaseOrders,
+        fuels,
+        weeklyFuellingSummaries,
       }}
     />
   );

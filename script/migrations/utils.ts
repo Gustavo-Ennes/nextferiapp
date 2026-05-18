@@ -4,8 +4,6 @@ import { createInterface } from "readline/promises";
 import { stdin as input, stdout as output } from "process";
 import type { Department } from "@/models/Department";
 import type { IFuel } from "@/models/Fuel";
-import type { FuellingSummaryVehicle } from "@/models/types";
-import { max, pluck } from "ramda";
 
 export const migrationInterface = createInterface({ input, output });
 const ask = (q: string) => migrationInterface.question(q);
@@ -166,7 +164,6 @@ async function resolveDeptInteractive(
   cache.set(key, chosenId);
   return chosenId;
 }
-
 
 export {
   askFuelInteractive,

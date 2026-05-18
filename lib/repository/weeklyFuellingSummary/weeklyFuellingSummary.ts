@@ -49,9 +49,8 @@ export const WeeklyFuellingSummaryRepository = {
         path: "departments.vehicles.fuel",
         model: "Fuel",
       });
-    const parsedSummaries = parseWeeklySummaries(summaries);
 
-    return parsedSummaries;
+    return parseWeeklySummaries(summaries);
   },
 
   async delete(id: string): Promise<void> {

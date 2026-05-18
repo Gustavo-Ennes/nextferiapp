@@ -8,19 +8,19 @@ import { AverageDepartmentTabs } from "../components/average/AverageDepartmentTa
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import { flatten, uniq } from "ramda";
 import {
+  ALL,
   getEfficiencyScatter,
   getFuelMix,
   getLitersTrend,
   getPieData,
   getTopVehiclesByConsumption,
   getVehicleCostVsLitersScatter,
+  toMonetary,
 } from "../utils";
 import type { DepartmentDTO } from "@/dto";
 import type { FuelMixItem } from "../types";
-import { toDate } from "date-fns";
+import { isSameDay, toDate } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
-
-const ALL = "__ALL__";
 
 export function WeeklySummaryView({
   summaries = [],
@@ -31,10 +31,31 @@ export function WeeklySummaryView({
   const [selectedWeek, setSelectedWeek] = useState<string>(ALL);
   const [tabIndex, setTabIndex] = useState(0);
 
+  const filteredSummaries = useMemo(() => {
+    let filteredSummaries = summaries;
+
+    if (selectedDept !== ALL)
+      filteredSummaries = filteredSummaries.filter((s) =>
+        s.departments
+          .map((d) => (d.department as DepartmentDTO)._id)
+          .includes(selectedDept),
+      );
+    if (selectedWeek !== ALL)
+      filteredSummaries = filteredSummaries.filter((s) =>
+        isSameDay(toDate(s.weekStart), toDate(selectedWeek)),
+      );
+
+    return filteredSummaries.sort(
+      (a, b) =>
+        new Date(a.weekStart).getTime() - new Date(b.weekStart).getTime(),
+    );
+  }, [selectedDept, selectedWeek]);
+
   const departments = useMemo(() => {
     const departments = summaries.map((s) =>
       s.departments.map((d) => d.department as DepartmentDTO),
     );
+
     return uniq(flatten(departments)).sort();
   }, [summaries]);
 
@@ -43,8 +64,17 @@ export function WeeklySummaryView({
   }, [summaries]);
 
   const allDepartmentsInfo = useMemo(() => {
-    return summaries.map((s) => s.departments).flat();
-  }, [summaries]);
+    const departmentFilteredSummaries =
+      selectedDept !== ALL
+        ? filteredSummaries.filter((fs) =>
+            fs.departments
+              .map((d) => (d.department as DepartmentDTO)._id)
+              .includes(selectedDept),
+          )
+        : filteredSummaries;
+
+    return departmentFilteredSummaries;
+  }, [filteredSummaries, selectedDept]);
 
   /** 🔁 sincroniza aba com select */
   useEffect(() => {
@@ -56,66 +86,64 @@ export function WeeklySummaryView({
     if (idx >= 0) setTabIndex(idx);
   }, [selectedDept, departments]);
 
-  /** 🔹 Última semana */
-  const current = summaries.at(-1);
-
   const fuelMix: FuelMixItem[] = useMemo(() => {
     return getFuelMix({
-      summaries,
+      summaries: filteredSummaries,
       selectedDepartment: selectedDept,
-      selectedWeek,
     });
-  }, [summaries, selectedDept, selectedWeek]);
+  }, [filteredSummaries]);
 
   const vehicleScatterData = useMemo(() => {
     return getVehicleCostVsLitersScatter({
-      summaries,
+      summaries: filteredSummaries,
       selectedDepartment: selectedDept,
-      selectedWeek,
     });
-  }, [summaries, selectedDept, selectedWeek]); // TODO verificar erro ao selecionar data e departamento
+  }, [filteredSummaries]);
 
   const efficiencyScatter = useMemo(() => {
-    return getEfficiencyScatter(summaries, selectedDept);
-  }, [summaries, selectedDept]);
+    return getEfficiencyScatter(filteredSummaries, selectedDept);
+  }, [filteredSummaries]);
 
   const topConsumptionVehicles = useMemo(() => {
     return getTopVehiclesByConsumption({
-      summaries,
+      summaries: filteredSummaries,
       selectedDepartment: selectedDept,
-      selectedWeek,
     });
-  }, [summaries, selectedDept, selectedWeek]);
+  }, [filteredSummaries]);
 
   const litersTrend = useMemo(() => {
     return getLitersTrend({
-      summaries,
+      summaries: filteredSummaries,
       selectedDepartment: selectedDept,
-      selectedWeek,
     });
-  }, [summaries, selectedDept]);
+  }, [filteredSummaries]);
 
   /** 🔹 Pizza principal */
   const pieData = useMemo(() => {
     return getPieData({
-      summaries,
+      summaries: filteredSummaries,
       selectedDepartment: selectedDept,
-      selectedWeek,
     });
-  }, [current, selectedDept, selectedWeek]);
+  }, [filteredSummaries]);
 
   /** 🔹 Valor total da semana, por filtros */
   const totalValue = useMemo(() => {
-    const filterDepartments = allDepartmentsInfo.filter(
-      (d) =>
-        selectedDept === ALL ||
-        (d.department as DepartmentDTO)._id === selectedDept,
-    );
+    return allDepartmentsInfo.reduce(
+      (summarySum, s: WeeklyFuellingSummaryDTO) => {
+        return (
+          summarySum +
+          s.departments.reduce((deptSum, d) => {
+            if (selectedDept === ALL) return deptSum + d.totalValue;
 
-    return filterDepartments.reduce((deptSum, d) => {
-      return deptSum + d.totalValue;
-    }, 0);
-  }, [current, selectedDept]);
+            return selectedDept === (d.department as DepartmentDTO)._id
+              ? deptSum + d.totalValue
+              : deptSum;
+          }, 0)
+        );
+      },
+      0,
+    );
+  }, [filteredSummaries, selectedDept]);
 
   return (
     <Container>
@@ -141,7 +169,7 @@ export function WeeklySummaryView({
                 :
               </Typography>
               <Typography variant="h5" color="primary">
-                R$ {totalValue.toFixed(2)}
+                {toMonetary(totalValue)}
               </Typography>
             </Paper>
 

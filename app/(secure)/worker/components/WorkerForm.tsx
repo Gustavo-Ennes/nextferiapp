@@ -27,16 +27,21 @@ import { capitalizeFirstLetter } from "@/app/utils";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { useLoading } from "@/context/LoadingContext";
+import type { DepartmentDTO } from "@/dto";
+import { useEffect, useState } from "react";
 
 export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
   const router = useRouter();
   const { addSnack } = useSnackbar();
   const { setLoading } = useLoading();
+  const [filteredDepartments, setFilteredDepartments] = useState<
+    DepartmentDTO[]
+  >([]);
   const {
     control,
     handleSubmit,
     formState: { errors, isValid, isSubmitting },
-
+    watch,
     setValue,
   } = useForm<WorkerFormData>({
     resolver: zodResolver(WorkerValidator),
@@ -79,6 +84,16 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
     router.redirectWithLoading("/worker");
     addSnack(snackbarData);
   };
+
+  const watchForm = watch();
+
+  useEffect(() => {
+    setFilteredDepartments(
+      watchForm.isExternal
+        ? departments
+        : departments.filter((d) => d.hasWorkers === !watchForm.isExternal),
+    );
+  }, [watchForm.isExternal]);
 
   return (
     <Grid
@@ -208,7 +223,7 @@ export function WorkerForm({ defaultValues, departments = [] }: WorkerProps) {
                 <MenuItem value={"-"}>
                   <em>Selecione o departamento</em>
                 </MenuItem>
-                {departments?.map((department) => (
+                {filteredDepartments?.map((department) => (
                   <MenuItem
                     key={`opt-${department._id as string}`}
                     value={department._id as string}
