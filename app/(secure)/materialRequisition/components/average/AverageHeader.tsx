@@ -1,3 +1,4 @@
+import { startOfDaySP } from "@/app/utils";
 import type { DepartmentDTO } from "@/dto";
 import {
   Paper,
@@ -8,7 +9,8 @@ import {
   MenuItem,
   Grid,
 } from "@mui/material";
-import { startOfDay } from "date-fns";
+import { ALL } from "../../utils";
+import { toDate } from "date-fns";
 
 export const AverageHeader = ({
   departments,
@@ -60,7 +62,12 @@ export const AverageHeader = ({
               value={selectedWeek}
               label="Semana"
               onChange={(e) =>
-                onChange(selectedDept, startOfDay(e.target.value).toISOString())
+                onChange(
+                  selectedDept,
+                  e.target.value !== ALL
+                    ? startOfDaySP(toDate(e.target.value)).toISOString()
+                    : ALL,
+                )
               }
             >
               <MenuItem value="__ALL__">Todas</MenuItem>

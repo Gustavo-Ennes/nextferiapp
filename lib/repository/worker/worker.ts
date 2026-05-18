@@ -58,7 +58,11 @@ export const WorkerRepository: Repository<WorkerDTO, WorkerFormData> = {
   async create(payload: WorkerFormData): Promise<WorkerDTO> {
     await dbConnect();
 
-    const worker = await WorkerModel.create(payload);
+    const worker = await WorkerModel.create({
+      ...payload,
+      name: payload.name.toLowerCase(),
+      role: payload.role.toLowerCase(),
+    });
     return toWorkerDTO(worker.toObject()) as WorkerDTO;
   },
 

@@ -4,7 +4,7 @@ export type BossDTO = {
   _id: string;
   role: string;
   isDirector: boolean;
-  worker: WorkerDTO | string;
+  worker?: WorkerDTO | string;
   createdAt: string;
   updatedAt: string;
   isActive: boolean;

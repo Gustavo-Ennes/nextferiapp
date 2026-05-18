@@ -19,7 +19,6 @@ export default async function BossFormPage({
 
   const workers = await fetchAll<WorkerDTO, WorkerFormData>({
     isActive: true,
-    isExternal: false,
     entityType: "worker",
     repository: WorkerRepository,
   });

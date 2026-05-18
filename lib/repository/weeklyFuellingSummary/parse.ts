@@ -10,7 +10,7 @@ export const toWeeklySummaryDTO = (
   weekStart: doc.weekStart.toISOString(),
   createdAt: doc.createdAt.toISOString(),
   departments: doc.departments.map((d: any) => ({
-    department: toDepartmentDTO(d.department),
+    department: d.department ? toDepartmentDTO(d.department) : undefined,
     name: d.name,
     totalValue: d.totalValue ?? 0,
     vehicles: d.vehicles.map((v: any) => ({

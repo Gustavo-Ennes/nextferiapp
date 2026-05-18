@@ -63,6 +63,6 @@ export type PieData = {
 
 export type GraphUtilFnParam = {
   summaries: WeeklyFuellingSummaryDTO[];
-  selectedDepartment: string;
-  selectedWeek: string;
+  selectedDepartment?: string;
+  selectedWeek?: string;
 };
