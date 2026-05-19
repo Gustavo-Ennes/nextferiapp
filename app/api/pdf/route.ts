@@ -9,7 +9,7 @@ import {
   cancellationRender,
   purchaseOrderRender,
 } from "@/lib/pdf";
-import { headers, optionsResponse } from "../utils";
+import { filterPurchaseOrderItems, headers, optionsResponse } from "../utils";
 import { VacationRepository } from "@/lib/repository/vacation/vacation";
 import type { VacationType } from "@/lib/repository/vacation/types";
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
@@ -114,12 +114,14 @@ const render = async ({
       return vehicleUsageRender({ document });
 
     case "purchaseOrder":
-      const { data: orders } = await PurchaseOrderRepository.find({});
+      const orders = await PurchaseOrderRepository.findWithoutPagination!({});
       const { data: fuels } = await FuelRepository.find({});
+
+      const filteredOrders = filterPurchaseOrderItems({ orders, fuels });
 
       return purchaseOrderRender({
         document,
-        instances: orders,
+        instances: filteredOrders,
         fuels,
       });
 

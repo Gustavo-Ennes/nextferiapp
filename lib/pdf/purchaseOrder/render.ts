@@ -21,7 +21,6 @@ import {
 } from "../utils";
 import { SAFE_TOP, MARGIN_X, PAGE_WIDTH } from "./constants";
 import { format } from "date-fns";
-import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { FuelDTO } from "@/dto/FuelDTO";
 
 export async function render({
@@ -49,23 +48,6 @@ export async function render({
 
       if (!fuel) {
         console.info(`Fuel ${fuelName} doesn't exists.`);
-        continue;
-      }
-
-      const itemFuelPriceVersion = (
-        item.fuelPriceVersion as FuelPriceVersionDTO
-      ).version;
-      const currentFuelPriceVersion = (
-        fuel.currentPriceVersion as FuelPriceVersionDTO
-      ).version;
-
-      // don't include item with old price versions in PurchaseOrder pdf
-      if (itemFuelPriceVersion !== currentFuelPriceVersion) {
-        const warning = `
-        Order item ${fuelName} v${itemFuelPriceVersion} isn't the current price version. 
-        Price version for ${fuelName} is v${currentFuelPriceVersion}. 
-        Skiping.`;
-        console.info(warning);
         continue;
       }
 
