@@ -28,6 +28,7 @@ const ResponsiveListPage = <T extends Entity>({
   contains,
   isExternal,
   additionalButtons,
+  warnings,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const { addSnack } = useSnackbar();
@@ -141,11 +142,12 @@ const ResponsiveListPage = <T extends Entity>({
         </Typography>
       </Grid>
 
-      {additionalButtons?.map((btn) => (
+      {additionalButtons?.map((btn, i) => (
         <Grid
           size={buttonGridSize}
           alignItems={"stretch"}
           justifyContent={"center"}
+          key={`addBtn-${i}`}
         >
           {btn}
         </Grid>
@@ -199,6 +201,7 @@ const ResponsiveListPage = <T extends Entity>({
             onDelete={(entity) => handleConfirmDelete(entity)}
             vacationType={vacationType}
             contains={search}
+            warnings={warnings}
           />
         )}
       </Grid>

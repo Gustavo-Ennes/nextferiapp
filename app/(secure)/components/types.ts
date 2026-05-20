@@ -1,9 +1,16 @@
-import type { ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import type { Entity, EntityType } from "../../types";
 import type { PaginatedResponse } from "@/app/api/types";
 import type { PdfPreviewTypeProp } from "@/context/types";
 import type { Types } from "mongoose";
 import type { VacationType } from "@/lib/repository/vacation/types";
+
+export type ListPageWarning = {
+  items: string[];
+  icon: JSX.Element;
+};
+
+export type ListPageWarnings = Map<string, ListPageWarning>;
 
 export interface ItemListProps<T extends { _id: Types.ObjectId | string }> {
   pagination: PaginatedResponse<T>;
@@ -11,6 +18,7 @@ export interface ItemListProps<T extends { _id: Types.ObjectId | string }> {
   onDelete: (entity: Entity) => void;
   vacationType?: VacationType | null;
   contains?: string | null;
+  warnings?: ListPageWarnings;
 }
 
 export type MenuItem = {
@@ -40,6 +48,7 @@ export type ResponsiveListPageParam<T> = {
   contains?: string | null;
   isExternal?: boolean | null;
   additionalButtons?: ReactNode[];
+  warnings?: ListPageWarnings;
 };
 
 export type DataListItem = {
