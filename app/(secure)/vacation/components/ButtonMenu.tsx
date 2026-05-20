@@ -8,7 +8,7 @@ import {
   type ButtonProps,
 } from "@mui/material";
 import React, { useState, cloneElement, type ReactElement } from "react";
-import type { MenuItem } from "./types";
+import type { MenuItem } from "../../components/types";
 import type { VacationDTO, WorkerDTO } from "@/dto";
 
 interface ButtonMenuProps {

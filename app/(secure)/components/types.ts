@@ -12,6 +12,11 @@ export type ListPageWarning = {
 
 export type ListPageWarnings = Map<string, ListPageWarning>;
 
+export type MenuParam = {
+  items: MenuItem[];
+  label: string;
+};
+
 export interface ItemListProps<T extends { _id: Types.ObjectId | string }> {
   pagination: PaginatedResponse<T>;
   routePrefix: EntityType;
@@ -24,7 +29,7 @@ export interface ItemListProps<T extends { _id: Types.ObjectId | string }> {
 export type MenuItem = {
   label: string;
   action: () => void;
-  disabled: boolean;
+  disabled?: boolean;
 };
 
 export type SubMenuItem = {
@@ -47,7 +52,7 @@ export type ResponsiveListPageParam<T> = {
   vacationType?: VacationType | null;
   contains?: string | null;
   isExternal?: boolean | null;
-  additionalButtons?: ReactNode[];
+  menuItems?: MenuItem[];
   warnings?: ListPageWarnings;
 };
 

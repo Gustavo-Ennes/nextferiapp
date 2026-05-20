@@ -1,12 +1,10 @@
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
-import { ResponsiveListPage } from "../components/ResponsiveListPage";
 import type { RawSearchParams } from "../types";
-import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import { PurchaseOrderAdditionalButton } from "./components/PurchaseOrderAdditionalButton";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import { getOrderWarningsMap } from "./utils";
+import { PurchaseOrderList } from "./components/PurchaseOrderList";
 
-const PurchaseOrderList = async ({
+const PurchaseOrderListServer = async ({
   searchParams,
 }: {
   searchParams: Promise<RawSearchParams>;
@@ -19,24 +17,19 @@ const PurchaseOrderList = async ({
   });
   const fuels = await FuelRepository.findWithoutPagination!({});
 
-  const additionalButtons = [
-    <PurchaseOrderAdditionalButton key="pdf-preview-btn" />,
-  ];
-
   const warnings = getOrderWarningsMap({
     orders: paginatedResponse.data,
     fuels,
   });
 
   return (
-    <ResponsiveListPage<PurchaseOrderDTO>
+    <PurchaseOrderList
       paginatedResponse={paginatedResponse}
       routePrefix="purchaseOrder"
       contains={contains}
-      additionalButtons={additionalButtons}
       warnings={warnings}
     />
   );
 };
 
-export default PurchaseOrderList;
+export default PurchaseOrderListServer;

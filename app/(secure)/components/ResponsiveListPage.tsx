@@ -19,6 +19,7 @@ import { Search } from "./Search";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 import { useLoading } from "@/context/LoadingContext";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
+import { Menu } from "./Menu";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
@@ -27,7 +28,7 @@ const ResponsiveListPage = <T extends Entity>({
   vacationType,
   contains,
   isExternal,
-  additionalButtons,
+  menuItems,
   warnings,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
@@ -123,14 +124,9 @@ const ResponsiveListPage = <T extends Entity>({
     key: "translatedPlural",
   });
 
-  const pageTitleGridSize = additionalButtons
-    ? 10 - additionalButtons.length * 2
-    : 10;
-  const buttonGridSize = 2;
-
   return (
     <Grid container maxWidth={"md"} m="auto" p={2}>
-      <Grid size={pageTitleGridSize}>
+      <Grid size={9}>
         <Typography
           variant="h4"
           gutterBottom
@@ -142,35 +138,24 @@ const ResponsiveListPage = <T extends Entity>({
         </Typography>
       </Grid>
 
-      {additionalButtons?.map((btn, i) => (
-        <Grid
-          size={buttonGridSize}
-          alignItems={"stretch"}
-          justifyContent={"center"}
-          key={`addBtn-${i}`}
-        >
-          {btn}
-        </Grid>
-      ))}
-
-      <Grid
-        size={buttonGridSize}
-        alignItems={"stretch"}
-        justifyContent={"center"}
-      >
-        <Button
-          variant="contained"
-          sx={{ float: "right", mt: "3px" }}
-          onClick={() =>
-            internalRouter.redirectWithLoading(
-              `/${routePrefix}/form${
-                vacationType ? `?type=${vacationType}` : ""
-              }`,
-            )
-          }
-        >
-          <Add />
-        </Button>
+      <Grid size={3} alignItems={"center"} justifyContent={"end"}>
+        {!menuItems ? (
+          <Button
+            variant="contained"
+            sx={{ float: "right", mt: "3px" }}
+            onClick={() =>
+              internalRouter.redirectWithLoading(
+                `/${routePrefix}/form${
+                  vacationType ? `?type=${vacationType}` : ""
+                }`,
+              )
+            }
+          >
+            <Add />
+          </Button>
+        ) : (
+          <Menu items={menuItems} label="Criar ou imprimir" />
+        )}
       </Grid>
 
       <Grid size={12}>

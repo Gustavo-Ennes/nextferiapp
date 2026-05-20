@@ -5,7 +5,7 @@ import { usePdfPreview } from "@/context/PdfPreviewContext";
 import type { VacationDTO, WorkerDTO } from "@/dto";
 import { useRouter } from "@/context/RouterContext";
 import type { MenuItem } from "../../components/types";
-import { ButtonMenu } from "../../components/ButtonMenu";
+import { ButtonMenu } from "./ButtonMenu";
 import { Button } from "@mui/material"; // Importe o Button para o trigger
 import type { ReactElement } from "react";
 import { useLoading } from "@/context/LoadingContext";
