@@ -40,7 +40,7 @@ export function DepartmentDetail({
       description: `Deseja excuir o departamento ${capitalizeName(
         department.name,
       )}?`,
-      onConfirm: async () => {
+      onConfirmAction: async () => {
         setLoading(true);
         fetch(`/api/department/${department._id as string}`, {
           method: "delete",

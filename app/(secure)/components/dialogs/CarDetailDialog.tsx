@@ -135,7 +135,7 @@ const FuelingRow = ({
 export const CarDetailDialog = ({
   car,
   openState,
-  onClose,
+  onCloseAction,
   title,
 }: DialogOptions) => {
   if (!car) return null;
@@ -146,7 +146,7 @@ export const CarDetailDialog = ({
   return (
     <Dialog
       open={openState ?? false}
-      onClose={onClose}
+      onClose={onCloseAction}
       slots={{ transition: FadeTransition }}
       maxWidth="sm"
       fullWidth
@@ -173,7 +173,7 @@ export const CarDetailDialog = ({
         }}
       >
         <IconButton
-          onClick={onClose}
+          onClick={onCloseAction}
           size="small"
           sx={{
             position: "absolute",

@@ -46,7 +46,7 @@ const ResponsiveListPage = <T extends Entity>({
     key: "translated",
   }).toLowerCase();
 
-  const onConfirmDelete = async (entity: Entity) => {
+  const onConfirmActionDelete = async (entity: Entity) => {
     const url = `/api/${routePrefix}/${entity._id as string}`;
     const snackbarData: SnackbarData = { message: "" };
 
@@ -90,9 +90,9 @@ const ResponsiveListPage = <T extends Entity>({
     openConfirmationDialog({
       title: "Confirme a exclusão",
       description: modalDescription,
-      onConfirm: async () => {
+      onConfirmAction: async () => {
         setLoading(true);
-        await onConfirmDelete(entity);
+        await onConfirmActionDelete(entity);
         internalRouter.redirectWithLoading(
           `/${routePrefix}${
             vacationType && vacationType !== "normal" ? `/${vacationType}` : ""

@@ -15,8 +15,8 @@ import { useState, type KeyboardEvent, type MouseEvent } from "react";
 
 export const SelectDialog = ({
   openState,
-  onClose,
-  onConfirm,
+  onCloseAction,
+  onConfirmAction,
   title,
   description,
   confirmLabel = "Confirmar",
@@ -37,11 +37,11 @@ export const SelectDialog = ({
     ) => {
       e.preventDefault();
       e.stopPropagation();
-      onConfirm(selectedOption);
-      onClose?.();
+      onConfirmAction(selectedOption);
+      onCloseAction?.();
     };
   return (
-    <Dialog open={openState ?? false} onClose={onClose}>
+    <Dialog open={openState ?? false} onClose={onCloseAction}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <Typography>{description}</Typography>
@@ -59,7 +59,7 @@ export const SelectDialog = ({
         </Select>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{cancelLabel}</Button>
+        <Button onClick={onCloseAction}>{cancelLabel}</Button>
         <Button
           variant="contained"
           onClick={(e) => handleSelectConfirm(internalSelectedOption)(e)}

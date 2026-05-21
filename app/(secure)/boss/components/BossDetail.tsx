@@ -35,7 +35,7 @@ export function BossDetail({ boss }: { boss: BossDTO }) {
         (boss.worker as WorkerDTO).name,
       )}(${boss.role})?`,
 
-      onConfirm: async () => {
+      onConfirmAction: async () => {
         setLoading(true);
         fetch(`/api/boss/${id}`, {
           method: "delete",

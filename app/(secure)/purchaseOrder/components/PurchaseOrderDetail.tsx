@@ -71,7 +71,7 @@ export function PurchaseOrderDetail({
     openConfirmationDialog({
       title: "Excluir saldo de pedido?",
       description: `Deseja excluir o pedido ${purchaseOrder.reference}?`,
-      onConfirm: async () => {
+      onConfirmAction: async () => {
         setLoading(true);
         try {
           const res = await fetch(`/api/purchaseOrder/${purchaseOrder._id}`, {
