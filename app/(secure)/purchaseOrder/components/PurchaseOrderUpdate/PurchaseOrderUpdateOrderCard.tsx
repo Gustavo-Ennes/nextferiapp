@@ -1,3 +1,4 @@
+"use client";
 import {
   Alert,
   Box,
@@ -10,6 +11,7 @@ import {
 import { statusAlert } from "../../utils";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { PurchaseOrderUpdateOrderCardProps } from "../../types";
+import { useEffect } from "react";
 
 export const PurchaseOrderUpdateOrderCard = ({
   order,
@@ -20,79 +22,90 @@ export const PurchaseOrderUpdateOrderCard = ({
   onQtyChange,
   onKeep,
   onAdd,
-}: PurchaseOrderUpdateOrderCardProps) => (
-  <Paper elevation={2} sx={{ p: 4, borderRadius: 3 }}>
-    <Typography variant="overline" color="text.secondary">
-      Pedido {index + 1} de {total}
-    </Typography>
-    <Typography variant="h5" fontWeight={600} gutterBottom>
-      {order.reference}
-    </Typography>
-    <Typography variant="body2" color="text.secondary">
-      {(order.department as { name: string })?.name}
-    </Typography>
+  inputRefs,
+}: PurchaseOrderUpdateOrderCardProps) => {
+  useEffect(() => {
+    inputRefs["fuel0"]?.current?.focus();
+    inputRefs["fuel0"]?.current?.select();
+  }, [order]);
 
-    <Divider sx={{ my: 2 }} />
+  return (
+    <Paper elevation={2} sx={{ p: 4, borderRadius: 3 }}>
+      <Typography variant="overline" color="text.secondary">
+        Pedido {index + 1} de {total}
+      </Typography>
+      <Typography variant="h5" fontWeight={600} gutterBottom>
+        {order.reference}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {(order.department as { name: string })?.name}
+      </Typography>
 
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {order.items.map((item, i) => {
-        const fuel = item.fuel as FuelDTO;
-        const editedQty = draft.items[i]?.quantity ?? item.quantity;
+      <Divider sx={{ my: 2 }} />
 
-        return (
-          <Box
-            key={String(fuel._id)}
-            sx={{ display: "flex", alignItems: "center", gap: 2 }}
-          >
-            <Typography variant="body2" sx={{ flex: 1 }}>
-              {fuel.name}{" "}
-              <Typography
-                component="span"
-                variant="caption"
-                color="text.secondary"
-              >
-                ({fuel.unit})
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {order.items.map((item, i) => {
+          const fuel = item.fuel as FuelDTO;
+          const editedQty = draft.items[i]?.quantity ?? item.quantity;
+
+          return (
+            <Box
+              key={String(fuel._id)}
+              sx={{ display: "flex", alignItems: "center", gap: 2 }}
+            >
+              <Typography variant="body2" sx={{ flex: 1 }}>
+                {fuel.name}{" "}
+                <Typography
+                  component="span"
+                  variant="caption"
+                  color="text.secondary"
+                >
+                  ({fuel.unit})
+                </Typography>
               </Typography>
-            </Typography>
-            <TextField
-              type="number"
-              size="small"
-              value={editedQty}
-              onChange={(e) => onQtyChange(i, Number(e.target.value))}
-              slotProps={{ htmlInput: { min: 0, step: 1 } }}
-              sx={{ width: 130 }}
-            />
-          </Box>
-        );
-      })}
-    </Box>
+              <TextField
+                type="number"
+                size="small"
+                value={editedQty}
+                onChange={(e) => onQtyChange(i, Number(e.target.value))}
+                slotProps={{ htmlInput: { min: 0, step: 1 } }}
+                sx={{ width: 130 }}
+                inputRef={inputRefs?.[`fuel${i}`]}
+              />
+            </Box>
+          );
+        })}
+      </Box>
 
-    {status !== "pending" && (
-      <Alert
-        severity={statusAlert[status].severity}
-        variant="outlined"
-        sx={{ mt: 2.5 }}
-      >
-        {statusAlert[status].message}
-      </Alert>
-    )}
+      {status !== "pending" && (
+        <Alert
+          severity={statusAlert[status].severity}
+          variant="outlined"
+          sx={{ mt: 2.5 }}
+        >
+          {statusAlert[status].message}
+        </Alert>
+      )}
 
-    <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5, mt: 3 }}>
-      <Button variant="outlined" onClick={onKeep}>
-        Manter
-      </Button>
-      <Button
-        variant="contained"
-        onClick={onAdd}
-        disabled={
-          !draft ||
-          draft.items.every(
-            (item, i) => item.quantity === order.items[i].quantity,
-          )
-        }
+      <Box
+        sx={{ display: "flex", justifyContent: "flex-end", gap: 1.5, mt: 3 }}
       >
-        Adicionar
-      </Button>
-    </Box>
-  </Paper>
-);
+        <Button variant="outlined" onClick={onKeep}>
+          Manter
+        </Button>
+        <Button
+          variant="contained"
+          onClick={onAdd}
+          disabled={
+            !draft ||
+            draft.items.every(
+              (item, i) => item.quantity === order.items[i].quantity,
+            )
+          }
+        >
+          Adicionar
+        </Button>
+      </Box>
+    </Paper>
+  );
+};

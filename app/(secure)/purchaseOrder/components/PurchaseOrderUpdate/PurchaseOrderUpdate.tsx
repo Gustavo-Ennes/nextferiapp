@@ -1,7 +1,7 @@
 "use client";
 
 import { Grid, Typography } from "@mui/material";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { sortByReference } from "../../utils";
@@ -24,12 +24,17 @@ import { useRouter } from "@/context/RouterContext";
 export const PurchaseOrderUpdatePage = ({
   orders,
 }: PurchaseOrderUpdateProps) => {
-  const sorted = sortByReference(orders);
-
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
   const { setPdf } = usePdfPreview();
   const { redirectWithLoading } = useRouter();
+  const inputRefs = {
+    fuel0: useRef<HTMLInputElement>(null),
+    fuel1: useRef<HTMLInputElement>(null),
+    fuel2: useRef<HTMLInputElement>(null),
+  };
+
+  const sorted = sortByReference(orders);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentOrder, setCurrentOrder] = useState<PurchaseOrderDTO>(sorted[0]);
@@ -110,7 +115,11 @@ export const PurchaseOrderUpdatePage = ({
     });
 
     updateSidebar(currentId, { status: "queued", items: itemDrafts });
-    if (currentIndex < sorted.length - 1) navigateTo(currentIndex + 1);
+    if (currentIndex < sorted.length - 1) {
+      navigateTo(currentIndex + 1);
+      inputRefs["fuel0"]?.current?.select();
+      inputRefs["fuel0"]?.current?.focus();
+    }
   };
 
   const handleBatchUpdate = async () => {
@@ -194,6 +203,7 @@ export const PurchaseOrderUpdatePage = ({
           onQtyChange={updateItemQty}
           onKeep={handleKeep}
           onAdd={handleAdd}
+          inputRefs={inputRefs}
         />
 
         {allDecided ? (
