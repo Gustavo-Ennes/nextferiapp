@@ -5,7 +5,7 @@ import { usePdfPreview } from "@/context/PdfPreviewContext";
 import type { VacationDTO, WorkerDTO } from "@/dto";
 import { useRouter } from "@/context/RouterContext";
 import type { MenuItem } from "../../components/types";
-import { ButtonMenu } from "../../components/ButtonMenu";
+import { ButtonMenu } from "./ButtonMenu";
 import { Button } from "@mui/material"; // Importe o Button para o trigger
 import type { ReactElement } from "react";
 import { useLoading } from "@/context/LoadingContext";
@@ -73,7 +73,7 @@ export const CancelListButton = ({
         openInputDialog({
           title: "Cancelar folga",
           description: "Deseja cancelar essa folga?",
-          onConfirm: async (obs) => cancelVacation({ option: "cancel", obs }),
+          onConfirmAction: async (obs) => cancelVacation({ option: "cancel", obs }),
           confirmLabel: "Cancelar",
           inputLabel: "Observação",
         }),
@@ -85,7 +85,7 @@ export const CancelListButton = ({
         openInputDialog({
           title: "Cancelar e imprimir requisição de cancelamento",
           description: "Deseja cancelar e imprimir a requisição para o RH?",
-          onConfirm: async (obs) =>
+          onConfirmAction: async (obs) =>
             cancelVacation({ option: "cancel", withPdf: true, obs }),
           confirmLabel: "Cancelar e imprimir",
           inputLabel: "Observação",
@@ -99,7 +99,7 @@ export const CancelListButton = ({
           title: "Remarcar",
           description:
             "Deseja cancelar(sem requerimento RH) e remarcar essa folga?",
-          onConfirm: async (obs) =>
+          onConfirmAction: async (obs) =>
             cancelVacation({ option: "reschedule", obs }),
           confirmLabel: "Remarcar",
           inputLabel: "Observação",
@@ -113,7 +113,7 @@ export const CancelListButton = ({
           title: "Remarcar com requisição",
           description:
             "Deseja cancelar com requerimento para o RH e remarcar essa folga?",
-          onConfirm: async (obs) =>
+          onConfirmAction: async (obs) =>
             cancelVacation({ option: "reschedule", withPdf: true, obs }),
           confirmLabel: "Remarcar e imprimir",
           inputLabel: "Observação",

@@ -13,11 +13,11 @@ import { FuelingFormList } from "./FuelingFormList";
 import type { FuelDTO } from "@/dto/FuelDTO";
 
 export const TabForm = ({
-  onSubmit,
+  onSubmitAction,
   tabData,
   fuels,
 }: {
-  onSubmit: (car: CarEntry) => void;
+  onSubmitAction: (car: CarEntry) => void;
   tabData: TabData;
   fuels: FuelDTO[];
 }) => {
@@ -33,7 +33,7 @@ export const TabForm = ({
 
   const handleSubmit = () => {
     if (vehicle && prefix && fuel && fuelings.length > 0) {
-      onSubmit({ vehicle, prefix, fuelings, fuel });
+      onSubmitAction({ vehicle, prefix, fuelings, fuel });
       setSelectedCar(null);
       vehicleEquipInputRef?.current?.focus();
     }
@@ -71,7 +71,7 @@ export const TabForm = ({
 
           <Divider sx={{ my: 4 }} />
 
-          <TabFormFuelings onSubmit={onSubmit} />
+          <TabFormFuelings onSubmit={onSubmitAction} />
         </Paper>
       </Grid>
 

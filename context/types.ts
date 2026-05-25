@@ -56,8 +56,8 @@ export type DialogOptions = {
   description?: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  onConfirm: (input?: string) => Promise<void> | void;
-  onClose?: () => Promise<void> | void;
+  onConfirmAction: (input?: string) => Promise<void> | void;
+  onCloseAction?: () => Promise<void> | void;
   openState?: boolean;
   input?: string;
   inputLabel?: string;

@@ -54,7 +54,7 @@ export function WorkerDetail({
     openConfirmationDialog({
       title: "Excluir servidor",
       description: `Deseja excluir o servidor ${capitalizeName(worker.name)}?`,
-      onConfirm: async () => {
+      onConfirmAction: async () => {
         setLoading(true);
 
         fetch(`/api/worker/${worker._id as string}`, { method: "delete" })
@@ -85,7 +85,7 @@ export function WorkerDetail({
       description: `Deseja atualizar o servidor ${capitalizeName(
         worker.name,
       )} como ${worker.isExternal ? "interno" : "externo"}?`,
-      onConfirm: async () => {
+      onConfirmAction: async () => {
         setLoading(true);
 
         fetch(`/api/worker/${worker._id as string}`, {

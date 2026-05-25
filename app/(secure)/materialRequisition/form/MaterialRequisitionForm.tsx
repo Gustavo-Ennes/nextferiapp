@@ -221,7 +221,7 @@ export const MaterialRequisitionForm = ({
       title: "Começar tudo novamente?",
       description:
         "Ao confirmar, você apagará todas as abas e seu conteúdo. Quer prosseguir?",
-      onConfirm: () => {
+      onConfirmAction: () => {
         setTabsData([]);
         handleDeleteWeeklySummary();
       },
@@ -233,7 +233,7 @@ export const MaterialRequisitionForm = ({
       title: "Excluir aba?",
       description:
         "Ao confirmar, todas os carros e abastecimentos dessa aba serão perdidos. Quer prosseguir?",
-      onConfirm: () => onTabClose(tabData),
+      onConfirmAction: () => onTabClose(tabData),
     });
   };
 
@@ -253,7 +253,7 @@ export const MaterialRequisitionForm = ({
         label: dept.name,
         value: dept._id,
       })),
-      onConfirm: (selectedDepartmentId) => {
+      onConfirmAction: (selectedDepartmentId) => {
         const selectedDepartment = departments.find(
           (dept) => dept._id === selectedDepartmentId,
         );
@@ -380,7 +380,7 @@ export const MaterialRequisitionForm = ({
                 <MaterialRequisitionTab
                   fuels={fuels}
                   data={tabData}
-                  onDataChange={onTabsDataChange}
+                  onDataChangeAction={onTabsDataChange}
                   weeklyFuelingSummary={weeklyFuellingSummary}
                 />
               </TabPanel>

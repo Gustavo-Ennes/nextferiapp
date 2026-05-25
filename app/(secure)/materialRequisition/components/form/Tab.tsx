@@ -13,12 +13,12 @@ import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 export const Tab = ({
   data: tabData,
-  onDataChange,
+  onDataChangeAction,
   fuels,
   weeklyFuelingSummary,
 }: {
   data: TabData;
-  onDataChange: (updatedTabData: TabData) => void;
+  onDataChangeAction: (updatedTabData: TabData) => void;
   fuels: FuelDTO[];
   weeklyFuelingSummary: WeeklyFuellingSummaryDTO | null;
 }) => {
@@ -50,12 +50,12 @@ export const Tab = ({
         populatedCar,
       ];
 
-    onDataChange(updatedTabData);
+    onDataChangeAction(updatedTabData);
     vehicleEquipInputRef?.current?.focus();
   };
 
   const removeCar = (prefixToDelete: number) => {
-    onDataChange({
+    onDataChangeAction({
       ...tabData,
       carEntries:
         tabData?.carEntries?.filter(
@@ -74,12 +74,12 @@ export const Tab = ({
   return (
     tabData && (
       <Box>
-        <TabForm onSubmit={submitData} tabData={tabData} fuels={fuels} />
+        <TabForm onSubmitAction={submitData} tabData={tabData} fuels={fuels} />
         <Divider sx={{ my: 2 }} />
         <CardsGrid
           tabData={tabData}
-          onRemove={removeCar}
-          onEdit={editCar}
+          onRemoveAction={removeCar}
+          onEditAction={editCar}
           weeklyFuelingSummary={weeklyFuelingSummary}
         />
       </Box>

@@ -32,13 +32,13 @@ import { getCarTotalValue } from "../../utils";
 
 export const CardsGrid = ({
   tabData,
-  onRemove,
-  onEdit,
+  onRemoveAction,
+  onEditAction,
   weeklyFuelingSummary,
 }: {
   tabData: TabData;
-  onRemove: (prefix: number) => void;
-  onEdit: (car: CarEntry) => void;
+  onRemoveAction: (prefix: number) => void;
+  onEditAction: (car: CarEntry) => void;
   weeklyFuelingSummary: WeeklyFuellingSummaryDTO | null;
 }) => {
   const { selectedCar } = useMaterialRequisitionForm();
@@ -51,7 +51,7 @@ export const CardsGrid = ({
     e.preventDefault();
     e.stopPropagation();
     openConfirmationDialog({
-      onConfirm: () => onRemove(car.prefix),
+      onConfirmAction: () => onRemoveAction(car.prefix),
       title: `Excluir o #${car.prefix}?`,
       description: `Ao confirmar, você irá excluir ${car.vehicle} permanentemente. Deseja proceder?`,
     });
@@ -61,7 +61,7 @@ export const CardsGrid = ({
     e.preventDefault();
     e.stopPropagation();
     openCarDetailDialog({
-      onConfirm: () => undefined,
+      onConfirmAction: () => undefined,
       title: "Detalhes",
       car,
     });
@@ -222,7 +222,7 @@ export const CardsGrid = ({
                 variant="contained"
                 size="small"
                 startIcon={<CheckCircleOutline />}
-                onClick={() => onEdit(car)}
+                onClick={() => onEditAction(car)}
                 sx={{
                   width: 140,
                   fontWeight: 600,

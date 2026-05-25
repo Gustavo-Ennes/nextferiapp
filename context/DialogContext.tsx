@@ -31,7 +31,7 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     setConfirmationDialogData({
       ...dialogData,
       openState: true,
-      onClose: () => setConfirmationDialogData(null),
+      onCloseAction: () => setConfirmationDialogData(null),
     });
   }, []);
 
@@ -43,7 +43,7 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     setInputDialogData({
       ...dialogData,
       openState: true,
-      onClose: () => setInputDialogData(null),
+      onCloseAction: () => setInputDialogData(null),
     });
   }, []);
 
@@ -55,7 +55,7 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     setCarDetailDialogData({
       ...dialogData,
       openState: true,
-      onClose: () => setCarDetailDialogData(null),
+      onCloseAction: () => setCarDetailDialogData(null),
     });
   }, []);
 
@@ -67,7 +67,7 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     setSelectDialogData({
       ...dialogData,
       openState: true,
-      onClose: () => setSelectDialogData(null),
+      onCloseAction: () => setSelectDialogData(null),
     });
   }, []);
 
@@ -75,18 +75,18 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
     setSelectDialogData(null);
   }, []);
 
-  const handleConfirmationConfirm = () => {
-    confirmationDialogData?.onConfirm?.();
+  const handleConfirmationConfirmAction = () => {
+    confirmationDialogData?.onConfirmAction?.();
     setConfirmationDialogData(null);
   };
 
   const handleInputConfirm = (externalInput?: string) => {
-    inputDialogData?.onConfirm?.(externalInput ?? inputDialogData?.input);
+    inputDialogData?.onConfirmAction?.(externalInput ?? inputDialogData?.input);
     setInputDialogData(null);
   };
 
   const handleSelectConfirm = (selectedValue?: string) => {
-    selectDialogData?.onConfirm?.(selectedValue);
+    selectDialogData?.onConfirmAction?.(selectedValue);
     setSelectDialogData(null);
   };
 
@@ -111,9 +111,9 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
 
       <ConfirmationDialog
         description={confirmationDialogData?.description}
-        onConfirm={handleConfirmationConfirm}
+        onConfirmAction={handleConfirmationConfirmAction}
         confirmLabel={confirmationDialogData?.confirmLabel}
-        onClose={() => confirmationDialogData?.onClose?.()}
+        onCloseAction={() => confirmationDialogData?.onCloseAction?.()}
         cancelLabel={confirmationDialogData?.cancelLabel}
         openState={confirmationDialogData?.openState ?? false}
         title={confirmationDialogData?.title ?? ""}
@@ -122,24 +122,24 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
         confirmLabel={inputDialogData?.confirmLabel}
         cancelLabel={inputDialogData?.cancelLabel}
         openState={inputDialogData?.openState ?? false}
-        onClose={() => inputDialogData?.onClose?.()}
+        onCloseAction={() => inputDialogData?.onCloseAction?.()}
         title={inputDialogData?.title ?? ""}
         description={inputDialogData?.description ?? ""}
-        onConfirm={handleInputConfirm}
+        onConfirmAction={handleInputConfirm}
         inputLabel={inputDialogData?.inputLabel}
         input={inputDialogData?.input}
       />
       <CarDetailDialog
         car={carDetailDialogData?.car}
-        onClose={() => carDetailDialogData?.onClose?.()}
+        onCloseAction={() => carDetailDialogData?.onCloseAction?.()}
         openState={carDetailDialogData?.openState ?? false}
         title={carDetailDialogData?.car?.prefix.toString() ?? "Detalhes"}
-        onConfirm={() => undefined}
+        onConfirmAction={() => undefined}
       />
       <SelectDialog
         options={selectDialogData?.options ?? []}
-        onConfirm={handleSelectConfirm}
-        onClose={() => selectDialogData?.onClose?.()}
+        onConfirmAction={handleSelectConfirm}
+        onCloseAction={() => selectDialogData?.onCloseAction?.()}
         openState={selectDialogData?.openState ?? false}
         title={selectDialogData?.title ?? "Selecione uma opção"}
       />

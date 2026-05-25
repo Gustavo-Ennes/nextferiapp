@@ -10,21 +10,21 @@ import {
 
 export const ConfirmationDialog = ({
   openState,
-  onClose,
-  onConfirm,
+  onCloseAction,
+  onConfirmAction,
   title,
   description,
   confirmLabel = "Confirmar",
   cancelLabel = "Cancelar",
 }: DialogOptions) => (
-  <Dialog open={openState ?? false} onClose={onClose}>
+  <Dialog open={openState ?? false} onClose={onCloseAction}>
     <DialogTitle>{title}</DialogTitle>
     <DialogContent>
       <Typography>{description}</Typography>
     </DialogContent>
     <DialogActions>
-      <Button onClick={onClose}>{cancelLabel}</Button>
-      <Button variant="contained" onClick={() => onConfirm()}>
+      <Button onClick={onCloseAction}>{cancelLabel}</Button>
+      <Button variant="contained" onClick={() => onConfirmAction()}>
         {confirmLabel}
       </Button>
     </DialogActions>

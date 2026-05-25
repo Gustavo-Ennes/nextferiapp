@@ -12,6 +12,7 @@ import {
   Typography,
   Button,
   Stack,
+  Tooltip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -34,6 +35,7 @@ export const ListPageDesktop = <T extends Entity>({
   onDelete,
   vacationType,
   contains,
+  warnings,
 }: ItemListProps<T>) => {
   const router = useRouter();
   const { setPdf } = usePdfPreview();
@@ -94,6 +96,16 @@ export const ListPageDesktop = <T extends Entity>({
   const isArray = (key: any, item: T) => Array.isArray(item[key as keyof T]);
   const isPriceVersion = (key: any) => key === "currentPriceVersion";
 
+  const hasWarning = (id: string) => warnings?.has(id);
+  const getWarningIcon = (id: string) => {
+    const values = warnings!.get(id);
+    return (
+      <Tooltip title={values?.items.join(".\n")}>
+        {values?.icon ?? <></>}
+      </Tooltip>
+    );
+  };
+
   return (
     <Box>
       <TableContainer component={Paper}>
@@ -118,7 +130,7 @@ export const ListPageDesktop = <T extends Entity>({
                 onClick={() => handleView(item._id as string)}
                 sx={{ zIndex: 1 }}
               >
-                {headers.map((key) => (
+                {headers.map((key, i) => (
                   <TableCell key={key}>
                     {key === "type"
                       ? translateEntityKey({
@@ -133,7 +145,10 @@ export const ListPageDesktop = <T extends Entity>({
                           isCurrency: isCurrency(key),
                           isArray: isArray(key, item),
                           isPriceVersion: isPriceVersion(key),
-                        })}
+                        })}{" "}
+                    {hasWarning(item._id as string) &&
+                      i === 0 &&
+                      getWarningIcon(item._id as string)}
                   </TableCell>
                 ))}
                 <TableCell align="center">

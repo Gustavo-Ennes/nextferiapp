@@ -13,8 +13,8 @@ import {
 import { useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
 
 export const InputDialog = ({
-  onClose,
-  onConfirm,
+  onCloseAction,
+  onConfirmAction,
   title,
   cancelLabel = "Cancelar",
   confirmLabel = "Criar",
@@ -34,14 +34,14 @@ export const InputDialog = ({
   ) => {
     e.preventDefault();
     e.stopPropagation();
-    onConfirm(internalInput);
-    onClose?.();
+    onConfirmAction(internalInput);
+    onCloseAction?.();
   };
 
   return (
     <Dialog
       open={openState ?? false}
-      onClose={onClose}
+      onClose={onCloseAction}
       slotProps={{ transition: { onEntered } }}
     >
       <DialogTitle>{title}</DialogTitle>
@@ -62,7 +62,7 @@ export const InputDialog = ({
         />
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{cancelLabel}</Button>
+        <Button onClick={onCloseAction}>{cancelLabel}</Button>
         <Button
           disabled={internalInput.length < 3}
           variant="contained"

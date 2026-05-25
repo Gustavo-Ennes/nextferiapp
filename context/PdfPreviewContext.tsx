@@ -107,7 +107,7 @@ export const PdfPreviewProvider = ({
         <PdfPreview
           items={items}
           open={open}
-          setOpen={setOpen}
+          setOpenAction={setOpen}
           opened={opened}
           openAfterLoad={shouldOpenAfterLoad}
         />

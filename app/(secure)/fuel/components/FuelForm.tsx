@@ -86,7 +86,7 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
       inputLabel: "Novo nome",
       confirmLabel: "Renomear",
       cancelLabel: "Cancelar",
-      onConfirm: async (newName?: string) => {
+      onConfirmAction: async (newName?: string) => {
         const trimmed = newName?.trim() ?? "";
         if (trimmed.length < 3) {
           addSnack({
@@ -188,7 +188,7 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
       description: label,
       confirmLabel: "Confirmar",
       cancelLabel: "Cancelar",
-      onConfirm: () => doSubmit(formData),
+      onConfirmAction: () => doSubmit(formData),
     });
   };
 

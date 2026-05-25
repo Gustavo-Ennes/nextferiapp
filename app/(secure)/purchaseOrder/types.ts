@@ -3,6 +3,7 @@ import type { PurchaseOrderValidator } from "@/lib/validators/purchaseOrder";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import type { DepartmentDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { RefObject } from "react";
 
 export type PurchaseOrderFormData = z.infer<typeof PurchaseOrderValidator>;
 
@@ -48,6 +49,7 @@ export interface PurchaseOrderUpdateOrderCardProps {
   index: number;
   total: number;
   status: SidebarStatus;
+  inputRefs: Record<string, RefObject<HTMLInputElement | null>>;
   onQtyChange: (itemIndex: number, value: number) => void;
   onKeep: () => void;
   onAdd: () => void;

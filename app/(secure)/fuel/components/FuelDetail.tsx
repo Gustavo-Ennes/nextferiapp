@@ -39,7 +39,7 @@ export function FuelDetail({ fuel }: FuelDetailParam) {
     openConfirmationDialog({
       title: "Excluir cadastro de combustível?",
       description: `Deseja excluir o combustível ${fuel.name}? Esta ação pode afetar relatórios de pedidos.`,
-      onConfirm: async () => {
+      onConfirmAction: async () => {
         setLoading(true);
         try {
           const res = await fetch(`/api/fuel/${fuel._id}`, {

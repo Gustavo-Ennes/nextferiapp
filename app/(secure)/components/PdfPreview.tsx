@@ -13,13 +13,13 @@ export const PdfPreview = ({
   open,
   opened,
   openAfterLoad,
-  setOpen,
+  setOpenAction,
 }: {
   items: PdfPreviewItem[];
   open: boolean;
   opened: boolean;
   openAfterLoad: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  setOpenAction: Dispatch<SetStateAction<boolean>>;
 }) => {
   const { addSnack } = useSnackbar();
   const [url, setUrl] = useState("");
@@ -38,7 +38,7 @@ export const PdfPreview = ({
         : "Clique no ícone flutuante para abrir seu pdf.",
     });
     if (!opened && openAfterLoad) {
-      setOpen(true);
+      setOpenAction(true);
     }
   };
 
@@ -64,7 +64,7 @@ export const PdfPreview = ({
   }, [items]);
 
   const handleOpen = () => {
-    setOpen((prev) => !prev);
+    setOpenAction((prev) => !prev);
   };
 
   const iconButton = !url ? (
