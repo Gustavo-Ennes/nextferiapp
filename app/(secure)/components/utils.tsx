@@ -11,15 +11,24 @@ import {
   CurrencyExchange,
   WaterDrop,
 } from "@mui/icons-material";
-import type { ListItemMenuItem, SearchProps } from "./types";
+import type { ListItemMenuItem, SearchProps, TimeSearchProps } from "./types";
 
-export const defineSearchPropsDefault = (
-  isExternal?: boolean | null,
-): SearchProps => {
+export const defineSearchPropsDefault = ({
+  isExternal,
+  time,
+}: {
+  isExternal?: boolean | null;
+  time?: TimeSearchProps | null;
+}): SearchProps => {
   const searchProps: SearchProps = {
     external: false,
     internal: false,
     active: true,
+    time: time ?? {
+      past: false,
+      future: false,
+      now: false,
+    },
   };
 
   if (isExternal === null || isExternal === undefined) return searchProps;

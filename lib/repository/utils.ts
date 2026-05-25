@@ -1,12 +1,20 @@
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { endOfDaySP, endOfHalfDay, startOfDaySP } from "@/app/utils";
-import { addDays, endOfYear, isSameMonth, startOfYear, toDate } from "date-fns";
+import {
+  addDays,
+  endOfYear,
+  isSameMonth,
+  startOfYear,
+  subDays,
+  toDate,
+} from "date-fns";
 import VacationModel from "@/models/Vacation";
 import { pluck, sum } from "ramda";
 import type { VacationDTO, WorkerDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import type { TimeSearchProps } from "@/app/(secure)/components/types";
 
 export const updateVacationDates = (
   payload: VacationFormData | Partial<VacationFormData>,
@@ -190,4 +198,71 @@ export const calculatePurchaseOrderPrices = ({
   }
 
   return order;
+};
+
+export const defineTimeConditions = ({
+  future,
+  past,
+  now,
+  to,
+  from,
+}: TimeSearchProps) => {
+  const conditions = [];
+  const today = startOfDaySP(new Date());
+
+  if (to || from) {
+    const period =
+      from || to
+        ? {
+            ...(from && { start: startOfDaySP(from) }),
+            ...(to && { end: endOfDaySP(to) }),
+          }
+        : undefined;
+
+    if (period && period.start && period.end) {
+      // overlap check: existing.start <= period.end AND existing.end >= period.start
+      conditions.push({
+        startDate: { $lte: period.end },
+        endDate: { $gte: period.start },
+      });
+    } else if (period && period.start) {
+      conditions.push({
+        endDate: { $gte: period.start },
+      });
+    } else if (period && period.end) {
+      conditions.push({
+        startDate: { $lte: period.end },
+      });
+    }
+  } else if (future || now || past) {
+    const futureCondition = { startDate: { $gte: addDays(today, 1) } };
+    const pastCondition = { endDate: { $lte: subDays(today, 1) } };
+    const nowCondition = {
+      startDate: { $lte: endOfDaySP(today) },
+      endDate: { $gte: today },
+    };
+
+    if (future && past && now) return null;
+    else if (future && past) {
+      conditions.push({
+        $or: [futureCondition, pastCondition],
+      });
+    } else if (future && now) {
+      conditions.push({
+        $or: [futureCondition, nowCondition],
+      });
+    } else if (past && now) {
+      conditions.push({
+        $or: [pastCondition, nowCondition],
+      });
+    } else if (future) {
+      conditions.push(futureCondition);
+    } else if (past) {
+      conditions.push(pastCondition);
+    } else if (now) {
+      conditions.push(nowCondition);
+    } else return null;
+  }
+
+  return conditions;
 };

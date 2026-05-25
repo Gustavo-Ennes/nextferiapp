@@ -15,6 +15,7 @@ import type {
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { PAGINATION_LIMIT } from "@/app/api/utils";
 import {
+  defineTimeConditions,
   updateVacationDates,
   validateDayOffsQuantity,
   validateOverlappingVacations,
@@ -58,12 +59,11 @@ export const VacationRepository: Repository<VacationDTO, VacationFormData> = {
   },
 
   async find({
-    page,
+    page = 1,
     type,
     worker,
     contains,
-    from,
-    to,
+    time,
     cancelled,
     exclude,
   }: SearchParams): Promise<PaginatedResponse<VacationDTO>> {
@@ -71,13 +71,6 @@ export const VacationRepository: Repository<VacationDTO, VacationFormData> = {
 
     const skip = ((page as number) - 1) * (PAGINATION_LIMIT as number);
     const typeFilter = type === "all" ? undefined : !type ? "normal" : type;
-    const period =
-      from || to
-        ? {
-            ...(from && { start: startOfDaySP(from) }),
-            ...(to && { end: endOfDaySP(to) }),
-          }
-        : undefined;
 
     const conditions = [];
 
@@ -92,27 +85,13 @@ export const VacationRepository: Repository<VacationDTO, VacationFormData> = {
       conditions.push({ _id: { $ne: new Types.ObjectId(exclude) } });
     }
 
-    if (cancelled !== null && cancelled !== undefined)
+    if (cancelled !== null && cancelled !== undefined) {
       conditions.push({ cancelled });
-
-    const periodConditions: any[] = [];
-    if (period && period.start && period.end) {
-      // overlap check: existing.start <= period.end AND existing.end >= period.start
-      conditions.push({
-        startDate: { $lte: period.end },
-        endDate: { $gte: period.start },
-      });
-    } else if (period && period.start) {
-      conditions.push({
-        endDate: { $gte: period.start },
-      });
-    } else if (period && period.end) {
-      conditions.push({
-        startDate: { $lte: period.end },
-      });
     }
 
-    if (periodConditions.length > 0) {
+    const periodConditions = time ? defineTimeConditions(time) : undefined;
+
+    if (periodConditions && periodConditions.length > 0) {
       conditions.push(periodConditions[0]);
     }
 

@@ -10,25 +10,19 @@ import {
   TextField,
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
-import type { EntityType } from "@/app/types";
 import { useEffect, useState } from "react";
-import type { SearchProps } from "./types";
+import type { SearchProps, SearchParams } from "./types";
 import { defineIsExternal, defineSearchPropsDefault } from "./utils";
 
 export const Search = ({
-  handleSearch,
+  handleSearchAction,
   routePrefix,
   enabledProps,
   isExternal,
-}: {
-  handleSearch: (term: string, isExternal?: boolean) => void;
-  routePrefix: EntityType;
-  enabledProps: SearchProps;
-  isExternal?: boolean | null;
-}) => {
+}: SearchParams) => {
   const [term, setTerm] = useState("");
   const [searchProps, setSearchProps] = useState<SearchProps>(
-    defineSearchPropsDefault(isExternal)
+    defineSearchPropsDefault({ isExternal, time: enabledProps.time }),
   );
 
   const handleChangeExternality = (externability: boolean) =>
@@ -39,12 +33,65 @@ export const Search = ({
 
   const handleChangeTerm = (newTerm: string) => setTerm(newTerm);
 
+  const handleChangePast = (past: boolean) =>
+    setSearchProps((prev) => ({ ...prev, time: { ...prev.time, past } }));
+  const handleChangeFuture = (future: boolean) =>
+    setSearchProps((prev) => ({ ...prev, time: { ...prev.time, future } }));
+  const handleChangeNow = (now: boolean) =>
+    setSearchProps((prev) => ({ ...prev, time: { ...prev.time, now } }));
+
   useEffect(() => {
-    handleSearch(term, defineIsExternal(searchProps));
+    handleSearchAction({
+      term,
+      isExternal: defineIsExternal(searchProps),
+      ...searchProps?.time,
+    });
   }, [term, searchProps]);
 
   return (
     <Stack direction="row" spacing={2} justifyContent="end">
+      {enabledProps.time?.past && (
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={Boolean(searchProps.time?.past)}
+                onChange={(e) => handleChangePast(e.target.checked)}
+              />
+            }
+            slotProps={{ typography: { fontSize: 12 } }}
+            label="Passadas?"
+          />
+        </FormGroup>
+      )}
+      {enabledProps.time?.future && (
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={Boolean(searchProps.time?.future)}
+                onChange={(e) => handleChangeFuture(e.target.checked)}
+              />
+            }
+            slotProps={{ typography: { fontSize: 12 } }}
+            label="Futuras?"
+          />
+        </FormGroup>
+      )}
+      {enabledProps.time?.now && (
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={Boolean(searchProps.time?.now)}
+                onChange={(e) => handleChangeNow(e.target.checked)}
+              />
+            }
+            slotProps={{ typography: { fontSize: 12 } }}
+            label="Acontecendo?"
+          />
+        </FormGroup>
+      )}
       {enabledProps.external && (
         <FormGroup>
           <FormControlLabel

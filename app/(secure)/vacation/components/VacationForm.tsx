@@ -162,7 +162,7 @@ export function VacationForm({
       fetchAllAPI({
         worker: watchForm.worker,
         type,
-        from: startOfYear(toDate(watchForm.startDate)),
+        time: {from: startOfYear(toDate(watchForm.startDate))},
         cancelled: false,
       }).then(({ data: authorizedDayOffs }) => {
         const yearlyDayOffSum = sum(pluck("duration", authorizedDayOffs));
