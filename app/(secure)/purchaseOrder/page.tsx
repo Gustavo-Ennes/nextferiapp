@@ -1,7 +1,7 @@
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
 import type { RawSearchParams } from "../types";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
-import { getOrderWarningsMap } from "./utils";
+import { getPurchaseOrderRowFlags } from "./utils";
 import { PurchaseOrderList } from "./components/PurchaseOrderList";
 
 const PurchaseOrderListServer = async ({
@@ -17,7 +17,7 @@ const PurchaseOrderListServer = async ({
   });
   const fuels = await FuelRepository.findWithoutPagination!({});
 
-  const warnings = getOrderWarningsMap({
+  const rowFlags = getPurchaseOrderRowFlags({
     orders: paginatedResponse.data,
     fuels,
   });
@@ -27,7 +27,7 @@ const PurchaseOrderListServer = async ({
       paginatedResponse={paginatedResponse}
       routePrefix="purchaseOrder"
       contains={contains}
-      warnings={warnings}
+      rowFlags={rowFlags}
     />
   );
 };

@@ -3,6 +3,7 @@ import type { EntityType } from "../types";
 import type { VacationTypeParam } from "@/lib/repository/vacation/types";
 import type { Repository } from "@/lib/repository/types";
 import type { PeriodOptionsType } from "../api/types";
+import type { TimeSearchProps } from "./components/types";
 
 export type SearchParam = "type" | "page" | "cancelled" | "isActive";
 
@@ -16,8 +17,7 @@ export type SearchParams = {
   contains?: string | null;
   isExternal?: boolean | null;
   hasWorkers?: boolean | null;
-  from?: Date | null;
-  to?: Date | null;
+  time?: TimeSearchProps;
   exclude?: string | null;
   timePeriod?: PeriodOptionsType | null;
 };
@@ -40,6 +40,9 @@ export type RawSearchParams = {
   isExternal?: string | null;
   from?: string | null;
   to?: string | null;
+  past?: string | null;
+  future?: string | null;
+  now?: string | null;
 };
 
 export type FetchOneParam = {

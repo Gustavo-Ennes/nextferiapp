@@ -35,7 +35,7 @@ export const ListPageDesktop = <T extends Entity>({
   onDelete,
   vacationType,
   contains,
-  warnings,
+  rowFlags,
 }: ItemListProps<T>) => {
   const router = useRouter();
   const { setPdf } = usePdfPreview();
@@ -96,13 +96,17 @@ export const ListPageDesktop = <T extends Entity>({
   const isArray = (key: any, item: T) => Array.isArray(item[key as keyof T]);
   const isPriceVersion = (key: any) => key === "currentPriceVersion";
 
-  const hasWarning = (id: string) => warnings?.has(id);
+  const hasWarning = (id: string) => rowFlags?.has(id);
   const getWarningIcon = (id: string) => {
-    const values = warnings!.get(id);
+    const flags = rowFlags?.get(id);
     return (
-      <Tooltip title={values?.items.join(".\n")}>
-        {values?.icon ?? <></>}
-      </Tooltip>
+      <>
+        {flags?.map((f) => (
+          <Tooltip title={f?.message} arrow>
+            {f?.icon ?? <></>}
+          </Tooltip>
+        ))}
+      </>
     );
   };
 

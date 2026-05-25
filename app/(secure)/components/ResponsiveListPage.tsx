@@ -11,7 +11,7 @@ import { useDialog } from "@/context/DialogContext";
 import type { Entity } from "@/app/types";
 import { useRouter as useInternalRouter } from "@/context/RouterContext";
 import { useRouter } from "next/navigation";
-import type { ResponsiveListPageParam } from "./types";
+import type { HandleSearchParam, ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
 import { useState } from "react";
@@ -29,7 +29,7 @@ const ResponsiveListPage = <T extends Entity>({
   contains,
   isExternal,
   menuItems,
-  warnings,
+  rowFlags,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const { addSnack } = useSnackbar();
@@ -38,8 +38,9 @@ const ResponsiveListPage = <T extends Entity>({
   const internalRouter = useInternalRouter();
   const router = useRouter();
   const [search, setSearch] = useState(contains);
-  const useExternalFilter = routePrefix === "boss" || routePrefix === "worker";
   const { setLoading } = useLoading();
+  const useExternalFilter = routePrefix === "boss" || routePrefix === "worker";
+  const includeTimeInSearchProps = routePrefix === "vacation";
 
   const traslatedEntityName = translateEntityKey({
     entity: routePrefix,
@@ -106,17 +107,33 @@ const ResponsiveListPage = <T extends Entity>({
     });
   };
 
-  const handleSearch = (term: string, isExternal?: boolean) => {
+  const handleSearch = ({
+    term,
+    isExternal,
+    future,
+    past,
+    now,
+  }: HandleSearchParam) => {
     setSearch(term);
-    const isExternalString = String(isExternal);
 
-    router.replace(
-      `/${routePrefix}${
-        vacationType && vacationType !== "normal" ? `/${vacationType}` : ""
-      }?page=1${term ? `&contains=${encodeURIComponent(term)}` : ""}${
-        isExternal !== undefined ? `&isExternal=${isExternalString}` : ""
-      }`,
-    );
+    const isExternalString = String(isExternal);
+    const isPastString = String(past);
+    const isFutureString = String(future);
+    const isNowString = String(now);
+    const pastString = past ? `&past=${isPastString}` : "";
+    const futureString = future ? `&future=${isFutureString}` : "";
+    const nowString = now ? `&now=${isNowString}` : "";
+
+    let route = `/${routePrefix}${vacationType && vacationType !== "normal" ? `/${vacationType}` : ""}?page=1`;
+
+    route += term ? `&contains=${encodeURIComponent(term)}` : "";
+    route += isExternal !== undefined ? `&isExternal=${isExternalString}` : "";
+
+    if (past) route += pastString;
+    if (future) route += futureString;
+    if (now) route += nowString;
+
+    router.replace(route);
   };
 
   const titleFromRoutePrefix = translateEntityKey({
@@ -134,7 +151,7 @@ const ResponsiveListPage = <T extends Entity>({
           textAlign={isMobile ? "center" : "left"}
           color="primary"
         >
-          {pageTitle ?? titleFromRoutePrefix}{" "}
+          {pageTitle ?? titleFromRoutePrefix}
         </Typography>
       </Grid>
 
@@ -160,13 +177,16 @@ const ResponsiveListPage = <T extends Entity>({
 
       <Grid size={12}>
         <Search
-          handleSearch={handleSearch}
+          handleSearchAction={handleSearch}
           routePrefix={routePrefix}
           isExternal={isExternal}
           enabledProps={{
             active: true,
             external: useExternalFilter,
             internal: useExternalFilter,
+            ...(includeTimeInSearchProps && {
+              time: { past: true, future: true, now: true },
+            }),
           }}
         />
       </Grid>
@@ -186,7 +206,7 @@ const ResponsiveListPage = <T extends Entity>({
             onDelete={(entity) => handleConfirmDelete(entity)}
             vacationType={vacationType}
             contains={search}
-            warnings={warnings}
+            rowFlags={rowFlags}
           />
         )}
       </Grid>

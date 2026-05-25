@@ -4,7 +4,7 @@ import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import type { SidebarStatus } from "./types";
 import { capitalizeName } from "@/app/utils";
-import type { ListPageWarning, ListPageWarnings } from "../components/types";
+import type { RowFlag, ListPageRowFlags } from "../components/types";
 import { PriorityHigh } from "@mui/icons-material";
 
 export const translateFuelType = (fuelName: string): string => {
@@ -103,17 +103,17 @@ export const abbreviateFuel = (fuelName: string): string => {
   return capitalizeName(abbreviation);
 };
 
-export const getOrderWarningsMap = ({
+export const getPurchaseOrderRowFlags = ({
   orders,
   fuels,
 }: {
   orders: PurchaseOrderDTO[];
   fuels: FuelDTO[];
-}): ListPageWarnings => {
-  const map = new Map<string, ListPageWarning>();
+}): ListPageRowFlags => {
+  const map = new Map<string, RowFlag[]>();
 
   orders.forEach((order) => {
-    const orderWarnings: string[] = [];
+    let message = "";
     let orderStatus: "success" | "error" | "warning" = "success";
 
     order.items.forEach((item) => {
@@ -127,24 +127,29 @@ export const getOrderWarningsMap = ({
         itemFuelVersion.version
       ) {
         orderStatus = "error";
-        orderWarnings.push(
-          `Versão desatualizada para ${itemFuel.name}: atual é v${(itemFuel.currentPriceVersion as FuelPriceVersionDTO).version} e o pedido usa v${itemFuelVersion.version}`,
-        );
+        message = `Versão desatualizada para ${itemFuel.name}: atual é v${(itemFuel.currentPriceVersion as FuelPriceVersionDTO).version} e o pedido usa v${itemFuelVersion.version}.`;
       }
 
       if (item.quantity < 10) {
         orderStatus = orderStatus === "error" ? orderStatus : "warning";
-        orderWarnings.push(
-          `Baixa quantidade para  ${itemFuel.name}: ${item.quantity} litros`,
-        );
+
+        if (message) {
+          message += ", ";
+        } else {
+          message = message.replace(".", "");
+        }
+
+        message += `${message ? "b" : "B"}aixa quantidade para  ${itemFuel.name}: ${item.quantity} litros.`;
       }
     });
 
-    if (orderWarnings.length > 0)
-      map.set(order._id, {
-        items: orderWarnings,
-        icon: <PriorityHigh color={orderStatus} />,
-      });
+    if (message.length > 0)
+      map.set(order._id, [
+        {
+          message,
+          icon: <PriorityHigh color={orderStatus} />,
+        },
+      ]);
   });
 
   return map;

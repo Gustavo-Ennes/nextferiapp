@@ -12,6 +12,7 @@ import { WorkerRepository } from "../worker/worker";
 import type { BossDTO, WorkerDTO } from "@/dto";
 import { parseBosses, toBossDTO } from "./parse";
 import dbConnect from "@/lib/database/database";
+import { endOfDaySP, startOfDaySP } from "@/app/utils";
 
 export const BossRepository: Repository<BossDTO, BossFormData> = {
   async find({
@@ -94,6 +95,31 @@ export const BossRepository: Repository<BossDTO, BossFormData> = {
       hasPrevPage,
       limit: PAGINATION_LIMIT,
     };
+  },
+
+  async findWithoutPagination(params: SearchParams) {
+    let page = 1;
+    let shouldFetchNextPage = false;
+    let to;
+    let from;
+    const bosses: BossDTO[] = [];
+    const today = new Date();
+
+    if (params.timePeriod == "past") to = endOfDaySP(today);
+    else if (params.timePeriod === "future") from = startOfDaySP(today);
+
+    do {
+      const { data: bossPage, hasNextPage } = await this.find({
+        ...params,
+        ...(params.timePeriod && to && { to }),
+        ...(params.timePeriod && from && { from }),
+        page: page++,
+      });
+      bosses.push(...bossPage);
+      shouldFetchNextPage = hasNextPage;
+    } while (shouldFetchNextPage);
+
+    return bosses;
   },
 
   async create(payload: BossFormData): Promise<BossDTO> {

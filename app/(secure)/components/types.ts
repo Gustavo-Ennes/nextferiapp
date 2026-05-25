@@ -5,12 +5,12 @@ import type { PdfPreviewTypeProp } from "@/context/types";
 import type { Types } from "mongoose";
 import type { VacationType } from "@/lib/repository/vacation/types";
 
-export type ListPageWarning = {
-  items: string[];
+export type RowFlag = {
+  message: string;
   icon: JSX.Element;
 };
 
-export type ListPageWarnings = Map<string, ListPageWarning>;
+export type ListPageRowFlags = Map<string, RowFlag[]>;
 
 export type MenuParam = {
   items: MenuItem[];
@@ -23,7 +23,7 @@ export interface ItemListProps<T extends { _id: Types.ObjectId | string }> {
   onDelete: (entity: Entity) => void;
   vacationType?: VacationType | null;
   contains?: string | null;
-  warnings?: ListPageWarnings;
+  rowFlags?: ListPageRowFlags;
 }
 
 export type MenuItem = {
@@ -53,7 +53,7 @@ export type ResponsiveListPageParam<T> = {
   contains?: string | null;
   isExternal?: boolean | null;
   menuItems?: MenuItem[];
-  warnings?: ListPageWarnings;
+  rowFlags?: ListPageRowFlags;
 };
 
 export type DataListItem = {
@@ -62,8 +62,29 @@ export type DataListItem = {
   id: string;
 };
 
+export type TimeSearchProps = {
+  past?: boolean | null;
+  future?: boolean | null;
+  now?: boolean | null;
+  to?: Date | null;
+  from?: Date | null;
+};
+
 export type SearchProps = {
   external: boolean;
   internal: boolean;
   active: boolean;
+  time?: TimeSearchProps;
 };
+
+export type SearchParams = {
+  handleSearchAction: (p: HandleSearchParam) => void;
+  routePrefix: EntityType;
+  enabledProps: SearchProps;
+  isExternal?: boolean | null;
+};
+
+export type HandleSearchParam = {
+  term: string;
+  isExternal?: boolean;
+} & TimeSearchProps;

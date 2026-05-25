@@ -7,6 +7,10 @@ import type {
   SearchParams,
 } from "./types";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import type { RowFlag, ListPageRowFlags } from "./components/types";
+import type { BossDTO, DepartmentDTO, WorkerDTO } from "@/dto";
+import { capitalizeFirstLetter, capitalizeName } from "../utils";
+import { PersonPin } from "@mui/icons-material";
 
 export const deleteWeeklySummary = async (id: string) => {
   const url = `/api/weeklyFuellingSummary/${id}`;
@@ -105,3 +109,68 @@ export const concatSearchParams = ({
 
 export const limitText = (text: string): string =>
   text.length < 25 ? text : `${text.slice(0, 22)}...`;
+
+export const getWorkersInCharge = ({
+  bosses,
+  departments,
+}: {
+  bosses: BossDTO[];
+  departments: DepartmentDTO[];
+}): ListPageRowFlags => {
+  const returnMap: ListPageRowFlags = new Map<string, RowFlag[]>();
+  const workerHeadsXDepartments = new Map<string, DepartmentDTO[]>();
+  const icon = <PersonPin color="primary" />;
+
+  departments.forEach((department) => {
+    const { _id, responsible, name } = department;
+    const castedWorker = bosses.find(
+      (b) => b._id === (responsible as BossDTO)._id,
+    )?.worker as WorkerDTO;
+    const departmentName = capitalizeName(name.toLowerCase());
+
+    if (!castedWorker)
+      throw new Error(
+        `None active worker is heading department ${departmentName}(department._id = ${_id})`,
+      );
+
+    const workerName = capitalizeName(castedWorker.name.toLowerCase());
+
+    if (returnMap.has(castedWorker._id)) {
+      const workerDepartments = Array.from(
+        workerHeadsXDepartments.get(castedWorker._id)?.values() ?? [],
+      );
+      const dept1Name = capitalizeFirstLetter(
+        workerDepartments[0].name.toLowerCase(),
+      );
+      const dept2Name = workerDepartments[1]
+        ? capitalizeFirstLetter(workerDepartments[1].name.toLowerCase())
+        : "";
+      const dept3Name = workerDepartments[2]
+        ? capitalizeFirstLetter(workerDepartments[2].name.toLowerCase())
+        : "";
+
+      const message = dept3Name
+        ? `Servidor chefia ${workerDepartments.length} departamentos, incluindo ${dept1Name}, ${dept2Name} e ${dept3Name}.`
+        : `Servidor chefia ${workerDepartments.length} departamentos, incluindo ${dept1Name}${dept2Name ? ` e ${dept2Name}` : ""}.`;
+
+      returnMap.set(castedWorker._id, [
+        {
+          icon,
+          message,
+        },
+      ]);
+      workerHeadsXDepartments.set(castedWorker._id, [
+        ...workerDepartments,
+        department,
+      ]);
+      return;
+    } else {
+      const message = `${workerName} chefia o departamento de ${departmentName}`;
+
+      workerHeadsXDepartments.set(castedWorker._id, [department]);
+      returnMap.set(castedWorker._id, [{ icon, message }]);
+    }
+  });
+
+  return returnMap;
+};

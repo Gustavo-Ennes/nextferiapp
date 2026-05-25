@@ -23,13 +23,15 @@ export async function GET(req: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1", 10);
     const worker = searchParams.get("worker");
     const contains = searchParams.get("contains");
-    const from = searchParams.get("from");
-    const to = searchParams.get("to");
+    const past = parseBool(searchParams.get("past"));
+    const now = parseBool(searchParams.get("now"));
+    const future = parseBool(searchParams.get("future"));
+    const fromRaw = searchParams.get("from");
+    const toRaw = searchParams.get("to");
     const cancelled = parseBool(searchParams.get("cancelled"));
     const exclude = searchParams.get("exclude");
-    const fromDate = from ? startOfDaySP(new Date(from)) : null;
-    const toDate = to ? endOfDay(startOfDaySP(new Date(to))) : null;
-
+    const from = fromRaw ? startOfDaySP(new Date(fromRaw)) : null;
+    const to = toRaw ? endOfDay(startOfDaySP(new Date(toRaw))) : null;
 
     //TIRAR LOGS, TESTES, BUILD, MERGE
 
@@ -38,8 +40,7 @@ export async function GET(req: NextRequest) {
       page,
       worker,
       contains,
-      from: fromDate,
-      to: toDate,
+      time: { past, now, future, from, to },
       cancelled,
       exclude,
     });

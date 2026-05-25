@@ -145,8 +145,7 @@ export const checkOverlappingVacations = async (
   const { data: conflicting } = await fetchAllAPI({
     worker: watchForm.worker,
     type: "all",
-    from,
-    to,
+    time: { from, to },
     cancelled: false,
     ...(id && { exclude: id }),
   });
