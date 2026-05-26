@@ -9,8 +9,17 @@ const LicenseList = async ({
 }: {
   searchParams: Promise<RawSearchParams>;
 }) => {
-  const { page, contains, cancelled } = await searchParams;
+  const { page, contains, cancelled, past, now, future } = await searchParams;
   const cancelledBool = parseBool(cancelled);
+  const pastBool = parseBool(past);
+  const futureBool = parseBool(future);
+  const nowBool = parseBool(now);
+
+  const hasTimeParam =
+    (pastBool !== null && pastBool !== undefined) ||
+    (futureBool !== null && futureBool !== undefined) ||
+    (nowBool !== null && nowBool !== undefined);
+
   const params: SearchParams = {
     type: "license",
     page: page ? (parseInt(page) ?? 1) : 1,
@@ -19,6 +28,13 @@ const LicenseList = async ({
       cancelledBool !== null && cancelledBool !== undefined
         ? cancelledBool
         : false,
+    time: hasTimeParam
+      ? {
+          past: pastBool ?? undefined,
+          future: futureBool ?? undefined,
+          now: nowBool ?? undefined,
+        }
+      : undefined,
   };
 
   const paginatedResponse = await VacationRepository.find(params);
