@@ -5,7 +5,6 @@ import {
   endOfYear,
   isSameMonth,
   startOfYear,
-  subDays,
   toDate,
 } from "date-fns";
 import VacationModel from "@/models/Vacation";
@@ -236,10 +235,10 @@ export const defineTimeConditions = ({
     }
   } else if (future || now || past) {
     const futureCondition = { startDate: { $gte: addDays(today, 1) } };
-    const pastCondition = { endDate: { $lte: subDays(today, 1) } };
+    const pastCondition = { endDate: { $lte: today } };
     const nowCondition = {
-      startDate: { $lte: endOfDaySP(today) },
-      endDate: { $gte: today },
+      startDate: { $lt: addDays(today, 1) },
+      endDate: { $gt: today },
     };
 
     if (future && past && now) return null;
