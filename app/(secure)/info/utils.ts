@@ -76,16 +76,17 @@ export const splitPurchaseOrderByValidFuelVersion = ({
 export const getWorkersByStatus = (
   workers: WorkerDTO[],
 ): GetWorkerByStatusReturn => {
-  const activeWorkers = workers.filter(
+  const [active, inactive] = partition(
     (worker) => worker.isActive === true,
-  ).length;
-  const inactiveWorkers = workers.filter(
-    (worker) => worker.isActive === false,
-  ).length;
-  const externalWorkers = workers.filter(
+    workers,
+  );
+
+  const activeWorkers = active.length;
+  const inactiveWorkers = inactive.length;
+  const externalWorkers = active.filter(
     (worker) => worker.isExternal == true,
   ).length;
-  const internalWorkers = workers.filter(
+  const internalWorkers = active.filter(
     (worker) => worker.isExternal === false,
   ).length;
 

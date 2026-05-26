@@ -1,7 +1,7 @@
 import type {
   VacationPeriod,
   VacationType,
-} from "@/app/(secure)/vacation/types";
+} from "@/lib/repository/vacation/types";
 import type { Types } from "mongoose";
 
 export type RawWorker = {

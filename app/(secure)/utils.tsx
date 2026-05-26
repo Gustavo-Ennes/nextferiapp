@@ -1,4 +1,4 @@
-import { isEmpty, prop, uniqBy } from "ramda";
+import { dissoc, isEmpty, prop, uniqBy } from "ramda";
 import type { Response } from "../api/types";
 import type { Entity } from "../types";
 import type {
@@ -89,8 +89,11 @@ export const concatSearchParams = ({
   params?: SearchParams;
 }): string => {
   if (params && !isEmpty(params)) {
+    const spreadedTimeParams = params?.time
+      ? { ...dissoc("time", params), ...params.time }
+      : params;
     const url = "?".concat(
-      Object.entries(params)
+      Object.entries(spreadedTimeParams)
         .map(
           ([key, value]) =>
             `${key}=${
