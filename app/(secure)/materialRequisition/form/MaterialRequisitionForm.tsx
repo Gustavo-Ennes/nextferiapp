@@ -44,6 +44,7 @@ import { MaterialRequisitionHeader } from "../components/form/MaterialRequisitio
 import { useDialog } from "@/context/DialogContext";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { DepartmentDTO } from "@/dto";
+import { capitalizeFirstLetter } from "@/app/utils";
 
 export const MaterialRequisitionForm = ({
   actualWeeklyFuelingSummary,
@@ -239,12 +240,15 @@ export const MaterialRequisitionForm = ({
   };
 
   const availableDepartments = useMemo(() => {
-    return departments.filter(
-      (dept) =>
-        !tabsData.some(
-          (tab) => (tab.department as DepartmentDTO)._id === dept._id,
-        ),
-    );
+    return departments
+      .filter(
+        (dept) =>
+          !tabsData.some(
+            (tab) => (tab.department as DepartmentDTO)._id === dept._id,
+          ),
+      )
+      .map((d) => ({ ...d, name: capitalizeFirstLetter(d.name) }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [departments, tabsData]);
 
   const openNewTabDialog = () => {
@@ -302,7 +306,10 @@ export const MaterialRequisitionForm = ({
               <Grid size={6} justifyContent="flex-end">
                 <Typography variant="h6" color="text.secondary" align="right">
                   Total do{" "}
-                  {(selectedTabData?.department as DepartmentDTO)?.name} R${" "}
+                  {capitalizeFirstLetter(
+                    (selectedTabData?.department as DepartmentDTO)?.name,
+                  )}{" "}
+                  R${" "}
                   {getDepartmentTotalValue(
                     (selectedTabData?.department as DepartmentDTO)?._id,
                   ).toFixed(2)}
@@ -356,8 +363,9 @@ export const MaterialRequisitionForm = ({
               <Tab
                 key={idx}
                 label={
-                  (tabData.department as DepartmentDTO)?.name ??
-                  `Departamento ${idx + 1}`
+                  capitalizeFirstLetter(
+                    (tabData.department as DepartmentDTO)?.name,
+                  ) ?? `Departamento ${idx + 1}`
                 }
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
                 sx={{ fontSize: 12, zIndex: 1 }}
