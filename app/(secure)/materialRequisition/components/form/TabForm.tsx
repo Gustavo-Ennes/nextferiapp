@@ -63,6 +63,15 @@ export const TabForm = ({
     prefixExistsInTabData({ prefix, tabData }) &&
     prefix !== selectedCar?.prefix;
 
+  const shouldDisableSumbit =
+    !vehicle ||
+    !prefix ||
+    !fuel ||
+    !isSelectedCarEditing() ||
+    (prefixExists && selectedCar?.prefix !== prefix) ||
+    (fuelings.length === 0 && mode === "create") ||
+    (fuelings.length > 0 && mode === "remove");
+
   return (
     <Grid container component={Box} spacing={2} alignContent="start">
       <Grid size={7}>
@@ -94,14 +103,7 @@ export const TabForm = ({
         <Button
           variant="contained"
           onClick={handleSubmit}
-          disabled={
-            !vehicle ||
-            !prefix ||
-            !isSelectedCarEditing() ||
-            (prefixExists && selectedCar?.prefix !== prefix) ||
-            (fuelings.length === 0 && mode === "create") ||
-            (fuelings.length > 0 && mode === "remove")
-          }
+          disabled={shouldDisableSumbit}
         >
           {buttonLabel}
         </Button>

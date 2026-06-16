@@ -100,7 +100,7 @@ export const TabFormFuelings = ({
         <Button
           variant="outlined"
           onClick={handleAddFueling}
-          disabled={!date || quantity <= 0}
+          disabled={!date || quantity <= 0 || !fuel || !vehicle || !prefix}
         >
           +
         </Button>
