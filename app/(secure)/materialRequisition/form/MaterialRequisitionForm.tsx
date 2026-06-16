@@ -186,15 +186,16 @@ export const MaterialRequisitionForm = ({
 
     if (newTabData.carEntries.length > 0) {
       setTabsData(insert(tabDataId, newTabData, anotherTabs));
+      setSelectedTabData(newTabData);
     } else {
       const firstElement = head(reject(isNil, tabsData));
       const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
 
       setTabsData(anotherTabs);
-      setActiveTab(newActiveTab);
       setSelectedTabData(anotherTabs[newActiveTab] ?? null);
-      setSelectedCar(null);
+      setActiveTab(newActiveTab);
     }
+    setSelectedCar(null);
   };
 
   const onTabClose = (tabData: TabData) => {

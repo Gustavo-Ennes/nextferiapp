@@ -41,7 +41,7 @@ export const MaterialRequisitionFormProvider = ({
     (selectedCar?.fuel as string) ?? "",
   );
   const [date, _setDate] = useState(
-    selectedCar?.fuelings[0]?.date ?? new Date().toISOString(),
+    selectedCar?.fuelings?.[0]?.date ?? new Date().toISOString(),
   );
   const [quantity, _setQuantity] = useState(0);
   const [kmHr, _setKmHr] = useState<number | null>(null);

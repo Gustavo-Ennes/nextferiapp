@@ -50,13 +50,14 @@ export const TabFormInfo = ({
       const carToSelect = selectedTabData?.carEntries?.find(
         (car) => car.prefix === prefix,
       );
+
       const unpopulatedCarToSelect = {
         ...carToSelect,
         fuel: (carToSelect?.fuel as FuelDTO)?._id ?? carToSelect?.fuel,
       };
       setSelectedCar((unpopulatedCarToSelect as CarEntry) ?? null);
       dateInputRef?.current?.focus();
-    }
+    } else if (e.key === "Enter" && !prefixExists) setSelectedCar(null);
   };
 
   return (
