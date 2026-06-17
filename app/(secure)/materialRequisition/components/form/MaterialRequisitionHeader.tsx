@@ -64,11 +64,9 @@ export const MaterialRequisitionHeader = ({
         <MaterialRequisitionCard
           icon={<WaterDrop />}
           data={{
-            total: countAllLiters(tabsData).toString(),
+            total: countAllLiters(tabsData).toFixed(3),
             ...(selectedTabData && {
-              selected: parseFloat(
-                countAllLiters([selectedTabData]).toFixed(3),
-              ).toString(),
+              selected: countAllLiters([selectedTabData]).toFixed(3),
             }),
           }}
           label={"Litragem"}
@@ -79,11 +77,9 @@ export const MaterialRequisitionHeader = ({
         <MaterialRequisitionCard
           icon={<Straighten />}
           data={{
-            total: countAllKms(tabsData).toString(),
+            total: countAllKms(tabsData).toFixed(1),
             ...(selectedTabData && {
-              selected: parseFloat(
-                countAllKms([selectedTabData]).toFixed(2),
-              ).toString(),
+              selected: countAllKms([selectedTabData]).toFixed(1),
             }),
           }}
           label={"Km's rodados"}

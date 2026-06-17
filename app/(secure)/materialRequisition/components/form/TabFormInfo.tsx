@@ -37,6 +37,7 @@ export const TabFormInfo = ({
   } = useMaterialRequisitionForm();
   useEffect(() => {
     vehicleEquipInputRef?.current?.focus();
+    setFuel(fuels[0]?._id ?? "");
   }, []);
 
   // Enter in prefix field if prefix exists to edit existent
@@ -59,6 +60,8 @@ export const TabFormInfo = ({
       dateInputRef?.current?.focus();
     } else if (e.key === "Enter" && !prefixExists) setSelectedCar(null);
   };
+
+  const sortedFuels = fuels.sort((a, b) => b.name.localeCompare(a.name));
 
   return (
     <Grid container spacing={2}>
@@ -98,7 +101,7 @@ export const TabFormInfo = ({
             label="Combustível"
             onChange={(e) => setFuel(e.target.value)}
           >
-            {fuels.map(({ name, _id }) => (
+            {sortedFuels.map(({ name, _id }) => (
               <MenuItem value={_id} key={_id}>
                 {capitalizeFirstLetter(name)}
               </MenuItem>

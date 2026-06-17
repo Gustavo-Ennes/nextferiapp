@@ -18,12 +18,16 @@ import {
   LocalDrink,
   Speed,
   WaterDrop,
+  Straighten,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import type { FuelingData } from "@/lib/repository/weeklyFuellingSummary/types";
 import { capitalizeName } from "@/app/utils";
-import { sortCarFuelings } from "../../materialRequisition/utils";
+import {
+  getCarTotalKmHr,
+  sortCarFuelings,
+} from "../../materialRequisition/utils";
 import type { TransitionProps } from "@mui/material/transitions";
 import { forwardRef } from "react";
 import type { DialogOptions } from "@/context/types";
@@ -142,6 +146,7 @@ export const CarDetailDialog = ({
 
   const sorted = sortCarFuelings(car.fuelings ?? []);
   const totalQuantity = sorted.reduce((acc, f) => acc + f.quantity, 0);
+  const totalKmHr = getCarTotalKmHr(car.fuelings ?? []);
 
   return (
     <Dialog
@@ -230,6 +235,23 @@ export const CarDetailDialog = ({
               <LocalDrink sx={{ fontSize: 14, color: "white !important" }} />
             }
             label={`${totalQuantity.toFixed(3)} L total`}
+            size="small"
+            sx={{
+              bgcolor: "rgba(255,255,255,0.18)",
+              color: "white",
+              fontWeight: 500,
+              border: "1px solid rgba(255,255,255,0.3)",
+            }}
+          />
+          <Chip
+            icon={
+              <Straighten sx={{ fontSize: 14, color: "white !important" }} />
+            }
+            label={
+              totalKmHr
+                ? `${totalKmHr.toFixed(0)} km/h total`
+                : "Km/h inconsistente/quebrado"
+            }
             size="small"
             sx={{
               bgcolor: "rgba(255,255,255,0.18)",

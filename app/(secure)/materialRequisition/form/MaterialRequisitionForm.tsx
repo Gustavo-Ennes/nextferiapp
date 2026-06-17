@@ -305,7 +305,7 @@ export const MaterialRequisitionForm = ({
             {selectedTabData && (
               <Grid size={6} justifyContent="flex-end">
                 <Typography variant="h6" color="text.secondary" align="right">
-                  Total do{" "}
+                  Total para{" "}
                   {capitalizeFirstLetter(
                     (selectedTabData?.department as DepartmentDTO)?.name,
                   )}{" "}

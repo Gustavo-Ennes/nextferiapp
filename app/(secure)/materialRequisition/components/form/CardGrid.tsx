@@ -17,6 +17,7 @@ import {
   Delete,
   CheckBox,
   Paid,
+  Straighten,
 } from "@mui/icons-material";
 import type {
   CarEntry,
@@ -28,7 +29,7 @@ import { type MouseEvent } from "react";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { DepartmentDTO, WeeklyFuellingSummaryDTO } from "@/dto";
-import { getCarTotalValue } from "../../utils";
+import { getCarTotalKmHr, getCarTotalValue } from "../../utils";
 
 export const CardsGrid = ({
   tabData,
@@ -167,6 +168,16 @@ export const CardsGrid = ({
                   weeklyFuelingSummary,
                   (tabData.department as DepartmentDTO)._id,
                 ).toFixed(2)}
+              </Typography>
+
+              {/* Km/Hr Total */}
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
+              >
+                <Straighten sx={{ fontSize: 15, color: "secondary.main" }} />{" "}
+                {getCarTotalKmHr(car.fuelings)?.toFixed(2) ?? "--"}
               </Typography>
 
               {/* Fuelings count */}

@@ -5,7 +5,7 @@ import type {
   LocalStorageData,
   TabData,
 } from "../../../lib/repository/weeklyFuellingSummary/types";
-import { flatten, pluck, sum } from "ramda";
+import { flatten, isNil, pluck, reject, sum } from "ramda";
 import type { AverageDepartmentTableParam } from "./components/types";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import type { DepartmentDTO } from "@/dto";
@@ -245,12 +245,8 @@ export const countAllLiters = (tabsData: TabData[]): number =>
 export const countAllKms = (tabsData: TabData[]): number => {
   let sum = 0;
   tabsData.forEach((tabData) =>
-    tabData.carEntries.forEach((car) => {
-      const firstFuelingKm = car.fuelings[0].kmHr;
-      const lastFuelingKm = car.fuelings[car.fuelings.length - 1].kmHr;
-
-      if (firstFuelingKm && lastFuelingKm && firstFuelingKm !== lastFuelingKm)
-        sum += lastFuelingKm - firstFuelingKm;
+    tabData.carEntries.forEach(({ fuelings }) => {
+      sum += getCarTotalKmHr(fuelings ?? []) ?? 0;
     }),
   );
   return sum;
@@ -475,17 +471,19 @@ export function getVehicleScatterSeriesByDepartment(
     }
   }
 
-  return Array.from(deptMap.entries()).map(([deptName, vehicleMap]) => ({
-    label: deptName,
-    data: Array.from(vehicleMap.entries()).map(
-      ([vehicleKey, { liters, value, fuel }]) => ({
-        fuel,
-        id: String(vehicleKey),
-        x: parseFloat(liters.toFixed(2)),
-        y: parseFloat(value.toFixed(2)),
-      }),
-    ),
-  })).filter(v => v.data?.length > 0);
+  return Array.from(deptMap.entries())
+    .map(([deptName, vehicleMap]) => ({
+      label: deptName,
+      data: Array.from(vehicleMap.entries()).map(
+        ([vehicleKey, { liters, value, fuel }]) => ({
+          fuel,
+          id: String(vehicleKey),
+          x: parseFloat(liters.toFixed(2)),
+          y: parseFloat(value.toFixed(2)),
+        }),
+      ),
+    }))
+    .filter((v) => v.data?.length > 0);
 }
 
 export function getVehicleScatterSeriesByVehicle(
@@ -515,7 +513,7 @@ export function getVehicleScatterSeriesByVehicle(
           })) ?? [],
       };
     })
-    .filter(v => v.data?.length > 0) as VehicleScatterSeries[];
+    .filter((v) => v.data?.length > 0) as VehicleScatterSeries[];
 }
 
 export function getVehicleCostVsLitersScatter({
@@ -805,3 +803,11 @@ const monetaryFormatter = new Intl.NumberFormat("pt-BR", {
 export const toMonetary = (n: number): string => monetaryFormatter.format(n);
 
 export const ALL = "__ALL__";
+
+export const getCarTotalKmHr = (fuelings: FuelingData[]): number | null => {
+  const kmHrs = pluck("kmHr", fuelings);
+  const kmHrsWithoutNull = reject(isNil, kmHrs);
+  const minkmHr = Math.min(...(kmHrsWithoutNull ?? []));
+  const maxkmHr = Math.max(...(kmHrsWithoutNull ?? []));
+  return minkmHr && maxkmHr && maxkmHr > minkmHr ? maxkmHr - minkmHr : null;
+};
