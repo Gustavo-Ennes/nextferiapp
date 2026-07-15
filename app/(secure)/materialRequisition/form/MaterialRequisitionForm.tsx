@@ -10,211 +10,197 @@ import {
   Typography,
   Paper,
 } from "@mui/material";
-import { useState, useEffect, useMemo } from "react";
-import type {
-  LocalStorageData,
-  TabData,
-} from "../../../../lib/repository/weeklyFuellingSummary/types";
-import {
-  getLocalStorageData,
-  populateLocalStorage,
-  removeAllCarEntries,
-  setLocalStorageData,
-  unpopulateLocalStorage,
-} from "../utils";
+import { useEffect, useMemo, useState } from "react";
+import { prepareSummaryPayload, removeAllVechiles } from "../utils";
 import { Tab as MaterialRequisitionTab } from "../components/form/Tab";
 import { TabPanel } from "../components/form/TabPanel";
 import { Close } from "@mui/icons-material";
-import {
-  head,
-  insert,
-  isEmpty,
-  isNil,
-  pluck,
-  reject,
-  remove,
-  sum,
-} from "ramda";
+import { head, isEmpty, pluck, sum } from "ramda";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
-import { createOrUpdateWeeklySummary, deleteWeeklySummary } from "../../utils";
-import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import { deleteWeeklySummary } from "../../utils";
+import type {
+  WeeklyFuellingSummaryDepartment,
+  WeeklyFuellingSummaryDTO,
+} from "@/dto/WeeklyFuellingSummaryDTO";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { MaterialRequisitionHeader } from "../components/form/MaterialRequisitionHeader";
 import { useDialog } from "@/context/DialogContext";
-import type { FuelDTO } from "@/dto/FuelDTO";
 import type { DepartmentDTO } from "@/dto";
 import { capitalizeFirstLetter } from "@/app/utils";
+import { useLoading } from "@/context/LoadingContext";
+import { useSnackbar } from "@/context/SnackbarContext";
+import type { MaterialRequisitionFormProps } from "../types";
 
 export const MaterialRequisitionForm = ({
-  actualWeeklyFuelingSummary,
+  summary: initialSummary,
   fuels,
   departments,
-}: {
-  actualWeeklyFuelingSummary: WeeklyFuellingSummaryDTO | null;
-  fuels: FuelDTO[];
-  departments: DepartmentDTO[];
-}) => {
-  const { setSelectedTabData, setSelectedCar, selectedTabData } =
+}: MaterialRequisitionFormProps) => {
+  const { setSelectedDepartment, setSelectedCar, selectedDepartment } =
     useMaterialRequisitionForm();
+  const { setLoading } = useLoading();
+  const { addSnack } = useSnackbar();
   const { openConfirmationDialog, openSelectDialog } = useDialog();
-  const [tabsData, setTabsData] = useState<TabData[]>([]);
-  const [activeTab, setActiveTab] = useState<number>(0);
-  const [weeklyFuellingSummary, setWeeklyFuellingSummary] =
-    useState<WeeklyFuellingSummaryDTO | null>(actualWeeklyFuelingSummary);
   const { setPdf } = usePdfPreview();
+  const [summary, setSummary] = useState(initialSummary);
 
   const weeklyTotalValue = useMemo(() => {
-    if (!weeklyFuellingSummary) return 0;
+    if (!summary) return 0;
 
-    return sum(pluck("totalValue", weeklyFuellingSummary.departments));
-  }, [weeklyFuellingSummary]);
+    return sum(pluck("totalValue", summary.departments));
+  }, [summary]);
 
   const getDepartmentTotalValue = (departmentId: string) => {
-    const department = weeklyFuellingSummary?.departments.find(
+    const department = summary?.departments.find(
       (dept) => (dept.department as DepartmentDTO)._id === departmentId,
     );
     return department ? department.totalValue : 0;
   };
 
-  // Load
   useEffect(() => {
-    getLocalStorageData()
-      .then((localStorageData: LocalStorageData) => {
-        const { activeTab, data } = populateLocalStorage({
-          localStorageData,
-          departments,
-          fuels,
-        });
+    setSelectedCar(null);
+  }, [selectedDepartment]);
 
-        if (data.length > 0) {
-          setTabsData(data);
-          setActiveTab(activeTab);
-          setSelectedTabData(data[activeTab] ?? null);
-        }
-
-        if (!weeklyFuellingSummary) {
-          createOrUpdateWeeklySummary({
-            payload: unpopulateLocalStorage(localStorageData),
-          }).then((summary) => {
-            setWeeklyFuellingSummary(summary);
-          });
-        }
-      })
-      .catch((err) => {
-        console.error("Error parsing material requisition data: ", err);
-      });
+  useEffect(() => {
+    if (summary.departments.length > 0 && !selectedDepartment) {
+      setSelectedDepartment(summary.departments[0]);
+    }
   }, []);
 
-  // Persist
-  useEffect(() => {
-    getLocalStorageData().then((oldData: LocalStorageData) => {
-      const newData = populateLocalStorage({
-        localStorageData: { ...oldData, data: tabsData },
-        departments,
-        fuels,
-      });
-      setLocalStorageData({ data: newData });
-      setPdf({
-        items: [{ data: tabsData, type: "materialRequisition" }],
-        open: false,
-      });
+  const createOrUpdateApiCall = async (summary: WeeklyFuellingSummaryDTO) => {
+    setLoading(true);
 
-      createOrUpdateWeeklySummary({
-        payload: unpopulateLocalStorage(newData),
-      }).then((summary) => setWeeklyFuellingSummary(summary));
-    });
-  }, [tabsData]);
+    const payload = prepareSummaryPayload(summary);
 
-  useEffect(() => {
-    getLocalStorageData().then((oldData: LocalStorageData) => {
-      const newData = populateLocalStorage({
-        localStorageData: { ...oldData, activeTab },
-        departments,
-        fuels,
+    fetch(`/api/weeklyFuelingSummary`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ payload }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error("Erro ao criar nova aba");
+        }
+
+        if (res?.body) {
+          const { data } = await res.json();
+          setSummary(data as WeeklyFuellingSummaryDTO);
+        }
+
+        addSnack({
+          message: `Nova aba criada com sucesso!`,
+          severity: "success",
+        });
+      })
+      .catch((error) => {
+        addSnack({
+          message:
+            error instanceof Error ? error.message : "Erro ao criar nova aba",
+          severity: "error",
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+        setSelectedCar(null);
+        setPdf({
+          items: [{ data: summary, type: "materialRequisition" }],
+          open: false,
+        });
       });
-      setLocalStorageData({ data: newData });
-    });
-    setSelectedTabData(tabsData[activeTab] ?? null);
-    setSelectedCar(null);
-  }, [activeTab]);
+  };
 
-  const createTab = (departmentId: string) => {
-    const existingTab = tabsData.find((tab) => tab.department === departmentId);
+  const createTab = async (departmentId: string) => {
+    setLoading(true);
+
     const department = departments.find((dept) => dept._id === departmentId);
 
     if (!department) {
       console.warn("Selected department not found.");
+      setLoading(false);
+      return;
+    }
+    const newSummaryDepartment: WeeklyFuellingSummaryDepartment = {
+      department,
+      totalValue: 0,
+      vehicles: [],
+      name: capitalizeFirstLetter(department.name),
+    };
+
+    const newDepartments = [
+      ...(summary.departments ?? []),
+      newSummaryDepartment,
+    ];
+
+    const summaryPayload = { ...summary, departments: newDepartments };
+
+    createOrUpdateApiCall(summaryPayload).then(() => {
+      setSelectedDepartment(newSummaryDepartment);
+    });
+  };
+
+  const onTabsDataChange = async (
+    modifiedDepartment: WeeklyFuellingSummaryDepartment,
+  ) => {
+    if (!modifiedDepartment) {
+      console.warn("Provide a summary department to update.");
       return;
     }
 
-    if (existingTab) {
-      const existingIndex = tabsData.indexOf(existingTab);
-      setActiveTab(existingIndex);
-      setSelectedTabData(tabsData[existingIndex] ?? null);
-    } else {
-      const orders = pluck("order", tabsData);
-      const newOrder = orders.length > 0 ? Math.max(...orders) + 1 : 1;
-      const newTab: TabData = {
-        order: newOrder,
-        department,
-        carEntries: [],
-      };
-
-      const newTabsData = [...tabsData, newTab];
-
-      setTabsData(newTabsData);
-      setActiveTab(newTabsData.length - 1);
-      setSelectedTabData(newTabsData[tabsData.length - 1] ?? null);
-    }
-    setSelectedCar(null);
-  };
-
-  const onTabsDataChange = (newTabData: TabData) => {
-    const updatedTabData = tabsData.find(
-      (tabData) =>
-        (tabData.department as DepartmentDTO)._id ===
-        (newTabData.department as DepartmentDTO)._id,
+    const departmentId = (modifiedDepartment.department as DepartmentDTO)._id;
+    const anotherDepartments = summary.departments.filter(
+      ({ department }) => (department as DepartmentDTO)._id !== departmentId,
     );
 
-    if (!updatedTabData) {
-      console.warn("Provide a tabData to update.");
-      return;
-    }
+    const summaryPayload = {
+      ...summary,
+      departments: [...anotherDepartments, modifiedDepartment],
+    };
 
-    const tabDataId = tabsData.indexOf(updatedTabData);
-    const anotherTabs = remove(tabDataId, 1, tabsData);
-
-    if (newTabData.carEntries.length > 0) {
-      setTabsData(insert(tabDataId, newTabData, anotherTabs));
-      setSelectedTabData(newTabData);
-    } else {
-      const firstElement = head(reject(isNil, tabsData));
-      const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
-
-      setTabsData(anotherTabs);
-      setSelectedTabData(anotherTabs[newActiveTab] ?? null);
-      setActiveTab(newActiveTab);
-    }
-    setSelectedCar(null);
+    createOrUpdateApiCall(summaryPayload).then(() => {
+      setSelectedDepartment(
+        modifiedDepartment?.vehicles.length > 0
+          ? modifiedDepartment
+          : (summary.departments[0] ?? null),
+      );
+    });
   };
 
-  const onTabClose = (tabData: TabData) => {
+  const onTabClose = async (
+    summaryDepartment: WeeklyFuellingSummaryDepartment,
+  ) => {
     // removing car entries to remove tab
-    const tabWithoutCarEntries = removeAllCarEntries(tabData);
-    const firstElement = head(reject(isNil, tabsData));
-    const newActiveTab = firstElement ? tabsData.indexOf(firstElement) : 0;
-    setActiveTab(newActiveTab);
-    setSelectedTabData(tabsData[newActiveTab] ?? null);
-    onTabsDataChange(tabWithoutCarEntries);
-    setSelectedCar(null);
+    const summaryWithoutVehicles = removeAllVechiles(summaryDepartment);
+    setSelectedDepartment(head(summary.departments) ?? null);
+    onTabsDataChange(summaryWithoutVehicles);
   };
 
   const handleDeleteWeeklySummary = async () => {
-    if (weeklyFuellingSummary) {
-      deleteWeeklySummary(weeklyFuellingSummary._id).then(() => {
-        setWeeklyFuellingSummary(null);
-      });
+    if (summary) {
+      deleteWeeklySummary(summary._id)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error("Erro ao deletar resumo semanal");
+          }
+
+          addSnack({
+            message: "Resumo semanal deletado com sucesso!",
+            severity: "success",
+          });
+        })
+        .catch((error) => {
+          addSnack({
+            message:
+              error instanceof Error
+                ? error.message
+                : "Erro ao deletar resumo semanal",
+            severity: "error",
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+          setSelectedCar(null);
+        });
     }
   };
 
@@ -224,18 +210,19 @@ export const MaterialRequisitionForm = ({
       description:
         "Ao confirmar, você apagará todas as abas e seu conteúdo. Quer prosseguir?",
       onConfirmAction: () => {
-        setTabsData([]);
         handleDeleteWeeklySummary();
       },
     });
   };
 
-  const openCloseTabDialog = (tabData: TabData) => {
+  const openCloseTabDialog = (
+    summaryDepartment: WeeklyFuellingSummaryDepartment,
+  ) => {
     openConfirmationDialog({
       title: "Excluir aba?",
       description:
         "Ao confirmar, todas os carros e abastecimentos dessa aba serão perdidos. Quer prosseguir?",
-      onConfirmAction: () => onTabClose(tabData),
+      onConfirmAction: () => onTabClose(summaryDepartment),
     });
   };
 
@@ -243,13 +230,13 @@ export const MaterialRequisitionForm = ({
     return departments
       .filter(
         (dept) =>
-          !tabsData.some(
-            (tab) => (tab.department as DepartmentDTO)._id === dept._id,
+          !summary.departments.some(
+            (sd) => (sd.department as DepartmentDTO)._id === dept._id,
           ),
       )
       .map((d) => ({ ...d, name: capitalizeFirstLetter(d.name) }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  }, [departments, tabsData]);
+  }, [departments, summary]);
 
   const openNewTabDialog = () => {
     openSelectDialog({
@@ -269,11 +256,15 @@ export const MaterialRequisitionForm = ({
     });
   };
 
-  const TabCloseIcon = ({ tabData }: { tabData: TabData }) => (
+  const TabCloseIcon = ({
+    summaryDepartment,
+  }: {
+    summaryDepartment: WeeklyFuellingSummaryDepartment;
+  }) => (
     <Tooltip title="Fechar a aba">
       <Close
         sx={{ fontSize: 12, zIndex: 2000 }}
-        onClick={() => openCloseTabDialog(tabData)}
+        onClick={() => openCloseTabDialog(summaryDepartment)}
       />
     </Tooltip>
   );
@@ -302,16 +293,16 @@ export const MaterialRequisitionForm = ({
                 Total da semana R$ {weeklyTotalValue.toFixed(2)}
               </Typography>
             </Grid>
-            {selectedTabData && (
+            {selectedDepartment && (
               <Grid size={6} justifyContent="flex-end">
                 <Typography variant="h6" color="text.secondary" align="right">
                   Total para{" "}
                   {capitalizeFirstLetter(
-                    (selectedTabData?.department as DepartmentDTO)?.name,
+                    (selectedDepartment?.department as DepartmentDTO)?.name,
                   )}{" "}
                   R${" "}
                   {getDepartmentTotalValue(
-                    (selectedTabData?.department as DepartmentDTO)?._id,
+                    (selectedDepartment?.department as DepartmentDTO)?._id,
                   ).toFixed(2)}
                 </Typography>
               </Grid>
@@ -321,7 +312,7 @@ export const MaterialRequisitionForm = ({
       </Grid>
 
       <Grid size={12} container justifyContent="center" alignItems="center">
-        <MaterialRequisitionHeader tabsData={tabsData} />
+        <MaterialRequisitionHeader summary={summary} />
       </Grid>
 
       <Grid size={2} justifyContent="center" alignItems="center" px={1}>
@@ -338,7 +329,7 @@ export const MaterialRequisitionForm = ({
           variant="outlined"
           size="small"
           color="error"
-          disabled={!tabsData.length}
+          disabled={!summary.departments.length}
           onClick={openResetDialog}
           sx={{ width: 1, padding: 1, m: 1 }}
         >
@@ -346,10 +337,15 @@ export const MaterialRequisitionForm = ({
         </Button>
 
         <Tabs
-          value={activeTab}
-          onChange={(_, v) => {
-            setActiveTab(v);
-            setSelectedTabData(tabsData[v] ?? null);
+          value={
+            (selectedDepartment?.department as DepartmentDTO)?._id || false
+          }
+          onChange={(_, newDepartmentId: string) => {
+            const newSelectedDepartment = summary.departments.find(
+              (dept) =>
+                (dept.department as DepartmentDTO)._id === newDepartmentId,
+            );
+            setSelectedDepartment(newSelectedDepartment ?? null);
             setSelectedCar(null);
           }}
           variant="scrollable"
@@ -357,43 +353,39 @@ export const MaterialRequisitionForm = ({
           orientation="vertical"
           sx={{ mb: 2, m: "auto", mt: 1 }}
         >
-          {tabsData
-            .sort((a, b) => a.order - b.order)
-            .map((tabData, idx) => (
-              <Tab
-                key={idx}
-                label={
-                  capitalizeFirstLetter(
-                    (tabData.department as DepartmentDTO)?.name,
-                  ) ?? `Departamento ${idx + 1}`
-                }
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                sx={{ fontSize: 12, zIndex: 1 }}
-                icon={<TabCloseIcon tabData={tabData} />}
-                iconPosition="end"
-              />
-            ))}
+          {summary.departments.map((summaryDepartment, idx) => (
+            <Tab
+              key={(summaryDepartment.department as DepartmentDTO)._id}
+              value={(summaryDepartment.department as DepartmentDTO)._id}
+              label={
+                capitalizeFirstLetter(
+                  (summaryDepartment.department as DepartmentDTO)?.name,
+                ) ?? `Departamento ${idx + 1}`
+              }
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              sx={{ fontSize: 12, zIndex: 1 }}
+              icon={<TabCloseIcon summaryDepartment={summaryDepartment} />}
+              iconPosition="end"
+            />
+          ))}
         </Tabs>
       </Grid>
 
       <Grid size={10}>
-        {!isEmpty(tabsData) ? (
-          tabsData
-            .sort((a, b) => a.order - b.order)
-            .map((tabData, idx) => (
-              <TabPanel
-                index={activeTab}
-                value={idx}
-                key={`materialRequisitionTab${idx}`}
-              >
-                <MaterialRequisitionTab
-                  fuels={fuels}
-                  data={tabData}
-                  onDataChangeAction={onTabsDataChange}
-                  weeklyFuelingSummary={weeklyFuellingSummary}
-                />
-              </TabPanel>
-            ))
+        {!isEmpty(summary.departments) ? (
+          summary.departments.map((summaryDepartment) => (
+            <TabPanel
+              key={`materialRequisitionTab-${(summaryDepartment.department as DepartmentDTO)._id}`}
+              value={(selectedDepartment?.department as DepartmentDTO)?._id}
+              index={(summaryDepartment.department as DepartmentDTO)._id}
+            >
+              <MaterialRequisitionTab
+                fuels={fuels}
+                summaryDepartment={summaryDepartment}
+                onDataChangeAction={onTabsDataChange}
+              />
+            </TabPanel>
+          ))
         ) : (
           <Typography sx={{ p: 2 }}>
             Adicione uma aba para requisições de um departamento.

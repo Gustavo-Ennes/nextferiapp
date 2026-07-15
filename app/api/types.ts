@@ -1,9 +1,9 @@
-import type { TabData } from "../../lib/repository/weeklyFuellingSummary/types";
 import type { Boss } from "@/models/Boss";
 import type { Vacation } from "@/models/Vacation";
 import type { Worker } from "@/models/Worker";
 import type { Entity } from "../types";
 import type { Department } from "@/models/Department";
+import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 
 export type ResponseType<T extends Entity> = Response<T> | PaginatedResponse<T>;
 
@@ -36,7 +36,7 @@ export type PdfOptions = {
   relationType?: string;
   id?: string;
   period?: PeriodOptionsType;
-  data?: TabData[];
+  data?: WeeklyFuellingSummaryDTO;
 };
 export interface PdfRouteBody {
   items: PdfOptions[];

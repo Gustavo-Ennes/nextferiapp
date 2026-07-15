@@ -1,41 +1,48 @@
 "use client";
 
 import { Button, Box, Grid, Divider, Paper } from "@mui/material";
-import type {
-  CarEntry,
-  TabData,
-} from "@/lib/repository/weeklyFuellingSummary/types";
 import { TabFormInfo } from "./TabFormInfo";
 import { TabFormFuelings } from "./TabFormFuelings";
-import { prefixExistsInTabData } from "../../utils";
+import { departmentHasPrefix } from "../../utils";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import { FuelingFormList } from "./FuelingFormList";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type {
+  WeeklyFuellingSummaryDepartment,
+  WeeklyFuellingSummaryVehicle,
+} from "@/dto/WeeklyFuellingSummaryDTO";
 
 export const TabForm = ({
   onSubmitAction,
-  tabData,
+  summaryDepartment,
   fuels,
 }: {
-  onSubmitAction: (car: CarEntry) => void;
-  tabData: TabData;
+  onSubmitAction: (vehicle: WeeklyFuellingSummaryVehicle) => Promise<void>;
+  summaryDepartment: WeeklyFuellingSummaryDepartment;
   fuels: FuelDTO[];
 }) => {
   const {
     selectedCar,
-    setSelectedCar,
-    vehicle,
-    prefix,
-    fuel,
-    fuelings,
+    vehicleForm: { description, prefix, fuel, fuelings },
     vehicleEquipInputRef,
+    totalValue,
+    totalLiters,
+    totalKmHr,
+    lastKm,
   } = useMaterialRequisitionForm();
 
   const handleSubmit = () => {
-    if (vehicle && prefix && fuel && fuelings.length > 0) {
-      onSubmitAction({ vehicle, prefix, fuelings, fuel });
-      setSelectedCar(null);
-      vehicleEquipInputRef?.current?.focus();
+    if (description && prefix && fuel && fuelings.length > 0) {
+      onSubmitAction({
+        vehicle: description,
+        prefix,
+        fuelings,
+        fuel,
+        totalValue,
+        totalLiters,
+        totalKmHr,
+        lastKm,
+      }).then(() => vehicleEquipInputRef?.current?.focus());
     }
   };
 
@@ -52,7 +59,7 @@ export const TabForm = ({
 
   const isSelectedCarEditing = () => {
     return (
-      vehicle !== selectedCar?.vehicle ||
+      description !== selectedCar?.vehicle ||
       prefix !== selectedCar?.prefix ||
       fuel !== selectedCar.fuel ||
       fuelings !== selectedCar.fuelings
@@ -60,11 +67,11 @@ export const TabForm = ({
   };
 
   const prefixExists =
-    prefixExistsInTabData({ prefix, tabData }) &&
+    departmentHasPrefix({ department: summaryDepartment, prefix }) &&
     prefix !== selectedCar?.prefix;
 
   const shouldDisableSumbit =
-    !vehicle ||
+    !description ||
     !prefix ||
     !fuel ||
     !isSelectedCarEditing() ||
@@ -80,7 +87,7 @@ export const TabForm = ({
 
           <Divider sx={{ my: 4 }} />
 
-          <TabFormFuelings onSubmit={onSubmitAction} />
+          <TabFormFuelings onSubmitAction={handleSubmit} />
         </Paper>
       </Grid>
 

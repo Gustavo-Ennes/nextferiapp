@@ -5,13 +5,17 @@ import { useEffect, useState } from "react";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import type { TabData } from "../../../../../lib/repository/weeklyFuellingSummary/types";
 import {
   PdfFloatingButtonBox,
   PdfPreviewBox,
 } from "@/app/(secure)/components/styled";
+import type { WeeklyFuellingSummaryDTO } from "@/dto";
 
-export const PdfPreviewPanel = ({ data = [] }: { data: TabData[] }) => {
+export const PdfPreviewPanel = ({
+  data,
+}: {
+  data: WeeklyFuellingSummaryDTO;
+}) => {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState("");
 

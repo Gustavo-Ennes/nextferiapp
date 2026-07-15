@@ -22,7 +22,7 @@ import {
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import type { FuelingData } from "@/lib/repository/weeklyFuellingSummary/types";
+import type { FuelingData } from "@/models/types";
 import { capitalizeName } from "@/app/utils";
 import {
   getCarTotalKmHr,

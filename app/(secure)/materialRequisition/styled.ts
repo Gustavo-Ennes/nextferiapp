@@ -1,9 +1,12 @@
 import { Card, styled } from "@mui/material";
-import type { CarEntry } from "../../../lib/repository/weeklyFuellingSummary/types";
+import type { WeeklyFuellingSummaryVehicle } from "@/dto";
 
 export const GridCard = styled(Card, {
   shouldForwardProp: (prop) => prop !== "selectedCar",
-})<{ selectedCar?: CarEntry; car: CarEntry }>(({ selectedCar, car }) => ({
+})<{
+  selectedCar?: WeeklyFuellingSummaryVehicle;
+  car: WeeklyFuellingSummaryVehicle;
+}>(({ selectedCar, car }) => ({
   position: "relative",
   backgroundColor:
     selectedCar?.prefix === car.prefix ? "#ececec" : "background.paper",

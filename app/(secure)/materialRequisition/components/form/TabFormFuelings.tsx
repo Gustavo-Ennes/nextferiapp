@@ -4,34 +4,42 @@ import { Grid, TextField, Button } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { startOfDay, toDate } from "date-fns";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
-import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { KeyboardEvent } from "react";
 import { sortCarFuelings } from "../../utils";
+import type { WeeklyFuellingSummaryVehicle } from "@/dto/WeeklyFuellingSummaryDTO";
 
 export const TabFormFuelings = ({
-  onSubmit,
+  onSubmitAction,
 }: {
-  onSubmit: (car: CarEntry) => void;
+  onSubmitAction: (vehicle: WeeklyFuellingSummaryVehicle) => void;
 }) => {
   const {
-    fuelings,
-    setFuelings,
+    vehicleForm: { fuelings, description, prefix, fuel },
+    setVehicleForm,
     date,
     quantity,
     kmHr,
     setDate,
     setQuantity,
     setKmHr,
-    vehicle,
-    prefix,
-    fuel,
-    setSelectedCar,
     dateInputRef,
+    totalKmHr,
+    totalLiters,
+    totalValue,
+    lastKm,
   } = useMaterialRequisitionForm();
 
   const addFueling = () => {
     if (date && quantity > 0) {
-      setFuelings(sortCarFuelings([...fuelings, { date, quantity, kmHr }]));
+      setVehicleForm({
+        description,
+        prefix,
+        fuel,
+        fuelings: sortCarFuelings([
+          ...fuelings,
+          { date, quantity, kmHr: kmHr ?? null },
+        ]),
+      });
       setDate(new Date().toISOString());
       setQuantity(0);
     }
@@ -47,13 +55,23 @@ export const TabFormFuelings = ({
     if (
       e.ctrlKey &&
       e.key === "Enter" &&
-      vehicle &&
+      description &&
       prefix &&
-      fuelings.length > 0
+      fuelings.length > 0 &&
+      fuel
     ) {
       e.preventDefault();
-      onSubmit({ vehicle, prefix, fuel, fuelings });
-      setSelectedCar(null);
+
+      onSubmitAction({
+        fuelings,
+        prefix,
+        vehicle: description,
+        fuel,
+        totalKmHr,
+        totalLiters,
+        totalValue,
+        lastKm,
+      });
     }
   };
 
@@ -100,7 +118,7 @@ export const TabFormFuelings = ({
         <Button
           variant="outlined"
           onClick={handleAddFueling}
-          disabled={!date || quantity <= 0 || !fuel || !vehicle || !prefix}
+          disabled={!date || quantity <= 0 || !fuel || !description || !prefix}
         >
           +
         </Button>

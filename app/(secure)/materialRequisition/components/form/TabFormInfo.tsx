@@ -13,7 +13,6 @@ import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormCon
 import { isEmpty } from "ramda";
 import type { KeyboardEvent } from "react";
 import type { FuelDTO } from "@/dto/FuelDTO";
-import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
 import { capitalizeFirstLetter } from "@/app/utils";
 
 export const TabFormInfo = ({
@@ -24,20 +23,21 @@ export const TabFormInfo = ({
   fuels: FuelDTO[];
 }) => {
   const {
+    selectedCar,
     setSelectedCar,
-    selectedTabData,
-    vehicle,
-    prefix,
-    fuel,
-    setVehicle,
-    setPrefix,
-    setFuel,
+    selectedDepartment,
+    vehicleForm,
+    setVehicleForm,
     dateInputRef,
     vehicleEquipInputRef,
   } = useMaterialRequisitionForm();
+
   useEffect(() => {
     vehicleEquipInputRef?.current?.focus();
-    setFuel(fuels[0]?._id ?? "");
+    setVehicleForm({
+      ...vehicleForm,
+      fuel: selectedCar?.fuel ?? fuels?.[0] ?? "",
+    });
   }, []);
 
   // Enter in prefix field if prefix exists to edit existent
@@ -45,18 +45,14 @@ export const TabFormInfo = ({
     if (
       e.key === "Enter" &&
       prefixExists &&
-      !isEmpty(selectedTabData?.carEntries)
+      !isEmpty(selectedDepartment?.vehicles)
     ) {
       e.preventDefault();
-      const carToSelect = selectedTabData?.carEntries?.find(
-        (car) => car.prefix === prefix,
+      const carToSelect = selectedDepartment?.vehicles?.find(
+        (car) => car.prefix === vehicleForm.prefix,
       );
 
-      const unpopulatedCarToSelect = {
-        ...carToSelect,
-        fuel: (carToSelect?.fuel as FuelDTO)?._id ?? carToSelect?.fuel,
-      };
-      setSelectedCar((unpopulatedCarToSelect as CarEntry) ?? null);
+      setSelectedCar(carToSelect ?? null);
       dateInputRef?.current?.focus();
     } else if (e.key === "Enter" && !prefixExists) setSelectedCar(null);
   };
@@ -69,8 +65,10 @@ export const TabFormInfo = ({
         <TextField
           size="small"
           label="Veículo/Equip."
-          value={vehicle}
-          onChange={(e) => setVehicle(e.target.value)}
+          value={vehicleForm.description}
+          onChange={(e) =>
+            setVehicleForm({ ...vehicleForm, description: e.target.value })
+          }
           inputRef={vehicleEquipInputRef}
           autoFocus
           fullWidth
@@ -81,12 +79,16 @@ export const TabFormInfo = ({
         <TextField
           size="small"
           label="Prefix/BP"
-          value={prefix}
+          value={vehicleForm.prefix}
           type="number"
-          onChange={(e) => setPrefix(parseInt(e.target.value))}
+          onChange={(e) =>
+            setVehicleForm({ ...vehicleForm, prefix: Number(e.target.value) })
+          }
           onKeyDown={handleKeyDownInPrefixField}
           fullWidth
-          helperText={prefixExists ? `Prefixo ${prefix} já foi criado.` : ""}
+          helperText={
+            prefixExists ? `Prefixo ${vehicleForm.prefix} já foi criado.` : ""
+          }
           error={prefixExists}
         />
       </Grid>
@@ -97,10 +99,16 @@ export const TabFormInfo = ({
           <Select
             size="small"
             name="fuelType"
-            value={fuel}
+            value={(vehicleForm.fuel as FuelDTO)?._id ?? ""}
             label="Combustível"
-            onChange={(e) => setFuel(e.target.value)}
+            onChange={(e) => {
+              const fuel = fuels.find((f) => f._id === e.target.value);
+              setVehicleForm({ ...vehicleForm, fuel: fuel ?? "" });
+            }}
           >
+            <MenuItem value={""} key={"empty"}>
+              Escolha um combustível
+            </MenuItem>
             {sortedFuels.map(({ name, _id }) => (
               <MenuItem value={_id} key={_id}>
                 {capitalizeFirstLetter(name)}

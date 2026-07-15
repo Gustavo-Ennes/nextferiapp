@@ -12,22 +12,23 @@ import {
   countAllLiters,
   countAllKms,
 } from "../../utils";
-import type { TabData } from "@/lib/repository/weeklyFuellingSummary/types";
 import { MaterialRequisitionCard } from "./MaterialRequisitionCard";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
+import type { WeeklyFuellingSummaryDTO } from "@/dto";
+import { assoc } from "ramda";
 
 export const MaterialRequisitionHeader = ({
-  tabsData,
+  summary,
 }: {
-  tabsData: TabData[];
+  summary: WeeklyFuellingSummaryDTO;
 }) => {
-  const { selectedTabData } = useMaterialRequisitionForm();
+  const { selectedDepartment } = useMaterialRequisitionForm();
 
   return (
     <Grid container justifyContent="center" alignItems="start" spacing={1}>
       <Grid>
         <MaterialRequisitionCard
-          data={{ total: tabsData.length.toString() }}
+          data={{ total: summary.departments.length.toString() }}
           icon={<Business />}
           label="Departamentos"
           departmentName
@@ -38,9 +39,11 @@ export const MaterialRequisitionHeader = ({
         <MaterialRequisitionCard
           icon={<DirectionsCar />}
           data={{
-            total: countAllCars(tabsData).toString(),
-            ...(selectedTabData && {
-              selected: countAllCars([selectedTabData]).toString(),
+            total: countAllCars(summary).toString(),
+            ...(selectedDepartment && {
+              selected: countAllCars(
+                assoc("departments", [selectedDepartment], summary),
+              ).toString(),
             }),
           }}
           label={"Carros"}
@@ -51,9 +54,11 @@ export const MaterialRequisitionHeader = ({
         <MaterialRequisitionCard
           icon={<LocalGasStation />}
           data={{
-            total: countAllFuelings(tabsData).toString(),
-            ...(selectedTabData && {
-              selected: countAllFuelings([selectedTabData]).toString(),
+            total: countAllFuelings(summary).toString(),
+            ...(selectedDepartment && {
+              selected: countAllFuelings(
+                assoc("departments", [selectedDepartment], summary),
+              ).toString(),
             }),
           }}
           label={"Abastecimentos"}
@@ -64,9 +69,11 @@ export const MaterialRequisitionHeader = ({
         <MaterialRequisitionCard
           icon={<WaterDrop />}
           data={{
-            total: countAllLiters(tabsData).toFixed(3),
-            ...(selectedTabData && {
-              selected: countAllLiters([selectedTabData]).toFixed(3),
+            total: countAllLiters(summary).toFixed(3),
+            ...(selectedDepartment && {
+              selected: countAllLiters(
+                assoc("departments", [selectedDepartment], summary),
+              ).toFixed(3),
             }),
           }}
           label={"Litragem"}
@@ -77,9 +84,11 @@ export const MaterialRequisitionHeader = ({
         <MaterialRequisitionCard
           icon={<Straighten />}
           data={{
-            total: countAllKms(tabsData).toFixed(1),
-            ...(selectedTabData && {
-              selected: countAllKms([selectedTabData]).toFixed(1),
+            total: countAllKms(summary).toFixed(1),
+            ...(selectedDepartment && {
+              selected: countAllKms(
+                assoc("departments", [selectedDepartment], summary),
+              ).toFixed(1),
             }),
           }}
           label={"Km's rodados"}

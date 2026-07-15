@@ -24,12 +24,12 @@ const drawBlock = async ({
   headerY,
   height,
   page,
-  data,
-  tabData,
+  vehicle,
+  summaryDepartment,
 }: MaterialRequisitionDrawBlockParam) => {
-  const departmentText = `SETOR REQUISITANTE:  - ${capitalizeName((tabData.department as DepartmentDTO).name)} - `;
-  const applicationText = `VEÍCULO/EQUIP.:  - ${data.vehicle} - `;
-  const prefixText = `PREFIX/B.P.: - #${data.prefix}`;
+  const departmentText = `SETOR REQUISITANTE:  - ${capitalizeName((summaryDepartment.department as DepartmentDTO).name)} - `;
+  const applicationText = `VEÍCULO/EQUIP.:  - ${vehicle.vehicle} - `;
+  const prefixText = `PREFIX/B.P.: - #${vehicle.prefix}`;
   const MARGIN_SIZE = 33;
 
   const getParagraphWidth = (text: string, size = 15) =>
@@ -86,7 +86,7 @@ const drawBlock = async ({
   height.stepLine();
 
   await createTable({
-    data: parseMaterialRequisitionData(data),
+    data: parseMaterialRequisitionData(vehicle),
     document,
     endLineX: page.getWidth() - 35,
     font,
@@ -157,7 +157,7 @@ const drawBlock = async ({
 
 const render = async ({ document, data }: RenderParam): Promise<void> => {
   try {
-    if (document && data?.length) {
+    if (document && data?.departments?.length) {
       const font = await document.embedFont(StandardFonts.Helvetica);
       const fontSize = 12;
       let headerY: number | undefined;
@@ -165,14 +165,14 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
       let page = document.addPage();
       let height = getHeightObject(page);
 
-      for (const tabData of data) {
-        const carEntries = tabData.carEntries ?? [];
+      for (const summaryDepartment of data.departments) {
+        const carEntries = summaryDepartment.vehicles ?? [];
 
         for (const carEntry of carEntries) {
           // spliting the fuelings by chuncks of 10(max lines in block, start new at 11)
           const carFuelingsInChunksOfTen = splitEvery(
             BLOCK_MAX_LINES,
-            sortCarFuelings(carEntry.fuelings),
+            sortCarFuelings(carEntry.fuelings ?? []),
           );
           for (const tenFuelingBlock of carFuelingsInChunksOfTen) {
             if (blockCounter > 0 && blockCounter % 2 === 0) {
@@ -191,8 +191,8 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
               height,
               headerY,
               page,
-              data: { ...carEntry, fuelings: tenFuelingBlock },
-              tabData,
+              vehicle: { ...carEntry, fuelings: tenFuelingBlock },
+              summaryDepartment,
             });
             blockCounter++;
           }

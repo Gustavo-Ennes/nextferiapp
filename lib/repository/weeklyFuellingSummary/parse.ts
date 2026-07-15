@@ -2,6 +2,10 @@ import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import type { WeeklyFuellingSummary } from "@/models/WeeklyFuellingSummary";
 import { toFuelDTO } from "../fuel/parse";
 import { toDepartmentDTO } from "../department/parse";
+import type {
+  FuellingSummaryDepartment,
+  FuellingSummaryVehicle,
+} from "@/models/types";
 
 export const toWeeklySummaryDTO = (
   doc: WeeklyFuellingSummary,
@@ -9,18 +13,19 @@ export const toWeeklySummaryDTO = (
   _id: doc._id.toString(),
   weekStart: doc.weekStart.toISOString(),
   createdAt: doc.createdAt.toISOString(),
-  departments: doc.departments.map((d: any) => ({
+  departments: doc.departments.map((d: FuellingSummaryDepartment) => ({
     department: d.department ? toDepartmentDTO(d.department) : undefined,
     name: d.name,
     totalValue: d.totalValue ?? 0,
-    vehicles: d.vehicles.map((v: any) => ({
+    vehicles: d.vehicles.map((v: FuellingSummaryVehicle) => ({
       vehicle: v.vehicle,
       prefix: v.prefix,
-      fuel: v.fuel ? toFuelDTO(v.fuel) : undefined,
+      fuel: v.fuel ? toFuelDTO(v.fuel) : null,
+      fuelings: v.fuelings ?? [],
       totalLiters: v.totalLiters,
       totalValue: v.totalValue ?? 0,
       totalKmHr: v.totalKmHr ?? 0,
-      lastKm: v.lastKm ?? undefined,
+      lastKm: v.lastKm ?? null,
     })),
   })),
 });

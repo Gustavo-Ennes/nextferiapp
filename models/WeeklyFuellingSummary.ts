@@ -1,6 +1,15 @@
 import mongoose, { Schema, model, Document, Types } from "mongoose";
 import type { FuellingSummaryDepartment } from "./types";
 
+const FuelingSchema = new Schema(
+  {
+    date: { type: String, required: true },
+    quantity: { type: Number, required: true },
+    kmHr: { type: Number, required: false },
+  },
+  { _id: false },
+);
+
 const VehicleSummarySchema = new Schema(
   {
     vehicle: { type: String, required: true },
@@ -14,6 +23,7 @@ const VehicleSummarySchema = new Schema(
     totalValue: { type: Number, required: true, default: 0 },
     totalKmHr: { type: Number, required: false, default: 0 },
     lastKm: { type: Number, required: false },
+    fuelings: { type: [FuelingSchema], default: [] },
   },
   { _id: false },
 );

@@ -1,18 +1,13 @@
-import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import { startOfDaySP } from "@/app/utils";
 import { WeeklyFuellingSummaryModel } from "@/models/WeeklyFuellingSummary";
-import type {
-  FuellingSummaryVehicle,
-  FuellingSummaryDepartment,
-} from "@/models/types";
 import { startOfWeek } from "date-fns";
-import { isObjectIdOrHexString, Types } from "mongoose";
+import { isObjectIdOrHexString } from "mongoose";
 import { parseWeeklySummaries, toWeeklySummaryDTO } from "./parse";
 import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
 import dbConnect from "@/lib/database/database";
+import { calculateSummaryTotals } from "../utils";
 import { FuelRepository } from "../fuel/fuel";
 import { DepartmentRepository } from "../department/department";
-import { pluck } from "ramda";
 
 export const WeeklyFuellingSummaryRepository = {
   async findByWeekStart(): Promise<WeeklyFuellingSummaryDTO | null> {
@@ -29,11 +24,12 @@ export const WeeklyFuellingSummaryRepository = {
       .populate({
         path: "departments.vehicles.fuel",
         model: "Fuel",
-      });
+      })
+      .lean();
 
     if (!summary) return null;
 
-    const parsedSummary = toWeeklySummaryDTO(summary);
+    const parsedSummary = toWeeklySummaryDTO(summary as any);
     return parsedSummary;
   },
 
@@ -53,6 +49,22 @@ export const WeeklyFuellingSummaryRepository = {
     return parseWeeklySummaries(summaries);
   },
 
+  async findById(id: string): Promise<WeeklyFuellingSummaryDTO | null> {
+    await dbConnect();
+
+    const summary = await WeeklyFuellingSummaryModel.findById(id)
+      .populate({
+        path: "departments.department",
+        model: "Department",
+      })
+      .populate({
+        path: "departments.vehicles.fuel",
+        model: "Fuel",
+      });
+
+    return toWeeklySummaryDTO(summary as any);
+  },
+
   async delete(id: string): Promise<void> {
     await dbConnect();
 
@@ -66,101 +78,58 @@ export const WeeklyFuellingSummaryRepository = {
   },
 
   async createOrUpdate(
-    payload: LocalStorageData,
+    payload: Partial<WeeklyFuellingSummaryDTO>,
   ): Promise<WeeklyFuellingSummaryDTO | null> {
     await dbConnect();
-
-    const payloadDepartments = payload.data;
-
-    if (!payloadDepartments || payloadDepartments.length === 0) {
-      console.info("No data found in localstorage for fuelling weekly summary");
-      return null;
-    }
 
     const weekStart = startOfWeek(startOfDaySP(new Date()), {
       weekStartsOn: 1,
     });
+    const actualWeekSummary = await this.findByWeekStart();
+    const fuels = await FuelRepository.findWithoutPagination!({});
 
-    const departments: FuellingSummaryDepartment[] = [];
+    const fuelsIds = fuels.map((f) => f._id);
+    const departmentsIds = (
+      await DepartmentRepository.findWithoutPagination!({})
+    ).map((d) => d._id.toString());
 
-    const [allFuels, existingDepartments] = await Promise.all([
-      FuelRepository.findWithoutPagination!({}),
-      DepartmentRepository.findWithoutPagination!({}),
-    ]);
+    const payloadFuelsIds = payload.departments?.flatMap((d) =>
+      d.vehicles.flatMap((v) => v.fuel as string),
+    );
+    const payloadDepartmentsIds =
+      payload.departments?.map((d) => d.department as string) ?? [];
 
-    for (const dept of payloadDepartments) {
-      const vehiclesTotals: FuellingSummaryVehicle[] = [];
+    const areDepartmentsOk =
+      payloadDepartmentsIds.every((d) => departmentsIds.includes(d)) ||
+      payloadDepartmentsIds.length === 0;
+    const areFuelsOk =
+      payloadFuelsIds?.every((f) => fuelsIds.includes(f)) ||
+      payloadFuelsIds?.length === 0;
 
-      let departmentDocument = existingDepartments.find(
-        (d) => d._id === dept.department,
-      );
-      let departmentTotalValue = 0;
-
-      if (!departmentDocument) {
-        throw new Error(`Department ${dept.department} not found in database.`);
-      }
-
-      for (const car of dept.carEntries) {
-        let totalLiters = 0;
-        let lastKm: number | null = null;
-
-        for (const f of car.fuelings) {
-          totalLiters += f.quantity;
-          lastKm = f.kmHr;
-        }
-
-        const fuelRecord = allFuels.find((fuel) => fuel._id === car.fuel);
-
-        if (!fuelRecord) {
-          throw new Error(`Fuel ${car.fuel} not found in database.`);
-        }
-
-        let pricePerLiter = 0;
-        if (
-          fuelRecord &&
-          fuelRecord.currentPriceVersion &&
-          typeof fuelRecord.currentPriceVersion === "object" &&
-          "price" in fuelRecord.currentPriceVersion
-        ) {
-          pricePerLiter = Number(
-            (fuelRecord.currentPriceVersion as any).price ?? 0,
-          );
-        }
-        const totalValue = Number((pricePerLiter * totalLiters).toFixed(2));
-        const getKmHrs = pluck("kmHr");
-        const kmHrs = getKmHrs(car.fuelings) as number[];
-        const maxKm = Math.max(...kmHrs);
-        const minKm = Math.min(...kmHrs);
-        const totalKmHr = maxKm && minKm ? maxKm - minKm : 0;
-
-        vehiclesTotals.push({
-          vehicle: car.vehicle,
-          prefix: car.prefix,
-          fuel: new Types.ObjectId(fuelRecord._id),
-          totalLiters,
-          totalValue,
-          totalKmHr,
-          lastKm,
-        });
-
-        departmentTotalValue += totalValue;
-      }
-
-      departments.push({
-        department: departmentDocument._id,
-        totalValue: departmentTotalValue,
-        name: departmentDocument.name,
-        vehicles: vehiclesTotals,
-      });
+    if (!payload._id && actualWeekSummary) {
+      throw new Error("A summary for this week already exists.");
     }
+
+    if (payload._id !== actualWeekSummary?._id) {
+      throw new Error(
+        "The summary id does not match the current week summary.",
+      );
+    }
+
+    if (!areDepartmentsOk) {
+      throw new Error("One or more departments in the payload do not exist.");
+    }
+
+    if (!areFuelsOk) {
+      throw new Error("One or more fuels in the payload do not exist.");
+    }
+
+    const payloadWithUpdatedTotals = calculateSummaryTotals(payload, fuels);
 
     const summary = await WeeklyFuellingSummaryModel.findOneAndUpdate(
       { weekStart },
       {
-        $set: {
-          departments,
-          weekStart,
-        },
+        $set: payloadWithUpdatedTotals,
         $setOnInsert: {
           createdAt: new Date(),
         },
@@ -168,6 +137,7 @@ export const WeeklyFuellingSummaryRepository = {
       {
         upsert: true,
         new: true,
+        returnDocument: "after",
       },
     )
       .populate({
@@ -177,9 +147,10 @@ export const WeeklyFuellingSummaryRepository = {
       .populate({
         path: "departments.vehicles.fuel",
         model: "Fuel",
-      });
+      })
+      .lean();
 
-    const parsedSummary = toWeeklySummaryDTO(summary);
+    const parsedSummary = toWeeklySummaryDTO(summary as any);
     return parsedSummary;
   },
 };

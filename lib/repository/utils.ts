@@ -1,19 +1,14 @@
 import type { VacationFormData } from "@/app/(secure)/vacation/types";
 import { endOfDaySP, endOfHalfDay, startOfDaySP } from "@/app/utils";
-import {
-  addDays,
-  endOfYear,
-  isSameMonth,
-  startOfYear,
-  toDate,
-} from "date-fns";
+import { addDays, endOfYear, isSameMonth, startOfYear, toDate } from "date-fns";
 import VacationModel from "@/models/Vacation";
-import { pluck, sum } from "ramda";
-import type { VacationDTO, WorkerDTO } from "@/dto";
+import { clone, pluck, sum } from "ramda";
+import type { VacationDTO, WeeklyFuellingSummaryDTO, WorkerDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { TimeSearchProps } from "@/app/(secure)/components/types";
+import { getCarTotalKmHr } from "@/app/(secure)/materialRequisition/utils";
 
 export const updateVacationDates = (
   payload: VacationFormData | Partial<VacationFormData>,
@@ -264,4 +259,47 @@ export const defineTimeConditions = ({
   }
 
   return conditions;
+};
+
+export const calculateSummaryTotals = (
+  payload: Partial<WeeklyFuellingSummaryDTO>,
+  fuels: FuelDTO[],
+): Partial<WeeklyFuellingSummaryDTO> => {
+  const updatedSummary = clone(payload);
+
+  const departmentsWithVehicleTotalsUpdated = updatedSummary.departments?.map(
+    (dept) => ({
+      ...dept,
+      vehicles: dept.vehicles.map((v) => {
+        const vehicleFuel = fuels.find((f) => f._id === (v.fuel as string));
+        const vehicleFuelPriceVersion = vehicleFuel?.currentPriceVersion as
+          | FuelPriceVersionDTO
+          | undefined;
+
+        if (!vehicleFuelPriceVersion)
+          throw new Error(
+            "Fuel price version not found for vehicle: " + v.vehicle,
+          );
+
+        return {
+          ...v,
+          totalLiters: v.fuelings?.reduce((acc, f) => acc + f.quantity, 0) ?? 0,
+          totalValue:
+            v.fuelings?.reduce(
+              (acc, f) => acc + f.quantity * vehicleFuelPriceVersion.price,
+              0,
+            ) ?? 0,
+          totalKmHr: getCarTotalKmHr(v.fuelings ?? []) ?? 0,
+          lastKm: Math.max(...(v.fuelings?.map((f) => f.kmHr ?? 0) ?? [0])),
+        };
+      }),
+    }),
+  );
+  const departmentsWithTotalValueUpdated =
+    departmentsWithVehicleTotalsUpdated?.map((dept) => ({
+      ...dept,
+      totalValue: dept.vehicles?.reduce((acc, v) => acc + v.totalValue, 0) ?? 0,
+    }));
+
+  return { ...payload, departments: departmentsWithTotalValueUpdated };
 };

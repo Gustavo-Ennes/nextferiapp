@@ -2,85 +2,83 @@
 
 import { Box, Divider } from "@mui/material";
 import { CardsGrid } from "./CardGrid";
-import type {
-  CarEntry,
-  TabData,
-} from "@/lib/repository/weeklyFuellingSummary/types";
 import { TabForm } from "./TabForm";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
-import type { FuelDTO } from "@/dto/FuelDTO";
-import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import type {
+  WeeklyFuellingSummaryDepartment,
+  WeeklyFuellingSummaryVehicle,
+} from "@/dto/WeeklyFuellingSummaryDTO";
+import { clone } from "ramda";
+import type { MaterialRequisitionTabProps } from "../../types";
 
 export const Tab = ({
-  data: tabData,
+  summaryDepartment,
   onDataChangeAction,
   fuels,
-  weeklyFuelingSummary,
-}: {
-  data: TabData;
-  onDataChangeAction: (updatedTabData: TabData) => void;
-  fuels: FuelDTO[];
-  weeklyFuelingSummary: WeeklyFuellingSummaryDTO | null;
-}) => {
+}: MaterialRequisitionTabProps) => {
   const { selectedCar, setSelectedCar, vehicleEquipInputRef, dateInputRef } =
     useMaterialRequisitionForm();
 
-  const submitData = (car: CarEntry) => {
+  const submitData = async (vehicle: WeeklyFuellingSummaryVehicle) => {
     const isEditing = !!selectedCar;
-    const populatedCar = {
-      ...car,
-      fuel: fuels.find((f) => f._id === car.fuel) ?? car.fuel,
-    };
-    const updatedTabData: TabData = { ...tabData };
-    const carsExceptCarToEdit =
-      tabData?.carEntries?.filter(
-        (otherCar) => otherCar.prefix !== selectedCar?.prefix,
+    const updatedSummaryDepartment: WeeklyFuellingSummaryDepartment =
+      clone(summaryDepartment);
+    const vehiclesExceptVehicleToEdit =
+      summaryDepartment?.vehicles?.filter(
+        (otherVehicle) => otherVehicle.prefix !== selectedCar?.prefix,
       ) ?? [];
 
-    // I delete one car's fuelings
-    if (isEditing && !car.fuelings.length) {
-      updatedTabData.carEntries = carsExceptCarToEdit;
-      // car has fuelings
+    // I delete one vehicle's fuelings
+    if (isEditing && vehicle?.fuelings?.length === 0) {
+      updatedSummaryDepartment.vehicles = vehiclesExceptVehicleToEdit;
+      // vehicle has fuelings
     } else if (isEditing) {
-      updatedTabData.carEntries = [...carsExceptCarToEdit, populatedCar];
-      // creating a car
-    } else
-      updatedTabData.carEntries = [
-        ...(tabData?.carEntries ?? []),
-        populatedCar,
+      updatedSummaryDepartment.vehicles = [
+        ...vehiclesExceptVehicleToEdit,
+        vehicle,
       ];
+      // creating a vehicle
+    } else {
+      updatedSummaryDepartment.vehicles = [
+        ...(summaryDepartment?.vehicles ?? []),
+        vehicle,
+      ];
+    }
 
-    onDataChangeAction(updatedTabData);
-    vehicleEquipInputRef?.current?.focus();
+    onDataChangeAction(updatedSummaryDepartment).then(() =>
+      vehicleEquipInputRef?.current?.focus(),
+    );
   };
 
   const removeCar = (prefixToDelete: number) => {
     onDataChangeAction({
-      ...tabData,
-      carEntries:
-        tabData?.carEntries?.filter(
+      ...summaryDepartment,
+      vehicles:
+        summaryDepartment?.vehicles?.filter(
           ({ prefix }) => prefix !== prefixToDelete,
         ) ?? [],
-    });
-    vehicleEquipInputRef?.current?.focus();
+    }).then(() => vehicleEquipInputRef?.current?.focus());
   };
 
-  const editCar = (car: CarEntry) => {
-    const unpopulatedCar = { ...car, fuel: (car.fuel as FuelDTO)?._id };
-    setSelectedCar(selectedCar?.prefix === car.prefix ? null : unpopulatedCar);
+  const editCar = (vehicle: WeeklyFuellingSummaryVehicle) => {
+    setSelectedCar(selectedCar?.prefix === vehicle.prefix ? null : vehicle);
     dateInputRef?.current?.focus();
   };
 
   return (
-    tabData && (
+    summaryDepartment && (
       <Box>
-        <TabForm onSubmitAction={submitData} tabData={tabData} fuels={fuels} />
+        <TabForm
+          onSubmitAction={submitData}
+          summaryDepartment={summaryDepartment}
+          fuels={fuels}
+        />
         <Divider sx={{ my: 2 }} />
         <CardsGrid
-          tabData={tabData}
+          summaryDepartment={summaryDepartment}
           onRemoveAction={removeCar}
           onEditAction={editCar}
-          weeklyFuelingSummary={weeklyFuelingSummary}
+          fuels={fuels}
         />
       </Box>
     )

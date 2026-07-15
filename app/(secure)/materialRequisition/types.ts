@@ -1,4 +1,8 @@
-import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import type { FuelDTO, DepartmentDTO, WeeklyFuellingSummaryDTO } from "@/dto";
+import type {
+  WeeklyFuellingSummaryDepartment,
+  WeeklyFuellingSummaryVehicle,
+} from "@/dto/WeeklyFuellingSummaryDTO";
 
 export interface DepartmentConsumptionRow {
   department: string;
@@ -65,4 +69,25 @@ export type GraphUtilFnParam = {
   summaries: WeeklyFuellingSummaryDTO[];
   selectedDepartment?: string;
   selectedWeek?: string;
+};
+
+export type MaterialRequisitionFormProps = {
+  summary: WeeklyFuellingSummaryDTO;
+  fuels: FuelDTO[];
+  departments: DepartmentDTO[];
+};
+
+export type CardsGridProps = {
+  summaryDepartment: WeeklyFuellingSummaryDepartment;
+  onRemoveAction: (prefix: number) => void;
+  onEditAction: (vehicle: WeeklyFuellingSummaryVehicle) => void;
+  fuels: FuelDTO[]
+};
+
+export type MaterialRequisitionTabProps = {
+  summaryDepartment: WeeklyFuellingSummaryDepartment;
+  onDataChangeAction: (
+    updatedSummaryDepartment: WeeklyFuellingSummaryDepartment,
+  ) => Promise<void>;
+  fuels: FuelDTO[];
 };

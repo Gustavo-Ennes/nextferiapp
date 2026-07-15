@@ -1,15 +1,15 @@
 import { format, isSameDay, toDate, addDays } from "date-fns";
-import type {
-  CarEntry,
-  FuelingData,
-  LocalStorageData,
-  TabData,
-} from "../../../lib/repository/weeklyFuellingSummary/types";
+import type { LocalStorageData } from "../../../lib/repository/weeklyFuellingSummary/types";
 import { flatten, isNil, pluck, reject, sum } from "ramda";
 import type { AverageDepartmentTableParam } from "./components/types";
-import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
-import type { DepartmentDTO } from "@/dto";
-import type { FuelDTO } from "@/dto/FuelDTO";
+import type {
+  DepartmentDTO,
+  WeeklyFuellingSummaryDTO,
+  FuelDTO,
+  WeeklyFuellingSummaryDepartment,
+  WeeklyFuellingSummaryVehicle,
+  FuelPriceVersionDTO,
+} from "@/dto";
 import type {
   DepartmentConsumptionRow,
   DepartmentScatterSeries,
@@ -21,7 +21,7 @@ import type {
   PieData,
   GraphUtilFnParam,
 } from "./types";
-import type { FuellingSummaryDepartment } from "@/models/types";
+import type { FuelingData } from "@/models/types";
 // import { mockedTabsData } from "./mock";
 
 export const setLocalStorageData = ({
@@ -38,70 +38,12 @@ export const setLocalStorageData = ({
 export const getLocalStorageData = async (): Promise<LocalStorageData> => {
   const rawData = localStorage.getItem("pfdDataUpdate") as string;
   const emptyData: LocalStorageData = {
-    activeTab: 1,
-    data: [],
     pdfData: { items: [], opened: false },
   };
   const data: LocalStorageData = rawData
     ? await JSON.parse(rawData)
     : emptyData;
   return data;
-};
-
-export const populateLocalStorage = ({
-  departments,
-  fuels,
-  localStorageData,
-}: {
-  departments: DepartmentDTO[];
-  fuels: FuelDTO[];
-  localStorageData: LocalStorageData;
-}): LocalStorageData => {
-  return {
-    ...localStorageData,
-    data: localStorageData.data.map((tabData) => ({
-      ...tabData,
-      department:
-        typeof tabData.department === "string"
-          ? (departments.find((dept) => dept._id === tabData.department) ??
-            tabData.department)
-          : tabData.department,
-      carEntries: tabData.carEntries.map((carEntry) => ({
-        ...carEntry,
-        fuel:
-          typeof carEntry.fuel === "string"
-            ? (fuels.find(
-                (fuel) =>
-                  fuel._id === carEntry.fuel ||
-                  String(fuel.name).toLowerCase() ===
-                    String(carEntry.fuel).toLowerCase(),
-              ) ?? carEntry.fuel)
-            : carEntry.fuel,
-      })),
-    })),
-  };
-};
-
-export const unpopulateLocalStorage = (
-  data: LocalStorageData,
-): LocalStorageData => {
-  return {
-    ...data,
-    data: data.data.map((tabData) => ({
-      ...tabData,
-      department:
-        typeof tabData.department === "object"
-          ? (tabData.department as DepartmentDTO)._id
-          : tabData.department,
-      carEntries: tabData.carEntries.map((carEntry) => ({
-        ...carEntry,
-        fuel:
-          typeof carEntry.fuel === "object"
-            ? (carEntry.fuel as FuelDTO)._id
-            : carEntry.fuel,
-      })),
-    })),
-  };
 };
 
 // USE TO GENERATE RANDOM DATA(config in mock.ts)
@@ -128,10 +70,9 @@ export const a11yProps = (index: number) => ({
 export const getLabel = ({ quantity, date }: FuelingData): string =>
   `${format(new Date(date), "dd/MM/yy")} - ${quantity.toFixed(3)}L.`;
 
-export const removeAllCarEntries = (tabData: TabData): TabData => ({
-  ...tabData,
-  carEntries: [],
-});
+export const removeAllVechiles = (
+  department: WeeklyFuellingSummaryDepartment,
+): WeeklyFuellingSummaryDepartment => ({ ...department, vehicles: [] });
 
 export const sortCarFuelings = (fuelings: FuelingData[]): FuelingData[] =>
   [...fuelings].sort((a, b) =>
@@ -143,25 +84,27 @@ export const sortCarFuelings = (fuelings: FuelingData[]): FuelingData[] =>
         toDate(a.date).getTime() - toDate(b.date).getTime(),
   );
 
-export const prefixExistsInTabData = ({
+export const prefixExistsInSummaryDepartment = ({
   prefix,
-  tabData: { carEntries },
+  summaryDepartment: { vehicles },
 }: {
-  tabData: TabData;
+  summaryDepartment: WeeklyFuellingSummaryDepartment;
   prefix: number;
 }) => {
-  const prefixes = pluck("prefix", carEntries ?? []);
+  const prefixes = pluck("prefix", vehicles ?? []);
 
   return prefixes.includes(prefix);
 };
 
-export const resumeTabData = (tabData?: TabData): string => {
-  if (!tabData) return "";
+export const resumeSummaryDepartment = (
+  department?: WeeklyFuellingSummaryDepartment,
+): string => {
+  if (!department) return "";
 
   const totalFuelings = flatten(
-    tabData.carEntries.map((carEntry) => carEntry.fuelings),
+    department.vehicles.flatMap((v) => v.fuelings ?? []),
   ).length;
-  return `${(tabData.department as DepartmentDTO).name.toUpperCase()} - ${tabData.carEntries.length} veículos - ${totalFuelings} abastecimentos`;
+  return `${(department as WeeklyFuellingSummaryDepartment).name.toUpperCase()} - ${department.vehicles.length} veículos - ${totalFuelings} abastecimentos`;
 };
 
 export const getFuelTotalsFromDepartmentInfos = (
@@ -221,56 +164,18 @@ export const getDepartmentWeeklyRows = (
   );
 };
 
-export const countAllCars = (tabsData: TabData[]): number =>
-  sum(tabsData.map((tabData) => tabData.carEntries.length));
+export const countAllCars = (summary: WeeklyFuellingSummaryDTO): number =>
+  summary.departments.reduce(
+    (total, dept) => total + (dept.vehicles?.length || 0),
+    0,
+  );
 
-export const countAllFuelings = (tabsData: TabData[]): number =>
+export const countAllFuelings = (summary: WeeklyFuellingSummaryDTO): number =>
   sum(
-    tabsData.map((tabData) =>
-      sum(tabData.carEntries.map((car) => car.fuelings.length)),
+    summary.departments.flatMap(
+      (dept) => dept.vehicles?.flatMap((v) => v.fuelings?.length || 0) || [],
     ),
   );
-
-export const countAllLiters = (tabsData: TabData[]): number =>
-  sum(
-    tabsData.map((tabData) =>
-      sum(
-        tabData.carEntries.map((car) =>
-          sum(car.fuelings.map((fueling) => fueling.quantity)),
-        ),
-      ),
-    ),
-  );
-
-export const countAllKms = (tabsData: TabData[]): number => {
-  let sum = 0;
-  tabsData.forEach((tabData) =>
-    tabData.carEntries.forEach(({ fuelings }) => {
-      sum += getCarTotalKmHr(fuelings ?? []) ?? 0;
-    }),
-  );
-  return sum;
-};
-
-export const getCarTotalValue = (
-  car: CarEntry,
-  weeklyFuelingSummary: WeeklyFuellingSummaryDTO | null,
-  departmentId: string,
-): number => {
-  if (!weeklyFuelingSummary) return 0;
-
-  const department = weeklyFuelingSummary.departments.find(
-    (dept) => (dept.department as DepartmentDTO)._id === departmentId,
-  );
-
-  if (!department) return 0;
-
-  const departmentCar = department.vehicles.find(
-    (vehicle) => car.prefix === vehicle.prefix,
-  );
-
-  return departmentCar ? departmentCar.totalValue : 0;
-};
 
 export const getSummariesFuels = (
   summaries: WeeklyFuellingSummaryDTO[],
@@ -752,7 +657,7 @@ export const getPieData = ({
   const departmentsInfo = flatten(summaries.map((s) => s.departments));
 
   if (selectedDepartment === "__ALL__") {
-    const uniqueDepartmentsInfo: FuellingSummaryDepartment[] = [];
+    const uniqueDepartmentsInfo: WeeklyFuellingSummaryDepartment[] = [];
 
     departmentsInfo.forEach((deptInfo) => {
       const existing = uniqueDepartmentsInfo.find(
@@ -773,7 +678,7 @@ export const getPieData = ({
             (sum, v) => sum + v.totalLiters,
             0,
           ),
-        } as FuellingSummaryDepartment);
+        });
       }
     });
     return uniqueDepartmentsInfo.map((d) => ({
@@ -811,3 +716,94 @@ export const getCarTotalKmHr = (fuelings: FuelingData[]): number | null => {
   const maxkmHr = Math.max(...(kmHrsWithoutNull ?? []));
   return minkmHr && maxkmHr && maxkmHr > minkmHr ? maxkmHr - minkmHr : null;
 };
+
+export const getCarTotalValue = (
+  fuelings: FuelingData[],
+  fuelPrice: number,
+): number => fuelings.reduce((acc, f) => acc + f.quantity * fuelPrice, 0);
+
+export const departmentHasPrefix = ({
+  department,
+  prefix,
+}: {
+  department: WeeklyFuellingSummaryDepartment;
+  prefix: number;
+}): boolean => {
+  const prefixes = pluck("prefix", department.vehicles ?? []);
+  return prefixes.includes(prefix);
+};
+
+export const countAllLiters = (summary: WeeklyFuellingSummaryDTO): number =>
+  sum(
+    summary.departments.flatMap(
+      (dept) =>
+        dept.vehicles?.flatMap(
+          (v) => v.fuelings?.map((f) => f.quantity) || [],
+        ) || [],
+    ),
+  );
+
+export const countAllKms = (summary: WeeklyFuellingSummaryDTO): number => {
+  let sum = 0;
+  summary.departments.forEach((dept) =>
+    dept.vehicles?.forEach((vehicle) => {
+      sum += getCarTotalKmHr(vehicle.fuelings ?? []) ?? 0;
+    }),
+  );
+  return sum;
+};
+
+export const countAllValue = (
+  summary: WeeklyFuellingSummaryDTO,
+  fuels: FuelDTO[],
+): number =>
+  summary.departments.reduce(
+    (total, dept) =>
+      total +
+      (dept.vehicles?.reduce(
+        (acc, v) =>
+          acc +
+          (v.fuelings?.reduce(
+            (a, f) =>
+              a +
+              f.quantity *
+                (getVehicleFuel(v as WeeklyFuellingSummaryVehicle, fuels)
+                  ?.price ?? 0),
+            0,
+          ) ?? 0),
+        0,
+      ) || 0),
+    0,
+  );
+
+export const getVehicleFuel = (
+  vehicle: WeeklyFuellingSummaryVehicle,
+  fuels: FuelDTO[],
+): FuelPriceVersionDTO | null => {
+  const fuel = fuels.find((f) => {
+    return f._id === (vehicle.fuel as FuelDTO)._id;
+  });
+
+  return fuel ? (fuel.currentPriceVersion as FuelPriceVersionDTO) : null;
+};
+
+export const prepareSummaryPayload = (
+  payload: Partial<WeeklyFuellingSummaryDTO>,
+): Partial<WeeklyFuellingSummaryDTO> => ({
+  ...payload,
+  departments: payload.departments?.map((d) => ({
+    ...d,
+    department: (d.department as DepartmentDTO)?._id ?? d.department,
+    totalValue: 0,
+    vehicles: d.vehicles?.map((v) => ({
+      ...v,
+      fuel: (v.fuel as FuelDTO)?._id ?? v.fuel,
+      lastKm: null,
+      totalValue: 0,
+      totalKmHr: undefined,
+      totalLiters: 0,
+    })),
+  })),
+  weekStart: undefined,
+  createdAt: undefined,
+});

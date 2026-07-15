@@ -10,9 +10,10 @@ export const MaterialRequisitionCard = ({
   color = "primary",
   departmentName,
 }: MaterialRequisitionCardParam) => {
-  const { selectedTabData } = useMaterialRequisitionForm();
-  const selectedDepartmentName = (selectedTabData?.department as DepartmentDTO)
-    ?.name;
+  const { selectedDepartment } = useMaterialRequisitionForm();
+  const selectedDepartmentName = (
+    selectedDepartment?.department as DepartmentDTO
+  )?.name;
   const isTotalGreaterThan999 = data.total.split(".")[0].length > 3;
   const isSeletedGreaterThan999 =
     departmentName || (data.selected && data.selected.split(".")[0].length > 3);

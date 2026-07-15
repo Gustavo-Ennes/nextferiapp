@@ -15,7 +15,7 @@ import { format, toDate } from "date-fns";
 import { useEffect, useState } from "react";
 
 export const FuelingFormList = () => {
-  const { fuelings, setFuelings } = useMaterialRequisitionForm();
+  const { vehicleForm, setVehicleForm } = useMaterialRequisitionForm();
   const [problematicFuelingId, setProblematicFuelingId] = useState<
     number | null
   >(null);
@@ -25,7 +25,10 @@ export const FuelingFormList = () => {
   const [errorBorder, setErrorBorder] = useState(false);
 
   const onRemove = (idx: number) => {
-    setFuelings(fuelings.filter((_, i) => i !== idx));
+    setVehicleForm({
+      ...vehicleForm,
+      fuelings: vehicleForm.fuelings.filter((_, i) => i !== idx),
+    });
   };
 
   const getSecondaryListItemText = ({
@@ -43,9 +46,9 @@ export const FuelingFormList = () => {
   };
 
   useEffect(() => {
-    for (let i = 0; i < fuelings.length; i++) {
-      const actualFueling = fuelings[i];
-      const lastFueling = i > 0 ? fuelings[i - 1] : null;
+    for (let i = 0; i < vehicleForm.fuelings.length; i++) {
+      const actualFueling = vehicleForm.fuelings[i];
+      const lastFueling = i > 0 ? vehicleForm.fuelings[i - 1] : null;
 
       if (
         lastFueling &&
@@ -66,7 +69,7 @@ export const FuelingFormList = () => {
         setErrorBorder(false);
       }
     }
-  }, [fuelings]);
+  }, [vehicleForm.fuelings]);
 
   return (
     <Box
@@ -75,7 +78,7 @@ export const FuelingFormList = () => {
         maxHeight: 1,
       }}
     >
-      {fuelings.length > 0 ? (
+      {vehicleForm.fuelings.length > 0 ? (
         <>
           <Typography
             variant="caption"
@@ -97,7 +100,7 @@ export const FuelingFormList = () => {
             }}
             dense
           >
-            {fuelings.map(({ date, kmHr, quantity }, idx) => {
+            {vehicleForm.fuelings.map(({ date, kmHr, quantity }, idx) => {
               const color = idx === problematicFuelingId ? "error" : "primary";
 
               return (

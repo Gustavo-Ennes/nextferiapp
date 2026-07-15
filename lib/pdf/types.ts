@@ -1,11 +1,13 @@
 /* eslint-disable no-unused-vars */
 import type { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
-
 import type {
-  CarEntry,
-  TabData,
-} from "@/lib/repository/weeklyFuellingSummary/types";
-import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
+  DepartmentDTO,
+  VacationDTO,
+  WeeklyFuellingSummaryDepartment,
+  WeeklyFuellingSummaryDTO,
+  WeeklyFuellingSummaryVehicle,
+  WorkerDTO,
+} from "@/dto";
 import type {
   PurchaseOrderDTO,
   PurchaseOrderItemDTO,
@@ -36,7 +38,7 @@ type RenderParam = {
   reference?: Date;
   type?: string; // print type
   period?: string;
-  data?: TabData[];
+  data?: WeeklyFuellingSummaryDTO;
   fuels?: FuelDTO[];
 };
 
@@ -138,8 +140,8 @@ type MaterialRequisitionDrawBlockParam = {
   fontSize: number;
   page: PDFPage;
   headerY?: number;
-  data: CarEntry;
-  tabData: TabData;
+  vehicle: WeeklyFuellingSummaryVehicle;
+  summaryDepartment: WeeklyFuellingSummaryDepartment;
 };
 
 type DrawLineParam = {
@@ -155,7 +157,6 @@ type DrawPurchaseOrderSectionHeaderParam = {
   height: Height;
   color?: Color;
 };
-
 
 type OrderEntry = {
   items: PurchaseOrderItemDTO[];

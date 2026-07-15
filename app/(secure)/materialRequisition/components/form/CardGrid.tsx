@@ -19,71 +19,72 @@ import {
   Paid,
   Straighten,
 } from "@mui/icons-material";
-import type {
-  CarEntry,
-  TabData,
-} from "../../../../../lib/repository/weeklyFuellingSummary/types";
 import { capitalizeName } from "@/app/utils";
 import { useDialog } from "@/context/DialogContext";
 import { type MouseEvent } from "react";
 import { useMaterialRequisitionForm } from "@/context/MaterialRequisitionFormContext";
 import type { FuelDTO } from "@/dto/FuelDTO";
-import type { DepartmentDTO, WeeklyFuellingSummaryDTO } from "@/dto";
-import { getCarTotalKmHr, getCarTotalValue } from "../../utils";
+import type { WeeklyFuellingSummaryVehicle } from "@/dto";
+import { getCarTotalKmHr, getCarTotalValue, getVehicleFuel } from "../../utils";
+import type { CardsGridProps } from "../../types";
 
 export const CardsGrid = ({
-  tabData,
+  summaryDepartment,
   onRemoveAction,
   onEditAction,
-  weeklyFuelingSummary,
-}: {
-  tabData: TabData;
-  onRemoveAction: (prefix: number) => void;
-  onEditAction: (car: CarEntry) => void;
-  weeklyFuelingSummary: WeeklyFuellingSummaryDTO | null;
-}) => {
+  fuels,
+}: CardsGridProps) => {
   const { selectedCar } = useMaterialRequisitionForm();
   const { openConfirmationDialog, openCarDetailDialog } = useDialog();
-  const sortedCarEntries = tabData.carEntries?.sort(
+  const sortedCarEntries = summaryDepartment.vehicles?.sort(
     (a, b) => a.prefix - b.prefix,
   );
 
-  const handleOpenConfirmationDialog = (car: CarEntry, e: MouseEvent) => {
+  const handleOpenConfirmationDialog = (
+    vehicle: WeeklyFuellingSummaryVehicle,
+    e: MouseEvent,
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     openConfirmationDialog({
-      onConfirmAction: () => onRemoveAction(car.prefix),
-      title: `Excluir o #${car.prefix}?`,
-      description: `Ao confirmar, você irá excluir ${car.vehicle} permanentemente. Deseja proceder?`,
+      onConfirmAction: () => onRemoveAction(vehicle.prefix),
+      title: `Excluir o #${vehicle.prefix}?`,
+      description: `Ao confirmar, você irá excluir ${vehicle.vehicle} permanentemente. Deseja proceder?`,
     });
   };
 
-  const handleOpenCarDetailDialog = (car: CarEntry, e: MouseEvent) => {
+  const handleOpenCarDetailDialog = (
+    vehicle: WeeklyFuellingSummaryVehicle,
+    e: MouseEvent,
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     openCarDetailDialog({
       onConfirmAction: () => undefined,
       title: "Detalhes",
-      car,
+      car: vehicle,
     });
   };
 
-  const isSelected = (car: CarEntry) => selectedCar?.prefix === car.prefix;
+  const isSelected = (vehicle: WeeklyFuellingSummaryVehicle) =>
+    selectedCar?.prefix === vehicle.prefix;
 
   return (
     <Grid container spacing={2}>
-      {sortedCarEntries?.map((car) => (
-        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={car.prefix}>
+      {sortedCarEntries?.map((vehicle) => (
+        <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={vehicle.prefix}>
           <Box
             sx={{
               position: "relative",
               borderRadius: 2,
               overflow: "hidden",
               cursor: "pointer",
-              border: isSelected(car) ? "2px solid" : "2px solid transparent",
-              borderColor: isSelected(car) ? "primary.main" : "transparent",
+              border: isSelected(vehicle)
+                ? "2px solid"
+                : "2px solid transparent",
+              borderColor: isSelected(vehicle) ? "primary.main" : "transparent",
               transition: "all 0.2s ease",
-              boxShadow: isSelected(car)
+              boxShadow: isSelected(vehicle)
                 ? "0 0 0 3px rgba(25, 118, 210, 0.15)"
                 : "0 2px 8px rgba(0,0,0,0.08)",
               "&:hover": {
@@ -118,10 +119,10 @@ export const CardsGrid = ({
                   mb: 1.5,
                 }}
               >
-                {isSelected(car) && <CheckBox color="success" />}
+                {isSelected(vehicle) && <CheckBox color="success" />}
                 <Tag sx={{ fontSize: 14 }} />
                 <Typography variant="caption" fontWeight={700}>
-                  {car.prefix}
+                  {vehicle.prefix}
                 </Typography>
               </Box>
 
@@ -140,7 +141,7 @@ export const CardsGrid = ({
                     color: "primary.main",
                   }}
                 />
-                {capitalizeName(car.vehicle)}
+                {capitalizeName(vehicle.vehicle)}
               </Typography>
 
               {/* Fuel type */}
@@ -152,7 +153,7 @@ export const CardsGrid = ({
                 <LocalGasStation
                   sx={{ fontSize: 15, color: "secondary.main" }}
                 />
-                {capitalizeName((car.fuel as FuelDTO)?.name)}
+                {capitalizeName((vehicle.fuel as FuelDTO)?.name)}
               </Typography>
 
               {/* R$ Total */}
@@ -164,9 +165,8 @@ export const CardsGrid = ({
                 <Paid sx={{ fontSize: 15, color: "secondary.main" }} />
                 R${" "}
                 {getCarTotalValue(
-                  car,
-                  weeklyFuelingSummary,
-                  (tabData.department as DepartmentDTO)._id,
+                  vehicle.fuelings ?? [],
+                  getVehicleFuel(vehicle, fuels)?.price ?? 0,
                 ).toFixed(2)}
               </Typography>
 
@@ -177,13 +177,13 @@ export const CardsGrid = ({
                 sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
               >
                 <Straighten sx={{ fontSize: 15, color: "secondary.main" }} />{" "}
-                {getCarTotalKmHr(car.fuelings)?.toFixed(2) ?? "--"}
+                {getCarTotalKmHr(vehicle.fuelings ?? [])?.toFixed(2) ?? "--"}
               </Typography>
 
               {/* Fuelings count */}
               <Box sx={{ mt: 1.5 }}>
                 <Chip
-                  label={`${car.fuelings?.length ?? 0} abastecimento(s)`}
+                  label={`${vehicle.fuelings?.length ?? 0} abastecimento(s)`}
                   size="small"
                   variant="outlined"
                   color="default"
@@ -216,7 +216,7 @@ export const CardsGrid = ({
                 variant="contained"
                 size="small"
                 startIcon={<InfoOutlined />}
-                onClick={(e) => handleOpenCarDetailDialog(car, e)}
+                onClick={(e) => handleOpenCarDetailDialog(vehicle, e)}
                 sx={{
                   width: 140,
                   fontWeight: 600,
@@ -233,7 +233,7 @@ export const CardsGrid = ({
                 variant="contained"
                 size="small"
                 startIcon={<CheckCircleOutline />}
-                onClick={() => onEditAction(car)}
+                onClick={() => onEditAction(vehicle)}
                 sx={{
                   width: 140,
                   fontWeight: 600,
@@ -243,13 +243,13 @@ export const CardsGrid = ({
                   "&:hover": { bgcolor: "primary.dark" },
                 }}
               >
-                {isSelected(car) ? "Limpar seleção" : "Selecionar"}
+                {isSelected(vehicle) ? "Limpar seleção" : "Selecionar"}
               </Button>
               <Button
                 variant="contained"
                 size="small"
                 startIcon={<Delete />}
-                onClick={(e) => handleOpenConfirmationDialog(car, e)}
+                onClick={(e) => handleOpenConfirmationDialog(vehicle, e)}
                 sx={{
                   width: 140,
                   fontWeight: 600,

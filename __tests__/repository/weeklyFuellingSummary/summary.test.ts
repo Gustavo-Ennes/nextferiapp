@@ -1,6 +1,5 @@
 import { WeeklyFuellingSummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
 import { WeeklyFuellingSummaryModel } from "@/models/WeeklyFuellingSummary";
-import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import { startOfWeek, toDate } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
 import { clone, pluck, sum } from "ramda";
@@ -8,15 +7,20 @@ import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import { createBaseEntities } from "../vacation/utils";
 import { Types } from "mongoose";
 import DepartmentModel from "@/models/Department";
-import type { BossDTO, DepartmentDTO } from "@/dto";
+import type {
+  BossDTO,
+  DepartmentDTO,
+  FuelPriceVersionDTO,
+  WeeklyFuellingSummaryDTO,
+} from "@/dto";
 
 describe("WeeklyFuellingSummaryRepository", () => {
-  let basePayload: LocalStorageData = {} as any;
   let boss: BossDTO;
+  let basePayload: Omit<WeeklyFuellingSummaryDTO, "_id" | "createdAt">;
 
   const beforeEachFn = async () => {
     const { baseDepartment, baseBoss } = await createBaseEntities();
-    const fueling = await FuelRepository.create({
+    const fuel = await FuelRepository.create({
       name: "Gasolina",
       unit: "L",
       price: 5,
@@ -24,19 +28,26 @@ describe("WeeklyFuellingSummaryRepository", () => {
     });
 
     boss = baseBoss;
-
+    const totalLiters = 30;
     basePayload = {
-      pdfData: { items: [], opened: false },
-      activeTab: 1,
-      data: [
+      weekStart: startOfWeek(startOfDaySP(new Date()), {
+        weekStartsOn: 1,
+      }).toISOString(),
+      departments: [
         {
-          order: 1,
-          department: baseDepartment._id,
-          carEntries: [
+          department: baseDepartment._id.toString(),
+          name: baseDepartment.name,
+          totalValue: 0,
+          vehicles: [
             {
               vehicle: "Veículo #1",
-              prefix: 123,
-              fuel: fueling._id,
+              prefix: 101,
+              fuel: fuel._id.toString(),
+              totalValue:
+                totalLiters *
+                (fuel.currentPriceVersion as FuelPriceVersionDTO).price,
+              totalLiters,
+              lastKm: 1100,
               fuelings: [
                 {
                   date: new Date().toISOString(),
@@ -74,14 +85,6 @@ describe("WeeklyFuellingSummaryRepository", () => {
   describe("WeeklyFuellingSummaryRepository.createOrUpdate", () => {
     beforeEach(beforeEachFn);
 
-    it("returns null if payload has no data", async () => {
-      const result = await WeeklyFuellingSummaryRepository.createOrUpdate({
-        data: [],
-      } as any);
-
-      expect(result).toBeNull();
-    });
-
     it("creates a weekly summary when none exists", async () => {
       const created =
         await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
@@ -89,7 +92,7 @@ describe("WeeklyFuellingSummaryRepository", () => {
       expect(created).toBeDefined();
       expect(created!.departments).toHaveLength(1);
       expect((created!.departments[0].department as DepartmentDTO)._id).toBe(
-        basePayload.data[0].department,
+        basePayload.departments[0].department,
       );
     });
 
@@ -118,10 +121,16 @@ describe("WeeklyFuellingSummaryRepository", () => {
     });
 
     it("updates an existing weekly summary instead of creating a new one", async () => {
-      await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
+      const createdSummary =
+        await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
 
-      const updatePayload = clone(basePayload);
-      updatePayload.data[0].carEntries[0].fuelings.push({
+      const updatePayload = {
+        ...basePayload,
+        _id: createdSummary!._id,
+        weekStart: undefined,
+        createdAt: undefined,
+      };
+      updatePayload?.departments?.[0]?.vehicles[0].fuelings?.push({
         date: new Date().toISOString(),
         quantity: 50,
         kmHr: 2000,
@@ -134,35 +143,40 @@ describe("WeeklyFuellingSummaryRepository", () => {
 
       expect(count).toBe(1);
       expect(updated!.departments[0].vehicles[0].totalLiters).toBe(
-        sum(pluck("quantity", updatePayload.data[0].carEntries[0].fuelings)),
+        sum(
+          pluck(
+            "quantity",
+            updatePayload.departments?.[0]?.vehicles[0].fuelings ?? [],
+          ),
+        ),
       );
       expect(updated!.departments[0].vehicles[0].lastKm).toBe(2000);
     });
 
-    it("should update if no id provided, but weekly summary already exists for this week", async () => {
+    it("should throw if no id provided but weekly summary already exists for this week", async () => {
       await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
-      const updatePayload = clone(basePayload);
-      updatePayload.data[0].carEntries[0].fuelings.push({
+      const updatePayload = {
+        ...basePayload,
+        weekStart: undefined,
+        createdAt: undefined,
+      };
+      updatePayload?.departments?.[0]?.vehicles[0].fuelings?.push({
         date: new Date().toISOString(),
         quantity: 50,
         kmHr: 2000,
       });
 
-      const supposedlyCreated =
-        await WeeklyFuellingSummaryRepository.createOrUpdate(updatePayload);
+      await expect(
+        WeeklyFuellingSummaryRepository.createOrUpdate(updatePayload),
+      ).rejects.toThrow("A summary for this week already exists.");
 
       const count = await WeeklyFuellingSummaryModel.countDocuments();
 
       expect(count).toBe(1);
-      expect(supposedlyCreated!.departments[0].vehicles[0].totalLiters).toBe(
-        sum(pluck("quantity", updatePayload.data[0].carEntries[0].fuelings)),
-      );
-      expect(supposedlyCreated!.departments[0].vehicles[0].lastKm).toBe(2000);
     });
 
     it("does not allow two summaries with the same weekStart", async () => {
-      const first =
-        await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
+      await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
 
       const secondDept = await DepartmentModel.create({
         name: "educação",
@@ -170,30 +184,34 @@ describe("WeeklyFuellingSummaryRepository", () => {
         isActive: true,
       });
 
-      const secondPayload = clone(basePayload);
-      secondPayload.data[1] = {
-        order: 2,
+      const secondPayload = {
+        ...basePayload,
+        _id: new Types.ObjectId().toString(),
+      };
+      secondPayload.departments[1] = {
         department: secondDept._id.toString(),
-        carEntries: [],
+        vehicles: [],
+        name: "any",
+        totalValue: 0,
       };
 
-      const second =
-        await WeeklyFuellingSummaryRepository.createOrUpdate(secondPayload);
+      await expect(
+        WeeklyFuellingSummaryRepository.createOrUpdate(secondPayload),
+      ).rejects.toThrow(
+        "The summary id does not match the current week summary.",
+      );
 
       const count = await WeeklyFuellingSummaryModel.countDocuments();
 
       expect(count).toBe(1);
-      expect(second!._id.toString()).toBe(first!._id.toString());
-      expect(second!.departments).toHaveLength(2); // Should have both departments
-      expect(second!.departments.some((d) => d.name === "educação")).toBe(true);
     });
 
     it("does not create a new summary when called multiple times in the same week", async () => {
       await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
 
-      await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
-
-      await WeeklyFuellingSummaryRepository.createOrUpdate(basePayload);
+      await expect(
+        WeeklyFuellingSummaryRepository.createOrUpdate(basePayload),
+      ).rejects.toThrow("A summary for this week already exists.");
 
       const count = await WeeklyFuellingSummaryModel.countDocuments();
 
@@ -202,21 +220,27 @@ describe("WeeklyFuellingSummaryRepository", () => {
 
     it("throws if fuel not found in database", async () => {
       const invalidFuelPayload = clone(basePayload);
-      invalidFuelPayload.data[0].carEntries[0].fuel =
+      invalidFuelPayload.departments[0].vehicles[0].fuel =
         new Types.ObjectId().toString(); // Invalid fuel id
+      invalidFuelPayload.departments[0].vehicles[0].fuelings?.push({
+        date: new Date().toISOString(),
+        quantity: 50,
+        kmHr: 2000,
+      });
 
       await expect(
         WeeklyFuellingSummaryRepository.createOrUpdate(invalidFuelPayload),
-      ).rejects.toThrow(/Fuel .* not found in database/);
+      ).rejects.toThrow(/One or more fuels in the payload do not exist/);
     });
 
     it("throws if department not found in database", async () => {
       const invalidDeptPayload = clone(basePayload);
-      invalidDeptPayload.data[0].department = new Types.ObjectId().toString(); // Invalid department id
+      invalidDeptPayload.departments[0].department =
+        new Types.ObjectId().toString(); // Invalid department id
 
       await expect(
         WeeklyFuellingSummaryRepository.createOrUpdate(invalidDeptPayload),
-      ).rejects.toThrow(/Department .* not found in database/);
+      ).rejects.toThrow(/One or more departments in the payload do not exist/);
     });
   });
 

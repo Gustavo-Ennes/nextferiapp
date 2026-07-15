@@ -1,18 +1,18 @@
-import type { CarEntry } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { LineData, TableData } from "../types";
 import { format } from "date-fns";
 import { translateFuelType } from "@/app/(secure)/purchaseOrder/utils";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { WeeklyFuellingSummaryVehicle } from "@/dto";
 
 export const parseMaterialRequisitionData = ({
   fuelings,
   fuel,
-}: CarEntry): TableData => {
+}: WeeklyFuellingSummaryVehicle): TableData => {
   const table = [];
 
   table.push(["DATA AB.", "QTD.", "UN.", "MATERIAL", "KM./HR.", "OBS."]);
 
-  fuelings.forEach(({ quantity, date, kmHr }, fuelingIndex) => {
+  fuelings?.forEach(({ quantity, date, kmHr }, fuelingIndex) => {
     const line: LineData = [];
 
     line.push(format(date, "dd/MM/yy"));
