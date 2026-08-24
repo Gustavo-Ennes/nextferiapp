@@ -56,11 +56,11 @@ const WeeklyFuellingSummarySchema = new Schema(
   {
     weekStart: { type: Date, required: true, index: true, unique: true },
     departments: { type: [DepartmentSummarySchema], default: [] },
-    createdAt: { type: Date, default: Date.now },
   },
   {
     collection: "weeklySummaries",
     capped: { size: 1024 * 1024, max: 60 },
+    timestamps: true
   },
 );
 

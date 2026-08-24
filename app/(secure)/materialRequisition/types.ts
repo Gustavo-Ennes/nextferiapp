@@ -91,3 +91,8 @@ export type MaterialRequisitionTabProps = {
   ) => Promise<void>;
   fuels: FuelDTO[];
 };
+
+export type OnTabsDataChangeParam = {
+  modifiedDepartment: WeeklyFuellingSummaryDepartment;
+  remove?: boolean;
+}

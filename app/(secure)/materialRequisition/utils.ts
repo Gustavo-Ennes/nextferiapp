@@ -70,10 +70,6 @@ export const a11yProps = (index: number) => ({
 export const getLabel = ({ quantity, date }: FuelingData): string =>
   `${format(new Date(date), "dd/MM/yy")} - ${quantity.toFixed(3)}L.`;
 
-export const removeAllVechiles = (
-  department: WeeklyFuellingSummaryDepartment,
-): WeeklyFuellingSummaryDepartment => ({ ...department, vehicles: [] });
-
 export const sortCarFuelings = (fuelings: FuelingData[]): FuelingData[] =>
   [...fuelings].sort((a, b) =>
     // in case fuelings in the same day

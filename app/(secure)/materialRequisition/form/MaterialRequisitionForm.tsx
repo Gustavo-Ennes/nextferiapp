@@ -11,11 +11,11 @@ import {
   Paper,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { prepareSummaryPayload, removeAllVechiles } from "../utils";
+import { prepareSummaryPayload } from "../utils";
 import { Tab as MaterialRequisitionTab } from "../components/form/Tab";
 import { TabPanel } from "../components/form/TabPanel";
 import { Close } from "@mui/icons-material";
-import { head, isEmpty, pluck, sum } from "ramda";
+import { isEmpty, pluck, sum } from "ramda";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { deleteWeeklySummary } from "../../utils";
@@ -30,7 +30,10 @@ import type { DepartmentDTO } from "@/dto";
 import { capitalizeFirstLetter } from "@/app/utils";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
-import type { MaterialRequisitionFormProps } from "../types";
+import type {
+  MaterialRequisitionFormProps,
+  OnTabsDataChangeParam,
+} from "../types";
 
 export const MaterialRequisitionForm = ({
   summary: initialSummary,
@@ -139,9 +142,10 @@ export const MaterialRequisitionForm = ({
     });
   };
 
-  const onTabsDataChange = async (
-    modifiedDepartment: WeeklyFuellingSummaryDepartment,
-  ) => {
+  const onTabsDataChange = async ({
+    modifiedDepartment,
+    remove,
+  }: OnTabsDataChangeParam) => {
     if (!modifiedDepartment) {
       console.warn("Provide a summary department to update.");
       return;
@@ -154,25 +158,25 @@ export const MaterialRequisitionForm = ({
 
     const summaryPayload = {
       ...summary,
-      departments: [...anotherDepartments, modifiedDepartment],
+      departments: [...anotherDepartments],
     };
 
-    createOrUpdateApiCall(summaryPayload).then(() => {
-      setSelectedDepartment(
-        modifiedDepartment?.vehicles.length > 0
+    if (!remove) summaryPayload.departments.push(modifiedDepartment);
+
+    setSelectedDepartment(
+      remove
+        ? (summaryPayload.departments[0] ?? null)
+        : modifiedDepartment?.vehicles.length > 0
           ? modifiedDepartment
-          : (summary.departments[0] ?? null),
-      );
-    });
+          : (summaryPayload.departments[0] ?? null),
+    );
+    await createOrUpdateApiCall(summaryPayload);
   };
 
   const onTabClose = async (
     summaryDepartment: WeeklyFuellingSummaryDepartment,
   ) => {
-    // removing car entries to remove tab
-    const summaryWithoutVehicles = removeAllVechiles(summaryDepartment);
-    setSelectedDepartment(head(summary.departments) ?? null);
-    onTabsDataChange(summaryWithoutVehicles);
+    onTabsDataChange({ modifiedDepartment: summaryDepartment, remove: true });
   };
 
   const handleDeleteWeeklySummary = async () => {
@@ -382,7 +386,12 @@ export const MaterialRequisitionForm = ({
               <MaterialRequisitionTab
                 fuels={fuels}
                 summaryDepartment={summaryDepartment}
-                onDataChangeAction={onTabsDataChange}
+                onDataChangeAction={(summary) =>
+                  onTabsDataChange({
+                    modifiedDepartment: summary,
+                    remove: false,
+                  })
+                }
               />
             </TabPanel>
           ))
