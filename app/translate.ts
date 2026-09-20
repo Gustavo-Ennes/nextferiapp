@@ -80,8 +80,17 @@ export const translateEntityKey = ({
       s500: "Diesel S-500",
       arla: "Arla",
     },
-    weeklyFuellingSummary: {
-      translated: "Resumo semanal de abastecimentos",
+    fuelingBatch: {
+      translated: "Lote de abastecimento",
+      createdAt: "criação",
+      updatedAt: "atualização",
+      observation: "observação",
+      totalLiters: "litragem",
+      totalFuelings: "abastecimentos",
+      totalVehicles: "veículos",
+      totalValue: "valor",
+      totalKmHr: "quilometragem",
+      totalFuels: "total combustíveis",
     },
     purchaseOrder: {
       translated: "Pedido",

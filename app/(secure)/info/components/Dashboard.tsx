@@ -24,7 +24,7 @@ import {
   getFuelLines,
   getPurchaseOrderLines,
   getVacationDetails,
-  getWeeklyFuellingSummaryLines,
+  getFuelingBatchLines,
   getWorkerDetails,
   getWorkersByStatus,
 } from "../utils";
@@ -42,7 +42,7 @@ function Dashboard({ data }: { data: DashboardParam }) {
     workersByRole,
     purchaseOrders,
     fuels,
-    weeklyFuellingSummaries,
+    fuelingBatches,
   } = data;
 
   const { activeWorkers } = getWorkersByStatus(workers);
@@ -64,9 +64,7 @@ function Dashboard({ data }: { data: DashboardParam }) {
 
   const purchaseOrderLines = getPurchaseOrderLines(purchaseOrders);
   const fuelLines = getFuelLines(fuels);
-  const weeklyFuellingSummaryLines = getWeeklyFuellingSummaryLines(
-    weeklyFuellingSummaries,
-  );
+  const fuelingBatchesLines = getFuelingBatchLines(fuelingBatches);
 
   const purchaseOrderSectionIcon =
     purchaseOrders.invalid.length > 0 ? (
@@ -203,7 +201,7 @@ function Dashboard({ data }: { data: DashboardParam }) {
           <TextCard
             label="Ciclos de notas"
             icon={<Receipt color="primary" />}
-            lines={weeklyFuellingSummaryLines}
+            lines={fuelingBatchesLines}
           />
         </Grid>
       </Grid>

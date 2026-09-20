@@ -3,7 +3,7 @@ import type { Vacation } from "@/models/Vacation";
 import type { Worker } from "@/models/Worker";
 import type { Entity } from "../types";
 import type { Department } from "@/models/Department";
-import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import type { FuelingBatchDTO } from "@/dto";
 
 export type ResponseType<T extends Entity> = Response<T> | PaginatedResponse<T>;
 
@@ -27,7 +27,7 @@ export type PeriodOptionsType = "past" | "future" | "present";
 export type PdfRouteType =
   | "vacation"
   | "relation"
-  | "materialRequisition"
+  | "fuelingBatch"
   | "vehicleUsage"
   | "cancellation"
   | "purchaseOrder";
@@ -36,7 +36,7 @@ export type PdfOptions = {
   relationType?: string;
   id?: string;
   period?: PeriodOptionsType;
-  data?: WeeklyFuellingSummaryDTO;
+  data?: FuelingBatchDTO;
 };
 export interface PdfRouteBody {
   items: PdfOptions[];

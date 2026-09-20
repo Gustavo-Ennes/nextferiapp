@@ -1,55 +1,57 @@
 import { dissoc, isEmpty, prop, uniqBy } from "ramda";
-import type { Response } from "../api/types";
 import type { Entity } from "../types";
-import type {
-  CreateOrUpdateWeeklySummaryParam,
-  FetchAllParam,
-  SearchParams,
-} from "./types";
-import type { WeeklyFuellingSummaryDTO } from "@/dto/WeeklyFuellingSummaryDTO";
+import type { FetchAllParam, LocalStorageData, SearchParams } from "./types";
 import type { RowFlag, ListPageRowFlags } from "./components/types";
-import type { BossDTO, DepartmentDTO, WorkerDTO } from "@/dto";
+import type { BossDTO, DepartmentDTO, FuelingBatchDTO, WorkerDTO } from "@/dto";
 import { capitalizeFirstLetter, capitalizeName } from "../utils";
 import { PersonPin } from "@mui/icons-material";
+import { prepareFuelingBatchPayload } from "./fuelingBatch/utils";
 
-export const deleteWeeklySummary = async (id: string) => {
-  const url = `/api/weeklyFuellingSummary/${id}`;
+export const deleteFuelingBatch = async (id: string) => {
+  const url = `/api/fuelingBatch/${id}`;
   const res = await fetch(url, {
     method: "delete",
     headers: {
       "Content-Type": "application/json",
     },
   });
-  const { data: summary } = await res.json();
+  const { data: fuelingBatch } = await res.json();
 
-  return summary;
+  return fuelingBatch;
 };
 
-export const createOrUpdateWeeklySummary = async ({
-  id,
-  payload,
-}: CreateOrUpdateWeeklySummaryParam) => {
-  const url = `/api/weeklyFuellingSummary`;
+export const updateFuelingBatch = async (
+  payload: FuelingBatchDTO,
+): Promise<FuelingBatchDTO> => {
+  const url = `/api/fuelingBatch/${payload._id}`;
+  const preparedPayload = prepareFuelingBatchPayload(payload);
+  const res = await fetch(url, {
+    method: "put",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ payload: preparedPayload }),
+  });
+  const { data: batch } = (await res.json()) as { data: FuelingBatchDTO };
+
+  return batch;
+};
+
+export const createFuelingBatch = async (
+  payload: Omit<FuelingBatchDTO, "_id" | "createdAt" | "updatedAt">,
+): Promise<FuelingBatchDTO> => {
+  const url = `/api/fuelingBatch`;
+  const preparedPayload = prepareFuelingBatchPayload(payload);
   const res = await fetch(url, {
     method: "post",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ payload, id }),
+    body: JSON.stringify({ payload: preparedPayload }),
   });
-  const { data: summary } = await res.json();
+  const { data: batch } = (await res.json()) as { data: FuelingBatchDTO };
 
-  return summary;
-};
-
-export const fetchActualWeeklyFuellingSummary = async () => {
-  const url = `/api/weeklyFuellingSummary/actual`;
-
-  const { data }: Response<WeeklyFuellingSummaryDTO | null> = await (
-    await fetch(url)
-  ).json();
-
-  return data;
+  return batch;
 };
 
 // FD: Form Data
@@ -177,3 +179,41 @@ export const getWorkersInCharge = ({
 
   return returnMap;
 };
+
+export const setLocalStorageData = ({
+  data,
+  dispatch,
+}: {
+  data: LocalStorageData;
+  dispatch?: boolean;
+}) => {
+  localStorage.setItem("pfdDataUpdate", JSON.stringify(data));
+  if (dispatch) dispatchEvent(new Event("pfdDataUpdate"));
+};
+
+export const getLocalStorageData = async (): Promise<LocalStorageData> => {
+  const rawData = localStorage.getItem("pfdDataUpdate") as string;
+  const emptyData: LocalStorageData = {
+    pdfData: { items: [], opened: false },
+  };
+  const data: LocalStorageData = rawData
+    ? await JSON.parse(rawData)
+    : emptyData;
+  return data;
+};
+
+// USE TO GENERATE RANDOM DATA(config in mock.ts)
+// (ERASE LOCALHOST TO GENERATE NEW MOCKED DATA)
+// const mockedData = mockedTabsData();
+// const localData = rawData
+//   ? await JSON.parse(rawData)
+//   : {
+//       data: mockedData,
+//       activeTab: Math.floor(Math.random() * mockedData.length),
+//       pdfData: {
+//         items: [{ data: mockedData, type: "fuelingBatch" }],
+//         opened: false,
+//       },
+//     };
+
+// return localData;

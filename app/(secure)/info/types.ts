@@ -1,11 +1,11 @@
 import type {
   DepartmentDTO,
+  FuelingBatchDTO,
   VacationDTO,
-  WeeklyFuellingSummaryDTO,
   WorkerDTO,
+  FuelDTO,
+  PurchaseOrderDTO,
 } from "@/dto";
-import type { FuelDTO } from "@/dto/FuelDTO";
-import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 
 export type CardParam = {
   label: string;
@@ -47,7 +47,7 @@ export type DashboardParam = {
   workersByRole: Partial<Record<string, WorkerDTO[]>>;
   purchaseOrders: SplitPurchaseOrderByValidFuelVersionReturn;
   fuels: FuelDTO[];
-  weeklyFuellingSummaries: WeeklyFuellingSummaryDTO[];
+  fuelingBatches: FuelingBatchDTO[];
 };
 
 export type GetWorkerByStatusReturn = {
@@ -55,13 +55,6 @@ export type GetWorkerByStatusReturn = {
   inactiveWorkers: number;
   externalWorkers: number;
   internalWorkers: number;
-};
-
-export type WeeklyFuellingSummariesTotals = {
-  totalWeeks: number;
-  totalDepartments: number;
-  totalVehicles: number;
-  totalValue: number;
 };
 
 export type GetVacationDetailsParam = {

@@ -235,7 +235,17 @@ export const defaultEntityTableFields = {
   worker: ["name", "role", "matriculation", "department"],
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
-  weeklyFuellingSummary: [],
+  fuelingBatch: [
+    "totalLiters",
+    "totalFuelings",
+    "totalVehicles",
+    "totalValue",
+    "totalKmHr",
+    "createdAt",
+    "updatedAt",
+    "observation",
+    "invoices",
+  ],
   purchaseOrder: ["reference", "items", "department", "total"],
   fuel: ["name", "unit", "priceVersions", "currentPriceVersion"],
 };

@@ -14,10 +14,7 @@ import type {
   SetPdfCallbackParam,
 } from "./types";
 import { useSnackbar } from "./SnackbarContext";
-import {
-  getLocalStorageData,
-  setLocalStorageData,
-} from "@/app/(secure)/materialRequisition/utils";
+import { getLocalStorageData, setLocalStorageData } from "@/app/(secure)/utils";
 import { equals } from "ramda";
 import { usePathname } from "next/navigation";
 
@@ -69,7 +66,7 @@ export const PdfPreviewProvider = ({
         });
       }
     },
-    []
+    [],
   );
 
   useEffect(() => {

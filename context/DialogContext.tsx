@@ -76,18 +76,18 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const handleConfirmationConfirmAction = () => {
-    confirmationDialogData?.onConfirmAction?.();
     setConfirmationDialogData(null);
+    confirmationDialogData?.onConfirmAction?.();
   };
 
   const handleInputConfirm = (externalInput?: string) => {
-    inputDialogData?.onConfirmAction?.(externalInput ?? inputDialogData?.input);
     setInputDialogData(null);
+    inputDialogData?.onConfirmAction?.(externalInput ?? inputDialogData?.input);
   };
 
   const handleSelectConfirm = (selectedValue?: string) => {
-    selectDialogData?.onConfirmAction?.(selectedValue);
     setSelectDialogData(null);
+    selectDialogData?.onConfirmAction?.(selectedValue);
   };
 
   return (
@@ -130,10 +130,10 @@ export const DialogProvider = ({ children }: { children: React.ReactNode }) => {
         input={inputDialogData?.input}
       />
       <CarDetailDialog
-        car={carDetailDialogData?.car}
+        vehicle={carDetailDialogData?.vehicle}
         onCloseAction={() => carDetailDialogData?.onCloseAction?.()}
         openState={carDetailDialogData?.openState ?? false}
-        title={carDetailDialogData?.car?.prefix.toString() ?? "Detalhes"}
+        title={carDetailDialogData?.vehicle?.prefix.toString() ?? "Detalhes"}
         onConfirmAction={() => undefined}
       />
       <SelectDialog

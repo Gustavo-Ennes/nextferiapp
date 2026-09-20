@@ -8,10 +8,7 @@ import { Drawer } from "./components/Drawer";
 import { usePathname } from "next/navigation";
 import { useLoading } from "@/context/LoadingContext";
 import ResponsiveAppBar from "./components/Appbar";
-import {
-  getLocalStorageData,
-  setLocalStorageData,
-} from "./materialRequisition/utils";
+import { getLocalStorageData, setLocalStorageData } from "./utils";
 import { useRouter } from "@/context/RouterContext";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {

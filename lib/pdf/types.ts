@@ -2,10 +2,10 @@
 import type { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
 import type {
   DepartmentDTO,
+  FuelingBatchDTO,
+  FuelingBatchDTODepartment,
+  FuelingBatchDTOVehicle,
   VacationDTO,
-  WeeklyFuellingSummaryDepartment,
-  WeeklyFuellingSummaryDTO,
-  WeeklyFuellingSummaryVehicle,
   WorkerDTO,
 } from "@/dto";
 import type {
@@ -38,7 +38,7 @@ type RenderParam = {
   reference?: Date;
   type?: string; // print type
   period?: string;
-  data?: WeeklyFuellingSummaryDTO;
+  data?: FuelingBatchDTO;
   fuels?: FuelDTO[];
 };
 
@@ -133,15 +133,15 @@ type GetTableInfoParam = {
   y: number;
 };
 
-type MaterialRequisitionDrawBlockParam = {
+type FuelingBatchDrawBlockParam = {
   document: PDFDocument;
   height: Height;
   font: PDFFont;
   fontSize: number;
   page: PDFPage;
   headerY?: number;
-  vehicle: WeeklyFuellingSummaryVehicle;
-  summaryDepartment: WeeklyFuellingSummaryDepartment;
+  vehicle: FuelingBatchDTOVehicle;
+  summaryDepartment: FuelingBatchDTODepartment;
 };
 
 type DrawLineParam = {
@@ -179,7 +179,7 @@ export type {
   GetTableInfoParam,
   Height,
   LineData,
-  MaterialRequisitionDrawBlockParam,
+  FuelingBatchDrawBlockParam,
   RenderParam,
   TableData,
   TableParams,

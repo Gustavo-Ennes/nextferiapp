@@ -16,7 +16,7 @@ import { BlueItemIcon } from "./styled";
 import {
   getPurchaseOrderProps,
   getVacationProps,
-  getWeeklyFuellingSummaryProps,
+  getFuelingBatchProps,
 } from "./utils";
 
 export const Drawer = () => {
@@ -51,10 +51,7 @@ export const Drawer = () => {
 
         <Divider />
 
-        <ListItemMenu
-          props={getWeeklyFuellingSummaryProps()}
-          key="/weeklyFuellingSummary"
-        />
+        <ListItemMenu props={getFuelingBatchProps()} key="/fuelingSummary" />
 
         <Divider />
 

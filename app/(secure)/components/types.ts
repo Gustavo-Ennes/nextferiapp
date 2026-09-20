@@ -51,6 +51,7 @@ export type ResponsiveListPageParam<T> = {
   pageTitle?: string;
   vacationType?: VacationType | null;
   contains?: string | null;
+  snackbarMessage?: string | null;
   isExternal?: boolean | null;
   menuItems?: MenuItem[];
   rowFlags?: ListPageRowFlags;

@@ -14,7 +14,7 @@ import { useRouter } from "next/navigation";
 import type { HandleSearchParam, ResponsiveListPageParam } from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "./Search";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 import { useLoading } from "@/context/LoadingContext";
@@ -30,6 +30,7 @@ const ResponsiveListPage = <T extends Entity>({
   isExternal,
   menuItems,
   rowFlags,
+  snackbarMessage,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const { addSnack } = useSnackbar();
@@ -140,6 +141,11 @@ const ResponsiveListPage = <T extends Entity>({
     entity: routePrefix,
     key: "translatedPlural",
   });
+
+  useEffect(() => {
+    if (snackbarMessage)
+      addSnack({ message: snackbarMessage, severity: "info" });
+  }, []);
 
   return (
     <Grid container maxWidth={"md"} m="auto" p={2}>
