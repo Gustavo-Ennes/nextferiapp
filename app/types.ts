@@ -7,6 +7,7 @@ import type {
   FuelDTO,
   FuelingBatchDTO,
   FuelingBatchTableLine,
+  SupplierDTO,
 } from "@/dto";
 
 export type Entity =
@@ -17,7 +18,8 @@ export type Entity =
   | PurchaseOrderDTO
   | FuelDTO
   | FuelingBatchDTO
-  | FuelingBatchTableLine;
+  | FuelingBatchTableLine
+  | SupplierDTO;
 export type EntityType =
   | "department"
   | "worker"
@@ -25,4 +27,5 @@ export type EntityType =
   | "boss"
   | "purchaseOrder"
   | "fuel"
-  | "fuelingBatch";
+  | "fuelingBatch"
+  | "supplier";

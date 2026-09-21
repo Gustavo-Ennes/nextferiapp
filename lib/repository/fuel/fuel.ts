@@ -35,7 +35,16 @@ export const FuelRepository: Repository<
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(PAGINATION_LIMIT)
-        .populate("priceVersions currentPriceVersion"),
+        .populate([
+          {
+            path: "priceVersions",
+            populate: { path: "supplier" },
+          },
+          {
+            path: "currentPriceVersion",
+            populate: { path: "supplier" },
+          },
+        ]),
       FuelModel.countDocuments(),
     ]);
 
@@ -80,17 +89,31 @@ export const FuelRepository: Repository<
     filter: FuelFormData | Partial<FuelFormData>,
   ): Promise<FuelDTO | null> {
     await dbConnect();
-    const fuel = await FuelModel.findOne(filter).populate(
-      "priceVersions currentPriceVersion",
-    );
+    const fuel = await FuelModel.findOne(filter).populate([
+      {
+        path: "priceVersions",
+        populate: { path: "supplier" },
+      },
+      {
+        path: "currentPriceVersion",
+        populate: { path: "supplier" },
+      },
+    ]);
     return fuel ? (toFuelDTO(fuel) as FuelDTO) : null;
   },
 
   async findOne({ id }: FindOneRepositoryParam): Promise<FuelDTO | null> {
     await dbConnect();
-    const fuel = await FuelModel.findById<IFuel>(id).populate(
-      "priceVersions currentPriceVersion",
-    );
+    const fuel = await FuelModel.findById<IFuel>(id).populate([
+      {
+        path: "priceVersions",
+        populate: { path: "supplier" },
+      },
+      {
+        path: "currentPriceVersion",
+        populate: { path: "supplier" },
+      },
+    ]);
     return fuel ? (toFuelDTO(fuel) as FuelDTO) : null;
   },
 
@@ -108,16 +131,26 @@ export const FuelRepository: Repository<
     } else {
       validPayload = result.data as CombinedFuelFormData;
     }
-    const { name, unit, price, version } = validPayload;
+    const { name, unit, price, version, supplier } = validPayload;
     const created = await FuelModel.create({ name, unit });
 
     await FuelPriceVersionRepository.create({
       price,
       version,
+      supplier,
       fuel: created._id.toString(),
     });
 
-    await created.populate("priceVersions currentPriceVersion");
+    await created.populate([
+      {
+        path: "priceVersions",
+        populate: { path: "supplier" },
+      },
+      {
+        path: "currentPriceVersion",
+        populate: { path: "supplier" },
+      },
+    ]);
 
     return toFuelDTO(created.toObject()) as FuelDTO;
   },
@@ -140,17 +173,22 @@ export const FuelRepository: Repository<
       validPayload = result.data as FuelFormDataUpdate;
     }
 
-    const updated = await FuelModel.findByIdAndUpdate(
-      id,
-      validPayload,
-      {
-        new: true,
-      },
-    );
+    const updated = await FuelModel.findByIdAndUpdate(id, validPayload, {
+      new: true,
+    });
 
     if (!updated) throw new Error("No fuel found with provided id.");
 
-    await updated.populate("priceVersions currentPriceVersion");
+    await updated.populate([
+      {
+        path: "priceVersions",
+        populate: { path: "supplier" },
+      },
+      {
+        path: "currentPriceVersion",
+        populate: { path: "supplier" },
+      },
+    ]);
 
     return toFuelDTO(updated.toObject()) as FuelDTO;
   },

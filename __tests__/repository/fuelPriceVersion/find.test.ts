@@ -10,6 +10,8 @@ describe("FuelPriceVersionRepository.find", () => {
   const fuelPriceVersionPayload: FuelPriceVersionFormData = {
     price: 8,
     version: 2,
+    supplier: "",
+    fuel: "",
   };
 
   beforeEach(async () => {
@@ -81,6 +83,7 @@ describe("FuelPriceVersionRepository.find", () => {
       price: 4.99,
       unit: "L",
       version: 10,
+      supplier: "",
     } as FuelPriceVersionFormData);
 
     const result = await FuelPriceVersionRepository.findByFilter!({
@@ -110,6 +113,7 @@ describe("FuelPriceVersionRepository.find", () => {
       price: 5,
       unit: "L",
       version: 1,
+      supplier: "s1",
     } as FuelPriceVersionFormData);
 
     await FuelPriceVersionRepository.create({
@@ -117,6 +121,7 @@ describe("FuelPriceVersionRepository.find", () => {
       price: 6,
       unit: "L",
       version: 2,
+      supplier: "s1",
     } as FuelPriceVersionFormData);
 
     const result = await FuelPriceVersionRepository.findByFuel!(fuelId);

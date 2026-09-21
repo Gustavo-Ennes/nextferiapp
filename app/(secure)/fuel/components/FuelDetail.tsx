@@ -18,6 +18,8 @@ import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { FuelDetailParam } from "../types";
+import { capitalizeFirstLetter } from "@/app/utils";
+import type { SupplierDTO } from "@/dto";
 
 export function FuelDetail({ fuel }: FuelDetailParam) {
   const router = useRouter();
@@ -94,6 +96,12 @@ export function FuelDetail({ fuel }: FuelDetailParam) {
             </Typography>
             <Typography variant="caption" color="text.secondary">
               Versão atual: {currentPriceVersion.version}
+            </Typography><br/>
+            <Typography variant="caption" color="text.secondary">
+              Fornecedor:{" "}
+              {capitalizeFirstLetter(
+                (currentPriceVersion.supplier as SupplierDTO).name,
+              )}
             </Typography>
           </Grid>
         </Grid>
@@ -124,6 +132,10 @@ export function FuelDetail({ fuel }: FuelDetailParam) {
                 <Typography variant="subtitle2">Versão {v.version}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   {new Date(v.createdAt!).toLocaleDateString("pt-BR")}
+                </Typography>
+                {" - "}
+                <Typography variant="caption" color="text.secondary">
+                  {capitalizeFirstLetter((v.supplier as SupplierDTO).name)}
                 </Typography>
               </Box>
               <Typography variant="subtitle1" fontWeight="bold">

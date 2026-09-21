@@ -12,6 +12,11 @@ import {
   Alert,
   IconButton,
   Tooltip,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,8 +35,9 @@ import type { CombinedFuelFormData, FuelFormProps } from "../types";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { prepareDefaults } from "../utils";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import { capitalizeName } from "@/app/utils";
 
-export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
+export function FuelForm({ defaultValues, fuels, suppliers }: FuelFormProps) {
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
   const { redirectWithLoading, nextRouter } = useRouter();
@@ -52,6 +58,7 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
           unit: "L",
           price: 0,
           version: 1,
+          supplier: "",
         },
   });
 
@@ -157,6 +164,7 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
             fuel: fuelId,
             price: formData.price,
             version: formData.version,
+            supplier: formData.supplier,
           }),
         });
 
@@ -258,6 +266,38 @@ export function FuelForm({ defaultValues, fuels }: FuelFormProps) {
               variant="filled"
               slotProps={{ input: { readOnly: true } }}
             />
+          )}
+        />
+      </Grid>
+
+      <Grid size={12}>
+        <Controller
+          name="supplier"
+          control={control}
+          render={({ field }) => (
+            <FormControl fullWidth size="small" error={!!errors.supplier}>
+              <InputLabel id="suplier-label">Fornecedor</InputLabel>
+              <Select
+                {...field}
+                labelId="supplier-label"
+                label="Fornecedor"
+              >
+                <MenuItem value={""}>
+                  <em>Selecione o fornecedor</em>
+                </MenuItem>
+                {suppliers.map((supplier) => (
+                  <MenuItem
+                    key={supplier._id as string}
+                    value={supplier._id as string}
+                  >
+                    {capitalizeName(supplier.name)}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.supplier && (
+                <FormHelperText>{errors.supplier.message}</FormHelperText>
+              )}
+            </FormControl>
           )}
         />
       </Grid>

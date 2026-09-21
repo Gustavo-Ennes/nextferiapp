@@ -8,6 +8,8 @@ describe("FuelRepository.create", () => {
     price: 7,
     unit: "L",
     version: 1,
+    supplier: "",
+    fuel: ""
   };
 
   it("should not create a fuel without price prop", async () => {

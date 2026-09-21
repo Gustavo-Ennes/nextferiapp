@@ -249,6 +249,7 @@ export const defaultEntityTableFields = {
   ],
   purchaseOrder: ["reference", "items", "department", "total"],
   fuel: ["name", "unit", "priceVersions", "currentPriceVersion"],
+  supplier: ["name", "createdAt", "updatedAt"],
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>

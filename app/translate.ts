@@ -103,6 +103,11 @@ export const translateEntityKey = ({
       reference: "Referência",
       items: "itens",
     },
+    supplier: {
+      name: "Nome",
+      translated: "Lote de abastecimento",
+      createdAt: "criação",
+    }
   };
   return entity
     ? capitalizeFirstLetter(

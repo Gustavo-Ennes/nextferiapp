@@ -1,9 +1,11 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 import type { IFuel } from "./Fuel";
+import type { ISupplier } from "./Supplier";
 
 export interface IFuelPriceVersion extends Document {
   _id: Types.ObjectId;
   fuel: Types.ObjectId | IFuel;
+  supplier: Types.ObjectId | ISupplier;
   version: number;
   price: number;
   createdAt: Date;
@@ -12,7 +14,8 @@ export interface IFuelPriceVersion extends Document {
 
 const FuelPriceVersionSchema = new Schema<IFuelPriceVersion>(
   {
-    fuel: { type: Types.ObjectId, required: true },
+    fuel: { type: Types.ObjectId, required: true, ref: "Fuel" },
+    supplier: { type: Types.ObjectId, required: true, ref: "Supplier" },
     version: { type: Number, required: true },
     price: { type: Number, required: true },
   },

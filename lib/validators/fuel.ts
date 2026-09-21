@@ -11,14 +11,17 @@ export const FuelValidator = z.object({
 
 export const FuelValidatorUpdate = z.object({
   name: z.optional(
-    z.string("O nome só pode conter letras.").min(3, "Mínino de 3 caracteres para nome do combustível."),
+    z
+      .string("O nome só pode conter letras.")
+      .min(3, "Mínino de 3 caracteres para nome do combustível."),
   ),
   unit: z.optional(z.string("Uma unidade de medida é esperada.")),
   currentPriceVersion: z.optional(ObjectIdString),
 });
 
 export const FuelPriceVersionValidator = z.object({
-  fuel: z.optional(ObjectIdString),
+  fuel: ObjectIdString,
+  supplier: ObjectIdString,
   price: z
     .number("A versão de preço deve ter um preço.")
     .gt(0, "O preço deve ser maior que zero."),
@@ -29,6 +32,7 @@ export const FuelPriceVersionValidator = z.object({
 
 export const FuelPriceVersionValidatorUpdate = z.object({
   fuel: z.optional(ObjectIdString),
+  supplier: z.optional(ObjectIdString),
   price: z.optional(z.number().gt(0, "O preço deve ser maior que zero.")),
   // don't want to change version
 });
