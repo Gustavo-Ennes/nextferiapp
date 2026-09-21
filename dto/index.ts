@@ -13,3 +13,4 @@ export type {
   FuelingBatchDTOInvoice,
   FuelingBatchDTOInvoiceItem,
 } from "./FuelingBatchDTO";
+export type { SupplierDTO } from "./SupplierDTO";
