@@ -25,11 +25,6 @@ export const FuelingBatchHeader = ({
   const { selectedDepartment } = useFuelingBatchForm();
 
   const invoices = fuelingBatch?.departments.flatMap((d) => d.invoices) ?? [];
-  const invoiceTotalFuels = getInvoicesTotalFuels(invoices, fuels);
-  const fuelInventory = getFuelInventory({
-    departmentTotalFuels: fuelingBatch?.totals.totalFuels ?? {},
-    invoiceTotalFuels,
-  });
 
   // same batch, just selecting one department if selectedDepartment and recalculating totals
   const selectedFuelingBatch = useMemo(
@@ -49,6 +44,13 @@ export const FuelingBatchHeader = ({
         : [],
     [selectedFuelingBatch],
   );
+  const fuelInventory = useMemo(() => {
+    const inventory = getFuelInventory({
+      departmentTotalFuels: selectedFuelingBatch?.totals.totalFuels ?? {},
+      invoiceTotalFuels: getInvoicesTotalFuels(selectedInvoices, fuels),
+    });
+    return inventory;
+  }, [selectedDepartment]);
 
   const primaryStats = getPrimaryStats({
     fuelingBatch,

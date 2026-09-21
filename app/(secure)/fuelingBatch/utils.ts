@@ -741,3 +741,15 @@ export const invoiceExists = ({
   invoiceNumber: string;
   invoices: FuelingBatchDTOInvoice[];
 }): boolean => invoices.map((i) => i.number).includes(Number(invoiceNumber));
+
+export const fuelingValuesMatchInvoiceValues = (
+  fuelInventory: TotalFuels,
+): boolean => {
+  return (
+    fuelInventory &&
+    Object.keys(fuelInventory).every(
+      (key) =>
+        fuelInventory[key].value > -0.5 && fuelInventory[key].value < 0.5,
+    )
+  );
+};

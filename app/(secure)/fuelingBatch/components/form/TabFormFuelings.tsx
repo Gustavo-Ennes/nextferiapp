@@ -8,6 +8,7 @@ import type { KeyboardEvent } from "react";
 import { checkInvoiceFuelQuantity, sortVehicleFuelings } from "../../utils";
 import type { FuelDTO, FuelingBatchDTOVehicle } from "@/dto";
 import type { TotalFuels } from "@/models/types";
+import { sum } from "ramda";
 
 export const TabFormFuelings = ({
   onSubmitAction,
@@ -35,7 +36,7 @@ export const TabFormFuelings = ({
   const quantityFitsInvoice = checkInvoiceFuelQuantity({
     totalFuels: invoicesTotalFuels,
     fuelName: (fuel as FuelDTO)?.name,
-    quantity,
+    quantity: quantity + sum(fuelings.map((f) => f.quantity)),
   });
   const canAddFueling =
     !!date &&

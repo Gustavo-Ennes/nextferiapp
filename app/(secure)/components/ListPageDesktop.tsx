@@ -92,7 +92,8 @@ export const ListPageDesktop = <T extends Entity>({
   };
   const isName = (key: any) => key === "name";
   const isCapitalized = (key: any) => key === "role";
-  const isCurrency = (key: any) => key === "total";
+  const isCurrency = (key: any) =>
+    ["total", "value", "totalValue", "totalInvoicesValue"].includes(key);
   const isArray = (key: any, item: T) => Array.isArray(item[key as keyof T]);
   const isPriceVersion = (key: any) => key === "currentPriceVersion";
 

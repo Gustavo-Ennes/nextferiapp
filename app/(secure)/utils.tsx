@@ -15,9 +15,9 @@ export const deleteFuelingBatch = async (id: string) => {
       "Content-Type": "application/json",
     },
   });
-  const { data: fuelingBatch } = await res.json();
+  const { data: success } = await res.json();
 
-  return fuelingBatch;
+  return success;
 };
 
 export const updateFuelingBatch = async (

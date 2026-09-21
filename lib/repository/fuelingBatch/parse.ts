@@ -13,6 +13,7 @@ import type {
 import type { FuelingBatch } from "@/models/FuelingBatch";
 import { toPurchaseOrderDTO } from "../purchaseOrder/parse";
 import { toFuelPriceVersionDTO } from "../fuelPriceVersion/parse";
+import { sum } from "ramda";
 
 export const toFuelingBatchDTO = (doc: FuelingBatch): FuelingBatchDTO => ({
   _id: doc._id.toString(),
@@ -58,12 +59,16 @@ export const toFuelingBatchTableLine = (
   createdAt: doc.createdAt,
   updatedAt: doc.updatedAt,
   observation: doc.observation,
-  totalFuels: doc.totals,
+  totalFuels: doc.totals.totalFuels,
   totalValue: doc.totals.totalValue,
-  totalKmHrs: doc.totals.totalKmHrs,
+  totalKmHrs: doc.totals.totalKmHrs ?? 0,
   totalVehicles: doc.totals.totalVehicles,
   totalFuelings: doc.totals.totalFuelings,
   totalDepartments: doc.departments.length,
+  totalInvoices: doc.departments.flatMap((d) => d.invoices).length ?? 0,
+  totalInvoicesValue: sum(
+    doc.departments.flatMap((d) => d.invoices.map((i) => i.total)),
+  ),
 });
 
 export const parseFuelingBatchTableLines = (

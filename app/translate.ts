@@ -89,8 +89,11 @@ export const translateEntityKey = ({
       totalFuelings: "abastecimentos",
       totalVehicles: "veículos",
       totalValue: "valor",
-      totalKmHr: "quilometragem",
+      totalKmHrs: "quilometragem",
       totalFuels: "total combustíveis",
+      totalInvoices: "Notas F.",
+      totalInvoicesValue: "Notas R$",
+      totalDepartments: "departamentos",
     },
     purchaseOrder: {
       translated: "Pedido",

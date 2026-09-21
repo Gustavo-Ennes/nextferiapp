@@ -5,6 +5,7 @@ import {
   AttachMoney,
   Business,
   DirectionsCar,
+  Done,
   LocalGasStation,
   RequestQuote,
   Straighten,
@@ -152,16 +153,20 @@ export const getSecondaryStats = ({
   },
 ];
 
+const getFuelInventoryIcon = (value: number) =>
+  value > -0.5 && value < 0.5 ? (
+    <Done fontSize="inherit" color="success" />
+  ) : value < -0.5 ? (
+    <ArrowDownward fontSize="inherit" color="error" />
+  ) : (
+    <ArrowUpward fontSize="inherit" color="success" />
+  );
+
 // invoices.values - fuelings.values
 export const getFuelInventoryStats = (fuelInventory: TotalFuels): StatItem[] =>
   Object.entries(fuelInventory).map(([fuelName, { liters, value }]) => ({
     name: `fuelStats-${fuelName}`,
-    icon:
-      value >= 0 ? (
-        <ArrowUpward fontSize="inherit" color="success" />
-      ) : (
-        <ArrowDownward fontSize="inherit" color="error" />
-      ),
+    icon: getFuelInventoryIcon(value),
     label: capitalizeFirstLetter(fuelName),
     total: toMonetary(value),
     selected: `${liters}L`,

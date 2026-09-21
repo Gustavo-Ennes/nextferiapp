@@ -2,6 +2,7 @@ import type {
   FuelingBatchFueling,
   FuelingBatchPartials,
   FuelingBatchTotals,
+  TotalFuels,
 } from "@/models/types";
 import type { DepartmentDTO } from "./DepartmentDTO";
 import type { FuelDTO } from "./FuelDTO";
@@ -55,10 +56,12 @@ export interface FuelingBatchTableLine {
   createdAt: string;
   updatedAt?: string;
   observation?: string;
-  totalFuels: FuelingBatchTotals;
+  totalFuels: TotalFuels;
   totalValue: number;
   totalKmHrs: number;
   totalVehicles: number;
   totalFuelings: number;
   totalDepartments: number;
+  totalInvoices: number;
+  totalInvoicesValue: number;
 }

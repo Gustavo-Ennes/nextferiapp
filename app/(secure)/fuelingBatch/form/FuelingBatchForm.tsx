@@ -10,10 +10,15 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useMemo, useState } from "react";
-import { getEmptyFuelingBatch, hasFuelings } from "../utils";
+import {
+  fuelingValuesMatchInvoiceValues,
+  getEmptyFuelingBatch,
+  getInvoicesTotalFuels,
+  hasFuelings,
+} from "../utils";
 import { Tab as FuelingBatchTab } from "../components/form/Tab";
 import { TabPanel } from "../components/form/TabPanel";
-import { Close } from "@mui/icons-material";
+import { Close, DoneAll } from "@mui/icons-material";
 import { isEmpty } from "ramda";
 import { TitleTypography } from "../../components/TitleTypography";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
@@ -37,6 +42,7 @@ import { useRouter } from "@/context/RouterContext";
 import { toMonetary } from "../utils";
 import { FuelingBatchHeader } from "../components/form/FuelingBatchHeader";
 import { format, toDate } from "date-fns";
+import { getFuelInventory } from "@/lib/repository/fuelingBatch/utils";
 
 export const FuelingBatchForm = ({
   fuelingBatch: loadedFuelingBatch,
@@ -70,8 +76,20 @@ export const FuelingBatchForm = ({
   }, []);
 
   const fuelingBatchInvoices = useMemo(
-    () => fuelingBatch.departments.flatMap((f) => f.invoices),
+    () =>
+      fuelingBatch.departments
+        ? fuelingBatch.departments.flatMap((f) => f.invoices)
+        : [],
     [fuelingBatch.departments],
+  );
+
+  const fuelingBatchFuelInventory = useMemo(
+    () =>
+      getFuelInventory({
+        departmentTotalFuels: fuelingBatch.totals.totalFuels,
+        invoiceTotalFuels: getInvoicesTotalFuels(fuelingBatchInvoices, fuels),
+      }),
+    [fuelingBatch.totals],
   );
 
   const createOrUpdateApiCall = async (
@@ -234,8 +252,8 @@ export const FuelingBatchForm = ({
   const handleDeleteFuelingBatch = async () => {
     if (fuelingBatch && fuelingBatch._id) {
       deleteFuelingBatch(fuelingBatch._id)
-        .then((res: Response) => {
-          if (!res.ok) {
+        .then((success: boolean) => {
+          if (!success) {
             throw new Error("Erro ao deletar lote de abastecimentos");
           }
 
@@ -258,6 +276,7 @@ export const FuelingBatchForm = ({
         .finally(() => {
           setLoading(false);
           setSelectedCar(null);
+          setSelectedDepartment(null);
         });
     } else if (fuelingBatch && !fuelingBatch._id) {
       addSnack({
@@ -394,7 +413,15 @@ export const FuelingBatchForm = ({
       }}
     >
       <Grid size={12}>
-        <TitleTypography>LOTE DE ABASTECIMENTO</TitleTypography>
+        <TitleTypography>
+          LOTE DE ABASTECIMENTO{" "}
+          {fuelingBatch.departments.length > 0 &&
+          fuelingValuesMatchInvoiceValues(fuelingBatchFuelInventory.totals) ? (
+            <DoneAll fontSize="inherit" color="success" />
+          ) : (
+            ""
+          )}
+        </TitleTypography>
         <small style={{ textAlign: "right", width: "100%", display: "block" }}>
           Criado em: {format(toDate(fuelingBatch.createdAt), "dd/MM/yy")}
           {" - "}
