@@ -21,7 +21,7 @@ import type {
   PurchaseOrderDTO,
   PurchaseOrderItemDTO,
 } from "@/dto/PurchaseOrderDTO";
-import type { DepartmentDTO } from "@/dto";
+import type { DepartmentDTO, SupplierDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 
@@ -140,6 +140,13 @@ export function PurchaseOrderDetail({
               textAlign="center"
             >
               Departamento: {(purchaseOrder.department as DepartmentDTO).name}
+            </Typography>{" "}
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              textAlign="center"
+            >
+              Fornecedor: {(purchaseOrder.supplier as SupplierDTO).name}
             </Typography>
           </Grid>
 

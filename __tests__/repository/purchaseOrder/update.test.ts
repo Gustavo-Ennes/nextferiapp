@@ -29,6 +29,7 @@ describe("PurchaseOrderRepository.update", () => {
         price: parseInt((5 + Math.random() * 5).toFixed(2)),
       },
     ],
+    supplier: "supplier",
   });
 
   beforeEach(async () => {
@@ -149,7 +150,9 @@ describe("PurchaseOrderRepository.update", () => {
       } as any,
     });
 
-    const priceVersion = await FuelPriceVersionRepository.findOne({id: rawPayload.items[0].fuelPriceVersion})
+    const priceVersion = await FuelPriceVersionRepository.findOne({
+      id: rawPayload.items[0].fuelPriceVersion,
+    });
 
     expect(updated!.total).toEqual(sum(pluck("price", updated!.items)));
     expect(updated!.items[0].price).toEqual(newQuantity * priceVersion!.price);

@@ -22,6 +22,7 @@ describe("PurchaseOrderRepository.find", () => {
         price: 7.88,
       },
     ],
+    supplier: "supplier",
   });
 
   beforeEach(async () => {

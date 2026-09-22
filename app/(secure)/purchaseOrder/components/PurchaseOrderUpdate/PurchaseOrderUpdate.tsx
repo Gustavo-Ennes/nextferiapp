@@ -1,7 +1,7 @@
 "use client";
 
 import { Grid, Typography } from "@mui/material";
-import { useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLoading } from "@/context/LoadingContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import { sortByReference } from "../../utils";
@@ -15,41 +15,76 @@ import type {
   SidebarEntry,
   SidebarStatus,
 } from "../../types";
-import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import type { FuelDTO } from "@/dto/FuelDTO";
-import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import type {
+  PurchaseOrderDTO,
+  FuelDTO,
+  FuelPriceVersionDTO,
+  SupplierDTO,
+} from "@/dto";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { useRouter } from "@/context/RouterContext";
 
 export const PurchaseOrderUpdatePage = ({
   orders,
+  suppliers,
 }: PurchaseOrderUpdateProps) => {
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
   const { setPdf } = usePdfPreview();
   const { redirectWithLoading } = useRouter();
+
+  const [supplier, setSupplier] = useState(suppliers[0]._id ?? "");
   const inputRefs = {
     fuel0: useRef<HTMLInputElement>(null),
     fuel1: useRef<HTMLInputElement>(null),
     fuel2: useRef<HTMLInputElement>(null),
   };
-
-  const sorted = sortByReference(orders);
-
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentOrder, setCurrentOrder] = useState<PurchaseOrderDTO>(sorted[0]);
+  const [currentOrder, setCurrentOrder] = useState<PurchaseOrderDTO | null>(
+    null,
+  );
   const [drafts, setDrafts] = useState<PurchaseOrderDTO[]>([]);
   const [queue, setQueue] = useState<PurchaseOrderDTO[]>([]);
-  const [sidebar, setSidebar] = useState<SidebarEntry[]>(
-    sorted.map((o) => ({
-      orderId: String(o._id),
-      reference: o.reference,
-      status: "pending" as SidebarStatus,
-    })),
-  );
+  const [sidebar, setSidebar] = useState<SidebarEntry[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [outdatedFilter, setOutdatedFilter] = useState(false);
+  const [lowBalanceFilter, setLowBalanceFilter] = useState(false);
 
-  const currentId = String(currentOrder._id);
+  const sorted = useMemo(() => {
+    let filtered: PurchaseOrderDTO[] = [];
+    filtered = orders.filter(
+      (o) => (o.supplier as SupplierDTO)._id === supplier,
+    );
+    if (outdatedFilter)
+      filtered = filtered.filter(
+        (f) => f.outdated === "some" || f.outdated === "none",
+      );
+    if (lowBalanceFilter)
+      filtered = filtered.filter(
+        (f) => f.lowBalance === "some" || f.lowBalance === "none",
+      );
+
+    const refSorted = sortByReference(filtered);
+
+    return refSorted;
+  }, [supplier, orders, outdatedFilter, lowBalanceFilter]);
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setCurrentOrder(sorted[0] ?? null);
+    setSidebar(
+      sorted.map((o) => ({
+        orderId: String(o._id),
+        reference: o.reference,
+        status: "pending" as SidebarStatus,
+      })),
+    );
+
+    setDrafts([]);
+    setQueue([]);
+  }, [sorted]);
+
+  const currentId = currentOrder ? String(currentOrder._id) : null;
   const currentDraft =
     drafts.find((d) => String(d._id) === currentId) ?? currentOrder;
   const reviewedCount = sidebar.filter((e) => e.status !== "pending").length;
@@ -62,23 +97,26 @@ export const PurchaseOrderUpdatePage = ({
   };
 
   const updateItemQty = (itemIndex: number, value: number) => {
-    const updatedItems = currentDraft.items.map((item, i) =>
+    const updatedItems = currentDraft?.items.map((item, i) =>
       i === itemIndex ? { ...item, quantity: value } : item,
     );
-    const updatedOrder: PurchaseOrderDTO = {
-      ...currentDraft,
-      items: updatedItems,
-    };
+    const updatedOrder: PurchaseOrderDTO | null = currentDraft
+      ? {
+          ...currentDraft,
+          items: updatedItems ?? [],
+        }
+      : null;
 
-    setDrafts((prev) => {
-      const idx = prev.findIndex((d) => String(d._id) === currentId);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = updatedOrder;
-        return next;
-      }
-      return [...prev, updatedOrder];
-    });
+    if (updatedOrder)
+      setDrafts((prev) => {
+        const idx = prev.findIndex((d) => String(d._id) === currentId);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = updatedOrder;
+          return next;
+        }
+        return [...prev, updatedOrder];
+      });
   };
 
   const updateSidebar = (orderId: string, patch: Partial<SidebarEntry>) => {
@@ -88,37 +126,43 @@ export const PurchaseOrderUpdatePage = ({
   };
 
   const handleKeep = () => {
+    if (!currentId) return;
+
     updateSidebar(currentId, { status: "kept" });
     if (currentIndex < sorted.length - 1) navigateTo(currentIndex + 1);
   };
 
   const handleAdd = () => {
-    const itemDrafts: ItemDraft[] = currentOrder.items.map((original, i) => {
-      const fuel = original.fuel as FuelDTO;
-      return {
-        fuelId: String(fuel._id),
-        fuelName: fuel.name,
-        unit: fuel.unit,
-        oldQty: original.quantity,
-        newQty: currentDraft.items[i]?.quantity ?? original.quantity,
-      };
-    });
+    const itemDrafts: ItemDraft[] = currentOrder
+      ? currentOrder.items.map((original, i) => {
+          const fuel = original.fuel as FuelDTO;
+          return {
+            fuelId: String(fuel._id),
+            fuelName: fuel.name,
+            unit: fuel.unit,
+            oldQty: original.quantity,
+            newQty: currentDraft?.items[i]?.quantity ?? original.quantity,
+          };
+        })
+      : [];
 
-    setQueue((prev) => {
-      const idx = prev.findIndex((d) => String(d._id) === currentId);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = currentDraft;
-        return next;
+    if (itemDrafts.length > 0 && currentId && currentDraft) {
+      setQueue((prev) => {
+        const idx = prev.findIndex((d) => String(d._id) === currentId);
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = currentDraft;
+          return next;
+        }
+        return [...prev, currentDraft];
+      });
+
+      updateSidebar(currentId, { status: "queued", items: itemDrafts });
+      if (currentIndex < sorted.length - 1) {
+        navigateTo(currentIndex + 1);
+        inputRefs["fuel0"]?.current?.select();
+        inputRefs["fuel0"]?.current?.focus();
       }
-      return [...prev, currentDraft];
-    });
-
-    updateSidebar(currentId, { status: "queued", items: itemDrafts });
-    if (currentIndex < sorted.length - 1) {
-      navigateTo(currentIndex + 1);
-      inputRefs["fuel0"]?.current?.select();
-      inputRefs["fuel0"]?.current?.focus();
     }
   };
 
@@ -186,6 +230,9 @@ export const PurchaseOrderUpdatePage = ({
         <PurchaseOrderUpdateProgressHeader
           reviewed={reviewedCount}
           total={sorted.length}
+          suppliers={suppliers}
+          setSupplier={setSupplier}
+          selectedSupplier={supplier} //colocar radios para filtrar os low balance e os outdated
         />
       </Grid>
 
@@ -194,17 +241,21 @@ export const PurchaseOrderUpdatePage = ({
         size={{ xs: 12, md: 8 }}
         sx={{ display: "flex", flexDirection: "column", gap: 2 }}
       >
-        <PurchaseOrderUpdateOrderCard
-          order={currentOrder}
-          draft={currentDraft}
-          index={currentIndex}
-          total={sorted.length}
-          status={currentStatus}
-          onQtyChange={updateItemQty}
-          onKeep={handleKeep}
-          onAdd={handleAdd}
-          inputRefs={inputRefs}
-        />
+        {currentOrder && currentDraft && (
+          <PurchaseOrderUpdateOrderCard
+            order={currentOrder}
+            draft={currentDraft}
+            index={currentIndex}
+            total={sorted.length}
+            status={currentStatus}
+            onQtyChange={updateItemQty}
+            onKeep={handleKeep}
+            onAdd={handleAdd}
+            inputRefs={inputRefs}
+            lowBalanceFilter={lowBalanceFilter}
+            outdatedFilter={outdatedFilter}
+          />
+        )}
 
         {allDecided ? (
           <PurchaseOrderUpdateBatchAction
@@ -240,6 +291,8 @@ export const PurchaseOrderUpdatePage = ({
           entries={sidebar}
           currentIndex={currentIndex}
           onNavigate={navigateTo}
+          setOutdated={setOutdatedFilter}
+          setLowBalance={setLowBalanceFilter}
         />
       </Grid>
     </Grid>

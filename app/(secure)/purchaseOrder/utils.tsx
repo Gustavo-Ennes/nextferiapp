@@ -1,4 +1,4 @@
-import type { DepartmentDTO } from "@/dto";
+import type { DepartmentDTO, SupplierDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
@@ -25,12 +25,14 @@ export const translateFuelType = (fuelName: string): string => {
 export const purchaseOrderBaseline = {
   reference: "",
   department: "",
+  supplier: "",
   items: [],
 };
 
 export const prepareDefaults = (purchaseOrder: PurchaseOrderDTO) => ({
   ...purchaseOrder,
   department: (purchaseOrder.department as DepartmentDTO)._id,
+  supplier: (purchaseOrder.supplier as SupplierDTO)._id,
   items: purchaseOrder.items.map((item) => ({
     ...item,
     fuel: (item.fuel as FuelDTO)._id,

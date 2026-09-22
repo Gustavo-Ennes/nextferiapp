@@ -1,4 +1,12 @@
-import { Box, Divider, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  Divider,
+  FormControlLabel,
+  FormGroup,
+  Paper,
+  Typography,
+} from "@mui/material";
 import type { PurchaseOrderUpdateOrderSidebarProps } from "../../types";
 import { PurchaseOrderUpdateSidebarEntry } from "./PurchaseOrderUpdateSidebarEntry";
 
@@ -6,6 +14,8 @@ export const PurchaseOrderUpdateOrderSidebar = ({
   entries,
   currentIndex,
   onNavigate,
+  setLowBalance,
+  setOutdated,
 }: PurchaseOrderUpdateOrderSidebarProps) => (
   <Paper
     elevation={0}
@@ -19,8 +29,33 @@ export const PurchaseOrderUpdateOrderSidebar = ({
       maxHeight: "60vh",
     }}
   >
+    <FormGroup>
+      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+        Remover com:
+      </Typography>
+      <FormControlLabel
+        control={
+          <Checkbox
+            size="small"
+            onChange={(e) => setOutdated(e.target.checked)}
+          />
+        }
+        label="Versão Preço desatualizada"
+        slotProps={{ typography: { fontSize: 12 } }}
+      />
+      <FormControlLabel
+        control={
+          <Checkbox
+            size="small"
+            onChange={(e) => setLowBalance(e.target.checked)}
+          />
+        }
+        label="Saldo Baixo"
+        slotProps={{ typography: { fontSize: 12 } }}
+      />
+    </FormGroup>
     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-      Pedidos
+      Pedidos ({entries.length})
     </Typography>
     <Divider sx={{ mb: 1.5 }} />
 

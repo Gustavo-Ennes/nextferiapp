@@ -18,7 +18,7 @@ export const toSupplierDTO = (
     name: supplierEntity.name,
     createdAt: supplierEntity.createdAt.toISOString(),
     updatedAt:
-      supplierEntity.updatedAt?.toISOString() ||
+      supplierEntity.updatedAt?.toISOString() ??
       supplierEntity.createdAt.toISOString(),
   };
 };

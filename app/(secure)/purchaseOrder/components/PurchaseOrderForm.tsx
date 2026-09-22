@@ -7,6 +7,10 @@ import {
   MenuItem,
   Typography,
   Divider,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  Select,
 } from "@mui/material";
 import { Add as AddIcon } from "@mui/icons-material";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,11 +29,14 @@ import { useRouter as useInternalRouter } from "@/context/RouterContext";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { PurchaseOrderFormFuelFields } from "./PurchaseOrderFormFuelFields";
+import { capitalizeName } from "@/app/utils";
+import type { PurchaseOrderItemDTO } from "@/dto/PurchaseOrderDTO";
 
 export function PurchaseOrderForm({
   defaultValues,
   departments,
   fuels,
+  suppliers,
 }: PurchaseFormProps) {
   const { setLoading } = useLoading();
   const { addSnack } = useSnackbar();
@@ -146,6 +153,33 @@ export function PurchaseOrderForm({
           )}
         />
       </Grid>
+      <Grid size={12}>
+        <Controller
+          name="supplier"
+          control={control}
+          render={({ field }) => (
+            <FormControl fullWidth size="small" error={!!errors.supplier}>
+              <InputLabel id="suplier-label">Fornecedor</InputLabel>
+              <Select {...field} labelId="supplier-label" label="Fornecedor">
+                <MenuItem value={""}>
+                  <em>Selecione o fornecedor</em>
+                </MenuItem>
+                {suppliers.map((supplier) => (
+                  <MenuItem
+                    key={supplier._id as string}
+                    value={supplier._id as string}
+                  >
+                    {capitalizeName(supplier.name)}
+                  </MenuItem>
+                ))}
+              </Select>
+              {errors.supplier && (
+                <FormHelperText>{errors.supplier.message}</FormHelperText>
+              )}
+            </FormControl>
+          )}
+        />
+      </Grid>
 
       <Grid size={{ xs: 12 }}>
         <Typography variant="h6">Itens do Pedido</Typography>
@@ -161,7 +195,7 @@ export function PurchaseOrderForm({
           index={index}
           purchaseOrder={item}
           setValue={setValue}
-          watchedItems={watchedItems}
+          watchedItems={watchedItems as PurchaseOrderItemDTO[]}
           remove={remove}
         />
       ))}

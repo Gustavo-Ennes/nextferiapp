@@ -4,6 +4,7 @@ import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchase
 import { PurchaseOrderForm } from "../components/PurchaseOrderForm";
 import { DepartmentRepository } from "@/lib/repository/department/department";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
 
 export default async function PurchaseOrderFormPage({
   searchParams,
@@ -17,6 +18,7 @@ export default async function PurchaseOrderFormPage({
     isActive: true,
   });
   const fuels = await FuelRepository.findWithoutPagination!({});
+  const suppliers = await SupplierRepository.findWithoutPagination!({});
 
   return (
     <Container maxWidth={"sm"} sx={{ mt: 1 }}>
@@ -30,6 +32,7 @@ export default async function PurchaseOrderFormPage({
             defaultValues={purchaseOrder}
             departments={departments}
             fuels={fuels}
+            suppliers={suppliers}
           />
         </>
       )}

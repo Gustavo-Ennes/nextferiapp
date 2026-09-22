@@ -23,11 +23,19 @@ export const PurchaseOrderUpdateOrderCard = ({
   onKeep,
   onAdd,
   inputRefs,
+  lowBalanceFilter,
+  outdatedFilter,
 }: PurchaseOrderUpdateOrderCardProps) => {
   useEffect(() => {
     inputRefs["fuel0"]?.current?.focus();
     inputRefs["fuel0"]?.current?.select();
   }, [order]);
+
+  const filteredOrderItems = order.items.filter((i) => {
+    if (lowBalanceFilter) return !i.lowBalance;
+    if (outdatedFilter) return !i.outdated;
+    return true;
+  });
 
   return (
     <Paper elevation={2} sx={{ p: 4, borderRadius: 3 }}>
@@ -35,18 +43,18 @@ export const PurchaseOrderUpdateOrderCard = ({
         Pedido {index + 1} de {total}
       </Typography>
       <Typography variant="h5" fontWeight={600} gutterBottom>
-        {order.reference}
+        {order?.reference}
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        {(order.department as { name: string })?.name}
+        {(order?.department as { name: string })?.name}
       </Typography>
 
       <Divider sx={{ my: 2 }} />
 
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {order.items.map((item, i) => {
+        {filteredOrderItems.map((item, i) => {
           const fuel = item.fuel as FuelDTO;
-          const editedQty = draft.items[i]?.quantity ?? item.quantity;
+          const editedQty = draft?.items[i]?.quantity ?? item.quantity;
 
           return (
             <Box
@@ -99,7 +107,7 @@ export const PurchaseOrderUpdateOrderCard = ({
           disabled={
             !draft ||
             draft.items.every(
-              (item, i) => item.quantity === order.items[i].quantity,
+              (item, i) => item.quantity === order?.items[i].quantity,
             )
           }
         >
