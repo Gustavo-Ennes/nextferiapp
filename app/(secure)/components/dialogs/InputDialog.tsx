@@ -10,7 +10,13 @@ import {
   Button,
   Typography,
 } from "@mui/material";
-import { useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
 
 export const InputDialog = ({
   onCloseAction,
@@ -24,7 +30,7 @@ export const InputDialog = ({
   input,
 }: DialogOptions) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [internalInput, setInternalInput] = useState(input ?? "");
+  const [internalInput, setInternalInput] = useState(input);
   const onEntered = () => inputRef?.current?.focus();
 
   const handleConfirm = (
@@ -38,6 +44,12 @@ export const InputDialog = ({
     onCloseAction?.();
   };
 
+  useEffect(() => {
+    if (openState) {
+      setInternalInput(input);
+    }
+  }, [openState]);
+
   return (
     <Dialog
       open={openState ?? false}
@@ -48,15 +60,15 @@ export const InputDialog = ({
       <DialogContent>
         <Typography>{description}</Typography>
         <TextField
-          label={inputLabel ?? "input"}
+          label={inputLabel ?? "Texto"}
           fullWidth
-          value={input}
+          value={internalInput}
           size="small"
           onChange={(e) => setInternalInput(e.target.value)}
           sx={{ my: 2 }}
           inputRef={inputRef}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && internalInput.length >= 3)
+            if (e.key === "Enter" && internalInput && internalInput.length >= 3)
               handleConfirm(e);
           }}
         />
@@ -64,7 +76,10 @@ export const InputDialog = ({
       <DialogActions>
         <Button onClick={onCloseAction}>{cancelLabel}</Button>
         <Button
-          disabled={internalInput.length < 3}
+          disabled={
+            internalInput !== undefined &&
+            (internalInput.length < 3 || internalInput === input)
+          }
           variant="contained"
           onClick={(e) => handleConfirm(e)}
         >

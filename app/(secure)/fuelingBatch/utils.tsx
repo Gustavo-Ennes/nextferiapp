@@ -24,7 +24,12 @@ import type {
   TotalFuels,
 } from "@/models/types";
 import type { AverageDepartmentTableParam } from "./components/types";
-import type { FuelingBatchDTOInvoice } from "@/dto/FuelingBatchDTO";
+import type {
+  FuelingBatchDTOInvoice,
+  FuelingBatchTableLine,
+} from "@/dto/FuelingBatchDTO";
+import type { ListPageRowFlags, RowFlag } from "../components/types";
+import { ChatBubbleOutline } from "@mui/icons-material";
 
 export const getFuelMix = ({
   fuelingBatches,
@@ -752,4 +757,21 @@ export const fuelingValuesMatchInvoiceValues = (
         fuelInventory[key].value > -0.5 && fuelInventory[key].value < 0.5,
     )
   );
+};
+
+export const getFuelingBatchRowFlags = (
+  fuelingBatches: FuelingBatchTableLine[],
+): ListPageRowFlags => {
+  const map = new Map<string, RowFlag[]>();
+  fuelingBatches.forEach((fuelingBatch) => {
+    if (fuelingBatch.observation)
+      map.set(fuelingBatch._id, [
+        {
+          message: `Observação: ${fuelingBatch.observation}`,
+          icon: <ChatBubbleOutline color="primary" />,
+        },
+      ]);
+  });
+
+  return map;
 };

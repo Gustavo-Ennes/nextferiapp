@@ -7,6 +7,7 @@ import type {
   PurchaseOrderDTO,
   FuelingBatchDTOInvoice,
 } from "@/dto";
+import type { SetStateAction, Dispatch } from "react";
 
 export interface DepartmentConsumptionRow {
   department: string;
@@ -121,4 +122,10 @@ export type DepartmentAccordionProps = {
   department: FuelingBatchDTODepartment;
   expanded: boolean;
   onToggle: () => void;
+};
+
+export type FuelingBatchHeaderParam = {
+  fuelingBatch: FuelingBatchDTO | null;
+  fuels: FuelDTO[];
+  setFuelingBatch: Dispatch<SetStateAction<FuelingBatchDTO>>;
 };

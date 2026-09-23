@@ -289,7 +289,7 @@ export const FuelingBatchFormInvoices = ({
             label="Total"
             size="small"
             type="number"
-            value={itemTotal}
+            value={Number(itemTotal).toFixed(2)}
             aria-readonly
             sx={{ width: "20%" }}
           />

@@ -110,6 +110,14 @@ export const ListPageDesktop = <T extends Entity>({
       </>
     );
   };
+  const routesWithRowFlags = ["purchaseOrder", "fuelingBatch"];
+  const getCellSx = (i: number) =>
+    routesWithRowFlags.includes(routePrefix) && i === 0
+      ? {
+          width: "1%",
+          whiteSpace: "nowrap",
+        }
+      : {};
 
   return (
     <Box>
@@ -117,8 +125,8 @@ export const ListPageDesktop = <T extends Entity>({
         <Table size="small">
           <TableHead>
             <TableRow sx={{ bgcolor: "#EEF" }}>
-              {headers.map((key) => (
-                <TableCell key={key}>
+              {headers.map((key, i) => (
+                <TableCell key={key} sx={getCellSx(i)}>
                   {translateEntityKey({
                     entity: routePrefix as any,
                     key,
@@ -136,7 +144,7 @@ export const ListPageDesktop = <T extends Entity>({
                 sx={{ zIndex: 1 }}
               >
                 {headers.map((key, i) => (
-                  <TableCell key={key}>
+                  <TableCell key={key} sx={getCellSx(i)}>
                     {key === "type"
                       ? translateEntityKey({
                           entity: routePrefix,

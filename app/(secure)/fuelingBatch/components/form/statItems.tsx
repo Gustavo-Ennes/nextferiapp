@@ -115,7 +115,7 @@ export const getSecondaryStats = ({
     name: "liters",
     icon: <WaterDrop fontSize="inherit" color="primary" />,
     label: "Litragem",
-    total: fuelingBatch ? countAllLiters(fuelingBatch).toString() : "0",
+    total: fuelingBatch ? countAllLiters(fuelingBatch).toFixed(3) : "0",
     selected: selectedFuelingBatch
       ? countAllLiters(selectedFuelingBatch).toFixed(3)
       : undefined,
@@ -125,7 +125,7 @@ export const getSecondaryStats = ({
     name: "kms",
     icon: <Straighten fontSize="inherit" color="primary" />,
     label: "Km's rodados",
-    total: fuelingBatch ? countAllKms(fuelingBatch).toString() : "0",
+    total: fuelingBatch ? countAllKms(fuelingBatch).toFixed(1) : "0",
     selected: selectedFuelingBatch
       ? countAllKms(selectedFuelingBatch).toFixed(1)
       : undefined,
@@ -145,7 +145,7 @@ export const getSecondaryStats = ({
     name: "invoicesValue",
     icon: <Straighten fontSize="inherit" color="primary" />,
     label: "Notas F. R$",
-    total: fuelingBatch ? countAllInvoicesValues(fuelingBatch).toString() : "0",
+    total: fuelingBatch ? countAllInvoicesValues(fuelingBatch) : "0",
     selected: selectedFuelingBatch
       ? countAllInvoicesValues(selectedFuelingBatch)
       : undefined,
@@ -169,7 +169,7 @@ export const getFuelInventoryStats = (fuelInventory: TotalFuels): StatItem[] =>
     icon: getFuelInventoryIcon(value),
     label: capitalizeFirstLetter(fuelName),
     total: toMonetary(value),
-    selected: `${liters}L`,
+    selected: `${liters.toFixed(3)}L`,
     type: "secondary",
     textColor: liters >= 0 ? "green" : "red",
   }));

@@ -432,7 +432,11 @@ export const FuelingBatchForm = ({
       </Grid>
 
       <Grid size={12} container justifyContent="center" alignItems="center">
-        <FuelingBatchHeader fuelingBatch={fuelingBatch} fuels={fuels} />
+        <FuelingBatchHeader
+          fuelingBatch={fuelingBatch}
+          fuels={fuels}
+          setFuelingBatch={setFuelingBatch}
+        />
       </Grid>
 
       <Grid size={2} justifyContent="center" alignItems="center" px={1}>

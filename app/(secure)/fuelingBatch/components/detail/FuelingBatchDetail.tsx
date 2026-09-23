@@ -33,6 +33,7 @@ export function FuelingBatchDetail({
     createdAt,
     updatedAt,
     departments,
+    observation,
     totals: {
       totalValue,
       totalKmHrs,
@@ -83,6 +84,11 @@ export function FuelingBatchDetail({
             <Typography variant="body2" sx={{ opacity: 0.85 }}>
               Atualizado em {format(updatedAt || createdAt, "dd/MM/yyyy")}
             </Typography>
+            {observation && (
+              <Typography variant="body2" sx={{ opacity: 0.85 }}>
+                Observação: <b>{observation}</b>
+              </Typography>
+            )}
           </Stack>
         </Stack>
       </Box>

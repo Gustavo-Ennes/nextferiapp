@@ -236,6 +236,8 @@ export const defaultEntityTableFields = {
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
   fuelingBatch: [
+    "createdAt",
+    "updatedAt",
     "totalFuelings",
     "totalVehicles",
     "totalValue",
@@ -243,9 +245,6 @@ export const defaultEntityTableFields = {
     "totalDepartments",
     "totalInvoices",
     "totalInvoicesValue",
-    "createdAt",
-    "updatedAt",
-    "observation",
   ],
   purchaseOrder: ["reference", "items", "department", "total"],
   fuel: ["name", "unit", "priceVersions", "currentPriceVersion"],
