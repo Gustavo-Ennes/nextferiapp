@@ -7,6 +7,7 @@ import {
 } from "pdf-lib";
 
 import type {
+  CreateLabelValueParagraphParams,
   CreateParagraphParams,
   CreateSignParams,
   CreateTitleParams,
@@ -513,11 +514,71 @@ const ensureSpace = async ({
   }
 };
 
+const createLabelValueParagraph = async ({
+  document,
+  regularFont,
+  boldFont,
+  fontSize = 14,
+  height,
+  lineHeight = 15,
+  maxWidth,
+  label,
+  value,
+  x = 50,
+  y = height.actual,
+  color = { r: 0.25, g: 0.25, b: 0.25 },
+}: CreateLabelValueParagraphParams): Promise<void> => {
+  const page = document.getPage(document.getPageCount() - 1);
+  const effectiveMaxWidth = maxWidth ?? page.getWidth() - x * 2;
+  const rgbColor = rgb(color.r, color.g, color.b);
+
+  const labelText = `${label}: `;
+  const spaceWidth = regularFont.widthOfTextAtSize(" ", fontSize);
+
+  // separa o value em palavras pra poder quebrar linha se for grande
+  const valueWords = value.split(/\s+/).filter((w) => w !== "");
+
+  let cursorX = x;
+  let cursorY = y;
+
+  // desenha o label (normal)
+  page.drawText(labelText, {
+    x: cursorX,
+    y: cursorY,
+    size: fontSize,
+    font: regularFont,
+    color: rgbColor,
+  });
+  cursorX += regularFont.widthOfTextAtSize(labelText, fontSize);
+
+  // desenha o value (bold), quebrando linha se necessário
+  valueWords.forEach((word, idx) => {
+    const wordWithSpace = idx < valueWords.length - 1 ? `${word} ` : word;
+    const wordWidth = boldFont.widthOfTextAtSize(wordWithSpace, fontSize);
+
+    if (cursorX + wordWidth > x + effectiveMaxWidth) {
+      cursorX = x;
+      cursorY -= lineHeight;
+    }
+
+    page.drawText(wordWithSpace, {
+      x: cursorX + spaceWidth,
+      y: cursorY,
+      size: fontSize,
+      font: boldFont,
+      color: rgbColor,
+    });
+
+    cursorX += wordWidth;
+  });
+};
+
 export {
   createHeader,
   createFooter,
   createTitle,
   createParagraph,
+  createLabelValueParagraph,
   createSign,
   createDuration,
   createTable,

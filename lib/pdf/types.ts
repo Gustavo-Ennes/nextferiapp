@@ -137,11 +137,13 @@ type FuelingBatchDrawBlockParam = {
   document: PDFDocument;
   height: Height;
   font: PDFFont;
+  boldFont: PDFFont;
   fontSize: number;
   page: PDFPage;
   headerY?: number;
   vehicle: FuelingBatchDTOVehicle;
   summaryDepartment: FuelingBatchDTODepartment;
+  date: Date;
 };
 
 type DrawLineParam = {
@@ -168,8 +170,24 @@ type GroupedByFuel = Record<string, OrderEntry[]>;
 
 type GroupedByDept = Record<string, GroupedByFuel>;
 
+type CreateLabelValueParagraphParams = {
+  document: PDFDocument;
+  regularFont: PDFFont;
+  boldFont: PDFFont;
+  fontSize?: number;
+  height: { actual: number };
+  lineHeight?: number;
+  maxWidth?: number;
+  label: string; // texto antes dos ":", normal
+  value: string; // texto depois dos ":", em bold
+  x?: number;
+  y?: number;
+  color?: { r: number; g: number; b: number };
+};
+
 export type {
   CreateParagraphParams,
+  CreateLabelValueParagraphParams,
   CreatePdfParams,
   CreateSignParams,
   CreateTitleParams,

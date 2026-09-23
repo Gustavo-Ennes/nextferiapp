@@ -2,6 +2,7 @@ import { StandardFonts } from "pdf-lib";
 
 import {
   createHeader,
+  createLabelValueParagraph,
   createParagraph,
   createSign,
   createTable,
@@ -14,21 +15,22 @@ import { splitEvery } from "ramda";
 import { sortCarFuelings } from "@/lib/repository/fuelingBatch/utils";
 import type { DepartmentDTO } from "@/dto/DepartmentDTO";
 import { capitalizeName } from "@/app/utils";
+import { format, toDate } from "date-fns";
 
 const BLOCK_MAX_LINES = 10;
 
 const drawBlock = async ({
   document,
   font,
+  boldFont,
   fontSize,
   headerY,
   height,
   page,
   vehicle,
   summaryDepartment,
+  date,
 }: FuelingBatchDrawBlockParam) => {
-  const departmentText = `SETOR REQUISITANTE:  - ${capitalizeName((summaryDepartment.department as DepartmentDTO).name)} - `;
-  const applicationText = `VEÍCULO/EQUIP.:  - ${vehicle.vehicle} - `;
   const prefixText = `PREFIX/B.P.: - #${vehicle.prefix}`;
   const MARGIN_SIZE = 33;
 
@@ -50,39 +52,45 @@ const drawBlock = async ({
 
   height.stepHugeLine();
 
-  await createParagraph({
+  await createLabelValueParagraph({
     document,
-    font,
+    regularFont: font,
+    boldFont,
     fontSize,
     height,
     maxWidth: page.getWidth() - 70,
-    text: departmentText,
-    // x: page.getWidth() / 2 - getParagraphWidth(applicationText, 12) / 2,
+    label: "SETOR REQUISITANTE",
+    value: capitalizeName(
+      (summaryDepartment.department as DepartmentDTO).name,
+    ).toUpperCase(),
     x: MARGIN_SIZE,
   });
 
   height.stepLine();
 
-  await createParagraph({
+  await createLabelValueParagraph({
     document,
-    font,
+    regularFont: font,
+    boldFont,
     fontSize,
     height,
     maxWidth: page.getWidth() - 70,
-    text: applicationText,
+    label: "VEÍCULO/EQUIP.",
+    value: vehicle.vehicle.toUpperCase(),
     x: MARGIN_SIZE,
   });
 
-  await createParagraph({
+  await createLabelValueParagraph({
     document,
-    font,
+    regularFont: font,
+    boldFont,
     fontSize,
     height,
     maxWidth: page.getWidth() - 70,
-    text: prefixText,
+    label: "PREFIXO",
+    value: vehicle.prefix.toString(),
     x: page.getWidth() - MARGIN_SIZE - getParagraphWidth(prefixText, 12) - 5,
   });
-
   height.stepLine();
 
   await createTable({
@@ -116,8 +124,8 @@ const drawBlock = async ({
     fontSize,
     height,
     maxWidth: page.getWidth() - 70,
-    text: dateSlots,
-    x: (page.getWidth() / 6) * 3 - getParagraphWidth(dateSlots, 12) / 2,
+    text: format(date, "dd / MM / yyyy"),
+    x: (page.getWidth() / 6) * 3.1 - getParagraphWidth(dateSlots, 12) / 2,
   });
   await createParagraph({
     document,
@@ -159,6 +167,7 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
   try {
     if (document && data?.departments?.length) {
       const font = await document.embedFont(StandardFonts.Helvetica);
+      const boldFont = await document.embedFont(StandardFonts.HelveticaBold);
       const fontSize = 12;
       let headerY: number | undefined;
       let blockCounter = 0;
@@ -187,12 +196,14 @@ const render = async ({ document, data }: RenderParam): Promise<void> => {
             await drawBlock({
               document,
               font,
+              boldFont,
               fontSize,
               height,
               headerY,
               page,
               vehicle: { ...carEntry, fuelings: tenFuelingBlock },
               summaryDepartment,
+              date: toDate(data.updatedAt ?? data.createdAt),
             });
             blockCounter++;
           }
