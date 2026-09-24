@@ -18,6 +18,7 @@ export type PdfPreviewItem = {
   data?: FuelingBatchDTO;
   type?: PdfPreviewTypeProp;
   id?: string;
+  supplier?: string;
 };
 
 export type PdfPreviewType = {

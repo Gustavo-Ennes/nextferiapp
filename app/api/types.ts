@@ -37,6 +37,7 @@ export type PdfOptions = {
   id?: string;
   period?: PeriodOptionsType;
   data?: FuelingBatchDTO;
+  supplier?: string;
 };
 export interface PdfRouteBody {
   items: PdfOptions[];

@@ -81,8 +81,10 @@ const render = async ({
   body: PdfOptions;
   document: PDFDocument;
 }) => {
-  const { id, type, relationType, period, data } = body;
+  const { id, type, relationType, period, data, supplier } = body;
+
   let instance;
+
   switch (type) {
     case "fuelingBatch":
       return fuelingBatchRender({
@@ -117,7 +119,11 @@ const render = async ({
       const orders = await PurchaseOrderRepository.findWithoutPagination!({});
       const { data: fuels } = await FuelRepository.find({});
 
-      const filteredOrders = filterPurchaseOrderItems({ orders, fuels });
+      const filteredOrders = filterPurchaseOrderItems({
+        orders,
+        fuels,
+        supplier,
+      });
 
       return purchaseOrderRender({
         document,

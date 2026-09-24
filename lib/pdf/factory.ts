@@ -38,6 +38,8 @@ import {
   SAFE_TOP,
 } from "./purchaseOrder/constants";
 import type { Height } from "./types";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 const getFont = async (document: PDFDocument) =>
   document.embedFont(StandardFonts.Helvetica);
@@ -48,9 +50,8 @@ const createHeader = async (
   document: PDFDocument,
   y?: number,
 ): Promise<void> => {
-  const header =
-    "https://storage.googleapis.com/feriappjs/novo-header-pref.png";
-  const headerBuffer = await fetch(header).then((res) => res.arrayBuffer());
+  const headerPath = join(process.cwd(), "public", "images", "pref_header.png");
+  const headerBuffer = await readFile(headerPath);
   const pngHeaderImage = await document.embedPng(headerBuffer);
   const pngHeaderDims = pngHeaderImage.scale(0.7);
   const page = document.getPage(document.getPageCount() - 1);
@@ -67,9 +68,8 @@ const createHeader = async (
 const createPageHeaderHorizontal = async (
   document: PDFDocument,
 ): Promise<void> => {
-  const header =
-    "https://storage.googleapis.com/feriappjs/novo-header-pref.png";
-  const headerBuffer = await fetch(header).then((res) => res.arrayBuffer());
+  const headerPath = join(process.cwd(), "public", "images", "pref_header.png");
+  const headerBuffer = await readFile(headerPath);
   const pngHeaderImage = await document.embedPng(headerBuffer);
   const pngHeaderDims = pngHeaderImage.scale(0.65);
   const page = document.getPage(document.getPageCount() - 1);
@@ -84,9 +84,8 @@ const createPageHeaderHorizontal = async (
 };
 
 const createFooter = async (document: PDFDocument): Promise<void> => {
-  const footer =
-    "https://storage.googleapis.com/feriappjs/novo-footer-pref.png";
-  const footerBuffer = await fetch(footer).then((res) => res.arrayBuffer());
+  const footerPath = join(process.cwd(), "public", "images", "pref_footer.png");
+  const footerBuffer = await readFile(footerPath);
   const pngFooterImage = await document.embedPng(footerBuffer);
   const pngFooterDims = pngFooterImage.scale(0.7);
   const page = document.getPage(document.getPageCount() - 1);

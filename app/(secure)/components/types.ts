@@ -4,6 +4,7 @@ import type { PaginatedResponse } from "@/app/api/types";
 import type { PdfPreviewTypeProp } from "@/context/types";
 import type { Types } from "mongoose";
 import type { VacationType } from "@/lib/repository/vacation/types";
+import type { SupplierDTO } from "@/dto";
 
 export type RowFlag = {
   message: string;
@@ -55,6 +56,7 @@ export type ResponsiveListPageParam<T> = {
   isExternal?: boolean | null;
   menuItems?: MenuItem[];
   rowFlags?: ListPageRowFlags;
+  suppliers?: SupplierDTO[];
 };
 
 export type DataListItem = {

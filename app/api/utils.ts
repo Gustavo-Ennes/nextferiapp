@@ -10,7 +10,7 @@ import type {
 import type { Entity } from "../types";
 import { NextResponse } from "next/server";
 import type { Model } from "mongoose";
-import type { BossDTO } from "@/dto";
+import type { BossDTO, SupplierDTO } from "@/dto";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
@@ -96,9 +96,11 @@ async function applyDefaultField<T>(model: Model<T>) {
 const filterPurchaseOrderItems = ({
   orders,
   fuels,
+  supplier,
 }: {
   orders: PurchaseOrderDTO[];
   fuels: FuelDTO[];
+  supplier?: string;
 }): PurchaseOrderDTO[] =>
   orders.reduce<PurchaseOrderDTO[]>((acc, order) => {
     const filteredOrder = { ...order };
@@ -111,13 +113,13 @@ const filterPurchaseOrderItems = ({
         if (!itemFuel)
           throw new Error(`Fuel not found(_id: ${(i.fuel as FuelDTO)._id})`);
 
-        const areVersionsEqual =
-          (itemFuel.currentPriceVersion as FuelPriceVersionDTO).version ===
-          itemFuelPriceVersion.version;
-        const isQuantityLow = i.quantity < 10;
-        const shouldRemoveItem = !areVersionsEqual || isQuantityLow;
+        const shouldRemoveItem =
+          i.outdated ||
+          i.lowBalance ||
+          (supplier &&
+            (filteredOrder.supplier as SupplierDTO)._id !== supplier);
         const message = shouldRemoveItem
-          ? `Order ref.: ${order.reference} ~ item: ${itemFuel.name}: ${isQuantityLow ? `low quantity: ${i.quantity}.` : `item is in v${itemFuelPriceVersion.version} and ${itemFuel.name} is in v${(itemFuel.currentPriceVersion as FuelPriceVersionDTO).version}.`}`
+          ? `Order ref.: ${order.reference} ~ item: ${itemFuel.name}: ${i.lowBalance ? `low quantity: ${i.quantity}.` : `item is in v${itemFuelPriceVersion.version} and ${itemFuel.name} is in v${(itemFuel.currentPriceVersion as FuelPriceVersionDTO).version}.`}`
           : "";
 
         if (shouldRemoveItem) {

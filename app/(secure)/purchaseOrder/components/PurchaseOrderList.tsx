@@ -4,12 +4,15 @@ import { ResponsiveListPage } from "../../components/ResponsiveListPage";
 import type { ResponsiveListPageParam } from "../../components/types";
 import { usePdfPreview } from "@/context/PdfPreviewContext";
 import { useRouter } from "@/context/RouterContext";
+import { useDialog } from "@/context/DialogContext";
 
 export const PurchaseOrderList = (
   params: ResponsiveListPageParam<PurchaseOrderDTO>,
 ) => {
   const { redirectWithLoading } = useRouter();
   const { setPdf } = usePdfPreview();
+  const { openSelectDialog } = useDialog();
+
   const menuItems = [
     {
       label: `Novo pedido`,
@@ -17,7 +20,16 @@ export const PurchaseOrderList = (
     },
     {
       label: "Impr. Orientação NF",
-      action: () => setPdf({ items: [{ type: "purchaseOrder" }] }),
+      action: () =>
+        openSelectDialog({
+          title: "Selecione o fornecedor",
+          options: params.suppliers?.map((supplier) => ({
+            label: supplier.name,
+            value: supplier._id,
+          })),
+          onConfirmAction: (supplier?: string) =>
+            setPdf({ items: [{ type: "purchaseOrder", supplier }] }),
+        }),
     },
   ];
   return (

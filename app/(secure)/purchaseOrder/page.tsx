@@ -3,6 +3,7 @@ import type { RawSearchParams } from "../types";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import { getPurchaseOrderRowFlags } from "./utils";
 import { PurchaseOrderList } from "./components/PurchaseOrderList";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
 
 const PurchaseOrderListServer = async ({
   searchParams,
@@ -16,6 +17,7 @@ const PurchaseOrderListServer = async ({
     ...(contains && { contains }),
   });
   const fuels = await FuelRepository.findWithoutPagination!({});
+  const suppliers = await SupplierRepository.findWithoutPagination!({});
 
   const rowFlags = getPurchaseOrderRowFlags({
     orders: paginatedResponse.data,
@@ -25,6 +27,7 @@ const PurchaseOrderListServer = async ({
   return (
     <PurchaseOrderList
       paginatedResponse={paginatedResponse}
+      suppliers={suppliers}
       routePrefix="purchaseOrder"
       contains={contains}
       rowFlags={rowFlags}

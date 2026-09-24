@@ -211,7 +211,7 @@ export const PurchaseOrderUpdatePage = ({
       console.warn(warning);
     }
 
-    setPdf({ items: [{ type: "purchaseOrder" }] });
+    setPdf({ items: [{ type: "purchaseOrder", supplier }] });
 
     addSnack({
       severity: errors.length > 0 ? "error" : "success",

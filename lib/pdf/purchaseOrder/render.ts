@@ -22,6 +22,8 @@ import {
 import { SAFE_TOP, MARGIN_X, PAGE_WIDTH } from "./constants";
 import { format } from "date-fns";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { SupplierDTO } from "@/dto";
+import { capitalizeName } from "@/app/utils";
 
 export async function render({
   document,
@@ -79,12 +81,20 @@ export async function render({
   // Subtítulo: data de processamento
   const processFormatedDate = format(new Date(), "dd/MM/yyyy");
   const processedLabel = `Processado em ${processFormatedDate}`;
+  const supplierLabel = `Fornecedor: ${capitalizeName(((instances[0] as PurchaseOrderDTO)?.supplier as SupplierDTO)?.name ?? "--")}`;
 
   await createTitle({
     document,
     height,
     size: 10,
     title: processedLabel,
+  });
+  height.stepLine();
+  await createTitle({
+    document,
+    height,
+    size: 9,
+    title: supplierLabel,
   });
   height.stepHugeLine();
 
