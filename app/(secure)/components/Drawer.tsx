@@ -1,4 +1,3 @@
-import { signOut } from "@/auth";
 import {
   List,
   ListItemButton,
@@ -18,6 +17,7 @@ import {
   getVacationProps,
   getFuelingBatchProps,
 } from "./utils";
+import { handleClientSignOut } from "@/app/clientAuth";
 
 export const Drawer = () => {
   const router = useRouter();
@@ -68,7 +68,7 @@ export const Drawer = () => {
 
         <Divider />
 
-        <ListItemButton onClick={() => signOut({ redirectTo: "/login" })}>
+        <ListItemButton onClick={handleClientSignOut}>
           <ListItemIcon>
             <Logout color="error" />
           </ListItemIcon>
