@@ -10,11 +10,15 @@ const PurchaseOrderListServer = async ({
 }: {
   searchParams: Promise<RawSearchParams>;
 }) => {
-  const { page, contains } = await searchParams;
+  const { page, contains, supplier, hideLowBalance, hideOutdated } =
+    await searchParams;
 
   const paginatedResponse = await PurchaseOrderRepository.find({
     page: page ? (parseInt(page) ?? 1) : 1,
     ...(contains && { contains }),
+    supplier,
+    hideLowBalance,
+    hideOutdated,
   });
   const fuels = await FuelRepository.findWithoutPagination!({});
   const suppliers = await SupplierRepository.findWithoutPagination!({});

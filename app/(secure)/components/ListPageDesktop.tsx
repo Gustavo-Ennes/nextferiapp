@@ -103,7 +103,7 @@ export const ListPageDesktop = <T extends Entity>({
     return (
       <>
         {flags?.map((f) => (
-          <Tooltip title={f?.message} arrow>
+          <Tooltip title={f?.message} key={f.message} arrow>
             {f?.icon ?? <></>}
           </Tooltip>
         ))}

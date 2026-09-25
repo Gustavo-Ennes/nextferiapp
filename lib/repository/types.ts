@@ -39,3 +39,9 @@ export type Repository<Entity, FormData> = {
   delete: (id: string) => Promise<Entity | null>;
   findWithoutPagination?: (params: SearchParams) => Promise<Entity[]>;
 };
+
+export type GetFilteredOrderIdsParams = {
+  hideLowBalance?: boolean | null; // true = excluir pedidos com lowBalance "some" ou "all"
+  hideOutdated?: boolean | null; // true = excluir pedidos com outdated "some" ou "all"
+  baseMatch?: Record<string, unknown>; // outros filtros já existentes (department, supplier etc.)
+};

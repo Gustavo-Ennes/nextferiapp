@@ -91,3 +91,9 @@ export type HandleSearchParam = {
   term: string;
   isExternal?: boolean;
 } & TimeSearchProps;
+
+export type PurchaseOrderFilterParam = {
+  selectedSupplier: string;
+  hideOutdated: boolean;
+  hideLowBalance: boolean;
+};

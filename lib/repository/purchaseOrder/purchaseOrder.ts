@@ -17,20 +17,40 @@ import {
 } from "@/lib/validators/purchaseOrder";
 import { isObjectIdOrHexString } from "mongoose";
 import { calculatePurchaseOrderPrices } from "../utils";
+import { getFilteredOrderIds } from "./utils";
 
 export const PurchaseOrderRepository: Repository<
   PurchaseOrderDTO,
   PurchaseOrderFormData
 > = {
-  async find(
-    params: SearchParams,
-  ): Promise<PaginatedResponse<PurchaseOrderDTO>> {
+  async find({
+    hideLowBalance,
+    hideOutdated,
+    supplier,
+    page = 1,
+  }: SearchParams): Promise<PaginatedResponse<PurchaseOrderDTO>> {
     await dbConnect();
-    const { page = 1 } = params;
+
+    const baseMatch = { ...(!!supplier && { supplier }) };
     const skip = (Number(page) - 1) * PAGINATION_LIMIT;
 
+    const needsAggregateFilter = !!hideLowBalance || !!hideOutdated;
+
+    const query = needsAggregateFilter
+      ? {
+          ...baseMatch,
+          _id: {
+            $in: await getFilteredOrderIds({
+              hideLowBalance,
+              hideOutdated,
+              baseMatch, // testar
+            }),
+          },
+        }
+      : baseMatch;
+
     const [data, totalItems] = await Promise.all([
-      PurchaseOrderModel.find<IPurchaseOrder>()
+      PurchaseOrderModel.find<IPurchaseOrder>(query)
         .populate([
           { path: "department" },
           {
@@ -43,7 +63,7 @@ export const PurchaseOrderRepository: Repository<
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(PAGINATION_LIMIT),
-      PurchaseOrderModel.countDocuments(),
+      PurchaseOrderModel.countDocuments(query),
     ]);
 
     return {
@@ -56,7 +76,6 @@ export const PurchaseOrderRepository: Repository<
       limit: PAGINATION_LIMIT,
     };
   },
-
   async findWithoutPagination(params: SearchParams) {
     let page = 1;
     let shouldFetchNextPage = false;

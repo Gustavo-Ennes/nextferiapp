@@ -20,6 +20,9 @@ export type SearchParams = {
   time?: TimeSearchProps;
   exclude?: string | null;
   timePeriod?: PeriodOptionsType | null;
+  hideLowBalance?: boolean | null;
+  hideOutdated?: boolean | null;
+  supplier?: string | null;
 };
 
 // E: entity
@@ -44,6 +47,9 @@ export type RawSearchParams = {
   future?: string | null;
   now?: string | null;
   snackbarMessage?: string | null;
+  hideLowBalance?: boolean | null;
+  hideOutdated?: boolean | null;
+  supplier?: string | null;
 };
 
 export type FetchOneParam = {
