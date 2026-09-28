@@ -9,6 +9,8 @@ describe("FuelRepository.delete", () => {
     price: 7,
     unit: "L",
     version: 1,
+    supplier: "",
+    fuel: ""
   };
   let fuel: FuelDTO | null = null;
 

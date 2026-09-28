@@ -9,6 +9,7 @@ import {
   PriceCheck,
   List,
   CurrencyExchange,
+  Inventory,
   WaterDrop,
 } from "@mui/icons-material";
 import type { ListItemMenuItem, SearchProps, TimeSearchProps } from "./types";
@@ -59,19 +60,24 @@ export const parseBool = (str?: string | null): boolean | null => {
   return null;
 };
 
-export const getWeeklyFuellingSummaryProps = (): ListItemMenuItem => ({
+export const getFuelingBatchProps = (): ListItemMenuItem => ({
   label: "Abastecimento",
   icon: <LocalGasStation />,
   items: [
     {
-      itemLabel: "Req. materiais",
-      itemIcon: <LibraryAdd />,
-      href: "/materialRequisition/form",
+      itemLabel: "Lotes",
+      itemIcon: <Inventory />,
+      href: "/fuelingBatch",
     },
     {
-      itemLabel: "Média",
+      itemLabel: "Novo Lote",
+      itemIcon: <LibraryAdd />,
+      href: "/fuelingBatch/form",
+    },
+    {
+      itemLabel: "Estatísticas",
       itemIcon: <AreaChart />,
-      href: "/materialRequisition/average",
+      href: "/fuelingBatch/average",
     },
   ],
 });

@@ -1,11 +1,13 @@
 /* eslint-disable no-unused-vars */
 import type { PDFDocument, PDFFont, PDFPage } from "pdf-lib";
-
 import type {
-  CarEntry,
-  TabData,
-} from "@/lib/repository/weeklyFuellingSummary/types";
-import type { DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
+  DepartmentDTO,
+  FuelingBatchDTO,
+  FuelingBatchDTODepartment,
+  FuelingBatchDTOVehicle,
+  VacationDTO,
+  WorkerDTO,
+} from "@/dto";
 import type {
   PurchaseOrderDTO,
   PurchaseOrderItemDTO,
@@ -36,7 +38,7 @@ type RenderParam = {
   reference?: Date;
   type?: string; // print type
   period?: string;
-  data?: TabData[];
+  data?: FuelingBatchDTO;
   fuels?: FuelDTO[];
 };
 
@@ -131,15 +133,17 @@ type GetTableInfoParam = {
   y: number;
 };
 
-type MaterialRequisitionDrawBlockParam = {
+type FuelingBatchDrawBlockParam = {
   document: PDFDocument;
   height: Height;
   font: PDFFont;
+  boldFont: PDFFont;
   fontSize: number;
   page: PDFPage;
   headerY?: number;
-  data: CarEntry;
-  tabData: TabData;
+  vehicle: FuelingBatchDTOVehicle;
+  summaryDepartment: FuelingBatchDTODepartment;
+  date: Date;
 };
 
 type DrawLineParam = {
@@ -156,7 +160,6 @@ type DrawPurchaseOrderSectionHeaderParam = {
   color?: Color;
 };
 
-
 type OrderEntry = {
   items: PurchaseOrderItemDTO[];
   reference: string;
@@ -167,8 +170,24 @@ type GroupedByFuel = Record<string, OrderEntry[]>;
 
 type GroupedByDept = Record<string, GroupedByFuel>;
 
+type CreateLabelValueParagraphParams = {
+  document: PDFDocument;
+  regularFont: PDFFont;
+  boldFont: PDFFont;
+  fontSize?: number;
+  height: { actual: number };
+  lineHeight?: number;
+  maxWidth?: number;
+  label: string; // texto antes dos ":", normal
+  value: string; // texto depois dos ":", em bold
+  x?: number;
+  y?: number;
+  color?: { r: number; g: number; b: number };
+};
+
 export type {
   CreateParagraphParams,
+  CreateLabelValueParagraphParams,
   CreatePdfParams,
   CreateSignParams,
   CreateTitleParams,
@@ -178,7 +197,7 @@ export type {
   GetTableInfoParam,
   Height,
   LineData,
-  MaterialRequisitionDrawBlockParam,
+  FuelingBatchDrawBlockParam,
   RenderParam,
   TableData,
   TableParams,

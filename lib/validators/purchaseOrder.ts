@@ -17,6 +17,7 @@ export const PurchaseOrderValidator = z.object({
     message: "Reference must follow the 'number/year' format (e.g., 123/26)",
   }),
   department: ObjectIdString,
+  supplier: ObjectIdString,
   items: z.array(OrderItemSchema).min(1, "Order must have at least one item"),
   total: z.optional(z.number().gt(0, "Order total must be greater than zero.")),
 });
@@ -28,6 +29,7 @@ export const PurchaseOrderValidatorUpdate = z.object({
     }),
   ),
   department: z.optional(ObjectIdString),
+  supplier: z.optional(ObjectIdString),
   items: z.optional(
     z.array(OrderItemSchema).min(1, "Order must have at least one item"),
   ),

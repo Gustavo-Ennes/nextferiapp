@@ -11,15 +11,20 @@ import { useDialog } from "@/context/DialogContext";
 import type { Entity } from "@/app/types";
 import { useRouter as useInternalRouter } from "@/context/RouterContext";
 import { useRouter } from "next/navigation";
-import type { HandleSearchParam, ResponsiveListPageParam } from "./types";
+import type {
+  HandleSearchParam,
+  PurchaseOrderFilterParam,
+  ResponsiveListPageParam,
+} from "./types";
 import { useSnackbar } from "@/context/SnackbarContext";
 import type { SnackbarData } from "@/context/types";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "./Search";
 import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 import { useLoading } from "@/context/LoadingContext";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import { Menu } from "./Menu";
+import { PurchaseOrderFilter } from "./PurchaseOrderFilter";
 
 const ResponsiveListPage = <T extends Entity>({
   paginatedResponse,
@@ -30,6 +35,8 @@ const ResponsiveListPage = <T extends Entity>({
   isExternal,
   menuItems,
   rowFlags,
+  snackbarMessage,
+  suppliers,
 }: ResponsiveListPageParam<T>) => {
   const theme = useTheme();
   const { addSnack } = useSnackbar();
@@ -136,10 +143,36 @@ const ResponsiveListPage = <T extends Entity>({
     router.replace(route);
   };
 
+  const isPurchaseOrderRoute = routePrefix === "purchaseOrder";
+
+  const handlePurchaseOrderFilter = ({
+    selectedSupplier,
+    hideOutdated,
+    hideLowBalance,
+  }: PurchaseOrderFilterParam) => {
+    if (!isPurchaseOrderRoute) return;
+
+    let route = `/purchaseOrder`;
+    const params: string[] = [];
+
+    if (selectedSupplier) params.push(`supplier=${selectedSupplier}`);
+    if (hideOutdated) params.push(`hideOutdated=${hideOutdated}`);
+    if (hideLowBalance) params.push(`hideLowBalance=${hideLowBalance}`);
+
+    if (params.length > 0) route = route.concat(`?${params.join("&")}`);
+
+    router.replace(route);
+  };
+
   const titleFromRoutePrefix = translateEntityKey({
     entity: routePrefix,
     key: "translatedPlural",
   });
+
+  useEffect(() => {
+    if (snackbarMessage)
+      addSnack({ message: snackbarMessage, severity: "info" });
+  }, []);
 
   return (
     <Grid container maxWidth={"md"} m="auto" p={2}>
@@ -176,19 +209,26 @@ const ResponsiveListPage = <T extends Entity>({
       </Grid>
 
       <Grid size={12}>
-        <Search
-          handleSearchAction={handleSearch}
-          routePrefix={routePrefix}
-          isExternal={isExternal}
-          enabledProps={{
-            active: true,
-            external: useExternalFilter,
-            internal: useExternalFilter,
-            ...(includeTimeInSearchProps && {
-              time: { past: true, future: true, now: true },
-            }),
-          }}
-        />
+        {isPurchaseOrderRoute ? (
+          <PurchaseOrderFilter
+            filterAction={handlePurchaseOrderFilter}
+            suppliers={suppliers ?? []}
+          />
+        ) : (
+          <Search
+            handleSearchAction={handleSearch}
+            routePrefix={routePrefix}
+            isExternal={isExternal}
+            enabledProps={{
+              active: true,
+              external: useExternalFilter,
+              internal: useExternalFilter,
+              ...(includeTimeInSearchProps && {
+                time: { past: true, future: true, now: true },
+              }),
+            }}
+          />
+        )}
       </Grid>
 
       <Grid size={12}>

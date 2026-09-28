@@ -1,22 +1,24 @@
 import type {
-  CarEntry,
-  FuelingData,
-  TabData,
-} from "@/lib/repository/weeklyFuellingSummary/types";
+  FuelDTO,
+  FuelingBatchDTO,
+  FuelingBatchDTODepartment,
+  FuelingBatchDTOVehicle,
+} from "@/dto";
+import type { FuelingBatchFueling } from "@/models/types";
 import type { MouseEvent, RefObject, SetStateAction } from "react";
 
 export type PdfPreviewTypeProp =
   | "vacation"
-  | "materialRequisition"
   | "vehicleUsage"
   | "cancellation"
-  | "materialRequisition"
+  | "fuelingBatch"
   | "purchaseOrder";
 
 export type PdfPreviewItem = {
-  data?: TabData[];
+  data?: FuelingBatchDTO;
   type?: PdfPreviewTypeProp;
   id?: string;
+  supplier?: string;
 };
 
 export type PdfPreviewType = {
@@ -61,9 +63,10 @@ export type DialogOptions = {
   openState?: boolean;
   input?: string;
   inputLabel?: string;
-  car?: CarEntry;
+  vehicle?: FuelingBatchDTOVehicle;
   options?: { label: string; value: string }[];
   selectedOption?: string;
+  role?: "dialog" | "alertDialog";
 };
 
 export type OpenConfirmationDialogParam = {
@@ -78,25 +81,23 @@ export interface DialogData {
   onConfirm: () => void;
 }
 
-export type MaterialRequisitionFormContextValues = {
-  selectedTabData: TabData | null;
-  setSelectedTabData: (value: TabData | null) => void;
-  selectedCar: CarEntry | null;
-  setSelectedCar: (value: CarEntry | null) => void;
-  vehicle: string;
-  setVehicle: (value: string) => void;
-  prefix: number;
-  setPrefix: (value: number) => void;
-  fuel: string;
-  setFuel: (value: string) => void;
+export type FuelingBatchFormContextValues = {
+  selectedDepartment: FuelingBatchDTODepartment | null;
+  setSelectedDepartment: (value: FuelingBatchDTODepartment | null) => void;
+  selectedCar: FuelingBatchDTOVehicle | null;
+  setSelectedCar: (value: FuelingBatchDTOVehicle | null) => void;
+  vehicleForm: VehicleForm;
+  setVehicleForm: (form: VehicleForm) => void;
   date: string;
   setDate: (value: string) => void;
   quantity: number;
   setQuantity: (value: number) => void;
   kmHr: number | null;
   setKmHr: (value: number | null) => void;
-  fuelings: FuelingData[];
-  setFuelings: (value: FuelingData[]) => void;
+  totalValue: number;
+  totalLiters: number;
+  totalKmHrs: number;
+  lastKm: number | null;
   hasUnsavedChanges: boolean;
   vehicleEquipInputRef: RefObject<HTMLInputElement | null>;
   dateInputRef: RefObject<HTMLInputElement | null>;
@@ -114,4 +115,11 @@ export type DialogValues = {
     params: OpenDialogParams,
     e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
   ) => void;
+};
+
+export type VehicleForm = {
+  description: string;
+  prefix: number;
+  fuel: FuelDTO | string;
+  fuelings: FuelingBatchFueling[];
 };

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument } from "pdf-lib";
 import type { PdfOptions, PdfRouteBody } from "../types";
 import {
-  materialRequisitionRender,
+  fuelingBatchRender,
   vacationRender,
   relationRender,
   vehicleUsageRender,
@@ -60,7 +60,7 @@ const checkPdfBodyProps = (body: PdfOptions) => {
         throw new Error("relationType is needed to print a relation");
       if (!period) throw new Error("period is needed to print a relation");
       break;
-    case "materialRequisition":
+    case "fuelingBatch":
       break;
     case "vehicleUsage":
       break;
@@ -81,11 +81,13 @@ const render = async ({
   body: PdfOptions;
   document: PDFDocument;
 }) => {
-  const { id, type, relationType, period, data } = body;
+  const { id, type, relationType, period, data, supplier } = body;
+
   let instance;
+
   switch (type) {
-    case "materialRequisition":
-      return materialRequisitionRender({
+    case "fuelingBatch":
+      return fuelingBatchRender({
         document,
         data,
       });
@@ -117,7 +119,11 @@ const render = async ({
       const orders = await PurchaseOrderRepository.findWithoutPagination!({});
       const { data: fuels } = await FuelRepository.find({});
 
-      const filteredOrders = filterPurchaseOrderItems({ orders, fuels });
+      const filteredOrders = filterPurchaseOrderItems({
+        orders,
+        fuels,
+        supplier,
+      });
 
       return purchaseOrderRender({
         document,

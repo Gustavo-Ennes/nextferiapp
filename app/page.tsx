@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "@/context/RouterContext";
-import { getLocalStorageData } from "./(secure)/materialRequisition/utils";
+import { getLocalStorageData } from "./(secure)/utils";
 
 function Page() {
   const router = useRouter();

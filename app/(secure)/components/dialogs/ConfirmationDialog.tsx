@@ -16,15 +16,20 @@ export const ConfirmationDialog = ({
   description,
   confirmLabel = "Confirmar",
   cancelLabel = "Cancelar",
+  role = "dialog",
 }: DialogOptions) => (
-  <Dialog open={openState ?? false} onClose={onCloseAction}>
+  <Dialog open={openState ?? false} onClose={onCloseAction} role={role}>
     <DialogTitle>{title}</DialogTitle>
     <DialogContent>
       <Typography>{description}</Typography>
     </DialogContent>
     <DialogActions>
       <Button onClick={onCloseAction}>{cancelLabel}</Button>
-      <Button variant="contained" onClick={() => onConfirmAction()}>
+      <Button
+        variant="contained"
+        color={role === "dialog" ? "primary" : "error"}
+        onClick={() => onConfirmAction()}
+      >
         {confirmLabel}
       </Button>
     </DialogActions>

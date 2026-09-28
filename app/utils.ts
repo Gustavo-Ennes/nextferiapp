@@ -20,6 +20,7 @@ import type { BossDTO, VacationDTO, WorkerDTO } from "@/dto";
 import type { PurchaseOrderItemDTO } from "@/dto/PurchaseOrderDTO";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import { toMonetary } from "./(secure)/fuelingBatch/utils";
 
 export const formatCellContent = <T extends Entity>({
   value,
@@ -63,8 +64,7 @@ export const formatCellContent = <T extends Entity>({
     if (isName && value) return capitalizeName(value as string);
     if (capitalize && value) return capitalizeFirstLetter(value as string);
     if (isDate) return format(toDate(value as string), "dd/MM/yyyy");
-    if (isCurrency)
-      return `R$ ${(value as number).toFixed(2).replace(".", ",")}`;
+    if (isCurrency) return toMonetary(value as number);
     if (isArray) return transcribeArray(value as PurchaseOrderItemDTO[]);
     if (value === undefined || value === null) return "Excluído(a)";
     return String(value);
@@ -235,9 +235,20 @@ export const defaultEntityTableFields = {
   worker: ["name", "role", "matriculation", "department"],
   department: ["name", "responsible"],
   vacation: ["worker", "duration", "startDate", "returnDate", "type"],
-  weeklyFuellingSummary: [],
+  fuelingBatch: [
+    "createdAt",
+    "updatedAt",
+    "totalFuelings",
+    "totalVehicles",
+    "totalValue",
+    "totalKmHrs",
+    "totalDepartments",
+    "totalInvoices",
+    "totalInvoicesValue",
+  ],
   purchaseOrder: ["reference", "items", "department", "total"],
   fuel: ["name", "unit", "priceVersions", "currentPriceVersion"],
+  supplier: ["name", "createdAt", "updatedAt"],
 };
 
 export const capitalizeFirstLetter = (str?: string): string =>

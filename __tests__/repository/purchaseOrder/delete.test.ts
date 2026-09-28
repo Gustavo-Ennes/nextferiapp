@@ -22,6 +22,7 @@ describe("PurchaseOrderRepository.delete", () => {
         price: 7.88,
       },
     ],
+    supplier: "supplier",
   });
 
   beforeEach(async () => {
@@ -32,7 +33,7 @@ describe("PurchaseOrderRepository.delete", () => {
       name: "Gasolina",
       price: 7.54,
       unit: "L",
-      version: 1
+      version: 1,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
   });

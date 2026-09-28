@@ -1,9 +1,9 @@
-import type { LocalStorageData } from "@/lib/repository/weeklyFuellingSummary/types";
 import type { EntityType } from "../types";
 import type { VacationTypeParam } from "@/lib/repository/vacation/types";
 import type { Repository } from "@/lib/repository/types";
 import type { PeriodOptionsType } from "../api/types";
 import type { TimeSearchProps } from "./components/types";
+import type { PdfPreviewItem } from "@/context/types";
 
 export type SearchParam = "type" | "page" | "cancelled" | "isActive";
 
@@ -20,6 +20,9 @@ export type SearchParams = {
   time?: TimeSearchProps;
   exclude?: string | null;
   timePeriod?: PeriodOptionsType | null;
+  hideLowBalance?: boolean | null;
+  hideOutdated?: boolean | null;
+  supplier?: string | null;
 };
 
 // E: entity
@@ -43,6 +46,10 @@ export type RawSearchParams = {
   past?: string | null;
   future?: string | null;
   now?: string | null;
+  snackbarMessage?: string | null;
+  hideLowBalance?: boolean | null;
+  hideOutdated?: boolean | null;
+  supplier?: string | null;
 };
 
 export type FetchOneParam = {
@@ -50,8 +57,12 @@ export type FetchOneParam = {
   type: EntityType;
   params?: SearchParams;
 };
+export interface PdfData {
+  items: PdfPreviewItem[];
+  opened: boolean;
+}
 
-export type CreateOrUpdateWeeklySummaryParam = {
-  id?: string;
-  payload: LocalStorageData;
-};
+export interface LocalStorageData {
+  pdfData: PdfData;
+  lastPage?: string;
+}

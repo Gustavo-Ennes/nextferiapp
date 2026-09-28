@@ -1,14 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
 import { optionsResponse } from "../utils";
+import { parseBool } from "@/app/(secure)/components/utils";
 
 export async function OPTIONS() {
   return optionsResponse();
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const orders = await PurchaseOrderRepository.find({});
+    const { searchParams } = new URL(req.url);
+    const supplier = searchParams.get("supplier");
+    const hideLowBalance = parseBool(searchParams.get("hideLowBalance"));
+    const hideOutdated = parseBool(searchParams.get("hideOutdated"));
+
+    const orders = await PurchaseOrderRepository.find({
+      supplier,
+      hideLowBalance,
+      hideOutdated,
+    });
+
     return NextResponse.json(orders);
   } catch (error) {
     return NextResponse.json(

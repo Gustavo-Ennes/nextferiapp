@@ -17,28 +17,53 @@ import {
 } from "@/lib/validators/purchaseOrder";
 import { isObjectIdOrHexString } from "mongoose";
 import { calculatePurchaseOrderPrices } from "../utils";
-import { endOfDaySP, startOfDaySP } from "@/app/utils";
+import { getFilteredOrderIds } from "./utils";
 
 export const PurchaseOrderRepository: Repository<
   PurchaseOrderDTO,
   PurchaseOrderFormData
 > = {
-  async find(
-    params: SearchParams,
-  ): Promise<PaginatedResponse<PurchaseOrderDTO>> {
+  async find({
+    hideLowBalance,
+    hideOutdated,
+    supplier,
+    page = 1,
+  }: SearchParams): Promise<PaginatedResponse<PurchaseOrderDTO>> {
     await dbConnect();
-    const { page = 1 } = params;
+
+    const baseMatch = { ...(!!supplier && { supplier }) };
     const skip = (Number(page) - 1) * PAGINATION_LIMIT;
 
+    const needsAggregateFilter = !!hideLowBalance || !!hideOutdated;
+
+    const query = needsAggregateFilter
+      ? {
+          ...baseMatch,
+          _id: {
+            $in: await getFilteredOrderIds({
+              hideLowBalance,
+              hideOutdated,
+              baseMatch, // testar
+            }),
+          },
+        }
+      : baseMatch;
+
     const [data, totalItems] = await Promise.all([
-      PurchaseOrderModel.find<IPurchaseOrder>()
-        .populate("department")
-        .populate("items.fuel")
-        .populate("items.fuelPriceVersion")
+      PurchaseOrderModel.find<IPurchaseOrder>(query)
+        .populate([
+          { path: "department" },
+          {
+            path: "items.fuel",
+            populate: { path: "currentPriceVersion" },
+          },
+          { path: "items.fuelPriceVersion" },
+          { path: "supplier" },
+        ])
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(PAGINATION_LIMIT),
-      PurchaseOrderModel.countDocuments(),
+      PurchaseOrderModel.countDocuments(query),
     ]);
 
     return {
@@ -51,23 +76,14 @@ export const PurchaseOrderRepository: Repository<
       limit: PAGINATION_LIMIT,
     };
   },
-
   async findWithoutPagination(params: SearchParams) {
     let page = 1;
     let shouldFetchNextPage = false;
-    let to;
-    let from;
     const orders: PurchaseOrderDTO[] = [];
-    const today = new Date();
-
-    if (params.timePeriod == "past") to = endOfDaySP(today);
-    else if (params.timePeriod === "future") from = startOfDaySP(today);
 
     do {
       const { data: orderPage, hasNextPage } = await this.find({
         ...params,
-        ...(params.timePeriod && to && { to }),
-        ...(params.timePeriod && from && { from }),
         page: page++,
       });
 
@@ -82,10 +98,17 @@ export const PurchaseOrderRepository: Repository<
     id,
   }: FindOneRepositoryParam): Promise<PurchaseOrderDTO | null> {
     await dbConnect();
-    const order = await PurchaseOrderModel.findById<IPurchaseOrder>(id)
-      .populate("department")
-      .populate("items.fuel")
-      .populate("items.fuelPriceVersion");
+    const order = await PurchaseOrderModel.findById<IPurchaseOrder>(
+      id,
+    ).populate([
+      { path: "department" },
+      {
+        path: "items.fuel",
+        populate: { path: "currentPriceVersion" },
+      },
+      { path: "items.fuelPriceVersion" },
+      { path: "supplier" },
+    ]);
 
     return order ? (toPurchaseOrderDTO(order) as PurchaseOrderDTO) : null;
   },
@@ -94,10 +117,15 @@ export const PurchaseOrderRepository: Repository<
     await dbConnect();
     const order = await PurchaseOrderModel.findOne<IPurchaseOrder>({
       reference,
-    })
-      .populate("department")
-      .populate("items.fuel")
-      .populate("items.fuelPriceVersion");
+    }).populate([
+      { path: "department" },
+      {
+        path: "items.fuel",
+        populate: { path: "currentPriceVersion" },
+      },
+      { path: "items.fuelPriceVersion" },
+      { path: "supplier" },
+    ]);
 
     return order ? (toPurchaseOrderDTO(order) as PurchaseOrderDTO) : null;
   },
@@ -124,9 +152,15 @@ export const PurchaseOrderRepository: Repository<
 
     const newOrder = await PurchaseOrderModel.create(calculatedPayload);
 
-    await newOrder.populate("department");
-    await newOrder.populate("items.fuel");
-    await newOrder.populate("items.fuelPriceVersion");
+    await newOrder.populate([
+      { path: "department" },
+      {
+        path: "items.fuel",
+        populate: { path: "currentPriceVersion" },
+      },
+      { path: "items.fuelPriceVersion" },
+      { path: "supplier" },
+    ]);
 
     return toPurchaseOrderDTO(newOrder as IPurchaseOrder) as PurchaseOrderDTO;
   },
@@ -166,9 +200,15 @@ export const PurchaseOrderRepository: Repository<
     if (!purchaseOrder)
       throw new Error("No purchase order found with provided id.");
 
-    await purchaseOrder.populate("department");
-    await purchaseOrder.populate("items.fuel");
-    await purchaseOrder.populate("items.fuelPriceVersion");
+    await purchaseOrder.populate([
+      { path: "department" },
+      {
+        path: "items.fuel",
+        populate: { path: "currentPriceVersion" },
+      },
+      { path: "items.fuelPriceVersion" },
+      { path: "supplier" },
+    ]);
 
     return toPurchaseOrderDTO(purchaseOrder) as PurchaseOrderDTO;
   },

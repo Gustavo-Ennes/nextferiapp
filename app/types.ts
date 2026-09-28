@@ -1,21 +1,31 @@
-import type { WeeklyFuellingSummary } from "@/models/WeeklyFuellingSummary";
-import type { BossDTO, DepartmentDTO, VacationDTO, WorkerDTO } from "@/dto";
-import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import type { FuelDTO } from "@/dto/FuelDTO";
+import type {
+  BossDTO,
+  DepartmentDTO,
+  VacationDTO,
+  WorkerDTO,
+  PurchaseOrderDTO,
+  FuelDTO,
+  FuelingBatchDTO,
+  FuelingBatchTableLine,
+  SupplierDTO,
+} from "@/dto";
 
 export type Entity =
   | WorkerDTO
   | VacationDTO
   | DepartmentDTO
   | BossDTO
-  | WeeklyFuellingSummary
   | PurchaseOrderDTO
-  | FuelDTO;
+  | FuelDTO
+  | FuelingBatchDTO
+  | FuelingBatchTableLine
+  | SupplierDTO;
 export type EntityType =
   | "department"
   | "worker"
   | "vacation"
   | "boss"
-  | "weeklyFuellingSummary"
   | "purchaseOrder"
-  | "fuel";
+  | "fuel"
+  | "fuelingBatch"
+  | "supplier";

@@ -20,6 +20,7 @@ import { parseFuelPriceVersions, toFuelPriceVersionDTO } from "./parse";
 import FuelPriceVersionModel from "@/models/FuelPriceVersion";
 import { FuelRepository } from "../fuel/fuel";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import { SupplierRepository } from "../supplier/supplier";
 
 export const FuelPriceVersionRepository: Repository<
   FuelPriceVersionDTO,
@@ -124,6 +125,11 @@ export const FuelPriceVersionRepository: Repository<
 
     if (!fuel) {
       throw new Error("No fuel found with provided id.");
+    }
+
+    const supplier = await SupplierRepository.findOne({ id: payload.supplier });
+    if (!supplier) {
+      throw new Error("No supplier found with provided id.");
     }
 
     const priceVersionsSameFuel =

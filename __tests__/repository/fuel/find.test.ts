@@ -9,6 +9,8 @@ describe("FuelRepository.find", () => {
     price: 7,
     unit: "L",
     version: 1,
+    supplier: "",
+    fuel: ""
   };
 
   it("should return a list of Fuels in find()", async () => {

@@ -1,9 +1,9 @@
 import type z from "zod";
 import type { PurchaseOrderValidator } from "@/lib/validators/purchaseOrder";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import type { DepartmentDTO } from "@/dto";
+import type { DepartmentDTO, SupplierDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
-import type { RefObject } from "react";
+import type { Dispatch, RefObject, SetStateAction } from "react";
 
 export type PurchaseOrderFormData = z.infer<typeof PurchaseOrderValidator>;
 
@@ -11,6 +11,7 @@ export type PurchaseFormProps = {
   defaultValues: PurchaseOrderDTO | null;
   departments: DepartmentDTO[];
   fuels: FuelDTO[];
+  suppliers: SupplierDTO[];
 };
 export type ItemDraft = {
   fuelId: string;
@@ -36,11 +37,15 @@ export interface SidebarEntry {
 
 export interface PurchaseOrderUpdateProps {
   orders: PurchaseOrderDTO[];
+  suppliers: SupplierDTO[];
 }
 
 export interface PurchaseOrderUpdateHeaderProps {
   reviewed: number;
   total: number;
+  suppliers: SupplierDTO[];
+  setSupplier: Dispatch<SetStateAction<string>>;
+  selectedSupplier: string;
 }
 
 export interface PurchaseOrderUpdateOrderCardProps {
@@ -50,6 +55,8 @@ export interface PurchaseOrderUpdateOrderCardProps {
   total: number;
   status: SidebarStatus;
   inputRefs: Record<string, RefObject<HTMLInputElement | null>>;
+  lowBalanceFilter: boolean;
+  outdatedFilter: boolean;
   onQtyChange: (itemIndex: number, value: number) => void;
   onKeep: () => void;
   onAdd: () => void;
@@ -72,4 +79,6 @@ export interface PurchaseOrderUpdateOrderSidebarProps {
   entries: SidebarEntry[];
   currentIndex: number;
   onNavigate: (idx: number) => void;
+  setLowBalance: Dispatch<SetStateAction<boolean>>;
+  setOutdated: Dispatch<SetStateAction<boolean>>;
 }

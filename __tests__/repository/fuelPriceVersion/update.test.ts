@@ -10,6 +10,8 @@ describe("FuelPriceVersionRepository.update", () => {
   const fuelPriceVersionPayload: FuelPriceVersionFormData = {
     price: 8,
     version: 2,
+    supplier: "",
+    fuel: ""
   };
 
   beforeEach(async () => {

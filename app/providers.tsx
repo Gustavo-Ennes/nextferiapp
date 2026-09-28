@@ -10,7 +10,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { PdfPreviewProvider } from "@/context/PdfPreviewContext";
 import { SnackbarProvider } from "@/context/SnackbarContext";
 import { LoadingProvider } from "@/context/LoadingContext";
-import { MaterialRequisitionFormProvider } from "@/context/MaterialRequisitionFormContext";
+import { FuelingBatchFormProvider } from "@/context/FuelingBatchFormContext";
 import { RouterProvider } from "@/context/RouterContext";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -24,9 +24,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
               <SnackbarProvider>
                 <PdfPreviewProvider>
                   <DialogProvider>
-                    <MaterialRequisitionFormProvider>
+                    <FuelingBatchFormProvider>
                       {children}
-                    </MaterialRequisitionFormProvider>
+                    </FuelingBatchFormProvider>
                   </DialogProvider>
                 </PdfPreviewProvider>
               </SnackbarProvider>

@@ -2,6 +2,7 @@ import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { IFuelPriceVersion } from "@/models/FuelPriceVersion";
 import { isObjectIdOrHexString, type Types } from "mongoose";
 import { toFuelDTO } from "../fuel/parse";
+import { toSupplierDTO } from "../supplier/parse";
 
 export const toFuelPriceVersionDTO = (
   version: IFuelPriceVersion | Types.ObjectId,
@@ -14,6 +15,7 @@ export const toFuelPriceVersionDTO = (
   return {
     _id: versionEntity._id.toString(),
     fuel: toFuelDTO(versionEntity.fuel),
+    supplier: toSupplierDTO(versionEntity.supplier),
     version: versionEntity.version,
     price: versionEntity.price,
     createdAt: versionEntity.createdAt.toISOString(),

@@ -17,7 +17,7 @@ import type { WorkerFormData } from "../worker/types";
 import type { PurchaseOrderFormData } from "../purchaseOrder/types";
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import { WeeklyFuellingSummaryRepository } from "@/lib/repository/weeklyFuellingSummary/weeklyFuellingSummary";
+import { FuelingBatchRepository } from "@/lib/repository/fuelingBatch/fuelingBatch";
 import { splitPurchaseOrderByValidFuelVersion } from "./utils";
 import type { CombinedFuelFormData } from "../fuel/types";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
@@ -52,7 +52,7 @@ export default async function DashboardServer() {
     repository: PurchaseOrderRepository,
   });
 
-  const weeklyFuellingSummaries = await WeeklyFuellingSummaryRepository.find();
+  const fuelingBatches = await FuelingBatchRepository.findWithoutPagination!();
 
   const onVacationToday = getWorkersOnVacation(vacations);
   const returningToday = getTodayReturns(vacations);
@@ -87,7 +87,7 @@ export default async function DashboardServer() {
         workersByRole,
         purchaseOrders: sortedByFuelVersionsPurchaseOrders,
         fuels,
-        weeklyFuellingSummaries,
+        fuelingBatches,
       }}
     />
   );

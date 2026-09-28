@@ -92,7 +92,8 @@ export const ListPageDesktop = <T extends Entity>({
   };
   const isName = (key: any) => key === "name";
   const isCapitalized = (key: any) => key === "role";
-  const isCurrency = (key: any) => key === "total";
+  const isCurrency = (key: any) =>
+    ["total", "value", "totalValue", "totalInvoicesValue"].includes(key);
   const isArray = (key: any, item: T) => Array.isArray(item[key as keyof T]);
   const isPriceVersion = (key: any) => key === "currentPriceVersion";
 
@@ -102,13 +103,21 @@ export const ListPageDesktop = <T extends Entity>({
     return (
       <>
         {flags?.map((f) => (
-          <Tooltip title={f?.message} arrow>
+          <Tooltip title={f?.message} key={f.message} arrow>
             {f?.icon ?? <></>}
           </Tooltip>
         ))}
       </>
     );
   };
+  const routesWithRowFlags = ["purchaseOrder", "fuelingBatch"];
+  const getCellSx = (i: number) =>
+    routesWithRowFlags.includes(routePrefix) && i === 0
+      ? {
+          width: "1%",
+          whiteSpace: "nowrap",
+        }
+      : {};
 
   return (
     <Box>
@@ -116,8 +125,8 @@ export const ListPageDesktop = <T extends Entity>({
         <Table size="small">
           <TableHead>
             <TableRow sx={{ bgcolor: "#EEF" }}>
-              {headers.map((key) => (
-                <TableCell key={key}>
+              {headers.map((key, i) => (
+                <TableCell key={key} sx={getCellSx(i)}>
                   {translateEntityKey({
                     entity: routePrefix as any,
                     key,
@@ -135,7 +144,7 @@ export const ListPageDesktop = <T extends Entity>({
                 sx={{ zIndex: 1 }}
               >
                 {headers.map((key, i) => (
-                  <TableCell key={key}>
+                  <TableCell key={key} sx={getCellSx(i)}>
                     {key === "type"
                       ? translateEntityKey({
                           entity: routePrefix,

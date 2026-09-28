@@ -18,12 +18,13 @@ import {
   LocalDrink,
   Speed,
   WaterDrop,
+  Straighten,
 } from "@mui/icons-material";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import type { FuelingData } from "@/lib/repository/weeklyFuellingSummary/types";
+import type { FuelingBatchFueling } from "@/models/types";
 import { capitalizeName } from "@/app/utils";
-import { sortCarFuelings } from "../../materialRequisition/utils";
+import { sortCarFuelings } from "@/lib/repository/fuelingBatch/utils";
 import type { TransitionProps } from "@mui/material/transitions";
 import { forwardRef } from "react";
 import type { DialogOptions } from "@/context/types";
@@ -40,7 +41,7 @@ const FuelingRow = ({
   fueling,
   index,
 }: {
-  fueling: FuelingData;
+  fueling: FuelingBatchFueling;
   index: number;
 }) => (
   <Box
@@ -133,15 +134,14 @@ const FuelingRow = ({
 );
 
 export const CarDetailDialog = ({
-  car,
+  vehicle,
   openState,
   onCloseAction,
   title,
 }: DialogOptions) => {
-  if (!car) return null;
+  if (!vehicle) return null;
 
-  const sorted = sortCarFuelings(car.fuelings ?? []);
-  const totalQuantity = sorted.reduce((acc, f) => acc + f.quantity, 0);
+  const sorted = sortCarFuelings(vehicle.fuelings ?? []);
 
   return (
     <Dialog
@@ -201,12 +201,12 @@ export const CarDetailDialog = ({
         >
           <Tag sx={{ fontSize: 13 }} />
           <Typography variant="caption" fontWeight={700}>
-            {title ?? car.prefix}
+            {title ?? vehicle.prefix}
           </Typography>
         </Box>
 
         <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2 }}>
-          {capitalizeName(car.vehicle)}
+          {capitalizeName(vehicle.vehicle)}
         </Typography>
 
         <Box sx={{ display: "flex", gap: 1, mt: 1.5, flexWrap: "wrap" }}>
@@ -216,7 +216,7 @@ export const CarDetailDialog = ({
                 sx={{ fontSize: 14, color: "white !important" }}
               />
             }
-            label={capitalizeName((car.fuel as FuelDTO)?.name)}
+            label={capitalizeName((vehicle.fuel as FuelDTO)?.name)}
             size="small"
             sx={{
               bgcolor: "rgba(255,255,255,0.18)",
@@ -229,7 +229,24 @@ export const CarDetailDialog = ({
             icon={
               <LocalDrink sx={{ fontSize: 14, color: "white !important" }} />
             }
-            label={`${totalQuantity.toFixed(3)} L total`}
+            label={`${vehicle.totals.totalLiters.toFixed(3)} L total`}
+            size="small"
+            sx={{
+              bgcolor: "rgba(255,255,255,0.18)",
+              color: "white",
+              fontWeight: 500,
+              border: "1px solid rgba(255,255,255,0.3)",
+            }}
+          />
+          <Chip
+            icon={
+              <Straighten sx={{ fontSize: 14, color: "white !important" }} />
+            }
+            label={
+              vehicle.totals.totalKmHrs
+                ? `${vehicle.totals.totalKmHrs.toFixed(0)} km/hr total`
+                : "Km/h inconsistente/quebrado"
+            }
             size="small"
             sx={{
               bgcolor: "rgba(255,255,255,0.18)",

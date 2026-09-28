@@ -1,4 +1,3 @@
-import { signOut } from "@/auth";
 import {
   List,
   ListItemButton,
@@ -16,8 +15,9 @@ import { BlueItemIcon } from "./styled";
 import {
   getPurchaseOrderProps,
   getVacationProps,
-  getWeeklyFuellingSummaryProps,
+  getFuelingBatchProps,
 } from "./utils";
+import { handleClientSignOut } from "@/app/clientAuth";
 
 export const Drawer = () => {
   const router = useRouter();
@@ -51,10 +51,7 @@ export const Drawer = () => {
 
         <Divider />
 
-        <ListItemMenu
-          props={getWeeklyFuellingSummaryProps()}
-          key="/weeklyFuellingSummary"
-        />
+        <ListItemMenu props={getFuelingBatchProps()} key="/fuelingSummary" />
 
         <Divider />
 
@@ -71,7 +68,7 @@ export const Drawer = () => {
 
         <Divider />
 
-        <ListItemButton onClick={() => signOut({ redirectTo: "/login" })}>
+        <ListItemButton onClick={handleClientSignOut}>
           <ListItemIcon>
             <Logout color="error" />
           </ListItemIcon>

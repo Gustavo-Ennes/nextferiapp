@@ -2,3 +2,8 @@ export * as Boss from "./Boss";
 export * as Vacation from "./Vacation";
 export * as Worker from "./Worker";
 export * as Department from "./Department";
+export * as Fuel from "./Fuel";
+export * as FuelPriceVersion from "./FuelPriceVersion";
+export * as FuelingBatch from "./FuelingBatch";
+export * as PurchaseOrder from "./PurchaseOrder";
+export * as Supplier from "./Supplier";

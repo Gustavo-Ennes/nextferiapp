@@ -80,8 +80,20 @@ export const translateEntityKey = ({
       s500: "Diesel S-500",
       arla: "Arla",
     },
-    weeklyFuellingSummary: {
-      translated: "Resumo semanal de abastecimentos",
+    fuelingBatch: {
+      translated: "Lote de abastecimento",
+      createdAt: "criação",
+      updatedAt: "atualização",
+      observation: "observação",
+      totalLiters: "litragem",
+      totalFuelings: "abastecimentos",
+      totalVehicles: "veículos",
+      totalValue: "valor",
+      totalKmHrs: "quilometragem",
+      totalFuels: "total combustíveis",
+      totalInvoices: "Notas F.",
+      totalInvoicesValue: "Notas R$",
+      totalDepartments: "departamentos",
     },
     purchaseOrder: {
       translated: "Pedido",
@@ -91,6 +103,11 @@ export const translateEntityKey = ({
       reference: "Referência",
       items: "itens",
     },
+    supplier: {
+      name: "Nome",
+      translated: "Lote de abastecimento",
+      createdAt: "criação",
+    }
   };
   return entity
     ? capitalizeFirstLetter(

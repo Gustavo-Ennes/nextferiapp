@@ -1,19 +1,29 @@
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
-import { partition } from "ramda";
+import { clone, partition, pluck } from "ramda";
 import type {
   GetVacationDetailsParam,
   GetVacationDetailsReturn,
   GetWorkerByStatusReturn,
   SplitPurchaseOrderByValidFuelVersionParam,
   SplitPurchaseOrderByValidFuelVersionReturn,
-  WeeklyFuellingSummariesTotals,
 } from "./types";
 import type { FuelDTO } from "@/dto/FuelDTO";
-import type { DepartmentDTO, WeeklyFuellingSummaryDTO, WorkerDTO } from "@/dto";
+import type {
+  DepartmentDTO,
+  FuelingBatchDTO,
+  FuelingBatchDTODepartment,
+  FuelingBatchDTOVehicle,
+  WorkerDTO,
+} from "@/dto";
 import { capitalizeFirstLetter, getDaysUntilWorkerReturns } from "@/app/utils";
-import { toMonetary } from "../materialRequisition/utils";
+import { toMonetary } from "../fuelingBatch/utils";
 import { format, toDate } from "date-fns";
+import {
+  sumFuelingBatchPartials,
+  sumFuelingBatchTotals,
+} from "../fuelingBatch/utils";
+import { Types } from "mongoose";
 
 export const splitPurchaseOrderByValidFuelVersion = ({
   purchaseOrders,
@@ -190,60 +200,94 @@ export const getFuelLines = (fuels: FuelDTO[]) =>
     };
   });
 
-export const getWeeklyFuellingSummaryLines = (
-  summaries: WeeklyFuellingSummaryDTO[],
-) => {
-  const vehiclePrefixes: number[] = [];
-  const departmentIds: string[] = [];
+export const sumFuelingBatches = ({
+  fuelingBatches,
+}: {
+  fuelingBatches: FuelingBatchDTO[];
+}): FuelingBatchDTO => {
+  const sumFuelingBatch: FuelingBatchDTO = {
+    _id: new Types.ObjectId().toString(),
+    createdAt: new Date().toISOString(),
+    departments: [],
+    totals: {
+      totalFuelings: 0,
+      totalFuels: {},
+      totalKmHrs: 0,
+      totalValue: 0,
+      totalVehicles: 0,
+    },
+  };
 
-  const { totalWeeks, totalDepartments, totalVehicles, totalValue } =
-    summaries.reduce<WeeklyFuellingSummariesTotals>(
-      (acc, summary) => {
-        const newDepartments = summary.departments.filter(
-          (d) => !departmentIds.includes((d.department as DepartmentDTO)._id),
-        );
+  for (let i = 0; i < fuelingBatches.length; i++) {
+    const fuelingBatch = fuelingBatches[i];
 
-        newDepartments.forEach(({ department }) =>
-          departmentIds.push((department as DepartmentDTO)._id),
-        );
+    for (let j = 0; j < fuelingBatch.departments.length; j++) {
+      const department = fuelingBatch.departments[j];
 
-        return {
-          totalWeeks: summaries.length,
-          totalDepartments: acc.totalDepartments + newDepartments.length,
-          totalVehicles:
-            acc.totalVehicles +
-            summary.departments.reduce((accc, dept) => {
-              const newVehicles = dept.vehicles.filter(
-                (v) => !vehiclePrefixes.includes(v.prefix),
+      if (
+        pluck("name", sumFuelingBatch.departments).includes(department.name)
+      ) {
+        const sumDepartment = sumFuelingBatch.departments.find(
+          (d) => d.name === department.name,
+        ) as FuelingBatchDTODepartment;
+
+        sumDepartment.totals = sumFuelingBatchTotals({
+          total1: sumDepartment!.totals,
+          total2: department.totals,
+        });
+
+        for (let k = 0; k < department.vehicles.length; k++) {
+          const vehicle = department.vehicles[k];
+
+          if (
+            pluck("prefix", sumDepartment.vehicles).includes(vehicle.prefix)
+          ) {
+            const sumVehicle = sumDepartment.vehicles.find(
+              (v) => v.prefix === vehicle.prefix,
+            ) as FuelingBatchDTOVehicle;
+
+            sumVehicle.totals = sumFuelingBatchPartials({
+              total1: sumVehicle.totals,
+              total2: vehicle.totals,
+            });
+
+            for (let l = 0; l < (vehicle.fuelings ?? []).length; l++) {
+              const fueling = vehicle.fuelings![l];
+              const shouldSumFueling = sumVehicle.fuelings?.every(
+                (f) =>
+                  f.date !== fueling.date &&
+                  f.kmHr !== fueling.kmHr &&
+                  f.quantity !== fueling.quantity,
               );
+              if (shouldSumFueling) sumVehicle.fuelings?.push(clone(fueling));
+            }
+          } else {
+            sumDepartment.vehicles.push(clone(vehicle));
+            continue;
+          }
+        }
+      } else {
+        sumFuelingBatch.departments.push(clone(department));
+        continue;
+      }
+    }
+  }
+  return sumFuelingBatch;
+};
 
-              newVehicles.forEach(({ prefix }) => vehiclePrefixes.push(prefix));
-
-              return accc + newVehicles.length;
-            }, 0),
-          totalValue:
-            acc.totalValue +
-            summary.departments.reduce(
-              (accc, dept) => accc + dept.totalValue,
-              0,
-            ),
-        };
-      },
-      {
-        totalWeeks: 0,
-        totalDepartments: 0,
-        totalVehicles: 0,
-        totalValue: 0,
-      },
-    );
+export const getFuelingBatchLines = (fuelingBatches: FuelingBatchDTO[]) => {
+  const {
+    totals: { totalVehicles, totalValue },
+    departments,
+  } = sumFuelingBatches({ fuelingBatches });
 
   return [
     {
-      primary: `${totalWeeks} ciclos ~ ${totalVehicles} veículos computados`,
+      primary: `${fuelingBatches.length} ciclos ~ ${totalVehicles} veículos computados`,
       secondary: ``,
     },
     {
-      primary: `${totalDepartments} departamentos lançados`,
+      primary: `${departments.length} departamentos lançados`,
       secondary: `${toMonetary(totalValue)} abastecidos`,
     },
   ];

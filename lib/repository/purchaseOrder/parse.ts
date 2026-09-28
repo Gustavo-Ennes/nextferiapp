@@ -4,6 +4,7 @@ import { toDepartmentDTO } from "../department/parse";
 import { toFuelDTO } from "../fuel/parse";
 import { isObjectIdOrHexString, Types } from "mongoose";
 import { toFuelPriceVersionDTO } from "../fuelPriceVersion/parse";
+import { toSupplierDTO } from "../supplier/parse";
 
 export const toPurchaseOrderDTO = (
   order: IPurchaseOrder | Types.ObjectId,
@@ -18,13 +19,18 @@ export const toPurchaseOrderDTO = (
     _id: purchaseOrderEntity._id.toString(),
     reference: purchaseOrderEntity.reference,
     department: toDepartmentDTO(purchaseOrderEntity.department),
+    supplier: toSupplierDTO(purchaseOrderEntity.supplier),
     total: purchaseOrderEntity.total,
+    outdated: purchaseOrderEntity.outdated,
+    lowBalance: purchaseOrderEntity.lowBalance,
     items: purchaseOrderEntity.items.map((item) => ({
       fuel: toFuelDTO(item.fuel),
       fuelPriceVersion: toFuelPriceVersionDTO(item.fuelPriceVersion),
       quantity: item.quantity,
       price: item.price,
       totalItem: item.quantity * item.price,
+      outdated: item.outdated,
+      lowBalance: item.lowBalance,
     })),
     createdAt: purchaseOrderEntity.createdAt.toISOString(),
     updatedAt: purchaseOrderEntity.updatedAt.toISOString(),
