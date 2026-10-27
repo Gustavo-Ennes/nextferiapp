@@ -3,26 +3,32 @@ import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { FuelPriceVersionFormData } from "@/app/(secure)/fuel/types";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
+import type { SupplierDTO } from "@/dto";
 
 describe("FuelPriceVersionRepository.delete", () => {
   let fuel: FuelDTO | null = null;
   let fuelPriceVersion: FuelPriceVersionDTO | null = null;
+  let supplier: SupplierDTO | null = null;
   const fuelPriceVersionPayload: FuelPriceVersionFormData = {
     price: 8,
-    version: 2,
     supplier: "",
-    fuel: ""
+    fuel: "",
   };
 
   beforeEach(async () => {
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
     fuel = await FuelRepository.create({
       name: "Gasolina",
       price: 6.46,
       unit: "L",
-      version: 1,
+      supplier: supplier._id,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
     fuelPriceVersionPayload.fuel = fuel._id;
+    fuelPriceVersionPayload.supplier = supplier._id;
   });
 
   it("should return null when version is not found", async () => {

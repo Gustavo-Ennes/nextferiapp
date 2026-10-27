@@ -1,15 +1,17 @@
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
-import type { DepartmentDTO } from "@/dto";
+import type { DepartmentDTO, SupplierDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { createBaseEntities } from "../vacation/utils";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
 
 describe("PurchaseOrderRepository.find", () => {
   let department: DepartmentDTO | null = null;
   let fuel: FuelDTO | null = null;
   let fuelPriceVersion: FuelPriceVersionDTO | null = null;
+  let supplier: SupplierDTO | null = null;
 
   const getPurchaseOrderPayload = (): PurchaseOrderFormData => ({
     reference: `1/26`,
@@ -22,18 +24,21 @@ describe("PurchaseOrderRepository.find", () => {
         price: 7.88,
       },
     ],
-    supplier: "supplier",
+    supplier: supplier!._id,
   });
 
   beforeEach(async () => {
     const { baseDepartment } = await createBaseEntities();
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
 
     department = baseDepartment;
     fuel = await FuelRepository.create({
       name: "Gasolina",
       price: 7.54,
       unit: "L",
-      version: 1,
+      supplier: supplier._id,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
   });

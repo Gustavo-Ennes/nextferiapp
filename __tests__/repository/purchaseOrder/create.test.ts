@@ -2,15 +2,18 @@ import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchase
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
 import { dissoc, pluck, sum } from "ramda";
-import type { DepartmentDTO } from "@/dto";
+import type { DepartmentDTO, SupplierDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { createBaseEntities } from "../vacation/utils";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
+import { Types } from "mongoose";
 
 describe("PurchaseOrderRepository.create", () => {
   let department: DepartmentDTO | null = null;
   let fuel: FuelDTO | null = null;
   let fuelPriceVersion: FuelPriceVersionDTO | null = null;
+  let supplier: SupplierDTO | null = null;
 
   const getPurchaseOrderPayload = (): PurchaseOrderFormData => ({
     reference: `1/26`,
@@ -23,23 +26,34 @@ describe("PurchaseOrderRepository.create", () => {
         price: 7.88,
       },
     ],
-    supplier: "supplier",
+    supplier: supplier!._id,
   });
 
   beforeEach(async () => {
     const { baseDepartment } = await createBaseEntities();
-
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
     department = baseDepartment;
     fuel = await FuelRepository.create({
       name: "Gasolina",
       price: 7.54,
       unit: "L",
-      version: 1,
+      supplier: supplier._id,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
   });
+
   it("should not create an order without reference prop", async () => {
     const payload = dissoc("reference", getPurchaseOrderPayload());
+
+    await expect(
+      PurchaseOrderRepository.create(payload as any),
+    ).rejects.toThrow();
+  });
+
+  it("should not create an order without supplier prop", async () => {
+    const payload = dissoc("supplier", getPurchaseOrderPayload());
 
     await expect(
       PurchaseOrderRepository.create(payload as any),
@@ -70,6 +84,20 @@ describe("PurchaseOrderRepository.create", () => {
     ).rejects.toThrow();
   });
 
+  it("should not create an order with missing supplier", async () => {
+    const base = {
+      ...getPurchaseOrderPayload(),
+      supplier: new Types.ObjectId().toString(),
+    };
+    const payload = {
+      ...base,
+      items: [dissoc("fuel", base.items[0])],
+    };
+
+    await expect(
+      PurchaseOrderRepository.create(payload as any),
+    ).rejects.toThrow();
+  });
   it("should not create an order with item missing fuel", async () => {
     const base = getPurchaseOrderPayload();
     const payload = {
@@ -136,6 +164,8 @@ describe("PurchaseOrderRepository.create", () => {
 
     expect(created).toHaveProperty("_id");
     expect(created).toHaveProperty("reference", payload.reference);
+    expect(created).toHaveProperty("supplier");
+    expect((created.supplier as SupplierDTO)._id).toBe(supplier!._id);
     expect(created).toHaveProperty("department");
     expect(created).toHaveProperty("items");
     expect(created.items).toHaveLength(1);
@@ -164,6 +194,14 @@ describe("PurchaseOrderRepository.create", () => {
     expect(created.items[0].fuelPriceVersion).toHaveProperty("_id");
   });
 
+  it("should populate supplier after creation", async () => {
+    const payload = getPurchaseOrderPayload();
+    const created = await PurchaseOrderRepository.create(payload);
+
+    expect(created.supplier).toHaveProperty("_id");
+    expect(created.supplier).toHaveProperty("name");
+  });
+
   it("should calculate and store prices via calculatePurchaseOrderPrices", async () => {
     const payload = getPurchaseOrderPayload();
     const created = await PurchaseOrderRepository.create(payload);
@@ -180,7 +218,7 @@ describe("PurchaseOrderRepository.create", () => {
       name: "Diesel",
       price: 7.52,
       unit: "L",
-      version: 1,
+      supplier: supplier!._id,
     });
 
     const oneItemPayload = getPurchaseOrderPayload();

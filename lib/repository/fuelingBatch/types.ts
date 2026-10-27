@@ -1,10 +1,8 @@
-import type { DepartmentFormData } from "@/app/(secure)/department/types";
 import type { FuelingBatchDTO, FuelDTO, DepartmentDTO } from "@/dto";
-import type { Repository } from "../types";
 
 export type AreDepartmentsOkParams = {
   payload: FuelingBatchDTO;
-  DepartmentRepository: Repository<DepartmentDTO, DepartmentFormData>;
+  departments: DepartmentDTO[];
 };
 
 export type AreFuelsOkParams = {

@@ -65,8 +65,7 @@ export const FuelingBatchRepository = {
         .populate({
           path: "departments.vehicles.fuel",
           model: "Fuel",
-        })
-        .lean(),
+        }),
       FuelingBatchModel.countDocuments(),
     ]);
 
@@ -127,12 +126,12 @@ export const FuelingBatchRepository = {
       .populate({
         path: "departments.vehicles.fuel",
         model: "Fuel",
-      }).lean();
+      });
 
     return batch ? toFuelingBatchDTO(batch as any) : null;
   },
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string): Promise<FuelingBatchDTO> {
     await dbConnect();
 
     if (!id || !isObjectIdOrHexString(id)) throw new Error("Id not found");
@@ -141,7 +140,12 @@ export const FuelingBatchRepository = {
     const fuelingBatch = fuelingBatches.find((s) => s._id === id);
     if (!fuelingBatch) throw new Error("Fueling batch not found");
 
-    await FuelingBatchModel.deleteOne({ _id: id });
+    const deleted = await FuelingBatchModel.findOneAndDelete(
+      { _id: id },
+      { returnOriginal: true },
+    );
+
+    return deleted;
   },
 
   async create(
@@ -150,9 +154,20 @@ export const FuelingBatchRepository = {
     await dbConnect();
 
     const fuels = await FuelRepository.findWithoutPagination!({});
+    const departments = await DepartmentRepository.findWithoutPagination!({});
+
+    if (!payload.departments || payload.departments.length === 0) {
+      throw new Error("Payload must contain at least one department.");
+    }
+
+    if (
+      payload.departments.some((d) => !d.invoices || d.invoices.length === 0)
+    ) {
+      throw new Error("Every department must contain at least one invoice");
+    }
 
     const okDepartments = areDepartmentsOK({
-      DepartmentRepository,
+      departments,
       payload: payload as FuelingBatchDTO,
     });
     const okFuels = areFuelsOk({ payload: payload as FuelingBatchDTO, fuels });
@@ -190,13 +205,25 @@ export const FuelingBatchRepository = {
   async update(payload: FuelingBatchDTO): Promise<FuelingBatchDTO> {
     await dbConnect();
 
-    const exists = await FuelingBatchModel.exists({_id: payload._id})
-    if(!exists) throw new Error("Fueling batch not found with provided id.")
+    const exists = await FuelingBatchModel.exists({ _id: payload._id });
+    if (!exists) throw new Error("Fueling batch not found with provided id.");
 
     const fuels = await FuelRepository.findWithoutPagination!({});
+    const departments = await DepartmentRepository.findWithoutPagination!({});
+
+    if (payload.departments && payload.departments.length === 0) {
+      throw new Error("Payload must contain at least one department.");
+    }
+
+    if (
+      payload.departments &&
+      payload.departments.some((d) => !d.invoices || d.invoices.length === 0)
+    ) {
+      throw new Error("Every department must contain at least one invoice");
+    }
 
     const okDepartments = areDepartmentsOK({
-      DepartmentRepository,
+      departments,
       payload: payload as FuelingBatchDTO,
     });
     const okFuels = areFuelsOk({ payload: payload as FuelingBatchDTO, fuels });
@@ -230,8 +257,7 @@ export const FuelingBatchRepository = {
       .populate({
         path: "departments.vehicles.fuel",
         model: "Fuel",
-      })
-      .lean();
+      });
 
     const parsedFuelingBatch = toFuelingBatchDTO(fuelingBatch as any);
     return parsedFuelingBatch;

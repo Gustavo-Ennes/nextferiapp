@@ -8,55 +8,61 @@ import type {
 
 const FuelingBatchInvoiceItemSchema = new Schema<
   FuelingBatchInvoice["items"][0]
->({
-  fuel: {
-    type: Types.ObjectId,
-    ref: "Fuel",
-    required: true,
+>(
+  {
+    fuel: {
+      type: Types.ObjectId,
+      ref: "Fuel",
+      required: true,
+    },
+    fuelPriceVersion: {
+      type: Types.ObjectId,
+      ref: "FuelPriceVersion",
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    total: {
+      type: Number,
+      required: true,
+    },
   },
-  fuelPriceVersion: {
-    type: Types.ObjectId,
-    ref: "FuelPriceVersion",
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  total: {
-    type: Number,
-    required: true,
-  },
-});
+  { _id: false },
+);
 
-const FuelingBatchInvoiceSchema = new Schema<FuelingBatchInvoice>({
-  purchaseOrder: {
-    type: Types.ObjectId,
-    ref: "PurchaseOrder",
-    required: true,
+const FuelingBatchInvoiceSchema = new Schema<FuelingBatchInvoice>(
+  {
+    purchaseOrder: {
+      type: Types.ObjectId,
+      ref: "PurchaseOrder",
+      required: true,
+    },
+    department: {
+      type: Types.ObjectId,
+      ref: "Department",
+      required: true,
+    },
+    number: {
+      type: Number,
+      required: true,
+    },
+    series: {
+      type: String,
+      required: false,
+    },
+    total: {
+      type: Number,
+      required: true,
+    },
+    items: {
+      type: [FuelingBatchInvoiceItemSchema],
+      default: [],
+    },
   },
-  department: {
-    type: Types.ObjectId,
-    ref: "Department",
-    required: true,
-  },
-  number: {
-    type: Number,
-    required: true,
-  },
-  series: {
-    type: String,
-    required: false,
-  },
-  total: {
-    type: Number,
-    required: true,
-  },
-  items: {
-    type: [FuelingBatchInvoiceItemSchema],
-    default: [],
-  },
-});
+  { _id: false },
+);
 
 const FuelingBatchFuelInfoSchema = new Schema<FuelInfo>(
   {

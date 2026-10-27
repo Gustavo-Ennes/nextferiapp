@@ -2,19 +2,22 @@ import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchase
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
 import { dissoc, pluck, sum } from "ramda";
-import type { DepartmentDTO } from "@/dto";
+import type { DepartmentDTO, SupplierDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { createBaseEntities } from "../vacation/utils";
 import type { PurchaseOrderDTO } from "@/dto/PurchaseOrderDTO";
 import { format } from "date-fns";
 import { FuelPriceVersionRepository } from "@/lib/repository/fuelPriceVersion/fuelPriceVersion";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
+import { Types } from "mongoose";
 
 describe("PurchaseOrderRepository.update", () => {
   let department: DepartmentDTO | null = null;
   let fuel: FuelDTO | null = null;
   let fuelPriceVersion: FuelPriceVersionDTO | null = null;
   let purchaseOrder: PurchaseOrderDTO | null = null;
+  let supplier: SupplierDTO | null = null;
   let orderCounter = 1;
   const formatedYear = format(new Date(), "yy");
 
@@ -29,18 +32,21 @@ describe("PurchaseOrderRepository.update", () => {
         price: parseInt((5 + Math.random() * 5).toFixed(2)),
       },
     ],
-    supplier: "supplier",
+    supplier: supplier!._id,
   });
 
   beforeEach(async () => {
     const { baseDepartment } = await createBaseEntities();
 
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
     department = baseDepartment;
     fuel = await FuelRepository.create({
       name: "Gasolina",
       price: 7.54,
       unit: "L",
-      version: 1,
+      supplier: supplier!._id,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
     purchaseOrder = await PurchaseOrderRepository.create(
@@ -57,6 +63,15 @@ describe("PurchaseOrderRepository.update", () => {
     ).rejects.toThrow("Id prop needs to be a valid ObjectId.");
   });
 
+  it("should not update with an invalid supplier", async () => {
+    await expect(
+      PurchaseOrderRepository.update({
+        id: purchaseOrder!._id,
+        payload: { ...getPurchaseOrderPayload(), supplier: "invalid-supplier" },
+      }),
+    ).rejects.toThrow("Campo supplier espera uma string de ObjectId.");
+  });
+
   it("should not update when order is not found", async () => {
     await expect(
       PurchaseOrderRepository.update({
@@ -71,6 +86,24 @@ describe("PurchaseOrderRepository.update", () => {
       PurchaseOrderRepository.update({
         id: purchaseOrder!._id,
         payload: { ...getPurchaseOrderPayload(), items: [] } as any,
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("should not update with missing supplier", async () => {
+    const rawPayload = {
+      ...getPurchaseOrderPayload(),
+      supplier: new Types.ObjectId().toString(),
+    };
+    const payload = {
+      ...rawPayload,
+      items: [dissoc("quantity", rawPayload.items[0])],
+    };
+
+    await expect(
+      PurchaseOrderRepository.update({
+        id: purchaseOrder!._id,
+        payload: payload as any,
       }),
     ).rejects.toThrow();
   });

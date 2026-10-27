@@ -21,6 +21,7 @@ import FuelPriceVersionModel from "@/models/FuelPriceVersion";
 import { FuelRepository } from "../fuel/fuel";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import { SupplierRepository } from "../supplier/supplier";
+import type { SupplierDTO } from "@/dto/SupplierDTO";
 
 export const FuelPriceVersionRepository: Repository<
   FuelPriceVersionDTO,
@@ -39,7 +40,15 @@ export const FuelPriceVersionRepository: Repository<
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(PAGINATION_LIMIT)
-        .lean<IFuelPriceVersion[]>(),
+        .lean<IFuelPriceVersion[]>()
+        .populate([
+          {
+            path: "fuel",
+          },
+          {
+            path: "supplier",
+          },
+        ]),
       FuelPriceVersionModel.countDocuments(),
     ]);
 
@@ -83,13 +92,29 @@ export const FuelPriceVersionRepository: Repository<
     filter: FuelPriceVersionFormData | Partial<FuelPriceVersionFormData>,
   ): Promise<FuelPriceVersionDTO | null> {
     await dbConnect();
-    const fuel = await FuelPriceVersionModel.findOne(filter);
+    const fuel = await FuelPriceVersionModel.findOne(filter).populate([
+      {
+        path: "fuel",
+      },
+      {
+        path: "supplier",
+      },
+    ]);
+
     return fuel ? (toFuelPriceVersionDTO(fuel) as FuelPriceVersionDTO) : null;
   },
 
   async findByFuel(fuel: string) {
     await dbConnect();
-    const versions = await FuelPriceVersionModel.find({ fuel });
+    const versions = await FuelPriceVersionModel.find({ fuel }).populate([
+      {
+        path: "fuel",
+      },
+      {
+        path: "supplier",
+      },
+    ]);
+
     return parseFuelPriceVersions(versions) as FuelPriceVersionDTO[];
   },
 
@@ -97,8 +122,16 @@ export const FuelPriceVersionRepository: Repository<
     id,
   }: FindOneRepositoryParam): Promise<FuelPriceVersionDTO | null> {
     await dbConnect();
-    const fuel =
-      await FuelPriceVersionModel.findById(id).lean<IFuelPriceVersion>();
+    const fuel = await FuelPriceVersionModel.findById(id)
+      .populate([
+        {
+          path: "fuel",
+        },
+        {
+          path: "supplier",
+        },
+      ])
+      .lean<IFuelPriceVersion>();
     return fuel ? (toFuelPriceVersionDTO(fuel) as FuelPriceVersionDTO) : null;
   },
 
@@ -145,6 +178,15 @@ export const FuelPriceVersionRepository: Repository<
       version,
     });
 
+    await created.populate([
+      {
+        path: "fuel",
+      },
+      {
+        path: "supplier",
+      },
+    ]);
+
     return toFuelPriceVersionDTO(created) as FuelPriceVersionDTO;
   },
 
@@ -156,6 +198,7 @@ export const FuelPriceVersionRepository: Repository<
 
     let validPayload: FuelPriceVersionFormData | null = null;
     let fuel: FuelDTO | null = null;
+    let supplier: SupplierDTO | null = null;
 
     const result = FuelPriceVersionValidatorUpdate.safeParse(payload);
 
@@ -174,15 +217,31 @@ export const FuelPriceVersionRepository: Repository<
       throw new Error("Fuel not found with provided id.");
     }
 
+    if (payload.supplier) {
+      supplier = await SupplierRepository.findOne({ id: payload.supplier });
+    }
+    if (!supplier && payload.supplier) {
+      throw new Error("Supplier not found with provided id.");
+    }
+
     const updated = await FuelPriceVersionModel.findByIdAndUpdate(
       id,
       validPayload,
       {
         new: true,
       },
-    ).lean<IFuelPriceVersion>();
+    );
 
     if (!updated) throw new Error("No fuel found with provided id.");
+
+    await updated.populate([
+      {
+        path: "fuel",
+      },
+      {
+        path: "supplier",
+      },
+    ]);
 
     return toFuelPriceVersionDTO(updated) as FuelPriceVersionDTO;
   },

@@ -19,6 +19,7 @@ import {
 import { isObjectIdOrHexString } from "mongoose";
 import { startOfDaySP, endOfDaySP } from "@/app/utils";
 import { FuelPriceVersionRepository } from "../fuelPriceVersion/fuelPriceVersion";
+import { SupplierRepository } from "../supplier/supplier";
 
 export const FuelRepository: Repository<
   FuelDTO,
@@ -131,13 +132,16 @@ export const FuelRepository: Repository<
     } else {
       validPayload = result.data as CombinedFuelFormData;
     }
-    const { name, unit, price, version, supplier } = validPayload;
+    const { name, unit, price, supplier: supplierId } = validPayload;
+    const supplier = await SupplierRepository.findOne({ id: supplierId });
+
+    if (!supplier) throw new Error("Supplier not found with provided id.");
+
     const created = await FuelModel.create({ name, unit });
 
     await FuelPriceVersionRepository.create({
       price,
-      version,
-      supplier,
+      supplier: supplier._id,
       fuel: created._id.toString(),
     });
 

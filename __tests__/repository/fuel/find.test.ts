@@ -2,16 +2,26 @@ import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { CombinedFuelFormData } from "@/app/(secure)/fuel/types";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { Types } from "mongoose";
+import type { SupplierDTO } from "@/dto";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
 
 describe("FuelRepository.find", () => {
   const basePayload: CombinedFuelFormData = {
     name: "Gasolina C.",
     price: 7,
     unit: "L",
-    version: 1,
     supplier: "",
-    fuel: ""
   };
+
+  let supplier: SupplierDTO;
+
+  beforeEach(async () => {
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
+
+    basePayload.supplier = supplier._id;
+  });
 
   it("should return a list of Fuels in find()", async () => {
     const fuel = await FuelRepository.create(basePayload);
@@ -60,6 +70,10 @@ describe("FuelRepository.find", () => {
     expect(result?.currentPriceVersion).toHaveProperty(
       "_id",
       (fuel.currentPriceVersion as FuelPriceVersionDTO)._id,
+    );
+    expect(result?.currentPriceVersion).toHaveProperty(
+      "supplier",
+      (fuel.currentPriceVersion as FuelPriceVersionDTO).supplier,
     );
   });
 

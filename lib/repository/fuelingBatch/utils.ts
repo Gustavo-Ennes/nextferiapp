@@ -124,10 +124,7 @@ export const calculateFuelingBatchTotals = ({
   return toUpdateSummary;
 };
 
-export const areFuelsOk = async ({
-  payload,
-  fuels,
-}: AreFuelsOkParams): Promise<boolean> => {
+export const areFuelsOk = ({ payload, fuels }: AreFuelsOkParams): boolean => {
   const fuelsIds = fuels.map((f) => f._id);
 
   const payloadFuelsIds = payload.departments?.flatMap((d) =>
@@ -140,19 +137,17 @@ export const areFuelsOk = async ({
   return areOk;
 };
 
-export const areDepartmentsOK = async ({
+export const areDepartmentsOK = ({
   payload,
-  DepartmentRepository,
-}: AreDepartmentsOkParams): Promise<boolean> => {
-  const departmentsIds = (
-    await DepartmentRepository.findWithoutPagination!({})
-  ).map((d) => d._id.toString());
+  departments,
+}: AreDepartmentsOkParams): boolean => {
+  const departmentsIds = departments.map((d) => d._id);
   const payloadDepartmentsIds =
     payload.departments?.map((d) => d.department as string) ?? [];
 
   const areOk =
-    payloadDepartmentsIds.every((d) => departmentsIds.includes(d)) ||
-    payloadDepartmentsIds.length === 0;
+    payloadDepartmentsIds.every((d) => departmentsIds.includes(d)) &&
+    payloadDepartmentsIds.length > 0;
 
   return areOk;
 };

@@ -1,9 +1,9 @@
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
-import type {
-  FuelFormData,
-} from "@/app/(secure)/fuel/types";
+import type { FuelFormData } from "@/app/(secure)/fuel/types";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import type { FuelDTO } from "@/dto/FuelDTO";
+import type { SupplierDTO } from "@/dto/SupplierDTO";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
 
 describe("FuelRepository.update", () => {
   const basePayload: Partial<FuelFormData> = {
@@ -11,13 +11,18 @@ describe("FuelRepository.update", () => {
     unit: "BD2",
   };
   let fuel: FuelDTO;
+  let supplier: SupplierDTO | null = null;
 
   beforeEach(async () => {
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
+
     fuel = await FuelRepository.create({
       name: "Gasolina C.",
       price: 7,
       unit: "L",
-      version: 1,
+      supplier: supplier._id,
     });
   });
 
@@ -39,7 +44,7 @@ describe("FuelRepository.update", () => {
     ).rejects.toThrow("O nome só pode conter letras.");
   });
 
-  it("should not update fuel if prop name contains less than 3 lettes", async () => {
+  it("should not update fuel if prop name contains less than 3 letters", async () => {
     await expect(
       FuelRepository.update({
         id: fuel._id,
@@ -49,7 +54,7 @@ describe("FuelRepository.update", () => {
   });
 
   it("should not update fuel if prop unit isn't a string", async () => {
-    await expect( 
+    await expect(
       FuelRepository.update({
         id: fuel._id,
         payload: { unit: 123 as any },
@@ -68,6 +73,10 @@ describe("FuelRepository.update", () => {
     expect(updatedFuel).toHaveProperty("unit", basePayload.unit);
     expect(updatedFuel?.currentPriceVersion).toMatchObject(
       fuel.currentPriceVersion as FuelPriceVersionDTO,
+    );
+    expect(updatedFuel?.currentPriceVersion).toHaveProperty(
+      "supplier",
+      (fuel.currentPriceVersion as FuelPriceVersionDTO).supplier,
     );
     expect(updatedFuel?.priceVersions?.[0]).toMatchObject(
       fuel.currentPriceVersion as FuelPriceVersionDTO,

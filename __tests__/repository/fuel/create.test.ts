@@ -1,16 +1,26 @@
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { CombinedFuelFormData } from "@/app/(secure)/fuel/types";
-import { dissoc } from "ramda";
+import { assoc, dissoc } from "ramda";
+import type { SupplierDTO } from "@/dto";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
+import { Types } from "mongoose";
 
 describe("FuelRepository.create", () => {
   const basePayload: CombinedFuelFormData = {
     name: "Gasolina C.",
     price: 7,
     unit: "L",
-    version: 1,
     supplier: "",
-    fuel: ""
   };
+  let supplier: SupplierDTO;
+
+  beforeEach(async () => {
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
+
+    basePayload.supplier = supplier._id;
+  });
 
   it("should not create a fuel without price prop", async () => {
     const payloadWithoutPrice = dissoc("price", basePayload);
@@ -18,6 +28,14 @@ describe("FuelRepository.create", () => {
     await expect(
       FuelRepository.create(payloadWithoutPrice as any),
     ).rejects.toThrow("A versão de preço deve ter um preço.");
+  });
+
+  it("should not create a fuel without supplier prop", async () => {
+    const payloadWithoutSupplier = dissoc("supplier", basePayload);
+
+    await expect(
+      FuelRepository.create(payloadWithoutSupplier as any),
+    ).rejects.toThrow("Uma string é esperada para supplier.");
   });
 
   it("should not create a fuel with a negative price", async () => {
@@ -28,22 +46,16 @@ describe("FuelRepository.create", () => {
     ).rejects.toThrow("O preço deve ser maior que zero.");
   });
 
-  it("should not create a fuel without version prop", async () => {
-    const payloadWithoutVersion = dissoc("version", basePayload);
-
-    await expect(
-      FuelRepository.create(payloadWithoutVersion as any),
-    ).rejects.toThrow("A versão de preço deve ter um número.");
-  });
-
-  it("should not create a fuel with a less than 1 version", async () => {
-    const payloadWithLessThan1Version = { ...basePayload, version: 0 };
-
-    await expect(
-      FuelRepository.create(payloadWithLessThan1Version as any),
-    ).rejects.toThrow(
-      "O número da versão de preço deve ser maior ou igual a 1.",
+  it("should not create a fuel if supplier doesn't exists", async () => {
+    const payloadWithoutSupplier = assoc(
+      "supplier",
+      new Types.ObjectId().toString(),
+      basePayload,
     );
+
+    await expect(
+      FuelRepository.create(payloadWithoutSupplier as any),
+    ).rejects.toThrow("Supplier not found with provided id.");
   });
 
   it("should not create a fuel without a name prop", async () => {
