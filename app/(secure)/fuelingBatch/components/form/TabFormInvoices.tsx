@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -57,8 +57,9 @@ export const FuelingBatchFormInvoices = ({
   const [itemPriceVersion, setItemPriceVersion] = useState("");
   const [itemQuantity, setItemQuantity] = useState("");
   const [itemTotal, setItemTotal] = useState("");
-
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  const quantityRef = useRef<HTMLInputElement>(null);
 
   const invoicesTotals = useMemo(() => {
     const totals = getInvoicesTotalFuels(
@@ -90,10 +91,14 @@ export const FuelingBatchFormInvoices = ({
   }, [purchaseOrder]);
 
   const fuelPriceVersions = useMemo(() => {
-    const versions = flatten(
+    const allVersions = flatten(
       pluck("fuelPriceVersion", selectedPurchaseOrder?.items ?? []),
     ) as FuelPriceVersionDTO[];
-    return itemFuel ? versions.filter((v) => v.fuel === itemFuel) : versions;
+    const versions = itemFuel
+      ? allVersions.filter((v) => v.fuel === itemFuel)
+      : allVersions;
+
+    return versions;
   }, [selectedFuel]);
 
   const selectedFuelPriceVersion = useMemo(() => {
@@ -177,6 +182,13 @@ export const FuelingBatchFormInvoices = ({
     }
   }, [itemFuel, itemPriceVersion, itemQuantity]);
 
+  useEffect(() => {
+    if (fuelPriceVersions?.[0]) {
+      setItemPriceVersion(fuelPriceVersions[0]._id);
+      quantityRef?.current?.focus();
+    }
+  }, [itemFuel]);
+
   const shouldDisableAddInvoiceItem =
     !number ||
     isInvoiceNumberDuplicated ||
@@ -244,9 +256,7 @@ export const FuelingBatchFormInvoices = ({
             label="Combustível"
             size="small"
             value={itemFuel}
-            onChange={(e) => {
-              setItemFuel(e.target.value);
-            }}
+            onChange={(e) => setItemFuel(e.target.value)}
             sx={{ width: "35%" }}
           >
             {filteredFuels.map((fuel) => {
@@ -282,6 +292,7 @@ export const FuelingBatchFormInvoices = ({
             size="small"
             type="number"
             value={itemQuantity}
+            inputRef={quantityRef}
             onChange={(e) => setItemQuantity(e.target.value)}
             sx={{ width: "20%" }}
           />
