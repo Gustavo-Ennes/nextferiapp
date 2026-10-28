@@ -1,15 +1,17 @@
 import { PurchaseOrderRepository } from "@/lib/repository/purchaseOrder/purchaseOrder";
 import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { PurchaseOrderFormData } from "@/app/(secure)/purchaseOrder/types";
-import type { DepartmentDTO } from "@/dto";
+import type { DepartmentDTO, SupplierDTO } from "@/dto";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
 import { createBaseEntities } from "../vacation/utils";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
 
 describe("PurchaseOrderRepository.delete", () => {
   let department: DepartmentDTO | null = null;
   let fuel: FuelDTO | null = null;
   let fuelPriceVersion: FuelPriceVersionDTO | null = null;
+  let supplier: SupplierDTO | null = null;
 
   const getPurchaseOrderPayload = (): PurchaseOrderFormData => ({
     reference: `1/26`,
@@ -22,18 +24,21 @@ describe("PurchaseOrderRepository.delete", () => {
         price: 7.88,
       },
     ],
-    supplier: "supplier",
+    supplier: supplier!._id,
   });
 
   beforeEach(async () => {
     const { baseDepartment } = await createBaseEntities();
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
 
     department = baseDepartment;
     fuel = await FuelRepository.create({
       name: "Gasolina",
       price: 7.54,
       unit: "L",
-      version: 1,
+      supplier: supplier._id,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
   });
@@ -49,10 +54,10 @@ describe("PurchaseOrderRepository.delete", () => {
     const payload = getPurchaseOrderPayload();
     const created = await PurchaseOrderRepository.create(payload);
 
-    const deleted = await PurchaseOrderRepository.delete(String(created._id));
+    const deleted = await PurchaseOrderRepository.delete(created._id);
 
     expect(deleted).not.toBeNull();
-    expect(String(deleted!._id)).toBe(String(created._id));
+    expect(deleted?._id).toBe(created._id);
   });
 
   it("should not find the order after deletion", async () => {

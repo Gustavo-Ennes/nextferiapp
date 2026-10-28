@@ -3,26 +3,32 @@ import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { FuelPriceVersionFormData } from "@/app/(secure)/fuel/types";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import type { SupplierDTO } from "@/dto";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
 
 describe("FuelPriceVersionRepository.update", () => {
   let fuel: FuelDTO | null = null;
   let fuelPriceVersion: FuelPriceVersionDTO | null = null;
+  let supplier: SupplierDTO | null = null;
   const fuelPriceVersionPayload: FuelPriceVersionFormData = {
     price: 8,
-    version: 2,
     supplier: "",
-    fuel: ""
+    fuel: "",
   };
 
   beforeEach(async () => {
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
     fuel = await FuelRepository.create({
       name: "Gasolina",
       price: 6.46,
       unit: "L",
-      version: 1,
+      supplier: supplier._id,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
     fuelPriceVersionPayload.fuel = fuel._id;
+    fuelPriceVersionPayload.supplier = supplier._id;
   });
 
   it("should not update with an invalid ObjectId", async () => {
@@ -53,6 +59,18 @@ describe("FuelPriceVersionRepository.update", () => {
         },
       }),
     ).rejects.toThrow("Fuel not found with provided id.");
+  });
+
+  it("should not update with an invalid supplier id", async () => {
+    await expect(
+      FuelPriceVersionRepository.update({
+        id: fuelPriceVersion!._id,
+        payload: {
+          ...fuelPriceVersionPayload,
+          supplier: "000000000000000000000000",
+        },
+      }),
+    ).rejects.toThrow("Supplier not found with provided id.");
   });
 
   it("should not update with a negative price", async () => {
@@ -95,8 +113,11 @@ describe("FuelPriceVersionRepository.update", () => {
       payload: { price: 7.0 },
     });
 
-    expect(updated!.fuel).toBe(fuel!._id);
+    expect((updated!.fuel as FuelDTO)._id).toBe(fuel!._id);
     expect(updated!.version).toBe(fuelPriceVersion!.version);
+    expect((updated!.supplier as SupplierDTO)._id).toBe(
+      (fuelPriceVersion!.supplier as SupplierDTO)._id,
+    );
     expect(updated).toHaveProperty("version");
   });
 });

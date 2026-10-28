@@ -8,11 +8,14 @@ export const IsoDateString = z.preprocess((val: string, ctx) => {
   return val;
 }, z.string());
 
-export const ObjectIdString = z
-  .string()
-  .min(1, "Campo obrigatório")
-  .regex(/^[0-9a-fA-F]{24}$/, "ID inválido");
-
+export const ObjectIdString = (fieldName: string) =>
+  z
+    .string(`Uma string é esperada para ${fieldName.toLowerCase()}.`)
+    .min(1, `Campo obrigatório: ${fieldName}`)
+    .regex(
+      /^[0-9a-fA-F]{24}$/,
+      `Campo ${fieldName.toLowerCase()} espera uma string de ObjectId.`,
+    );
 
 const translatedProps = {
   name: "nome",
@@ -49,4 +52,3 @@ export const minMaxStringMessage = ({
 
   return `O ${propString} precisa ${conditionString} ${charQtd} caracteres.`;
 };
-

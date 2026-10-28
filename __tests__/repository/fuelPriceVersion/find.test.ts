@@ -3,26 +3,32 @@ import { FuelRepository } from "@/lib/repository/fuel/fuel";
 import type { FuelPriceVersionFormData } from "@/app/(secure)/fuel/types";
 import type { FuelDTO } from "@/dto/FuelDTO";
 import type { FuelPriceVersionDTO } from "@/dto/FuelPriceVersionDTO";
+import { SupplierRepository } from "@/lib/repository/supplier/supplier";
+import type { SupplierDTO } from "@/dto";
 
 describe("FuelPriceVersionRepository.find", () => {
   let fuel: FuelDTO | null = null;
   let fuelPriceVersion: FuelPriceVersionDTO | null = null;
+  let supplier: SupplierDTO | null = null;
   const fuelPriceVersionPayload: FuelPriceVersionFormData = {
     price: 8,
-    version: 2,
     supplier: "",
     fuel: "",
   };
 
   beforeEach(async () => {
+    supplier = await SupplierRepository.create({
+      name: "Posto",
+    });
     fuel = await FuelRepository.create({
       name: "Gasolina",
       price: 6.46,
       unit: "L",
-      version: 1,
+      supplier: supplier._id,
     });
     fuelPriceVersion = fuel.currentPriceVersion! as FuelPriceVersionDTO;
     fuelPriceVersionPayload.fuel = fuel._id;
+    fuelPriceVersionPayload.supplier = supplier._id;
   });
 
   it("should return a paginated response", async () => {
@@ -83,7 +89,7 @@ describe("FuelPriceVersionRepository.find", () => {
       price: 4.99,
       unit: "L",
       version: 10,
-      supplier: "",
+      supplier: supplier!._id,
     } as FuelPriceVersionFormData);
 
     const result = await FuelPriceVersionRepository.findByFilter!({
@@ -113,7 +119,7 @@ describe("FuelPriceVersionRepository.find", () => {
       price: 5,
       unit: "L",
       version: 1,
-      supplier: "s1",
+      supplier: supplier!._id,
     } as FuelPriceVersionFormData);
 
     await FuelPriceVersionRepository.create({
@@ -121,12 +127,12 @@ describe("FuelPriceVersionRepository.find", () => {
       price: 6,
       unit: "L",
       version: 2,
-      supplier: "s1",
+      supplier: supplier!._id,
     } as FuelPriceVersionFormData);
 
     const result = await FuelPriceVersionRepository.findByFuel!(fuelId);
 
     expect(result.length).toBeGreaterThanOrEqual(2);
-    result.forEach((v) => expect(String(v.fuel)).toBe(fuelId));
+    result.forEach((v) => expect((v.fuel as FuelDTO)._id).toBe(fuelId));
   });
 });

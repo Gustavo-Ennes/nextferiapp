@@ -67,7 +67,7 @@ const isItemOutdated = (purchaseOrderItem: IOrderItem): boolean => {
   return (
     (
       (purchaseOrderItem.fuel as IFuel).currentPriceVersion as IFuelPriceVersion
-    )._id.toString() !== purchaseOrderItem.fuelPriceVersion._id.toString()
+    )?._id.toString() !== purchaseOrderItem.fuelPriceVersion?._id.toString()
   );
 };
 

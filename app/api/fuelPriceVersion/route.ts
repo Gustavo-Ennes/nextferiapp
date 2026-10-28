@@ -24,19 +24,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = FuelPriceVersionValidator.parse(body);
 
-    const existing = await FuelPriceVersionRepository.findByFilter!({
-      fuel: body.fuel,
-      price: body.price,
-    });
-    if (existing?.version === validatedData.version - 1) {
-      return NextResponse.json(
-        {
-          error: "Current fuel version already has this price. Nothing to do.",
-        },
-        { status: 400 },
-      );
-    }
-
     const fuel = await FuelPriceVersionRepository.create(validatedData);
     return NextResponse.json(fuel);
   } catch (error: any) {

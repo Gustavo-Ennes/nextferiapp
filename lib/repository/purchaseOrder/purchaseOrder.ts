@@ -18,6 +18,8 @@ import {
 import { isObjectIdOrHexString } from "mongoose";
 import { calculatePurchaseOrderPrices } from "../utils";
 import { getFilteredOrderIds } from "./utils";
+import { SupplierRepository } from "../supplier/supplier";
+import type { SupplierDTO } from "@/dto/SupplierDTO";
 
 export const PurchaseOrderRepository: Repository<
   PurchaseOrderDTO,
@@ -143,6 +145,13 @@ export const PurchaseOrderRepository: Repository<
       validPayload = result.data as PurchaseOrderFormData;
     }
 
+    const supplier = await SupplierRepository.findOne({
+      id: validPayload.supplier,
+    });
+    if (!supplier) {
+      throw new Error("Supplier not found with provided id.");
+    }
+
     const { data: fuels } = await FuelRepository.find({});
 
     const calculatedPayload = calculatePurchaseOrderPrices({
@@ -172,6 +181,7 @@ export const PurchaseOrderRepository: Repository<
     await dbConnect();
 
     let validPayload: PurchaseOrderFormData | null = null;
+    let supplier: SupplierDTO | null = null;
 
     const result = PurchaseOrderValidatorUpdate.safeParse(payload);
 
@@ -181,6 +191,15 @@ export const PurchaseOrderRepository: Repository<
       throw new Error("Id prop needs to be a valid ObjectId.");
     } else {
       validPayload = result.data as PurchaseOrderFormData;
+    }
+
+    if (validPayload.supplier) {
+      supplier = await SupplierRepository.findOne({
+        id: validPayload.supplier,
+      });
+    }
+    if (validPayload.supplier && !supplier) {
+      throw new Error("Supplier not found with provided id.");
     }
 
     const { data: fuels } = await FuelRepository.find({});

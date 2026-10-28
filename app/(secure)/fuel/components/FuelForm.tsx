@@ -57,7 +57,6 @@ export function FuelForm({ defaultValues, fuels, suppliers }: FuelFormProps) {
           name: "",
           unit: "L",
           price: 0,
-          version: 1,
           supplier: "",
         },
   });
@@ -163,7 +162,6 @@ export function FuelForm({ defaultValues, fuels, suppliers }: FuelFormProps) {
           body: JSON.stringify({
             fuel: fuelId,
             price: formData.price,
-            version: formData.version,
             supplier: formData.supplier,
           }),
         });
@@ -252,24 +250,6 @@ export function FuelForm({ defaultValues, fuels, suppliers }: FuelFormProps) {
         </Box>
       </Grid>
 
-      <Grid size={{ xs: 12, md: 2 }}>
-        <Controller
-          name="version"
-          control={control}
-          render={({ field }) => (
-            <TextField
-              {...field}
-              value={nextVersion}
-              fullWidth
-              disabled
-              label="v."
-              variant="filled"
-              slotProps={{ input: { readOnly: true } }}
-            />
-          )}
-        />
-      </Grid>
-
       <Grid size={12}>
         <Controller
           name="supplier"
@@ -277,11 +257,7 @@ export function FuelForm({ defaultValues, fuels, suppliers }: FuelFormProps) {
           render={({ field }) => (
             <FormControl fullWidth size="small" error={!!errors.supplier}>
               <InputLabel id="suplier-label">Fornecedor</InputLabel>
-              <Select
-                {...field}
-                labelId="supplier-label"
-                label="Fornecedor"
-              >
+              <Select {...field} labelId="supplier-label" label="Fornecedor">
                 <MenuItem value={""}>
                   <em>Selecione o fornecedor</em>
                 </MenuItem>
