@@ -177,6 +177,7 @@ export const FuelingBatchForm = ({
       setLoading(false);
       return;
     }
+
     const newFuelingBatchDepartment: FuelingBatchDTODepartment = {
       department,
       totals: {
@@ -201,9 +202,9 @@ export const FuelingBatchForm = ({
       departments: newDepartments,
     };
 
-    createOrUpdateApiCall(fuelingBatchPayload).then(() => {
-      setSelectedDepartment(newFuelingBatchDepartment);
-    });
+    setFuelingBatch(fuelingBatchPayload);
+    setSelectedDepartment(newFuelingBatchDepartment);
+    setLoading(false);
   };
 
   const onTabsDataChange = async ({
