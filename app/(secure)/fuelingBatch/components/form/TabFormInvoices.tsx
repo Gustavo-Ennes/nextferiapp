@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -74,6 +74,10 @@ export const FuelingBatchFormInvoices = ({
     [itemFuel, fuels],
   );
 
+  const filteredPurchaseOrders = useMemo(() => {
+    return draftItems.length > 0 ? [purchaseOrder] : purchaseOrders;
+  }, [draftItems]) as PurchaseOrderDTO[];
+
   const selectedPurchaseOrder = useMemo(() => {
     const foundPurchaseOrder = purchaseOrders.find(
       (p) => (p as PurchaseOrderDTO)._id === purchaseOrder,
@@ -96,7 +100,7 @@ export const FuelingBatchFormInvoices = ({
     ) as FuelPriceVersionDTO[];
     const versions = itemFuel
       ? allVersions.filter((v) => v.fuel === itemFuel)
-      : allVersions;
+      : [];
 
     return versions;
   }, [selectedFuel]);
@@ -133,7 +137,6 @@ export const FuelingBatchFormInvoices = ({
     setItemPriceVersion("");
     setItemQuantity("");
     setItemTotal("");
-    setPurchaseOrder;
   };
 
   const handleRemoveItem = (index: number) => {
@@ -183,7 +186,14 @@ export const FuelingBatchFormInvoices = ({
   }, [itemFuel, itemPriceVersion, itemQuantity]);
 
   useEffect(() => {
-    if (fuelPriceVersions?.[0]) {
+    if (filteredFuels.length === 1) setItemFuel(filteredFuels[0]._id);
+    else {
+      setItemFuel("");
+    }
+  }, [filteredFuels]);
+
+  useEffect(() => {
+    if (fuelPriceVersions.length > 0) {
       setItemPriceVersion(fuelPriceVersions[0]._id);
       quantityRef?.current?.focus();
     }
@@ -196,6 +206,7 @@ export const FuelingBatchFormInvoices = ({
     !itemFuel ||
     !itemQuantity ||
     !itemPriceVersion;
+  const shouldDisableNumberAndSerie = draftItems.length > 0;
 
   return (
     <Paper
@@ -214,6 +225,7 @@ export const FuelingBatchFormInvoices = ({
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             error={isInvoiceNumberDuplicated}
+            disabled={shouldDisableNumberAndSerie}
             helperText={
               isInvoiceNumberDuplicated ? `Nota número ${number} já existe` : ""
             }
@@ -223,6 +235,7 @@ export const FuelingBatchFormInvoices = ({
             label="Série"
             size="small"
             value={series}
+            disabled={shouldDisableNumberAndSerie}
             onChange={(e) => setSeries(e.target.value)}
             sx={{ width: "60%" }}
           />
@@ -242,7 +255,7 @@ export const FuelingBatchFormInvoices = ({
             }}
             sx={{ width: "35%" }}
           >
-            {purchaseOrders.map((po) => {
+            {filteredPurchaseOrders.map((po) => {
               return (
                 <MenuItem key={po._id} value={po._id}>
                   {po.reference}

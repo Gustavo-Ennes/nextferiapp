@@ -31,8 +31,15 @@ export const Tab = ({
   const [innerTabValue, setInnerTabValue] = useState(
     `${(fuelingBatchDepartment?.department as DepartmentDTO)?._id}-invoices`,
   );
-  const { selectedCar, setSelectedCar, vehicleEquipInputRef, dateInputRef } =
-    useFuelingBatchForm();
+  const {
+    selectedCar,
+    setSelectedCar,
+    vehicleEquipInputRef,
+    dateInputRef,
+    setLastInvoiceFuel,
+    vehicleForm,
+    setVehicleForm,
+  } = useFuelingBatchForm();
 
   const submitData = async (vehicle: FuelingBatchDTOVehicle) => {
     const isEditing = !!selectedCar;
@@ -86,6 +93,15 @@ export const Tab = ({
       ...fuelingBatchDepartment,
       invoices: [...(fuelingBatchDepartment?.invoices ?? []), invoice],
     });
+
+    if (invoice.items?.[0]?.fuel) {
+      const fuel = fuels.find((f) => f._id === invoice.items?.[0]?.fuel) ?? "";
+      setLastInvoiceFuel(fuel);
+      setVehicleForm({ ...vehicleForm, fuel });
+      setInnerTabValue(
+        `${(fuelingBatchDepartment?.department as DepartmentDTO)?._id}-form`,
+      );
+    }
   };
 
   const onRemoveInvoice = (invoiceNumber: number) => {
@@ -97,6 +113,7 @@ export const Tab = ({
       departmentTotalFuels: fuelingBatchDepartment.totals.totalFuels,
       invoiceTotalFuels: getInvoicesTotalFuels(newInvoices, fuels),
     });
+
     const fuelMessages = Object.entries(fuelInventory.messages ?? {}).map(
       (e) => e[1],
     );
@@ -116,10 +133,22 @@ export const Tab = ({
         description,
         role: "alertDialog",
       });
-    } else {
+    }
+
+    if (newInvoices.length > 0) {
       onDataChangeAction({
         ...fuelingBatchDepartment,
         invoices: newInvoices,
+      });
+    } else {
+      openConfirmationDialog({
+        onConfirmAction: () => {},
+        title: `Não é possível excluir a nota ${invoiceNumber}.`,
+        confirmLabel: "Ok",
+        cancelLabel: "Voltar",
+        description:
+          "Não é possível excluir a nota fiscal, pois ela é a única nota fiscal do departamento. Para excluir esta nota, primeiro adicione outra nota fiscal.",
+        role: "alertDialog",
       });
     }
   };

@@ -55,6 +55,7 @@ export const FuelingBatchFormProvider = ({
   const [totalValue, _setTotalValue] = useState(0);
   const [totalKmHrs, _setTotalKmHrs] = useState(0);
   const [lastKm, _setLastKm] = useState<number | null>(null);
+  const [lastInvoiceFuel, _setLastInvoiceFuel] = useState<FuelDTO | string>("");
 
   const vehicleEquipInputRef = useRef<HTMLInputElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -64,7 +65,7 @@ export const FuelingBatchFormProvider = ({
     _setVehicleForm({
       description: car?.vehicle ?? "",
       prefix: car?.prefix ?? 0,
-      fuel: (car?.fuel as FuelDTO) ?? null,
+      fuel: (car?.fuel as FuelDTO) ?? lastInvoiceFuel ?? "",
       fuelings: sortCarFuelings([...(car?.fuelings ?? [])]),
     });
 
@@ -84,6 +85,10 @@ export const FuelingBatchFormProvider = ({
   const setSelectedDepartment = useCallback(
     (department: FuelingBatchDTODepartment | null) =>
       _setSelectedDepartment(department),
+    [],
+  );
+  const setLastInvoiceFuel = useCallback(
+    (fuel: FuelDTO | string) => _setLastInvoiceFuel(fuel),
     [],
   );
 
@@ -154,6 +159,8 @@ export const FuelingBatchFormProvider = ({
         totalValue,
         totalKmHrs,
         lastKm,
+        lastInvoiceFuel,
+        setLastInvoiceFuel,
       }}
     >
       {children}

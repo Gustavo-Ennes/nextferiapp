@@ -101,6 +101,8 @@ export type FuelingBatchFormContextValues = {
   hasUnsavedChanges: boolean;
   vehicleEquipInputRef: RefObject<HTMLInputElement | null>;
   dateInputRef: RefObject<HTMLInputElement | null>;
+  lastInvoiceFuel: FuelDTO | string;
+  setLastInvoiceFuel: (value: FuelDTO | string) => void;
 };
 
 export type OpenDialogParams = {
