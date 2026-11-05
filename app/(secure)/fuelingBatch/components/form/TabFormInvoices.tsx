@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -57,8 +57,9 @@ export const FuelingBatchFormInvoices = ({
   const [itemPriceVersion, setItemPriceVersion] = useState("");
   const [itemQuantity, setItemQuantity] = useState("");
   const [itemTotal, setItemTotal] = useState("");
-
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+
+  const quantityRef = useRef<HTMLInputElement>(null);
 
   const invoicesTotals = useMemo(() => {
     const totals = getInvoicesTotalFuels(
@@ -72,6 +73,10 @@ export const FuelingBatchFormInvoices = ({
     () => fuels.find((f) => f._id === itemFuel),
     [itemFuel, fuels],
   );
+
+  const filteredPurchaseOrders = useMemo(() => {
+    return draftItems.length > 0 ? [purchaseOrder] : purchaseOrders;
+  }, [draftItems]) as PurchaseOrderDTO[];
 
   const selectedPurchaseOrder = useMemo(() => {
     const foundPurchaseOrder = purchaseOrders.find(
@@ -90,10 +95,14 @@ export const FuelingBatchFormInvoices = ({
   }, [purchaseOrder]);
 
   const fuelPriceVersions = useMemo(() => {
-    const versions = flatten(
+    const allVersions = flatten(
       pluck("fuelPriceVersion", selectedPurchaseOrder?.items ?? []),
     ) as FuelPriceVersionDTO[];
-    return itemFuel ? versions.filter((v) => v.fuel === itemFuel) : versions;
+    const versions = itemFuel
+      ? allVersions.filter((v) => v.fuel === itemFuel)
+      : [];
+
+    return versions;
   }, [selectedFuel]);
 
   const selectedFuelPriceVersion = useMemo(() => {
@@ -128,7 +137,6 @@ export const FuelingBatchFormInvoices = ({
     setItemPriceVersion("");
     setItemQuantity("");
     setItemTotal("");
-    setPurchaseOrder;
   };
 
   const handleRemoveItem = (index: number) => {
@@ -177,6 +185,20 @@ export const FuelingBatchFormInvoices = ({
     }
   }, [itemFuel, itemPriceVersion, itemQuantity]);
 
+  useEffect(() => {
+    if (filteredFuels.length === 1) setItemFuel(filteredFuels[0]._id);
+    else {
+      setItemFuel("");
+    }
+  }, [filteredFuels]);
+
+  useEffect(() => {
+    if (fuelPriceVersions.length > 0) {
+      setItemPriceVersion(fuelPriceVersions[0]._id);
+      quantityRef?.current?.focus();
+    }
+  }, [itemFuel]);
+
   const shouldDisableAddInvoiceItem =
     !number ||
     isInvoiceNumberDuplicated ||
@@ -184,6 +206,7 @@ export const FuelingBatchFormInvoices = ({
     !itemFuel ||
     !itemQuantity ||
     !itemPriceVersion;
+  const shouldDisableNumberAndSerie = draftItems.length > 0;
 
   return (
     <Paper
@@ -202,6 +225,7 @@ export const FuelingBatchFormInvoices = ({
             value={number}
             onChange={(e) => setNumber(e.target.value)}
             error={isInvoiceNumberDuplicated}
+            disabled={shouldDisableNumberAndSerie}
             helperText={
               isInvoiceNumberDuplicated ? `Nota número ${number} já existe` : ""
             }
@@ -211,6 +235,7 @@ export const FuelingBatchFormInvoices = ({
             label="Série"
             size="small"
             value={series}
+            disabled={shouldDisableNumberAndSerie}
             onChange={(e) => setSeries(e.target.value)}
             sx={{ width: "60%" }}
           />
@@ -230,7 +255,7 @@ export const FuelingBatchFormInvoices = ({
             }}
             sx={{ width: "35%" }}
           >
-            {purchaseOrders.map((po) => {
+            {filteredPurchaseOrders.map((po) => {
               return (
                 <MenuItem key={po._id} value={po._id}>
                   {po.reference}
@@ -244,9 +269,7 @@ export const FuelingBatchFormInvoices = ({
             label="Combustível"
             size="small"
             value={itemFuel}
-            onChange={(e) => {
-              setItemFuel(e.target.value);
-            }}
+            onChange={(e) => setItemFuel(e.target.value)}
             sx={{ width: "35%" }}
           >
             {filteredFuels.map((fuel) => {
@@ -282,6 +305,7 @@ export const FuelingBatchFormInvoices = ({
             size="small"
             type="number"
             value={itemQuantity}
+            inputRef={quantityRef}
             onChange={(e) => setItemQuantity(e.target.value)}
             sx={{ width: "20%" }}
           />

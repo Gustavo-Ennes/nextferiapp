@@ -20,13 +20,15 @@ export const TabForm = ({
   const { invoices } = fuelingBatchDepartment;
   const {
     selectedCar,
-    vehicleForm: { description, prefix, fuel, fuelings },
+    vehicleForm,
     vehicleEquipInputRef,
     totalValue,
     totalLiters,
     totalKmHrs,
     lastKm,
   } = useFuelingBatchForm();
+
+  const { description, prefix, fuel, fuelings } = vehicleForm;
   const invoicesTotalFuels = getInvoicesTotalFuels(invoices, fuels);
   const invoicesFuels = getInvoicesFuels({ fuelingBatchDepartment, fuels });
 
@@ -49,7 +51,9 @@ export const TabForm = ({
           totalKmHrs,
         },
         lastKm,
-      }).then(() => vehicleEquipInputRef?.current?.focus());
+      }).then(() => {
+        vehicleEquipInputRef?.current?.focus();
+      });
     }
   };
 
