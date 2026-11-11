@@ -75,7 +75,7 @@ const drawHalfPage = async ({
     maxWidth: page.getWidth(),
   });
 
-  height.stepLines(3, "huge");
+  height.stepLines(3, "regular");
 
   if (isDayOff) height.stepLines(3);
 
@@ -98,6 +98,7 @@ const drawHalfPage = async ({
     document,
     height,
     name: (boss?.worker as WorkerDTO)?.name ?? "Chefe excluído",
+    matriculation:(boss?.worker as WorkerDTO).matriculation,
     role: (vacation.boss as BossDTO).role ?? "",
     worker: (boss?.worker as WorkerDTO) ?? undefined,
   });

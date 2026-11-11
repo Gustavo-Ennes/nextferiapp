@@ -35,7 +35,7 @@ const getHeightObject = (page: PDFPage) => ({
     this.actual -= 20;
   },
   stepLines(linesQtd: number, type = "regular") {
-    const size = type === "regular" ? 20 : 28;
+    const size = type === "regular" ? 22 : 28;
     range(0, linesQtd).forEach(() => {
       this.actual -= size;
     });

@@ -39,13 +39,6 @@ export const TabFormFuelings = ({
     quantity: quantity + sum(fuelings.map((f) => f.quantity)),
   });
 
-  useEffect(() => {
-    console.log(
-      "🚀 ~ TabFormFuelings ~ [date, quantity, fuel, description, prefix]:",
-      JSON.stringify([date, quantity, fuel, description, prefix], null, 2),
-    );
-  }, [date, quantity, fuel, description, prefix]);
-
   const canAddFueling =
     !!date &&
     quantity > 0 &&

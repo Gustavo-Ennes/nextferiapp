@@ -30,7 +30,7 @@ const drawHalfPage = async ({
     height,
     size: 19,
     title: `Requerimento de CANCELAMENTO de ${translateVacation(
-      vacation.type
+      vacation.type,
     )}`,
   });
   height.stepHugeLine();
@@ -42,12 +42,12 @@ const drawHalfPage = async ({
     text: paragraph,
   });
 
-  height.stepLines(3, "huge"); //refinar render, definiar ações em vacationDetail
+  height.stepLines(3, "regular");
 
   const dateString = `Ilha solteira, ${new Date(
-    vacation.updatedAt
+    vacation.updatedAt,
   ).getDate()} de ${translateMonth(
-    new Date(vacation.updatedAt).getMonth()
+    new Date(vacation.updatedAt).getMonth(),
   )} de ${new Date(vacation.updatedAt).getFullYear()}`;
   await createParagraph({
     document,
@@ -76,16 +76,18 @@ const drawHalfPage = async ({
   if (!boss)
     throw new Error(
       `Não há chefe cadastrado para a assinatura de ${translateVacation(
-        vacation.type
-      )}.`
+        vacation.type,
+      )}.`,
     );
 
   const { role: bossRole, worker: bossWorker } = (vacation.boss ??
     (await getBoss(vacation))) as BossDTO;
+
   await createSign({
     document,
     height,
     name: (bossWorker as WorkerDTO).name,
+    matriculation: (bossWorker as WorkerDTO).matriculation,
     role: bossRole,
     worker: bossWorker as WorkerDTO,
   });
