@@ -101,18 +101,18 @@ export const FuelingBatchRepository = {
 
   async findWithoutPagination(): Promise<FuelingBatchDTO[]> {
     await dbConnect();
+    let page = 1;
+    let allFuelingBatches: FuelingBatchDTO[] = [];
+    let hasNextPage = true;
 
-    const fuelingBatches = await FuelingBatchModel.find()
-      .populate({
-        path: "departments.department",
-        model: "Department",
-      })
-      .populate({
-        path: "departments.vehicles.fuel",
-        model: "Fuel",
-      });
+    while (hasNextPage) {
+      const paginatedResponse = await this.find({ page });
+      allFuelingBatches = [...allFuelingBatches, ...paginatedResponse.data];
+      hasNextPage = paginatedResponse.hasNextPage;
+      page++;
+    }
 
-    return parseFuelingBatches(fuelingBatches);
+    return allFuelingBatches;
   },
 
   async findById(id: string): Promise<FuelingBatchDTO | null> {

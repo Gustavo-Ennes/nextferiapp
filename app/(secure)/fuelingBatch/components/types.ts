@@ -67,3 +67,8 @@ export type StatItem = {
   type: "primary" | "secondary";
   textColor?: string;
 };
+
+export type FuelingBatchDepartmentAnalyticsCardProps = {
+  fuelingBatches: FuelingBatchDTO[];
+  selectedDepartmentId?: string;
+}

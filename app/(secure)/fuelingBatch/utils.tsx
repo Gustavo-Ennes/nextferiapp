@@ -7,6 +7,9 @@ import type {
   FuelPriceVersionDTO,
 } from "@/dto";
 import type {
+  AnalyticsPayload,
+  DepartmentFuelAnalytics,
+  FuelAggregateStats,
   FuelMixItem,
   GraphUtilFnParam,
   LitersTrendPoint,
@@ -774,4 +777,165 @@ export const getFuelingBatchRowFlags = (
   });
 
   return map;
+};
+
+export const buildDepartmentFuelAnalyticsPayload = (
+  fuelingBatches: FuelingBatchDTO[],
+  selectedDepartmentId?: string,
+): AnalyticsPayload => {
+  const batchCount = fuelingBatches.length;
+
+  if (batchCount === 0) {
+    return { totalBatchesProcessed: 0, departments: [] };
+  }
+
+  // 1. Ordenar lotes por createdAt (do mais antigo para o mais recente)
+  const sortedBatches = [...fuelingBatches].sort((a, b) => {
+    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return dateA - dateB;
+  });
+
+  // 2. Obter a data do primeiro e do último lote para calcular o total de dias do intervalo
+  const firstDateStr = sortedBatches[0].createdAt;
+  const lastDateStr = sortedBatches[sortedBatches.length - 1].createdAt;
+
+  let totalDays = 1;
+  if (firstDateStr && lastDateStr) {
+    const firstTime = new Date(firstDateStr).getTime();
+    const lastTime = new Date(lastDateStr).getTime();
+    // Diferença em dias (garantindo no mínimo 1 dia para evitar divisão por zero)
+    const diffTime = Math.abs(lastTime - firstTime);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    totalDays = Math.max(1, diffDays + 1); // +1 para incluir o próprio dia inicial
+  }
+
+  let remainDays = totalDays;
+  const totalMonths = totalDays / 30.4375;
+  remainDays = totalDays % 30.4375;
+  const totalWeeks = remainDays / 7;
+  remainDays = remainDays % 7;
+
+  const deptMap = new Map<
+    string,
+    {
+      id: string;
+      name: string;
+      totalAmount: number;
+      totalQuantity: number;
+      fuels: Map<string, { amount: number; quantity: number }>;
+    }
+  >();
+
+  // 3. Somar todos os valores de todos os lotes por setor
+  for (const batch of sortedBatches) {
+    for (const deptDTO of batch.departments) {
+      const deptObj =
+        typeof deptDTO.department === "object" ? deptDTO.department : null;
+      const deptId =
+        deptObj?._id ||
+        (typeof deptDTO.department === "string"
+          ? deptDTO.department
+          : deptDTO.name);
+      const deptName =
+        deptDTO.name || deptObj?.name || "Setor Não Identificado";
+
+      if (!deptMap.has(deptId)) {
+        deptMap.set(deptId, {
+          id: deptId,
+          name: deptName,
+          totalAmount: 0,
+          totalQuantity: 0,
+          fuels: new Map(),
+        });
+      }
+
+      const deptData = deptMap.get(deptId)!;
+
+      const deptTotalValue = deptDTO.totals?.totalValue ?? 0;
+      deptData.totalAmount += deptTotalValue;
+
+      const totalFuels = deptDTO.totals?.totalFuels || {};
+      for (const [fuelName, fuelInfo] of Object.entries(totalFuels)) {
+        const fAmount = fuelInfo.value ?? 0;
+        const fQuantity = fuelInfo.liters ?? 0;
+
+        deptData.totalQuantity += fQuantity;
+
+        if (!deptData.fuels.has(fuelName)) {
+          deptData.fuels.set(fuelName, { amount: 0, quantity: 0 });
+        }
+
+        const currentFuel = deptData.fuels.get(fuelName)!;
+        currentFuel.amount += fAmount;
+        currentFuel.quantity += fQuantity;
+      }
+    }
+  }
+
+  // 4. Distribuir a média uniformemente com base no total de dias do intervalo
+  const departments: DepartmentFuelAnalytics[] = Array.from(
+    deptMap.values(),
+  ).map((dept) => {
+    const fuels: FuelAggregateStats[] = Array.from(dept.fuels.entries()).map(
+      ([fuelName, fData]) => ({
+        fuelName,
+        totalAmount: fData.amount,
+        totalQuantity: fData.quantity,
+        percentageByQuantity:
+          dept.totalQuantity > 0
+            ? (fData.quantity / dept.totalQuantity) * 100
+            : 0,
+        daily: {
+          amount: fData.amount / totalDays,
+          quantity: fData.quantity / totalDays,
+        },
+        weekly: {
+          amount: (fData.amount / totalDays) * 7,
+          quantity: (fData.quantity / totalDays) * 7,
+        },
+        monthly: {
+          amount: (fData.amount / totalDays) * 30.4375,
+          quantity: (fData.quantity / totalDays) * 30.4375,
+        },
+      }),
+    );
+
+    return {
+      departmentId: dept.id,
+      departmentName: dept.name,
+      totalBatches: batchCount,
+      totalAmount: dept.totalAmount,
+      totalQuantity: dept.totalQuantity,
+      percentageByQuantity: 100,
+      daily: {
+        amount: dept.totalAmount / totalDays,
+        quantity: dept.totalQuantity / totalDays,
+      },
+      weekly: {
+        amount: (dept.totalAmount / totalDays) * 7,
+        quantity: (dept.totalQuantity / totalDays) * 7,
+      },
+      monthly: {
+        amount: (dept.totalAmount / totalDays) * 30.4375,
+        quantity: (dept.totalQuantity / totalDays) * 30.4375,
+      },
+      fuels,
+    };
+  });
+
+  const selectedDepartmentAnalytics = selectedDepartmentId
+    ? departments.find((d) => d.departmentId === selectedDepartmentId)
+    : undefined;
+
+  return {
+    totalBatchesProcessed: batchCount,
+    departments,
+    selectedDepartmentAnalytics,
+    analizedPeriod: {
+      days: remainDays,
+      weeks: totalWeeks,
+      months: totalMonths,
+    },
+  };
 };

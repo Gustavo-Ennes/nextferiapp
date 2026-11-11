@@ -2,7 +2,7 @@ import { FuelingBatchRepository } from "@/lib/repository/fuelingBatch/fuelingBat
 import { FuelingBatchViewPage } from "./pageClient";
 
 export default async function FuelingBatchServerPage() {
-  const { data: fuelingBatches } = await FuelingBatchRepository.find({});
+  const fuelingBatches = await FuelingBatchRepository.findWithoutPagination();
 
   return <FuelingBatchViewPage fuelingBatches={fuelingBatches} />;
 }

@@ -4,7 +4,7 @@ import { Grid, TextField, Button, Tooltip } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { startOfDay, toDate } from "date-fns";
 import { useFuelingBatchForm } from "@/context/FuelingBatchFormContext";
-import type { KeyboardEvent } from "react";
+import { useEffect, type KeyboardEvent } from "react";
 import { checkInvoiceFuelQuantity, sortVehicleFuelings } from "../../utils";
 import type { FuelDTO, FuelingBatchDTOVehicle } from "@/dto";
 import type { TotalFuels } from "@/models/types";
@@ -38,6 +38,14 @@ export const TabFormFuelings = ({
     fuelName: (fuel as FuelDTO)?.name,
     quantity: quantity + sum(fuelings.map((f) => f.quantity)),
   });
+
+  useEffect(() => {
+    console.log(
+      "🚀 ~ TabFormFuelings ~ [date, quantity, fuel, description, prefix]:",
+      JSON.stringify([date, quantity, fuel, description, prefix], null, 2),
+    );
+  }, [date, quantity, fuel, description, prefix]);
+
   const canAddFueling =
     !!date &&
     quantity > 0 &&

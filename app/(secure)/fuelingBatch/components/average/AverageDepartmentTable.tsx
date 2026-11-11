@@ -34,10 +34,10 @@ export const AverageDepartmentTable = ({
 
         <TableBody>
           {rows.map((r, i) => (
-            <TableRow key={`${toDate(r.weekStart).toISOString()}-${i}`}>
-              <TableCell>{format(toDate(r.weekStart), "dd/MM/yy")}</TableCell>
+            <TableRow key={`${toDate(r.createdAt).toISOString()}-${i}`}>
+              <TableCell>{format(toDate(r.createdAt), "dd/MM/yy")}</TableCell>
               {fuels.map((fuel) => (
-                <TableCell key={`${r.weekStart}-${fuel._id}`}>
+                <TableCell key={`${r.createdAt}-${fuel._id}`}>
                   {r[fuel.name] ?? 0}
                 </TableCell>
               ))}

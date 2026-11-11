@@ -1,10 +1,9 @@
 "use client";
 
 import { Container, Grid, Paper, Typography } from "@mui/material";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { AverageHeader } from "../components/average/AverageHeader";
 import { AverageCharts } from "../components/average/AverageCharts";
-import { AverageDepartmentTabs } from "../components/average/AverageDepartmentTabs";
 import { flatten, uniq } from "ramda";
 import {
   ALL,
@@ -20,6 +19,7 @@ import type { DepartmentDTO, FuelingBatchDTO } from "@/dto";
 import type { FuelMixItem } from "../types";
 import { isSameDay, toDate } from "date-fns";
 import { startOfDaySP } from "@/app/utils";
+import { AverageDepartmentAnalyticsCard } from "../components/average/AverageDepartmentAnalyticsCard";
 
 export const FuelingBatchViewPage = ({
   fuelingBatches = [],
@@ -28,7 +28,6 @@ export const FuelingBatchViewPage = ({
 }) => {
   const [selectedDept, setSelectedDept] = useState<string>(ALL);
   const [selectedDate, setSelectedDate] = useState<string>(ALL);
-  const [tabIndex, setTabIndex] = useState(0);
 
   const filteredBatches = useMemo(() => {
     let _filteredBatches = fuelingBatches;
@@ -50,6 +49,13 @@ export const FuelingBatchViewPage = ({
     );
   }, [selectedDept, selectedDate]);
 
+  const selectedBatch = useMemo(() => {
+    const batch = fuelingBatches.find((b) =>
+      isSameDay(toDate(b.createdAt), toDate(selectedDate)),
+    );
+    return batch;
+  }, [selectedDate]);
+
   const departments = useMemo(() => {
     const departments = fuelingBatches.map((b) =>
       b.departments.map((d) => d.department as DepartmentDTO),
@@ -61,29 +67,6 @@ export const FuelingBatchViewPage = ({
   const fuelingBatchesDates = useMemo(() => {
     return fuelingBatches.map((b) => startOfDaySP(toDate(b.createdAt)));
   }, [fuelingBatches]);
-
-  const allDepartmentsInfo = useMemo(() => {
-    const departmentFilteredBatches =
-      selectedDept !== ALL
-        ? filteredBatches.filter((fb) =>
-            fb.departments
-              .map((d) => (d.department as DepartmentDTO)._id)
-              .includes(selectedDept),
-          )
-        : filteredBatches;
-
-    return departmentFilteredBatches;
-  }, [filteredBatches, selectedDept]);
-
-  /** 🔁 sincroniza aba com select */
-  useEffect(() => {
-    const allIsSelected = selectedDept === ALL;
-    const idx = allIsSelected
-      ? 0
-      : departments.findIndex((d) => d._id === selectedDept) + 1;
-
-    if (idx >= 0) setTabIndex(idx);
-  }, [selectedDept, departments]);
 
   const fuelMix: FuelMixItem[] = useMemo(() => {
     return getFuelMix({
@@ -125,23 +108,20 @@ export const FuelingBatchViewPage = ({
     });
   }, [filteredBatches]);
 
-  /** 🔹 Valor total da semana, por filtros */
+  /** 🔹 Valor total da semana ou todo, por filtros */
   const totalValue = useMemo(() => {
-    return allDepartmentsInfo.reduce(
-      (fuelingBatchesSum, s: FuelingBatchDTO) => {
-        return (
-          fuelingBatchesSum +
-          s.departments.reduce((deptSum, d) => {
-            if (selectedDept === ALL) return deptSum + d.totals.totalValue;
-
-            return selectedDept === (d.department as DepartmentDTO)._id
-              ? deptSum + d.totals.totalValue
-              : deptSum;
-          }, 0)
+    if (selectedDept !== ALL) {
+      return filteredBatches.reduce((fuelingBatchesSum, s: FuelingBatchDTO) => {
+        const dept = s.departments.find(
+          (d) => (d.department as DepartmentDTO)._id === selectedDept,
         );
-      },
-      0,
-    );
+        return fuelingBatchesSum + (dept?.totals?.totalValue || 0);
+      }, 0);
+    } else {
+      return filteredBatches.reduce((fuelingBatchesSum, s: FuelingBatchDTO) => {
+        return fuelingBatchesSum + s.totals.totalValue;
+      }, 0);
+    }
   }, [filteredBatches, selectedDept]);
 
   return (
@@ -185,11 +165,9 @@ export const FuelingBatchViewPage = ({
           </Grid>
           {/* LISTAGEM */}
           <Grid size={12}>
-            <AverageDepartmentTabs
-              departments={departments}
-              fuelingBatches={fuelingBatches}
-              tabIndex={tabIndex}
-              onChange={(newIndex: number) => setTabIndex(newIndex)}
+            <AverageDepartmentAnalyticsCard
+              fuelingBatches={selectedBatch ? [selectedBatch] : fuelingBatches}
+              selectedDepartmentId={selectedDept}
             />
           </Grid>
         </Grid>

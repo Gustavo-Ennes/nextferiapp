@@ -96,6 +96,7 @@ export const Tab = ({
 
     if (invoice.items?.[0]?.fuel) {
       const fuel = fuels.find((f) => f._id === invoice.items?.[0]?.fuel) ?? "";
+      console.log("🚀 ~ onAddInvoice ~ fuel:", fuel)
       setLastInvoiceFuel(fuel);
       setVehicleForm({ ...vehicleForm, fuel });
       setInnerTabValue(

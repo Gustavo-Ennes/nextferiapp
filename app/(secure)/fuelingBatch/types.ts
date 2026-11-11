@@ -129,3 +129,39 @@ export type FuelingBatchHeaderParam = {
   fuels: FuelDTO[];
   setFuelingBatch: Dispatch<SetStateAction<FuelingBatchDTO>>;
 };
+
+export interface AverageDepartmentAnalyticsCardProps {
+  fuelingBatches: FuelingBatchDTO[];
+  selectedDepartmentId?: string;
+  loading?: boolean;
+}
+export interface MetricAverages {
+  daily: { amount: number; quantity: number };
+  weekly: { amount: number; quantity: number };
+  monthly: { amount: number; quantity: number };
+}
+
+export interface FuelAggregateStats extends MetricAverages {
+  fuelName: string;
+  totalAmount: number;
+  totalQuantity: number;
+  percentageByQuantity: number;
+}
+
+export interface DepartmentFuelAnalytics extends MetricAverages {
+  departmentId: string;
+  departmentName: string;
+  totalBatches: number;
+  fuels: FuelAggregateStats[];
+}
+
+export interface AnalyticsPayload {
+  totalBatchesProcessed: number;
+  departments: DepartmentFuelAnalytics[];
+  selectedDepartmentAnalytics?: DepartmentFuelAnalytics;
+  analizedPeriod?: {
+    days: number;
+    weeks: number;
+    months: number;
+  }
+}
