@@ -30,7 +30,6 @@ export const TabFormInfo = ({
     setVehicleForm,
     dateInputRef,
     vehicleEquipInputRef,
-    lastInvoiceFuel,
   } = useFuelingBatchForm();
 
   useEffect(() => {
@@ -100,11 +99,7 @@ export const TabFormInfo = ({
           <Select
             size="small"
             name="fuelType"
-            value={
-              (vehicleForm.fuel as FuelDTO)?._id ??
-              (lastInvoiceFuel as FuelDTO)?._id ??
-              ""
-            }
+            value={(vehicleForm.fuel as FuelDTO)?._id}
             label="Combustível"
             onChange={(e) => {
               const fuel = fuels.find((f) => f._id === e.target.value);

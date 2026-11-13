@@ -4,7 +4,7 @@ import { Grid, TextField, Button, Tooltip } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { startOfDay, toDate } from "date-fns";
 import { useFuelingBatchForm } from "@/context/FuelingBatchFormContext";
-import { useEffect, type KeyboardEvent } from "react";
+import { type KeyboardEvent } from "react";
 import { checkInvoiceFuelQuantity, sortVehicleFuelings } from "../../utils";
 import type { FuelDTO, FuelingBatchDTOVehicle } from "@/dto";
 import type { TotalFuels } from "@/models/types";

@@ -137,9 +137,8 @@ export const FuelingBatchForm = ({
           message: `Novo lote atualizado com sucesso!`,
           severity: "success",
         });
+        setFuelingBatch(returnedFuelingBatch);
       }
-
-      setFuelingBatch(returnedFuelingBatch);
     } catch (error) {
       addSnack({
         message: `Houve um erro com a ${action}, veja os logs para mais detalhes.`,

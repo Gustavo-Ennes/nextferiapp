@@ -65,7 +65,9 @@ export const FuelingBatchFormProvider = ({
     _setVehicleForm({
       description: car?.vehicle ?? "",
       prefix: car?.prefix ?? 0,
-      fuel: (car?.fuel as FuelDTO) ?? lastInvoiceFuel ?? vehicleForm.fuel ?? "",
+      fuel: car
+        ? (car?.fuel as FuelDTO)
+        : (lastInvoiceFuel ?? vehicleForm.fuel ?? ""),
       fuelings: sortCarFuelings([...(car?.fuelings ?? [])]),
     });
 

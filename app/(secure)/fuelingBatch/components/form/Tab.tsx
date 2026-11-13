@@ -29,7 +29,7 @@ export const Tab = ({
 }: FuelingBatchTabProps) => {
   const { openConfirmationDialog } = useDialog();
   const [innerTabValue, setInnerTabValue] = useState(
-    `${(fuelingBatchDepartment?.department as DepartmentDTO)?._id}-invoices`,
+    `${(fuelingBatchDepartment?.department as DepartmentDTO)?._id}-${fuelingBatchDepartment.invoices.length > 0 ? "form" : "invoices"}`,
   );
   const {
     selectedCar,
